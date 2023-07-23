@@ -1,6 +1,6 @@
 -- vulkan
 add_requires("vulkan-hpp", "vulkansdk", "vulkan-loader")
-add_requires("vulkan-validationlayers")
+add_requires("vulkan-validationlayers") 
 
 -- vulkan and opengl
 add_requires("glm", "glfw")

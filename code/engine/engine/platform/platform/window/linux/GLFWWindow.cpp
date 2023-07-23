@@ -16,6 +16,7 @@ void platform::GLFWWindow::init(int argc, char** argv)
     ZONG_INFO("GLFWWindow::init()");
 
 #ifdef DEBUG
+    // [need add vulkan-validationlayers to path](https://github.com/xmake-io/xmake-repo/issues/1455)
     _enableValidationLayers = true;
 #endif
 
