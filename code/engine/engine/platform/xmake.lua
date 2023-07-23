@@ -6,6 +6,7 @@ target("platform")
 
     set_kind("static")
 
+    set_pcxxheader("platform/pch.hpp")
     add_headerfiles("./**/*.hpp")
     add_files("./**/*.cpp")
     add_includedirs(".", {public = true}) 
