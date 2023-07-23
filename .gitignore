@@ -1,0 +1,25 @@
+# Xmake cache
+.xmake/
+build/
+vsxmake2022/
+install/
+
+# MacOS cache
+.DS_Store
+
+# Visual cache
+.vs/
+
+# Doxygen cache
+*.lnk
+html/
+latex/
+
+# VSCode cache
+.vscode/
+
+# Test code 
+test/
+
+# Log cache
+*.log
