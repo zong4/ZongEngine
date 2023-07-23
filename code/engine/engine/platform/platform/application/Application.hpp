@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "../window/Window.hpp"
 #include "platform/pch.hpp"
 
@@ -11,17 +9,19 @@ namespace platform
 class Application : public core::Uncopyable
 {
 protected:
-    std::unique_ptr<Window> m_window;
+    std::unique_ptr<Window> _window = nullptr;
 
 public:
-    Application(int argc, char** argv);
+    Application()          = default;
     virtual ~Application() = default;
 
-    virtual void Init() = 0;
-    virtual void Run()  = 0;
-    virtual void Exit() = 0;
+    virtual void run() = 0;
+
+private:
+    virtual void init(int argc, char** argv) = 0;
+    virtual void exit()                      = 0;
 };
 
-extern std::unique_ptr<Application> CreateApplicationPtr(int argc, char** argv);
+extern Application* CreateApplicationPtr(int argc, char** argv);
 
 } // namespace platform

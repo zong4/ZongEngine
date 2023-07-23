@@ -1,4 +1,4 @@
 #pragma once
 
-#include "core/core.hpp"
-#include "platform/platform.hpp"
+#include <core/core.hpp>
+#include <platform/platform.hpp>

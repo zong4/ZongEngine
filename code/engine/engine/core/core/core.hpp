@@ -1,4 +1,5 @@
 #pragma once
 
-#include "debug/log/Log.hpp"
+#include "instrumentor/InstrumentorMacro.hpp"
+#include "log/Log.hpp"
 #include "utils/Uncopyable.hpp"

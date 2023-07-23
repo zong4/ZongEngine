@@ -6,14 +6,16 @@ class Editor : public platform::Application
 {
 public:
     Editor(int argc, char** argv);
-    virtual ~Editor() = default;
+    virtual ~Editor();
 
-    virtual void Init() override;
-    virtual void Run() override;
-    virtual void Exit() override;
+    virtual void run() override;
+
+private:
+    virtual void init(int argc, char** argv) override;
+    virtual void exit() override;
 };
 
-std::unique_ptr<platform::Application> platform::CreateApplicationPtr(int argc, char** argv)
+platform::Application* platform::CreateApplicationPtr(int argc, char** argv)
 {
-    return std::make_unique<Editor>(argc, argv);
+    return new Editor(argc, argv);
 }

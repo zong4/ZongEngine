@@ -1,5 +1,7 @@
 #pragma once
 
+#include "platform/pch.hpp"
+
 namespace platform
 {
 
@@ -9,9 +11,11 @@ public:
     Window(int argc, char** argv);
     virtual ~Window() = default;
 
-    virtual void Init() = 0;
-    virtual void Run()  = 0;
-    virtual void Exit() = 0;
+    virtual void run() = 0;
+
+private:
+    virtual void init(int argc, char** argv) = 0;
+    virtual void exit()                      = 0;
 };
 
 extern std::unique_ptr<Window> CreateWindowPtr(int argc, char** argv);

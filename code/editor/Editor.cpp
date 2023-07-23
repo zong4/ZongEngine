@@ -1,26 +1,37 @@
 #include "Editor.hpp"
 
-Editor::Editor(int argc, char** argv) : Application(argc, argv)
+Editor::Editor(int argc, char** argv) : Application()
 {
+    ZONG_PROFILE_FUNCTION();
+
+    init(argc, argv);
 }
 
-void Editor::Init()
+Editor::~Editor()
 {
-    ZONG_INFO("Editor::Init()");
+    ZONG_PROFILE_FUNCTION();
 
-    m_window->Init();
+    exit();
 }
 
-void Editor::Run()
+void Editor::init(int argc, char** argv)
 {
-    ZONG_INFO("Editor::Run()");
+    ZONG_PROFILE_FUNCTION();
+    ZONG_INFO("Editor::init()");
 
-    m_window->Run();
+    _window = platform::CreateWindowPtr(argc, argv);
 }
 
-void Editor::Exit()
+void Editor::run()
 {
-    ZONG_INFO("Editor::Exit()");
+    ZONG_PROFILE_FUNCTION();
+    ZONG_INFO("Editor::run()");
 
-    m_window->Exit();
+    _window->run();
+}
+
+void Editor::exit()
+{
+    ZONG_PROFILE_FUNCTION();
+    ZONG_INFO("Editor::exit()");
 }
