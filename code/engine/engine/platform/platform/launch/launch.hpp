@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv)
 {
-    std::unique_ptr<Application> app = CreateApplication(argc, argv);
+    std::unique_ptr<platform::Application> app = platform::CreateApplicationPtr(argc, argv);
 
     app->Init();
     app->Run();

@@ -2,7 +2,7 @@
 
 #include "engine/engine.hpp"
 
-class Editor : public Application
+class Editor : public platform::Application
 {
 public:
     Editor(int argc, char** argv);
@@ -13,7 +13,7 @@ public:
     virtual void Exit() override;
 };
 
-std::unique_ptr<Application> CreateApplication(int argc, char** argv)
+std::unique_ptr<platform::Application> platform::CreateApplicationPtr(int argc, char** argv)
 {
     return std::make_unique<Editor>(argc, argv);
 }

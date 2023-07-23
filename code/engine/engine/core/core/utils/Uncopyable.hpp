@@ -1,5 +1,8 @@
 #pragma once
 
+namespace core
+{
+
 class Uncopyable
 {
 protected:
@@ -13,3 +16,5 @@ private:
     Uncopyable& operator=(Uncopyable const&);
     Uncopyable& operator=(Uncopyable&&);
 };
+
+} // namespace core

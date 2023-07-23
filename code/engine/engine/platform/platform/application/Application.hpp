@@ -2,12 +2,15 @@
 
 #include <memory>
 
+#include "../window/Window.hpp"
 #include "platform/pch.hpp"
-#include "platform/window/Window.hpp"
 
-class Application : public Uncopyable
+namespace platform
 {
-private:
+
+class Application : public core::Uncopyable
+{
+protected:
     std::unique_ptr<Window> m_window;
 
 public:
@@ -19,4 +22,6 @@ public:
     virtual void Exit() = 0;
 };
 
-extern std::unique_ptr<Application> CreateApplication(int argc, char** argv);
+extern std::unique_ptr<Application> CreateApplicationPtr(int argc, char** argv);
+
+} // namespace platform
