@@ -2,14 +2,14 @@
 
 Editor::Editor(int argc, char** argv) : Application()
 {
-    ZONG_PROFILE_FUNCTION();
+    // ZONG_PROFILE_FUNCTION();
 
     init(argc, argv);
 }
 
 Editor::~Editor()
 {
-    ZONG_PROFILE_FUNCTION();
+    // ZONG_PROFILE_FUNCTION();
 
     exit();
 }

@@ -7,6 +7,10 @@ namespace platform
 
 class Window : public core::Uncopyable
 {
+protected:
+    uint32_t _width  = 1280;
+    uint32_t _height = 720;
+
 public:
     Window(int argc, char** argv);
     virtual ~Window() = default;
