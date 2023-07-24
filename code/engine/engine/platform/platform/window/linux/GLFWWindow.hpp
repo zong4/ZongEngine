@@ -11,6 +11,62 @@ namespace platform
 class GLFWWindow : public Window
 {
 private:
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        bool isComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+    };
+
+    struct SwapChainSupportDetails
+    {
+        VkSurfaceCapabilitiesKHR        capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR>   presentModes;
+    };
+
+    struct Vertex
+    {
+        glm::vec2 pos;
+        glm::vec3 color;
+
+        static VkVertexInputBindingDescription getBindingDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding   = 0;
+            bindingDescription.stride    = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+        {
+            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+            attributeDescriptions[0].binding  = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format   = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset   = offsetof(Vertex, pos);
+
+            attributeDescriptions[1].binding  = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset   = offsetof(Vertex, color);
+
+            return attributeDescriptions;
+        }
+    };
+
+    struct UniformBufferObject
+    {
+        alignas(16) glm::mat4 model;
+        alignas(16) glm::mat4 view;
+        alignas(16) glm::mat4 proj;
+    };
+
+private:
     GLFWwindow*  _window = nullptr;
     VkInstance   _instance;
     VkSurfaceKHR _surface;
@@ -50,24 +106,31 @@ private:
     // Callback
     bool _framebufferResized = false;
 
+    // Vertex
+    VkBuffer       _vertexBuffer;
+    VkDeviceMemory _vertexBufferMemory;
+    VkBuffer       _indexBuffer;
+    VkDeviceMemory _indexBufferMemory;
+
+    // Descriptor
+    VkDescriptorSetLayout        _descriptorSetLayout;
+    VkDescriptorPool             _descriptorPool;
+    std::vector<VkDescriptorSet> _descriptorSets;
+
+    // Uniform
+    std::vector<VkBuffer>       _uniformBuffers;
+    std::vector<VkDeviceMemory> _uniformBuffersMemory;
+    std::vector<void*>          _uniformBuffersMapped;
+
     const std::vector<const char*> _validationLayers    = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> _deviceExtensions    = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     const int                      MAX_FRAMES_IN_FLIGHT = 2;
+    const std::vector<Vertex>      vertices             = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                                           {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                                           {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                                           {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
 
-    struct QueueFamilyIndices
-    {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
-
-        bool isComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
-    };
-
-    struct SwapChainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR        capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR>   presentModes;
-    };
+    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 public:
     inline void setFramebufferResized(bool value) { _framebufferResized = value; }
@@ -125,6 +188,23 @@ private:
 
     // Fence
     void createSyncObjects();
+
+    // Vertex
+    void     createVertexBuffer();
+    void     createIndexBuffer();
+    void     createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer,
+                          VkDeviceMemory& bufferMemory);
+    void     copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+    // Descriptor
+    void createDescriptorSetLayout();
+    void createDescriptorPool();
+    void createDescriptorSets();
+
+    // Uniform
+    void createUniformBuffers();
+    void updateUniformBuffer(uint32_t currentImage);
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,
