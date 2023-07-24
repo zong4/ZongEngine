@@ -6,14 +6,14 @@ add_requires("vulkan-validationlayers")
 add_requires("glm", "glfw")
 
 -- common
-add_requires("stb")
+add_requires("stb", "assimp")
 
 target("platform")
     add_deps("core")
     add_packages("vulkan-hpp", "vulkansdk", "vulkan-loader", {public = true}) 
     add_packages("vulkan-validationlayers", {public = true})
     add_packages("glm", "glfw", {public = true})
-    add_packages("stb", {public = true})
+    add_packages("stb", "assimp", {public = true})
 
     set_kind("static")
 

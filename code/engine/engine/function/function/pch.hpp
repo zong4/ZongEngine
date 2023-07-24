@@ -1,7 +1,5 @@
 #pragma once
 
 #include <core/core.hpp>
-#include <function/function.hpp>
 #include <platform/platform.hpp>
 #include <resource/resource.hpp>
-

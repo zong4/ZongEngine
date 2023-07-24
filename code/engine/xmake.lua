@@ -1,10 +1,12 @@
 -- includes sub-projects
 includes("engine/core",
-         "engine/platform"
+         "engine/platform",
+         "engine/resource",
+         "engine/function"
          )
 
 target("engine")
-    add_deps("core", "platform")
+    add_deps("core", "platform", "resource", "function")
 
     set_kind("static")
 
