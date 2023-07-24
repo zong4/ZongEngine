@@ -72,6 +72,7 @@ void zong::platform::GLFWWindow::initVulkan()
     ZONG_PROFILE_FUNCTION();
 
     createInstance();
+    setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
@@ -270,6 +271,34 @@ void zong::platform::GLFWWindow::populateDebugMessengerCreateInfo(VkDebugUtilsMe
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
+}
+
+void zong::platform::GLFWWindow::setupDebugMessenger()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    if (!_enableValidationLayers)
+        return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
+
+    if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to set up debug messenger!");
+}
+
+VkResult zong::platform::GLFWWindow::CreateDebugUtilsMessengerEXT(VkInstance                                instance,
+                                                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                                  const VkAllocationCallbacks*              pAllocator,
+                                                                  VkDebugUtilsMessengerEXT*                 pDebugMessenger)
+{
+    ZONG_PROFILE_FUNCTION();
+
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr)
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    else
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 void zong::platform::GLFWWindow::pickPhysicalDevice()

@@ -79,7 +79,8 @@ private:
     VkSurfaceKHR _surface;
 
     // Validation layers
-    bool _enableValidationLayers = false;
+    bool                     _enableValidationLayers = false;
+    VkDebugUtilsMessengerEXT _debugMessenger;
 
     // Device
     VkPhysicalDevice      _physicalDevice = VK_NULL_HANDLE;
@@ -178,6 +179,9 @@ private:
     bool                     checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();
     void                     populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    void                     setupDebugMessenger();
+    VkResult                 CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                          const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 
     // Device
     void               pickPhysicalDevice();
