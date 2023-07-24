@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../window/Window.hpp"
-#include "platform/pch.hpp"
 
 namespace zong
 {
