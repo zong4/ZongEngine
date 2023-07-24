@@ -30,8 +30,19 @@ private:
     std::vector<VkImageView> _swapChainImageViews;
 
     // Renderer
-    VkRenderPass     _renderPass;
-    VkPipelineLayout _pipelineLayout;
+    VkRenderPass               _renderPass;
+    VkPipelineLayout           _pipelineLayout;
+    VkPipeline                 _graphicsPipeline;
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
+
+    // Command
+    VkCommandPool   _commandPool;
+    VkCommandBuffer _commandBuffer;
+
+    // Fence
+    VkSemaphore _imageAvailableSemaphore;
+    VkSemaphore _renderFinishedSemaphore;
+    VkFence     _inFlightFence;
 
     const std::vector<const char*> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -59,6 +70,7 @@ public:
 
 private:
     void init(int argc, char** argv) override;
+    void drawFrame();
     void exit() override;
 
 private:
@@ -92,6 +104,15 @@ private:
     void           createRenderPass();
     void           createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
+    void           createFramebuffers();
+
+    // Command
+    void createCommandPool();
+    void createCommandBuffer();
+    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    // Fence
+    void createSyncObjects();
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,

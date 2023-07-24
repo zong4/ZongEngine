@@ -31,9 +31,11 @@ void platform::GLFWWindow::run()
 
     while (!glfwWindowShouldClose(_window))
     {
-        glfwSwapBuffers(_window);
         glfwPollEvents();
+        drawFrame();
     }
+
+    vkDeviceWaitIdle(_device);
 }
 
 void platform::GLFWWindow::exit()
@@ -68,12 +70,26 @@ void platform::GLFWWindow::initVulkan()
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
+    createFramebuffers();
+    createCommandPool();
+    createCommandBuffer();
+    createSyncObjects();
 }
 
 void platform::GLFWWindow::exitVulkan()
 {
     ZONG_PROFILE_FUNCTION();
 
+    vkDestroySemaphore(_device, _renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(_device, _imageAvailableSemaphore, nullptr);
+    vkDestroyFence(_device, _inFlightFence, nullptr);
+
+    vkDestroyCommandPool(_device, _commandPool, nullptr);
+
+    for (auto&& framebuffer : _swapChainFramebuffers)
+        vkDestroyFramebuffer(_device, framebuffer, nullptr);
+
+    vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
     vkDestroyRenderPass(_device, _renderPass, nullptr);
 
@@ -511,12 +527,22 @@ void platform::GLFWWindow::createRenderPass()
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments    = &colorAttachmentRef;
 
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass    = 0;
+    dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = 1;
     renderPassInfo.pAttachments    = &colorAttachment;
     renderPassInfo.subpassCount    = 1;
     renderPassInfo.pSubpasses      = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies   = &dependency;
 
     if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
         ZONG_CORE_CRITICAL("Failed to create render pass!");
@@ -606,6 +632,25 @@ void platform::GLFWWindow::createGraphicsPipeline()
     if (vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
         ZONG_CORE_CRITICAL("Failed to create pipeline layout!");
 
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount          = 2;
+    pipelineInfo.pStages             = shaderStages;
+    pipelineInfo.pVertexInputState   = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState      = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState   = &multisampling;
+    pipelineInfo.pColorBlendState    = &colorBlending;
+    pipelineInfo.pDynamicState       = &dynamicState;
+    pipelineInfo.layout              = _pipelineLayout;
+    pipelineInfo.renderPass          = _renderPass;
+    pipelineInfo.subpass             = 0;
+    pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
+
+    if (vkCreateGraphicsPipelines(_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to create graphics pipeline!");
+
     vkDestroyShaderModule(_device, fragShaderModule, nullptr);
     vkDestroyShaderModule(_device, vertShaderModule, nullptr);
 }
@@ -624,6 +669,166 @@ VkShaderModule platform::GLFWWindow::createShaderModule(const std::vector<char>&
         ZONG_CORE_CRITICAL("Failed to create shader module!");
 
     return shaderModule;
+}
+
+void platform::GLFWWindow::createFramebuffers()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    _swapChainFramebuffers.resize(_swapChainImageViews.size());
+    for (size_t i = 0; i < _swapChainImageViews.size(); i++)
+    {
+        VkImageView attachments[] = {_swapChainImageViews[i]};
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass      = _renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments    = attachments;
+        framebufferInfo.width           = _swapChainExtent.width;
+        framebufferInfo.height          = _swapChainExtent.height;
+        framebufferInfo.layers          = 1;
+
+        if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
+            ZONG_CORE_CRITICAL("Failed to create framebuffer!");
+    }
+}
+
+void platform::GLFWWindow::createCommandPool()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
+
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+    if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to create command pool!");
+}
+
+void platform::GLFWWindow::createCommandBuffer()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool        = _commandPool;
+    allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    if (vkAllocateCommandBuffers(_device, &allocInfo, &_commandBuffer) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to allocate command buffers!");
+}
+
+void platform::GLFWWindow::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+{
+    ZONG_PROFILE_FUNCTION();
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to begin recording command buffer!");
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass        = _renderPass;
+    renderPassInfo.framebuffer       = _swapChainFramebuffers[imageIndex];
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = _swapChainExtent;
+
+    VkClearValue clearColor        = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues    = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
+
+    VkViewport viewport{};
+    viewport.x        = 0.0f;
+    viewport.y        = 0.0f;
+    viewport.width    = (float)_swapChainExtent.width;
+    viewport.height   = (float)_swapChainExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = _swapChainExtent;
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+    vkCmdEndRenderPass(commandBuffer);
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to record command buffer!");
+}
+
+void platform::GLFWWindow::createSyncObjects()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS ||
+        vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS ||
+        vkCreateFence(_device, &fenceInfo, nullptr, &_inFlightFence) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to create synchronization objects for a frame!");
+}
+
+void platform::GLFWWindow::drawFrame()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    vkWaitForFences(_device, 1, &_inFlightFence, VK_TRUE, UINT64_MAX);
+    vkResetFences(_device, 1, &_inFlightFence);
+
+    uint32_t imageIndex;
+    vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    vkResetCommandBuffer(_commandBuffer, /*VkCommandBufferResetFlagBits*/ 0);
+    recordCommandBuffer(_commandBuffer, imageIndex);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore          waitSemaphores[] = {_imageAvailableSemaphore};
+    VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount         = 1;
+    submitInfo.pWaitSemaphores            = waitSemaphores;
+    submitInfo.pWaitDstStageMask          = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &_commandBuffer;
+
+    VkSemaphore signalSemaphores[]  = {_renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores    = signalSemaphores;
+
+    if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFence) != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to submit draw command buffer!");
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores    = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {_swapChain};
+    presentInfo.swapchainCount  = 1;
+    presentInfo.pSwapchains     = swapChains;
+    presentInfo.pImageIndices   = &imageIndex;
+
+    vkQueuePresentKHR(_presentQueue, &presentInfo);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL platform::GLFWWindow::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
