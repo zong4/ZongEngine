@@ -239,7 +239,6 @@ private:
     void        createTextureImageView();
     void        createTextureSampler();
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
-    void        transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void        copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
     // Depth

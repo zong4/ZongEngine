@@ -806,7 +806,10 @@ void zong::platform::GLFWWindow::createFramebuffers()
         framebufferInfo.layers          = 1;
 
         if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
+        {
             ZONG_CORE_CRITICAL("Failed to create framebuffer!");
+            return;
+        }
     }
 }
 
@@ -1584,7 +1587,7 @@ void zong::platform::GLFWWindow::loadModel()
     std::vector<tinyobj::material_t> materials;
     std::string                      warn, err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (_rootPath + "code/editor/models/SK_Succubus_Lucia.obj").c_str()))
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (_rootPath + "code/editor/models/box.obj").c_str()))
     {
         ZONG_CORE_CRITICAL("Failed to load model! {0}", err);
         return;
