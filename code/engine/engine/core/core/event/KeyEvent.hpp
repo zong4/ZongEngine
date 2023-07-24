@@ -14,7 +14,7 @@ private:
     KeyCode _keyCode;
 
 public:
-    inline KeyCode keyCode() const { return _keyCode; }
+    inline KeyCode getKeyCode() const { return _keyCode; }
 
 protected:
     KeyEvent(KeyCode const keycode) : Event(), _keyCode(keycode) {}
@@ -29,7 +29,7 @@ private:
     bool _isRepeat;
 
 public:
-    bool isRepeat() const { return _isRepeat; }
+    bool getIsRepeat() const { return _isRepeat; }
 
 public:
     KeyPressedEvent(KeyCode const keycode, bool isRepeat = false) : KeyEvent(keycode), _isRepeat(isRepeat) {}

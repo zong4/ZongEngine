@@ -7,14 +7,14 @@
 std::shared_ptr<spdlog::logger> zong::core::Log::_coreLogger   = nullptr;
 std::shared_ptr<spdlog::logger> zong::core::Log::_clientLogger = nullptr;
 
-const std::shared_ptr<spdlog::logger>& zong::core::Log::coreLogger()
+const std::shared_ptr<spdlog::logger>& zong::core::Log::getCoreLogger()
 {
     if (!_coreLogger)
         init();
     return Log::_coreLogger;
 }
 
-const std::shared_ptr<spdlog::logger>& zong::core::Log::clientLogger()
+const std::shared_ptr<spdlog::logger>& zong::core::Log::getClientLogger()
 {
     if (!_clientLogger)
         init();

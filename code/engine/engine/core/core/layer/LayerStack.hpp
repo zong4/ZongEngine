@@ -10,7 +10,6 @@ namespace core
 class LayerStack
 {
 private:
-    // TODO: add inline get
     unsigned int        _layerInsertIndex;
     std::vector<Layer*> _layers; // TODO: maybe it can be stack
 

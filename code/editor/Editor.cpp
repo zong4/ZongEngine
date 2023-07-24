@@ -19,7 +19,7 @@ void Editor::init(int argc, char** argv)
     ZONG_PROFILE_FUNCTION();
     ZONG_INFO("Editor::init()");
 
-    _window = platform::CreateWindowPtr(argc, argv);
+    _window = zong::platform::CreateWindowPtr(argc, argv);
 }
 
 void Editor::run()

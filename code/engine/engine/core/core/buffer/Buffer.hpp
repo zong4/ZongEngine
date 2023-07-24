@@ -12,8 +12,8 @@ namespace core
 // Non-owning raw buffer class
 struct Buffer
 {
-    uint8_t* _data = nullptr;
-    uint64_t _size = 0;
+    uint8_t* data = nullptr;
+    uint64_t size = 0;
 
     Buffer() = default;
     Buffer(uint64_t size) { allocate(size); }

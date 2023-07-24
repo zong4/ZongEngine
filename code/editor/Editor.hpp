@@ -2,7 +2,7 @@
 
 #include "engine/engine.hpp"
 
-class Editor : public platform::Application
+class Editor : public zong::platform::Application
 {
 public:
     Editor(int argc, char** argv);
@@ -15,7 +15,7 @@ private:
     virtual void exit() override;
 };
 
-platform::Application* platform::CreateApplicationPtr(int argc, char** argv)
+zong::platform::Application* zong::platform::CreateApplicationPtr(int argc, char** argv)
 {
     return new Editor(argc, argv);
 }

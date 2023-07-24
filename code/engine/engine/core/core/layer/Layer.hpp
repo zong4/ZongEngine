@@ -14,7 +14,7 @@ private:
     std::string _name;
 
 public:
-    inline std::string name() const { return _name; }
+    inline std::string getName() const { return _name; }
 
 public:
     Layer(std::string const& name = "Layer") : _name(name) {}

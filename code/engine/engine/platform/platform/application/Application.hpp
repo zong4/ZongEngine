@@ -3,6 +3,8 @@
 #include "../window/Window.hpp"
 #include "platform/pch.hpp"
 
+namespace zong
+{
 namespace platform
 {
 
@@ -25,3 +27,4 @@ private:
 extern Application* CreateApplicationPtr(int argc, char** argv);
 
 } // namespace platform
+} // namespace zong

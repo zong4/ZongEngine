@@ -2,7 +2,7 @@
 
 #include "linux/GLFWWindow.hpp"
 
-platform::Window::Window(int argc, char** argv)
+zong::platform::Window::Window(int argc, char** argv)
 {
     std::string str(argv[0]);
     _rootPath = str.substr(0, str.find("build"));
@@ -14,7 +14,7 @@ platform::Window::Window(int argc, char** argv)
 #endif
 }
 
-std::unique_ptr<platform::Window> platform::CreateWindowPtr(int argc, char** argv)
+std::unique_ptr<zong::platform::Window> zong::platform::CreateWindowPtr(int argc, char** argv)
 {
 #ifdef WINDOWS
     return std::make_unique<GLFWWindow>(argc, argv);

@@ -1,16 +1,16 @@
 #include "GLFWWindow.hpp"
 
-platform::GLFWWindow::GLFWWindow(int argc, char** argv) : Window(argc, argv)
+zong::platform::GLFWWindow::GLFWWindow(int argc, char** argv) : Window(argc, argv)
 {
     init(argc, argv);
 }
 
-platform::GLFWWindow::~GLFWWindow()
+zong::platform::GLFWWindow::~GLFWWindow()
 {
     exit();
 }
 
-void platform::GLFWWindow::init(int argc, char** argv)
+void zong::platform::GLFWWindow::init(int argc, char** argv)
 {
     ZONG_PROFILE_FUNCTION();
     ZONG_INFO("GLFWWindow::init()");
@@ -20,11 +20,11 @@ void platform::GLFWWindow::init(int argc, char** argv)
     _enableValidationLayers = true;
 #endif
 
-    createWindow(argc, argv);
+    initWindow(argc, argv);
     initVulkan();
 }
 
-void platform::GLFWWindow::run()
+void zong::platform::GLFWWindow::run()
 {
     ZONG_PROFILE_FUNCTION();
     ZONG_INFO("GLFWWindow::run()");
@@ -38,7 +38,7 @@ void platform::GLFWWindow::run()
     vkDeviceWaitIdle(_device);
 }
 
-void platform::GLFWWindow::exit()
+void zong::platform::GLFWWindow::exit()
 {
     ZONG_PROFILE_FUNCTION();
     ZONG_INFO("GLFWWindow::exit()");
@@ -49,16 +49,19 @@ void platform::GLFWWindow::exit()
     glfwTerminate();
 }
 
-void platform::GLFWWindow::createWindow(int argc, char** argv)
+void zong::platform::GLFWWindow::initWindow(int argc, char** argv)
 {
     ZONG_PROFILE_FUNCTION();
 
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     _window = glfwCreateWindow(_width, _height, "Engine", nullptr, nullptr);
+
+    glfwSetWindowUserPointer(_window, this);
+    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 }
 
-void platform::GLFWWindow::initVulkan()
+void zong::platform::GLFWWindow::initVulkan()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -72,37 +75,47 @@ void platform::GLFWWindow::initVulkan()
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
-    createCommandBuffer();
+    createCommandBuffers();
     createSyncObjects();
 }
 
-void platform::GLFWWindow::exitVulkan()
+void zong::platform::GLFWWindow::exitVulkan()
 {
     ZONG_PROFILE_FUNCTION();
 
-    vkDestroySemaphore(_device, _renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(_device, _imageAvailableSemaphore, nullptr);
-    vkDestroyFence(_device, _inFlightFence, nullptr);
-
-    vkDestroyCommandPool(_device, _commandPool, nullptr);
-
-    for (auto&& framebuffer : _swapChainFramebuffers)
-        vkDestroyFramebuffer(_device, framebuffer, nullptr);
+    exitSwapChain();
 
     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
     vkDestroyRenderPass(_device, _renderPass, nullptr);
 
-    for (auto&& imageView : _swapChainImageViews)
-        vkDestroyImageView(_device, imageView, nullptr);
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(_device, _inFlightFences[i], nullptr);
+    }
 
-    vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+    vkDestroyCommandPool(_device, _commandPool, nullptr);
     vkDestroyDevice(_device, nullptr);
     vkDestroySurfaceKHR(_instance, _surface, nullptr);
     vkDestroyInstance(_instance, nullptr);
 }
 
-void platform::GLFWWindow::createInstance()
+void zong::platform::GLFWWindow::exitSwapChain()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    for (auto framebuffer : _swapChainFramebuffers)
+        vkDestroyFramebuffer(_device, framebuffer, nullptr);
+
+    for (auto imageView : _swapChainImageViews)
+        vkDestroyImageView(_device, imageView, nullptr);
+
+    vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+}
+
+void zong::platform::GLFWWindow::createInstance()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -148,7 +161,7 @@ void platform::GLFWWindow::createInstance()
         ZONG_CORE_CRITICAL("Failed to create instance!");
 }
 
-void platform::GLFWWindow::createSurface()
+void zong::platform::GLFWWindow::createSurface()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -156,7 +169,7 @@ void platform::GLFWWindow::createSurface()
         ZONG_CORE_CRITICAL("Failed to create window surface!");
 }
 
-bool platform::GLFWWindow::checkValidationLayerSupport()
+bool zong::platform::GLFWWindow::checkValidationLayerSupport()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -185,7 +198,7 @@ bool platform::GLFWWindow::checkValidationLayerSupport()
     return true;
 }
 
-std::vector<const char*> platform::GLFWWindow::getRequiredExtensions()
+std::vector<const char*> zong::platform::GLFWWindow::getRequiredExtensions()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -200,7 +213,7 @@ std::vector<const char*> platform::GLFWWindow::getRequiredExtensions()
     return extensions;
 }
 
-void platform::GLFWWindow::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+void zong::platform::GLFWWindow::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -213,7 +226,7 @@ void platform::GLFWWindow::populateDebugMessengerCreateInfo(VkDebugUtilsMessenge
     createInfo.pfnUserCallback = debugCallback;
 }
 
-void platform::GLFWWindow::pickPhysicalDevice()
+void zong::platform::GLFWWindow::pickPhysicalDevice()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -239,7 +252,7 @@ void platform::GLFWWindow::pickPhysicalDevice()
         ZONG_CORE_CRITICAL("Failed to find a suitable GPU!");
 }
 
-bool platform::GLFWWindow::isDeviceSuitable(VkPhysicalDevice device)
+bool zong::platform::GLFWWindow::isDeviceSuitable(VkPhysicalDevice device)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -256,7 +269,7 @@ bool platform::GLFWWindow::isDeviceSuitable(VkPhysicalDevice device)
     return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
-bool platform::GLFWWindow::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool zong::platform::GLFWWindow::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -276,7 +289,7 @@ bool platform::GLFWWindow::checkDeviceExtensionSupport(VkPhysicalDevice device)
     return requiredExtensions.empty();
 }
 
-platform::GLFWWindow::QueueFamilyIndices platform::GLFWWindow::findQueueFamilies(VkPhysicalDevice device)
+zong::platform::GLFWWindow::QueueFamilyIndices zong::platform::GLFWWindow::findQueueFamilies(VkPhysicalDevice device)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -309,7 +322,7 @@ platform::GLFWWindow::QueueFamilyIndices platform::GLFWWindow::findQueueFamilies
     return indices;
 }
 
-void platform::GLFWWindow::createLogicalDevice()
+void zong::platform::GLFWWindow::createLogicalDevice()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -354,7 +367,7 @@ void platform::GLFWWindow::createLogicalDevice()
     vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
 }
 
-void platform::GLFWWindow::createSwapChain()
+void zong::platform::GLFWWindow::createSwapChain()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -406,7 +419,7 @@ void platform::GLFWWindow::createSwapChain()
     _swapChainExtent      = extent;
 }
 
-VkSurfaceFormatKHR platform::GLFWWindow::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+VkSurfaceFormatKHR zong::platform::GLFWWindow::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -419,7 +432,7 @@ VkSurfaceFormatKHR platform::GLFWWindow::chooseSwapSurfaceFormat(const std::vect
     return availableFormats[0];
 }
 
-VkPresentModeKHR platform::GLFWWindow::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+VkPresentModeKHR zong::platform::GLFWWindow::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -432,7 +445,7 @@ VkPresentModeKHR platform::GLFWWindow::chooseSwapPresentMode(const std::vector<V
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D platform::GLFWWindow::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+VkExtent2D zong::platform::GLFWWindow::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -451,7 +464,7 @@ VkExtent2D platform::GLFWWindow::chooseSwapExtent(const VkSurfaceCapabilitiesKHR
     }
 }
 
-platform::GLFWWindow::SwapChainSupportDetails platform::GLFWWindow::querySwapChainSupport(VkPhysicalDevice device)
+zong::platform::GLFWWindow::SwapChainSupportDetails zong::platform::GLFWWindow::querySwapChainSupport(VkPhysicalDevice device)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -477,7 +490,7 @@ platform::GLFWWindow::SwapChainSupportDetails platform::GLFWWindow::querySwapCha
     return details;
 }
 
-void platform::GLFWWindow::createImageViews()
+void zong::platform::GLFWWindow::createImageViews()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -504,7 +517,28 @@ void platform::GLFWWindow::createImageViews()
     }
 }
 
-void platform::GLFWWindow::createRenderPass()
+void zong::platform::GLFWWindow::recreateSwapChain()
+{
+    ZONG_PROFILE_FUNCTION();
+
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(_window, &width, &height);
+    while (width == 0 || height == 0)
+    {
+        glfwGetFramebufferSize(_window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(_device);
+
+    exitSwapChain();
+
+    createSwapChain();
+    createImageViews();
+    createFramebuffers();
+}
+
+void zong::platform::GLFWWindow::createRenderPass()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -548,7 +582,7 @@ void platform::GLFWWindow::createRenderPass()
         ZONG_CORE_CRITICAL("Failed to create render pass!");
 }
 
-void platform::GLFWWindow::createGraphicsPipeline()
+void zong::platform::GLFWWindow::createGraphicsPipeline()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -655,7 +689,7 @@ void platform::GLFWWindow::createGraphicsPipeline()
     vkDestroyShaderModule(_device, vertShaderModule, nullptr);
 }
 
-VkShaderModule platform::GLFWWindow::createShaderModule(const std::vector<char>& code)
+VkShaderModule zong::platform::GLFWWindow::createShaderModule(const std::vector<char>& code)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -671,7 +705,7 @@ VkShaderModule platform::GLFWWindow::createShaderModule(const std::vector<char>&
     return shaderModule;
 }
 
-void platform::GLFWWindow::createFramebuffers()
+void zong::platform::GLFWWindow::createFramebuffers()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -694,7 +728,7 @@ void platform::GLFWWindow::createFramebuffers()
     }
 }
 
-void platform::GLFWWindow::createCommandPool()
+void zong::platform::GLFWWindow::createCommandPool()
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -709,21 +743,23 @@ void platform::GLFWWindow::createCommandPool()
         ZONG_CORE_CRITICAL("Failed to create command pool!");
 }
 
-void platform::GLFWWindow::createCommandBuffer()
+void zong::platform::GLFWWindow::createCommandBuffers()
 {
     ZONG_PROFILE_FUNCTION();
+
+    _commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool        = _commandPool;
     allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
+    allocInfo.commandBufferCount = (uint32_t)_commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(_device, &allocInfo, &_commandBuffer) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(_device, &allocInfo, _commandBuffers.data()) != VK_SUCCESS)
         ZONG_CORE_CRITICAL("Failed to allocate command buffers!");
 }
 
-void platform::GLFWWindow::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+void zong::platform::GLFWWindow::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -769,9 +805,13 @@ void platform::GLFWWindow::recordCommandBuffer(VkCommandBuffer commandBuffer, ui
         ZONG_CORE_CRITICAL("Failed to record command buffer!");
 }
 
-void platform::GLFWWindow::createSyncObjects()
+void zong::platform::GLFWWindow::createSyncObjects()
 {
     ZONG_PROFILE_FUNCTION();
+
+    _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -780,42 +820,53 @@ void platform::GLFWWindow::createSyncObjects()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphore) != VK_SUCCESS ||
-        vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphore) != VK_SUCCESS ||
-        vkCreateFence(_device, &fenceInfo, nullptr, &_inFlightFence) != VK_SUCCESS)
-        ZONG_CORE_CRITICAL("Failed to create synchronization objects for a frame!");
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(_device, &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS)
+            ZONG_CORE_CRITICAL("Failed to create synchronization objects for a frame!");
+    }
 }
 
-void platform::GLFWWindow::drawFrame()
+void zong::platform::GLFWWindow::drawFrame()
 {
     ZONG_PROFILE_FUNCTION();
 
-    vkWaitForFences(_device, 1, &_inFlightFence, VK_TRUE, UINT64_MAX);
-    vkResetFences(_device, 1, &_inFlightFence);
+    vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result =
+        vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-    vkResetCommandBuffer(_commandBuffer, /*VkCommandBufferResetFlagBits*/ 0);
-    recordCommandBuffer(_commandBuffer, imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        recreateSwapChain();
+        return;
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        ZONG_CORE_CRITICAL("Failed to acquire swap chain image!");
+
+    vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
+    vkResetCommandBuffer(_commandBuffers[_currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+    recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore          waitSemaphores[] = {_imageAvailableSemaphore};
+    VkSemaphore          waitSemaphores[] = {_imageAvailableSemaphores[_currentFrame]};
     VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount         = 1;
     submitInfo.pWaitSemaphores            = waitSemaphores;
     submitInfo.pWaitDstStageMask          = waitStages;
+    submitInfo.commandBufferCount         = 1;
+    submitInfo.pCommandBuffers            = &_commandBuffers[_currentFrame];
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers    = &_commandBuffer;
-
-    VkSemaphore signalSemaphores[]  = {_renderFinishedSemaphore};
+    VkSemaphore signalSemaphores[]  = {_renderFinishedSemaphores[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signalSemaphores;
 
-    if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFence) != VK_SUCCESS)
+    if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS)
         ZONG_CORE_CRITICAL("Failed to submit draw command buffer!");
 
     VkPresentInfoKHR presentInfo{};
@@ -828,13 +879,22 @@ void platform::GLFWWindow::drawFrame()
     presentInfo.pSwapchains     = swapChains;
     presentInfo.pImageIndices   = &imageIndex;
 
-    vkQueuePresentKHR(_presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(_presentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized)
+    {
+        _framebufferResized = false;
+        recreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
+        ZONG_CORE_CRITICAL("Failed to present swap chain image!");
+
+    _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL platform::GLFWWindow::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
-                                                                   VkDebugUtilsMessageTypeFlagsEXT             messageType,
-                                                                   const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                                   void*                                       pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL zong::platform::GLFWWindow::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,
+                                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                                         void*                                       pUserData)
 {
     ZONG_PROFILE_FUNCTION();
     ZONG_CORE_ERROR("validation layer: {0}", pCallbackData->pMessage);
@@ -842,7 +902,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL platform::GLFWWindow::debugCallback(VkDebugUtilsM
     return VK_FALSE;
 }
 
-std::vector<char> platform::GLFWWindow::readFile(const std::string& filename)
+std::vector<char> zong::platform::GLFWWindow::readFile(const std::string& filename)
 {
     ZONG_PROFILE_FUNCTION();
 
@@ -859,4 +919,12 @@ std::vector<char> platform::GLFWWindow::readFile(const std::string& filename)
     file.close();
 
     return buffer;
+}
+
+void zong::platform::GLFWWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+{
+    ZONG_PROFILE_FUNCTION();
+
+    auto app = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+    app->setFramebufferResized(true);
 }

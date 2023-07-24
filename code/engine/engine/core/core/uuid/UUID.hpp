@@ -19,7 +19,7 @@ public:
     UUID();
     UUID(uint64_t uuid) : _uuid(uuid) {}
 
-    // inline operator uint64_t() const { return uuid(); }
+    inline operator uint64_t() const { return uuid(); }
 };
 
 } // namespace core

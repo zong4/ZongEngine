@@ -13,8 +13,8 @@ private:
     unsigned int _width, _height;
 
 public:
-    unsigned int width() const { return _width; }
-    unsigned int height() const { return _height; }
+    unsigned int getWidth() const { return _width; }
+    unsigned int getHeight() const { return _height; }
 
 public:
     WindowResizeEvent(unsigned int width, unsigned int height) : Event(), _width(width), _height(height) {}

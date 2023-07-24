@@ -16,8 +16,8 @@ private:
 public:
     MouseMovedEvent(float const x, float const y) : Event(), _mouseX(x), _mouseY(y) {}
 
-    inline float x() const { return _mouseX; }
-    inline float y() const { return _mouseY; }
+    inline float getX() const { return _mouseX; }
+    inline float getY() const { return _mouseY; }
 
     EVENT_CLASS_TYPE(MouseMoved)
     EVENT_CLASS_CATEGORY(static_cast<EventCategory>(EventCategory::EventCategoryMouse | EventCategory::EventCategoryInput))
@@ -33,8 +33,8 @@ private:
     float _xOffset, _yOffset;
 
 public:
-    inline float xOffset() const { return _xOffset; }
-    inline float yOffset() const { return _yOffset; }
+    inline float getXOffset() const { return _xOffset; }
+    inline float getYOffset() const { return _yOffset; }
 
 public:
     MouseScrolledEvent(float const xOffset, float const yOffset) : Event(), _xOffset(xOffset), _yOffset(yOffset) {}
@@ -56,7 +56,7 @@ private:
     MouseCode _button;
 
 public:
-    inline MouseCode button() const { return _button; }
+    inline MouseCode getButton() const { return _button; }
 
 protected:
     MouseButtonEvent(const MouseCode button) : Event(), _button(button) {}

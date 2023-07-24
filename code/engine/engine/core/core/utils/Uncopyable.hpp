@@ -1,5 +1,7 @@
 #pragma once
 
+namespace zong
+{
 namespace core
 {
 
@@ -18,3 +20,4 @@ private:
 };
 
 } // namespace core
+} // namespace zong

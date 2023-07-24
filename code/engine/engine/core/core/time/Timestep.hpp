@@ -14,14 +14,14 @@ private:
     float _time;
 
 public:
-    inline float time() const { return _time; }
-    inline float seconds() const { return time(); }
-    inline float milliseconds() const { return time() * 1000.0f; }
+    inline float getTime() const { return _time; }
+    inline float getSeconds() const { return getTime(); }
+    inline float getMilliseconds() const { return getTime() * 1000.0f; }
 
 public:
     Timestep(float time = 0.0f) : _time(time) {}
 
-    inline operator float() const { return time(); }
+    inline operator float() const { return getTime(); }
 };
 
 } // namespace core

@@ -15,8 +15,8 @@ private:
     bool        _stopped;
 
 private:
-    inline std::string name() const { return _name; }
-    inline bool        stopped() const { return _stopped; }
+    inline std::string getName() const { return _name; }
+    inline bool        getStopped() const { return _stopped; }
 
     inline void setStopped(bool value) { _stopped = value; }
 

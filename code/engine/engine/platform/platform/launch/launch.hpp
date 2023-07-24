@@ -5,7 +5,7 @@
 int main(int argc, char** argv)
 {
     ZONG_PROFILE_BEGIN_SESSION("Startup", "Profile-Startup.json");
-    platform::Application* app = platform::CreateApplicationPtr(argc, argv);
+    zong::platform::Application* app = zong::platform::CreateApplicationPtr(argc, argv);
     ZONG_PROFILE_END_SESSION();
 
     ZONG_PROFILE_BEGIN_SESSION("Runtime", "Profile-Runtime.json");

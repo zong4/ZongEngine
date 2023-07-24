@@ -16,7 +16,7 @@ void zong::core::Instrumentor::beginSession(std::string const& name, std::string
         // subsequent profiling output meant for the original session will end up in the
         // newly opened session instead.
         // that's better than having badly formatted profiling output.
-        ZONG_CORE_ERROR("instrumentor::BeginSession('{0}') when session '{1}' already open.", name, _currentSession->_name);
+        ZONG_CORE_ERROR("instrumentor::BeginSession('{0}') when session '{1}' already open.", name, _currentSession->name);
         internalEndSession();
     }
 
@@ -46,12 +46,12 @@ void zong::core::Instrumentor::writeProfile(ProfileResult const& result)
     json << std::setprecision(3) << std::fixed;
     json << ",{";
     json << "\"cat\":\"function\",";
-    json << "\"dur\":" << (result._elapsedTime.count()) << ',';
-    json << "\"name\":\"" << result._name << "\",";
+    json << "\"dur\":" << (result.elapsedTime.count()) << ',';
+    json << "\"name\":\"" << result.name << "\",";
     json << "\"ph\":\"X\",";
     json << "\"pid\":0,";
-    json << "\"tid\":" << result._threadID << ",";
-    json << "\"ts\":" << result._start.count();
+    json << "\"tid\":" << result.threadID << ",";
+    json << "\"ts\":" << result.start.count();
     json << "}";
 
     std::lock_guard lock(_mutex);

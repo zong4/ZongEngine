@@ -3,6 +3,8 @@
 #include "../Window.hpp"
 #include "platform/pch.hpp"
 
+namespace zong
+{
 namespace platform
 {
 
@@ -36,16 +38,21 @@ private:
     std::vector<VkFramebuffer> _swapChainFramebuffers;
 
     // Command
-    VkCommandPool   _commandPool;
-    VkCommandBuffer _commandBuffer;
+    VkCommandPool                _commandPool;
+    std::vector<VkCommandBuffer> _commandBuffers;
 
     // Fence
-    VkSemaphore _imageAvailableSemaphore;
-    VkSemaphore _renderFinishedSemaphore;
-    VkFence     _inFlightFence;
+    std::vector<VkSemaphore> _imageAvailableSemaphores;
+    std::vector<VkSemaphore> _renderFinishedSemaphores;
+    std::vector<VkFence>     _inFlightFences;
+    uint32_t                 _currentFrame = 0;
 
-    const std::vector<const char*> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char*> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    // Callback
+    bool _framebufferResized = false;
+
+    const std::vector<const char*> _validationLayers    = {"VK_LAYER_KHRONOS_validation"};
+    const std::vector<const char*> _deviceExtensions    = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const int                      MAX_FRAMES_IN_FLIGHT = 2;
 
     struct QueueFamilyIndices
     {
@@ -63,6 +70,9 @@ private:
     };
 
 public:
+    inline void setFramebufferResized(bool value) { _framebufferResized = value; }
+
+public:
     GLFWWindow(int argc, char** argv);
     virtual ~GLFWWindow();
 
@@ -74,9 +84,10 @@ private:
     void exit() override;
 
 private:
-    void createWindow(int argc, char** argv);
+    void initWindow(int argc, char** argv);
     void initVulkan();
     void exitVulkan();
+    void exitSwapChain();
     void createInstance();
     void createSurface();
 
@@ -99,6 +110,7 @@ private:
     VkPresentModeKHR        chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void                    createImageViews();
+    void                    recreateSwapChain();
 
     // Renderer
     void           createRenderPass();
@@ -108,7 +120,7 @@ private:
 
     // Command
     void createCommandPool();
-    void createCommandBuffer();
+    void createCommandBuffers();
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     // Fence
@@ -119,6 +131,9 @@ private:
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
     static std::vector<char> readFile(const std::string& filename);
+
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
 
 } // namespace platform
+} // namespace zong

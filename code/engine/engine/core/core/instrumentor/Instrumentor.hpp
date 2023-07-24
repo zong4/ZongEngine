@@ -11,15 +11,15 @@ namespace core
 
 struct ProfileResult
 {
-    std::string     _name;
-    TIME_UNIT       _start;
-    TIME_UNIT       _elapsedTime;
-    std::thread::id _threadID;
+    std::string     name;
+    TIME_UNIT       start;
+    TIME_UNIT       elapsedTime;
+    std::thread::id threadID;
 };
 
 struct InstrumentationSession
 {
-    std::string _name;
+    std::string name;
 };
 
 /**
@@ -29,17 +29,17 @@ class Instrumentor
 {
 private:
     std::mutex              _mutex;
-    InstrumentationSession* _currentSession;
+    InstrumentationSession* _currentSession = nullptr;
     std::ofstream           _outputStream;
 
 private:
-    Instrumentor() : _currentSession(nullptr) {}
-    ~Instrumentor() { endSession(); }
+    Instrumentor() = default;
 
 public:
     Instrumentor(Instrumentor const&)            = delete;
     Instrumentor(Instrumentor&&)                 = delete;
     Instrumentor& operator=(Instrumentor const&) = delete;
+    ~Instrumentor() { endSession(); }
 
     static Instrumentor& instance();
 
@@ -50,7 +50,6 @@ public:
 
 private:
     void writeHeader();
-
     void writeFooter();
 
     // note: you must already own lock on m_Mutex before calling InternalEndSession()
