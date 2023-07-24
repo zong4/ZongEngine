@@ -15,6 +15,9 @@ protected:
     std::string _rootPath;
 
 public:
+    std::string const& getRootPath() const { return _rootPath; }
+
+public:
     Window(int argc, char** argv);
     virtual ~Window() = default;
 

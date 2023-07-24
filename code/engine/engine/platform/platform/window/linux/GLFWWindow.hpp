@@ -9,7 +9,7 @@ namespace platform
 
 class GLFWWindow : public Window
 {
-private:
+public:
     struct QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
@@ -62,6 +62,8 @@ private:
 
             return attributeDescriptions;
         }
+
+        bool operator==(const Vertex& other) const { return pos == other.pos && color == other.color && texCoord == other.texCoord; }
     };
 
     struct UniformBufferObject
@@ -80,10 +82,11 @@ private:
     bool _enableValidationLayers = false;
 
     // Device
-    VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
-    VkDevice         _device;
-    VkQueue          _graphicsQueue;
-    VkQueue          _presentQueue;
+    VkPhysicalDevice      _physicalDevice = VK_NULL_HANDLE;
+    VkDevice              _device;
+    VkSampleCountFlagBits _msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    VkQueue               _graphicsQueue;
+    VkQueue               _presentQueue;
 
     // Swap chain
     VkSwapchainKHR           _swapChain;
@@ -128,11 +131,15 @@ private:
     std::vector<void*>          _uniformBuffersMapped;
 
     // Image
+    VkImage        _colorImage;
+    VkDeviceMemory _colorImageMemory;
+    VkImageView    _colorImageView;
     VkImage        _depthImage;
     VkDeviceMemory _depthImageMemory;
     VkImageView    _depthImageView;
 
     // Texture
+    uint32_t       _mipLevels;
     VkImage        _textureImage;
     VkDeviceMemory _textureImageMemory;
     VkImageView    _textureImageView;
@@ -142,13 +149,8 @@ private:
     const std::vector<const char*> _deviceExtensions    = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     const int                      MAX_FRAMES_IN_FLIGHT = 2;
 
-    const std::vector<Vertex> _vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},  {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}, {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},   {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}};
-    const std::vector<uint16_t> _indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
+    std::vector<Vertex>   _vertices;
+    std::vector<uint32_t> _indices;
 
 public:
     inline void setFramebufferResized(bool value) { _framebufferResized = value; }
@@ -227,20 +229,28 @@ private:
     void updateUniformBuffer(uint32_t currentImage);
 
     // Texture
-    void        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-                            VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+    void                  generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+    VkSampleCountFlagBits getMaxUsableSampleCount();
+    void        transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+    void        createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format,
+                            VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
+                            VkDeviceMemory& imageMemory);
     void        createTextureImage();
     void        createTextureImageView();
     void        createTextureSampler();
-    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
     void        transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void        copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
     // Depth
+    void     createColorResources();
     void     createDepthResources();
     VkFormat findDepthFormat();
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     bool     hasStencilComponent(VkFormat format);
+
+    // Model
+    void loadModel();
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,
@@ -253,3 +263,15 @@ private:
 
 } // namespace platform
 } // namespace zong
+
+namespace std
+{
+template <>
+struct hash<zong::platform::GLFWWindow::Vertex>
+{
+    size_t operator()(zong::platform::GLFWWindow::Vertex const& vertex) const
+    {
+        return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+    }
+};
+} // namespace std
