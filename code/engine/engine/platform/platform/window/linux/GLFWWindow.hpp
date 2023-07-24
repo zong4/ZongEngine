@@ -29,6 +29,10 @@ private:
     VkExtent2D               _swapChainExtent;
     std::vector<VkImageView> _swapChainImageViews;
 
+    // Renderer
+    VkRenderPass     _renderPass;
+    VkPipelineLayout _pipelineLayout;
+
     const std::vector<const char*> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
@@ -84,9 +88,16 @@ private:
     VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void                    createImageViews();
 
+    // Renderer
+    void           createRenderPass();
+    void           createGraphicsPipeline();
+    VkShaderModule createShaderModule(const std::vector<char>& code);
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+
+    static std::vector<char> readFile(const std::string& filename);
 };
 
 } // namespace platform
