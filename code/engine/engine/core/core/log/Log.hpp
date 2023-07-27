@@ -39,7 +39,7 @@ public:
      * * ZONG_CORE_TRACE: basic information
      * * ZONG_CORE_INFO: need be optimized
      * * ZONG_CORE_WARN: should be solved
-     * * ZONG_CORE_ERROR: error
+     * * // ZONG_CORE_ERROR: error
      * * ZONG_CORE_CRITICAL: serious error
      * * ZONG_CORE_ASSERT: assert
      *

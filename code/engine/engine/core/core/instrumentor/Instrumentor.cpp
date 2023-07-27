@@ -16,7 +16,7 @@ void zong::core::Instrumentor::beginSession(std::string const& name, std::string
         // subsequent profiling output meant for the original session will end up in the
         // newly opened session instead.
         // that's better than having badly formatted profiling output.
-        ZONG_CORE_ERROR("instrumentor::BeginSession('{0}') when session '{1}' already open.", name, _currentSession->name);
+        // ZONG_CORE_ERROR("instrumentor::BeginSession('{0}') when session '{1}' already open.", name, _currentSession->name);
         internalEndSession();
     }
 
@@ -29,7 +29,7 @@ void zong::core::Instrumentor::beginSession(std::string const& name, std::string
     }
     else
     {
-        ZONG_CORE_ERROR("instrumentor could not open results file '{0}'.", filepath);
+        // ZONG_CORE_ERROR("instrumentor could not open results file '{0}'.", filepath);
     }
 }
 

@@ -1715,7 +1715,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL zong::platform::GLFWWindow::debugCallback(VkDebug
                                                                          void*                                       pUserData)
 {
     ZONG_PROFILE_FUNCTION();
-    ZONG_CORE_ERROR("validation layer: {0}", pCallbackData->pMessage);
+    // ZONG_CORE_ERROR("validation layer: {0}", pCallbackData->pMessage);
 
     return VK_FALSE;
 }

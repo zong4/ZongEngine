@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Event.h"
-#include "MouseCodes.h"
+#include "Event.hpp"
+#include "MouseCodes.hpp"
 
 namespace zong
 {
@@ -23,7 +23,7 @@ public:
     EVENT_CLASS_CATEGORY(static_cast<EventCategory>(EventCategory::EventCategoryMouse | EventCategory::EventCategoryInput))
 
 #ifdef DEBUG
-    inline std::string toString() const override { return "MouseMovedEvent: " + std::to_string(x()) + ", " + std::to_string(y()); }
+    inline std::string toString() const override { return "MouseMovedEvent: " + std::to_string(getX()) + ", " + std::to_string(getY()); }
 #endif
 };
 
@@ -45,7 +45,7 @@ public:
 #ifdef DEBUG
     inline std::string toString() const override
     {
-        return "MouseScrolledEvent: " + std::to_string(xOffset()) + ", " + std::to_string(yOffset());
+        return "MouseScrolledEvent: " + std::to_string(getXOffset()) + ", " + std::to_string(getYOffset());
     }
 #endif
 };
@@ -74,7 +74,7 @@ public:
     EVENT_CLASS_TYPE(MouseButtonPressed)
 
 #ifdef DEBUG
-    inline std::string toString() const override { return "MouseButtonPressedEvent: " + std::to_string(static_cast<int>(button())); }
+    inline std::string toString() const override { return "MouseButtonPressedEvent: " + std::to_string(static_cast<int>(getButton())); }
 #endif
 };
 
@@ -86,7 +86,7 @@ public:
     EVENT_CLASS_TYPE(MouseButtonReleased)
 
 #ifdef DEBUG
-    inline std::string toString() const override { return "MouseButtonReleasedEvent: " + std::to_string(static_cast<int>(button())); }
+    inline std::string toString() const override { return "MouseButtonReleasedEvent: " + std::to_string(static_cast<int>(getButton())); }
 #endif
 };
 

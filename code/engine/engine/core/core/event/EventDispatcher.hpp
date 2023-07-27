@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "Event.hpp"
 
 namespace zong
 {
@@ -25,9 +25,9 @@ public:
     template <typename T, typename F>
     inline bool dispatch(F const& func)
     {
-        if (_event.eventType() == T::staticType())
+        if (_event.getEventType() == T::getStaticType())
         {
-            _event.setHandled(_event.handled() | func(static_cast<T&>(_event)));
+            _event.setHandled(_event.getHandled() | func(static_cast<T&>(_event)));
             return true;
         }
         return false;

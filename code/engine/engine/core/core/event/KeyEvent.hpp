@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Event.h"
-#include "KeyCodes.h"
+#include "Event.hpp"
+#include "KeyCodes.hpp"
 
 namespace zong
 {
@@ -39,7 +39,7 @@ public:
 #ifdef DEBUG
     inline std::string toString() const override
     {
-        return "KeyPressedEvent: " + std::to_string(static_cast<int>(keyCode())) + " (repeat = " + std::to_string(isRepeat()) + ")";
+        return "KeyPressedEvent: " + std::to_string(static_cast<int>(getKeyCode())) + " (repeat = " + std::to_string(getIsRepeat()) + ")";
     }
 #endif
 };
@@ -52,7 +52,7 @@ public:
     EVENT_CLASS_TYPE(KeyReleased)
 
 #ifdef DEBUG
-    inline std::string toString() const override { return "KeyReleasedEvent: " + std::to_string(static_cast<int>(keyCode())); }
+    inline std::string toString() const override { return "KeyReleasedEvent: " + std::to_string(static_cast<int>(getKeyCode())); }
 #endif
 };
 
@@ -64,7 +64,7 @@ public:
     EVENT_CLASS_TYPE(KeyTyped)
 
 #ifdef DEBUG
-    inline std::string toString() const override { return "KeyTypedEvent: " + std::to_string(static_cast<int>(keyCode())); }
+    inline std::string toString() const override { return "KeyTypedEvent: " + std::to_string(static_cast<int>(getKeyCode())); }
 #endif
 };
 

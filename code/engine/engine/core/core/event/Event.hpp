@@ -2,6 +2,7 @@
 
 #include "EventCategory.hpp"
 #include "EventType.hpp"
+#include "core/pch.hpp"
 
 namespace zong
 {
@@ -43,7 +44,7 @@ public:
     }                                               \
     virtual EventType getEventType() const override \
     {                                               \
-        return staticType();                        \
+        return getStaticType();                     \
     }                                               \
     virtual std::string getName() const override    \
     {                                               \

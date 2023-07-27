@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "Event.hpp"
 
 namespace zong
 {
@@ -25,7 +25,7 @@ public:
 #ifdef DEBUG
     inline std::string toString() const override
     {
-        return "WindowResizeEvent: " + std::to_string(width()) + ", " + std::to_string(height());
+        return "WindowResizeEvent: " + std::to_string(getWidth()) + ", " + std::to_string(getHeight());
     }
 #endif
 };
