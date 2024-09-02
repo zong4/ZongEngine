@@ -1,0 +1,7 @@
+Animation:
+  AnimationSource: 4256841120731152137
+  SkeletonSource: 4256841120731152137
+  AnimationName: Running_B
+  FilterRootMotion: false
+  RootTranslationMask: [0, 0, 0]
+  RootRotationMask: [0, 0, 0]

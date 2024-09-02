@@ -1,0 +1,59 @@
+Scene: Bloom
+Entities:
+  - Entity: 9527487690881966655
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 1.49011612e-08, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 13283660788464938030
+      Intensity: 0.800000012
+      Lod: 1
+      DynamicSky: true
+      TurbidityAzimuthInclination: [3.20000005, 3.79999995, 0.400000006]
+  - Entity: 13509529931812575874
+    TagComponent:
+      Tag: BloomText
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-0.00596067216, 2.54517746, 4.7436572e-07]
+      Rotation: [0.120927811, -1.55656052, 1.4493562]
+      Scale: [1.00000036, 1, 1]
+    MeshComponent:
+      AssetID: 1156798854046566821
+      SubmeshIndex: 0
+      MaterialTable:
+        0: 6090468609339042727
+  - Entity: 13701050544246610648
+    TagComponent:
+      Tag: Camera
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-4.30000019, 2.672019, 0.00450015068]
+      Rotation: [0, -1.55665708, 0]
+      Scale: [0.999989808, 1, 0.999989808]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 28.1000023
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

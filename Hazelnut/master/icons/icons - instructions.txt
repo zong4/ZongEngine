@@ -1,0 +1,10 @@
+To create new icon:
+-----------------------
+1. Duplicate artboard.
+2. Make your shape inside of "SHAPE STYLING" folder.
+3. Create a SHADE shape which should compliment and/or match some geometric feature of your main shape, and somewhat indicate volume/depth.
+4. Make your SHADE shape clipping to the "CLIP SHADE TO" folder.
+
+5) You can check how your icon looks with tint by enabling and changing Color Overlay effect on the "SHAPE STYLING" folder.
+
+Tinting can be used in engine to indicate activation state (for example).

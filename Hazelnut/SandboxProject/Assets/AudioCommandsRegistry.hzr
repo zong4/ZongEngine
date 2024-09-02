@@ -1,0 +1,150 @@
+Triggers:
+  - DebugName: play_sound
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+  - DebugName: play_soundgraph
+    Actions:
+      - Type: Play
+        Target: 17207971976338702314
+        Context: GameObject
+  - DebugName: stop_object
+    Actions:
+      - Type: StopAll
+        Target: 0
+        Context: GameObject
+  - DebugName: play_humming_capsule
+    Actions:
+      - Type: Play
+        Target: 77242325597269194
+        Context: GameObject
+  - DebugName: play_test_01
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+  - DebugName: play_test_05
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+  - DebugName: pause_sound
+    Actions:
+      - Type: Pause
+        Target: 1558966051656197298
+        Context: GameObject
+      - Type: Stop
+        Target: 7452266498379741730
+        Context: GameObject
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+      - Type: Stop
+        Target: 1558966051656197298
+        Context: GameObject
+  - DebugName: play_sound2
+    Actions:
+      - Type: Play
+        Target: 9650976044382409798
+        Context: GameObject
+  - DebugName: play_sound_cone_top
+    Actions:
+      - Type: Play
+        Target: 15009684737818880502
+        Context: GameObject
+  - DebugName: play_footstep
+    Actions:
+      - Type: Play
+        Target: 9583568526989671259
+        Context: GameObject
+  - DebugName: play_amb_windy
+    Actions:
+      - Type: Play
+        Target: 1558966051656197298
+        Context: GameObject
+  - DebugName: resume_sound
+    Actions:
+      - Type: Resume
+        Target: 0
+        Context: GameObject
+  - DebugName: play_test_04
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+  - DebugName: play_sound_cube
+    Actions:
+      - Type: Play
+        Target: 15426746729834656513
+        Context: GameObject
+  - DebugName: stop_sound
+    Actions:
+      - Type: StopAll
+        Target: 0
+        Context: GameObject
+  - DebugName: play_component
+    Actions:
+      - Type: Play
+        Target: 9650976044382409798
+        Context: GameObject
+  - DebugName: stop_component
+    Actions:
+      - Type: Stop
+        Target: 9650976044382409798
+        Context: GameObject
+  - DebugName: play_test_02
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject
+  - DebugName: play_sound_area
+    Actions:
+      - Type: Play
+        Target: 6223803375270489531
+        Context: GameObject
+  - DebugName: play_flying_sphere
+    Actions:
+      - Type: Play
+        Target: 15061018486519086864
+        Context: GameObject
+  - DebugName: play_nonsoundgraph
+    Actions:
+      - Type: Play
+        Target: 286930305540671256
+        Context: GameObject
+  - DebugName: spatializer_stress
+    Actions:
+      - Type: Play
+        Target: 4029215348592173170
+        Context: GameObject
+  - DebugName: play_sound_cone
+    Actions:
+      - Type: Play
+        Target: 2144431724192485925
+        Context: GameObject
+  - DebugName: play_sound_sphere
+    Actions:
+      - Type: Play
+        Target: 1125348764119971728
+        Context: GameObject
+  - DebugName: play_flying_cube
+    Actions:
+      - Type: Play
+        Target: 12934117490652501854
+        Context: GameObject
+  - DebugName: play_amb_thunder
+    Actions:
+      - Type: Play
+        Target: 5343642556929506002
+        Context: GameObject
+  - DebugName: spread_focus_test
+    Actions:
+      - Type: Play
+        Target: 4263076323975630866
+        Context: GameObject
+  - DebugName: play_test_03
+    Actions:
+      - Type: Play
+        Target: 7452266498379741730
+        Context: GameObject

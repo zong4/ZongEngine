@@ -1,0 +1,100 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Text"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Text.002",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 28430,
+            "max" : [
+                1.8942890167236328,
+                1.0141379833221436,
+                0.09803999215364456
+            ],
+            "min" : [
+                -2.1722943782806396,
+                -0.7011817097663879,
+                -0.12196048349142075
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 28430,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 28430,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 145548,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 341160,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 341160,
+            "byteOffset" : 341160
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 227440,
+            "byteOffset" : 682320
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 291096,
+            "byteOffset" : 909760
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1200856,
+            "uri" : "HazelText.bin"
+        }
+    ]
+}

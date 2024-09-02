@@ -1,0 +1,24 @@
+AssetID: 4918112557500125981
+IsLooping: true
+VolumeMultiplier: 1
+PitchMultiplier: 1
+MasterReverbSend: 0
+LPFilterValue: 1
+HPFilterValue: 0
+Spatialization:
+  Enabled: false
+  AttenuationModel: 1
+  MinGain: 0
+  MaxGain: 1
+  MinDistance: 3
+  MaxDistance: 1000
+  ConeInnerAngle: 6.28318548
+  ConeOuterAngle: 6.28318548
+  ConeOuterGain: 0
+  DopplerFactor: 1
+  Rollor: 0.600000024
+  AirAbsorptionEnabled: true
+  SpreadFromSourceSize: true
+  SourceSize: 3
+  Spread: 1
+  Focus: 0.5

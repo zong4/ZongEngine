@@ -1,0 +1,370 @@
+Scene: Audio Testing
+Entities:
+  - Entity: 209400513085241139
+    TagComponent:
+      Tag: Spatialized Capsule
+    Parent: 0
+    Children:
+      - Handle: 3571789021302960549
+      - Handle: 13591809902568617452
+    TransformComponent:
+      Position: [-4.79067659, 1.25, -1.61826611e-05]
+      Rotation: [0, 0, 0]
+      Scale: [0.999983311, 1, 0.999983311]
+    ScriptComponent:
+      ClassHandle: 4254670298
+      Name: AudioTest.SpreadTest
+      StoredFields:
+        - ID: 2176863448
+          Name: SourceSize
+          Type: Float
+          Data: 3
+    StaticMeshComponent:
+      AssetID: 6794048458811322821
+      MaterialTable:
+        0: 0
+      Visible: true
+    AudioComponent:
+      StartEvent: spread_focus_test
+      StartCommandID: 3853370519
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 1
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 247099514217866787
+    TagComponent:
+      Tag: Floor
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, -0.49000001, 0]
+      Rotation: [0, 0, 0]
+      Scale: [26.7459946, 1, 23.3677616]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 917281836373121035
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 12622259258933804822
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 12235881377538634391
+    TransformComponent:
+      Position: [4.84976101, 1.38370681, 2.53372455]
+      Rotation: [0, -1.40094519, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1703576679
+      Name: Sandbox.FirstPersonController
+      StoredFields:
+        - ID: 442613449
+          Name: MovementSpeed
+          Type: Float
+          Data: 3
+        - ID: 944303073
+          Name: GamepadSensitivity
+          Type: Float
+          Data: 3
+        - ID: 4167077733
+          Name: MouseSensitivity
+          Type: Float
+          Data: 0.100000001
+        - ID: 1479820618
+          Name: JumpPower
+          Type: Float
+          Data: 5
+        - ID: 603041627
+          Name: ShootingCooldown
+          Type: Float
+          Data: 0.150000006
+        - ID: 692094311
+          Name: FootstepVolume
+          Type: Float
+          Data: 0.219999999
+        - ID: 280898344
+          Name: ProjectilePrefab
+          Type: Prefab
+          Data: 5349322122580055698
+        - ID: 3559253847
+          Name: m_CameraEntity
+          Type: Entity
+          Data: 12622259258933804822
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: false
+      SlopeLimit: 0
+      StepOffset: 0
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioListenerComponent:
+      Active: true
+      ConeInnerAngle: 6.28318501
+      ConeOuterAngle: 6.28318501
+      ConeOuterGain: 0
+  - Entity: 2016069215904392542
+    TagComponent:
+      Tag: Pan Debug
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [2, 1, 5]
+      Rotation: [0, 1.57079637, 0]
+      Scale: [0.999999762, 1, 0.999999762]
+    ScriptComponent:
+      ClassHandle: 4163720592
+      Name: AudioTest.Debug
+      StoredFields:
+        - ID: 3851063585
+          Name: interval
+          Type: Float
+          Data: 1
+        - ID: 3469607844
+          Name: TimeMultiplier
+          Type: Float
+          Data: 10
+        - ID: 1058244150
+          Name: SpeedMultiplier
+          Type: Float
+          Data: 1
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 12387183670818522676
+      Visible: true
+    AudioComponent:
+      StartEvent: spatializer_stress
+      StartCommandID: 3284180301
+      PlayOnAwake: false
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 1
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 3571789021302960549
+    TagComponent:
+      Tag: RightChannel
+    Parent: 209400513085241139
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.5, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.499999672, 0.5, 0.499999672]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 3067266531766851022
+      Visible: true
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 3943186802192709901
+    TagComponent:
+      Tag: _MOVING_OBJ
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.22665489, 1.39674091, -92.5809937]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 12387183670818522676
+      Visible: true
+  - Entity: 9010891156897511670
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [-2.04809928, -0.146673918, -3.13663149]
+      Scale: [0.999991655, 0.999999166, 0.999999642]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 12622259258933804822
+    TagComponent:
+      Tag: Camera
+    Parent: 917281836373121035
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 10715435798022469685
+    TransformComponent:
+      Position: [0, 0.787638187, 0]
+      Rotation: [0, 1.63912773e-07, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 60.0000038
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 13591809902568617452
+    TagComponent:
+      Tag: LeftChannel
+    Parent: 209400513085241139
+    Children:
+      []
+    TransformComponent:
+      Position: [1.5, -2.38418579e-07, 4.76837158e-07]
+      Rotation: [0, 0, 0]
+      Scale: [0.499999464, 0.5, 0.499999464]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 14156219787500874680
+    TagComponent:
+      Tag: Spatializer Stress Test
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [4.49537945, 3.64344382, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 594375617
+      Name: AudioTest.SpatializerStress
+      StoredFields:
+        - ID: 4241814760
+          Name: EnableTest
+          Type: Int32
+          Data: 0
+        - ID: 2787565363
+          Name: NumberOfObjects
+          Type: Int32
+          Data: 0
+        - ID: 3511687587
+          Name: SpawnOffset
+          Type: Vector2
+          Data: [0, 0]
+        - ID: 3223528185
+          Name: SpawnRange
+          Type: Vector2
+          Data: [0, 0]
+        - ID: 3392869644
+          Name: amplitude
+          Type: Float
+          Data: 100
+        - ID: 3428263462
+          Name: slope
+          Type: Float
+          Data: 8
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+  - Entity: 16055641903422369177
+    TagComponent:
+      Tag: Sound Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 1.5780642, -4.35760117]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 0.5
+      LinearDrag: 0
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    AudioComponent:
+      StartEvent: play_sound
+      StartCommandID: 156312632
+      PlayOnAwake: false
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 1
+      PitchMultiplier: 2
+      AutoDestroy: false
+  - Entity: 16189048305669213946
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 8760076623739549991
+      Intensity: 0.460000008
+      Lod: 1
+      DynamicSky: false
+  - Entity: 16876170588823210727
+    TagComponent:
+      Tag: Torus
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 4.5999999, -0.834443748]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 0
+      Visible: true
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 50
+    Room size: 0.754600108
+    Damping: 0.980000019
+    Width: 1

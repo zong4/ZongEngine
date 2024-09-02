@@ -1,0 +1,73 @@
+Prefab:
+  - Entity: 11149011976942116175
+    TagComponent:
+      Tag: Hit
+    Parent: 7279861357883752727
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 12664526321608038957
+      Entity: 11149011976942116175
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: true
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.0399999991, 0.0399999991, 0.109999999]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 7279861357883752727
+    TagComponent:
+      Tag: Bullet
+    Parent: 0
+    Children:
+      - Handle: 11149011976942116175
+    PrefabComponent:
+      Prefab: 12664526321608038957
+      Entity: 7279861357883752727
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 10456784991617266774
+      MaterialTable:
+        0: 0
+        1: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 2
+      EnableDynamicTypeChange: false
+      Mass: 0.0500000007
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, -0.00499999989]
+      HalfSize: [0.0359999985, 0.0359999985, 0.109999999]
+      Friction: 0.5
+      Restitution: 0.150000006

@@ -1,0 +1,196 @@
+Scene: Sandbox2D
+Entities:
+  - Entity: 139771586971900388
+    TagComponent:
+      Tag: Plane
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [15.1000004, 4.5999999, 0]
+      Rotation: [1.57079637, 0, 0]
+      Scale: [30.7999992, 1, 1]
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 0
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 668706040765723887
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 0
+      Intensity: 0.730000019
+      Lod: 11
+      DynamicSky: true
+      TurbidityAzimuthInclination: [2, 0.49000001, 4.78000021]
+  - Entity: 1303162172740027976
+    TagComponent:
+      Tag: Camera
+    Parent: 15807094622788521010
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 34.9000015]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 6331724761525517734
+    TagComponent:
+      Tag: Plane
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.57079637, 0, 0]
+      Scale: [30.7999992, 1, 1]
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 0
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 7951494843848014149
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.39626336, 0.17453292, 0]
+      Scale: [1, 1, 1]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 9042784745121206935
+    TagComponent:
+      Tag: Platform2D
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-14.3000002, 10.5, 0]
+      Rotation: [1.57079637, 0, 0]
+      Scale: [1, 1, 15.1999998]
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 0
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 7.5999999]
+      Density: 1
+      Friction: 1
+  - Entity: 15807094622788521010
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 1303162172740027976
+    TransformComponent:
+      Position: [-8.3710289, 3.03280735, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 2359813173
+      StoredFields:
+        - ID: 3113426854
+          Name: PlayerController2D.PlayerController2D:Speed
+          Type: 12
+          Data: 15
+        - ID: 1914794974
+          Name: PlayerController2D.PlayerController2D:WallJumpSpeed
+          Type: 12
+          Data: 20
+        - ID: 3456760618
+          Name: PlayerController2D.PlayerController2D:JumpForce
+          Type: 12
+          Data: 19
+        - ID: 3210621800
+          Name: PlayerController2D.PlayerController2D:JumpMultiplier
+          Type: 12
+          Data: 10
+        - ID: 1981861931
+          Name: PlayerController2D.PlayerController2D:FallMultiplier
+          Type: 12
+          Data: 16
+        - ID: 3708164210
+          Name: PlayerController2D.PlayerController2D:DashForce
+          Type: 12
+          Data: 100
+        - ID: 402247813
+          Name: PlayerController2D.PlayerController2D:TimeToDash
+          Type: 12
+          Data: 1
+        - ID: 116574125
+          Name: PlayerController2D.PlayerController2D:WallClimbSpeed
+          Type: 12
+          Data: 3
+        - ID: 2345571824
+          Name: PlayerController2D.PlayerController2D:Jumps
+          Type: 8
+          Data: 2
+        - ID: 84701826
+          Name: PlayerController2D.PlayerController2D:MaximumDashSteps
+          Type: 8
+          Data: 25
+        - ID: 1902721859
+          Name: PlayerController2D.PlayerController2D:MaximumDashWaitSteps
+          Type: 8
+          Data: 3
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: true
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

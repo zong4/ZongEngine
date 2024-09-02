@@ -1,0 +1,10 @@
+Project:
+  Name: $PROJECT_NAME$
+  AssetDirectory: Assets
+  AssetRegistry: Assets/AssetRegistry.hzr
+  AudioCommandsRegistryPath: Assets/AudioCommandsRegistry.hzr
+  MeshPath: Assets/Meshes
+  MeshSourcePath: Assets/Meshes/Source
+  ScriptModulePath: Assets/Scripts/Binaries
+  DefaultNamespace: $PROJECT_NAME$
+  StartScene: Scenes\Main.hscene

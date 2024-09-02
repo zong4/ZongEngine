@@ -1,0 +1,41 @@
+Prefab:
+  - Entity: 211370591592045876
+    TagComponent:
+      Tag: Prefab Test
+    Parent: 0
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 3698012614985289450
+      Entity: 211370591592045876
+    TransformComponent:
+      Position: [-1.62381756, 3.36672449, -6.82532644]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ModuleName: Sandbox.Testing
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBodyComponent:
+      BodyType: 1
+      Mass: 1
+      LinearDrag: 0
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsKinematic: false
+      Layer: 0
+      CollisionDetection: 0
+      Constraints:
+        LockPositionX: false
+        LockPositionY: false
+        LockPositionZ: false
+        LockRotationX: false
+        LockRotationY: false
+        LockRotationZ: false
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      Size: [1, 1, 1]
+      IsTrigger: false
+      Material: 16439609029200836181

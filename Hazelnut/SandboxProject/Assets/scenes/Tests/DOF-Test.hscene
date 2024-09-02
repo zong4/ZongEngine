@@ -1,0 +1,489 @@
+Scene: DOF-Test
+Entities:
+  - Entity: 1889654734142300923
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.54144657, -0.453332663, -1.54291773]
+      Rotation: [0.0920614451, 0.0836822912, -0.146357656]
+      Scale: [0.321200043, 2.40387678, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 2449302003950295007
+    TagComponent:
+      Tag: Camera
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [6.10351562e-05, 0.850116253, 4.51937962]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1298505179
+      StoredFields:
+        - ID: 912396961
+          Name: Tests.DOFTest:DOFTarget
+          Type: 18
+          Data: 15006289408770013759
+        - ID: 2345271216
+          Name: Tests.DOFTest:m_Time
+          Type: 12
+          Data: 0
+        - ID: 2335311716
+          Name: Tests.DOFTest:m_DOFOrigEnabled
+          Type: 2
+          Data: false
+        - ID: 2988332721
+          Name: Tests.DOFTest:m_DOFOrigBlurSize
+          Type: 12
+          Data: 0
+        - ID: 4227212098
+          Name: Tests.DOFTest:m_DOFOrigFocusDistance
+          Type: 12
+          Data: 0
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 3125095952268163619
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, -2.32361889]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 4499304522475704000
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, 0.676381111]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 5078516489191173278
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 0
+      Intensity: 0.270000011
+      Lod: 0
+      DynamicSky: true
+      TurbidityAzimuthInclination: [5.30000019, -2.54999995, 1.23000002]
+  - Entity: 5189934479040248326
+    TagComponent:
+      Tag: Floor
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [0, -0.0724411309, 0]
+      Rotation: [0, -0, 0]
+      Scale: [15.7300329, 0.132717133, 15.2797995]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 5899243553183947739
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.48648524, -0.535524249, -0.751765072]
+      Rotation: [0.0778078511, 0.0970889106, -0.302601576]
+      Scale: [0.321200043, 2.40387678, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 6308323477429773643
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.46536613, -0.552367628, -4.21051359]
+      Rotation: [-0.0289993826, 0.0788748786, -0.0763601735]
+      Scale: [0.321200013, 2.40387654, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 8115239461527016984
+    TagComponent:
+      Tag: Point Light
+    Parent: 15006289408770013759
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [20, 20, 20]
+    PointLightComponent:
+      Radiance: [1, 1, 1]
+      Intensity: 0.349999994
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 1.29999995
+      LightSize: 0.5
+      Falloff: 0
+  - Entity: 8939080543919379939
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.62146485, -0.819904685, 0.515405357]
+      Rotation: [0.1530101, 0.0753661022, -0.0469875559]
+      Scale: [0.321200013, 2.40387654, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 11995151537668021559
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, -4.32361889]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 12823205791370285228
+    TagComponent:
+      Tag: SceneGeo
+    Parent: 0
+    Children:
+      - Handle: 15620666148158676081
+      - Handle: 16071855388964023112
+      - Handle: 16514051464396863099
+      - Handle: 18138528884226607590
+      - Handle: 18291405240961598053
+      - Handle: 18347652005820674814
+      - Handle: 6308323477429773643
+      - Handle: 8939080543919379939
+      - Handle: 11995151537668021559
+      - Handle: 13550969880831586341
+      - Handle: 13955233510914412981
+      - Handle: 14270431430458228575
+      - Handle: 5899243553183947739
+      - Handle: 4499304522475704000
+      - Handle: 1889654734142300923
+      - Handle: 3125095952268163619
+      - Handle: 5189934479040248326
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 13550969880831586341
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, -0.823618889]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 13955233510914412981
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.49808943, -0.694584608, -2.66689205]
+      Rotation: [0.0936043411, 0.078874886, -0.076360181]
+      Scale: [0.321200013, 2.40387654, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 14270431430458228575
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.36973381, -0.411859423, 0.139802799]
+      Rotation: [0.1530101, 0.0753661022, -0.0469875559]
+      Scale: [0.321200013, 2.40387654, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 14924896071127045575
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.08559477, 0.378736466, 0]
+      Scale: [1, 1, 1]
+    DirectionalLightComponent:
+      Intensity: 0.100000001
+      Radiance: [0.967741966, 0.768101096, 0.491675347]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 15006289408770013759
+    TagComponent:
+      Tag: DOFTarget
+    Parent: 0
+    Children:
+      - Handle: 16893003798806175438
+      - Handle: 8115239461527016984
+    TransformComponent:
+      Position: [-1.00822997, 0.271509528, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.0500000007, 0.0500000007, 0.0500000007]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 8987586188804361884
+    SphereColliderComponent:
+      Radius: 0.5
+      IsTrigger: false
+      Offset: [0, 0, 0]
+      Material: 0
+  - Entity: 15620666148158676081
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.10173738, -0.645078957, -3.549016]
+      Rotation: [0.106357813, 0.0603609458, 0.142549828]
+      Scale: [0.321200013, 2.40387678, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 16071855388964023112
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, 2.17638111]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 16514051464396863099
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.28313708, -0.820882559, 2.17638111]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 16893003798806175438
+    TagComponent:
+      Tag: Text
+    Parent: 15006289408770013759
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.13751411, 1.43395138, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1.1099999, 1.1099999, 1.1099999]
+    TextComponent:
+      TextString: "Focus\nTarget"
+      FontHandle: 0
+      Color: [1, 1, 1, 0.654901981]
+      LineSpacing: -0.319999993
+      Kerning: 0
+      MaxWidth: 10
+  - Entity: 18138528884226607590
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [1.32833421, 1.46068799, -4.32361889]
+      Rotation: [0, -0, 0]
+      Scale: [0.439999998, 3.29298139, 0.439999998]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 18291405240961598053
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.42072248, -0.790152729, 1.51979816]
+      Rotation: [0, 0, -0.220134884]
+      Scale: [0.321200013, 2.40387654, 0.321200013]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 18347652005820674814
+    TagComponent:
+      Tag: Cube
+    Parent: 12823205791370285228
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.42852151, -0.698864758, 0.935137749]
+      Rotation: [0.328564405, 3.7252903e-09, 0.18682611]
+      Scale: [0.321200013, 2.40387654, 0.321200043]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

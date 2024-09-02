@@ -1,0 +1,145 @@
+#pragma once
+
+//
+// SET 1
+//
+
+layout (std140, set = 1, binding = 4) uniform ShadowData 
+{
+	mat4 DirLightMatrices[4];
+} u_DirShadow;
+
+struct DirectionalLight
+{
+	vec3 Direction;
+	float ShadowAmount;
+	vec3 Radiance;  
+	float Multiplier;
+};
+
+layout(std140, set = 1, binding = 5) uniform SceneData
+{
+	DirectionalLight DirectionalLights;
+	vec3 CameraPosition; // Offset = 32
+	float EnvironmentMapIntensity;
+} u_Scene;
+
+
+struct PointLight
+{
+	vec3 Position;
+	float Multiplier;
+	vec3 Radiance;
+	float MinRadius;
+	float Radius;
+	float Falloff;
+	float LightSize;
+	bool CastsShadows;
+};
+
+layout(std140, set = 1, binding = 6) uniform PointLightData
+{
+	uint LightCount;
+	PointLight Lights[1000];
+} u_PointLights;
+
+struct SpotLight
+{
+	vec3 Position;
+	float Multiplier;
+	vec3 Direction;
+	float AngleAttenuation;
+	vec3 Radiance;
+	float Range;
+	float Angle;
+	float Falloff;
+	bool SoftShadows;
+	bool CastsShadows;
+};
+
+layout(std140, set = 1, binding = 7) uniform SpotLightData
+{
+	uint LightCount;
+	SpotLight Lights[1024];
+} u_SpotLights;
+
+layout(std140, set = 1, binding = 8) uniform SpotShadowData
+{
+	mat4 Mats[1024];
+} u_SpotLightMatrices;
+
+layout(std430, set = 1, binding = 9) buffer VisiblePointLightIndicesBuffer
+{
+	int Indices[];
+} s_VisiblePointLightIndicesBuffer;
+
+layout(std430, set = 1, binding = 10) writeonly buffer VisibleSpotLightIndicesBuffer
+{
+	int Indices[];
+} s_VisibleSpotLightIndicesBuffer;
+
+//
+// SET 2
+//
+
+layout(std140, set = 2, binding = 0) uniform Camera
+{
+	mat4 ViewProjectionMatrix;
+	mat4 InverseViewProjectionMatrix;
+	mat4 ProjectionMatrix;
+	mat4 InverseProjectionMatrix;
+	mat4 ViewMatrix;
+	mat4 InverseViewMatrix;
+	vec2 NDCToViewMul;
+	vec2 NDCToViewAdd;
+	vec2 DepthUnpackConsts;
+	vec2 CameraTanHalfFOV;
+} u_Camera;
+
+layout(std140, set = 2, binding = 1) uniform RendererData
+{
+	uniform vec4 CascadeSplits;
+	uniform int TilesCountX;
+	uniform bool ShowCascades;
+	uniform bool SoftShadows;
+	uniform float LightSize;
+	uniform float MaxShadowDistance;
+	uniform float ShadowFade;
+	uniform bool CascadeFading;
+	uniform float CascadeTransitionFade;
+	uniform bool ShowLightComplexity;
+} u_RendererData;
+
+layout(std140, set = 2, binding = 2) uniform ScreenData
+{
+    vec2 InvFullResolution;
+    vec2 FullResolution;
+	vec2 InvHalfResolution;
+    vec2 HalfResolution;
+} u_ScreenData;
+
+
+layout(std140, set = 2, binding = 3) uniform HBAOData
+{
+	vec4	PerspectiveInfo;
+	vec2    InvQuarterResolution;
+	float   RadiusToScreen;
+	float   NegInvR2;
+	float   NDotVBias;
+	float   AOMultiplier;
+	float   PowExponent;
+	bool	IsOrtho;
+	vec4    Float2Offsets[16];
+	vec4    Jitters[16];
+	vec3	Padding;
+	float	ShadowTolerance;
+} u_HBAO;
+
+
+const int MAX_BONES = 100;
+const int MAX_ANIMATED_MESHES = 1024;
+
+layout (std140, set = 2, binding = 4) readonly buffer BoneTransforms
+{
+	mat4 BoneTransforms[MAX_BONES * MAX_ANIMATED_MESHES];
+} r_BoneTransforms;

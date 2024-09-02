@@ -1,0 +1,299 @@
+Scene: Physics 2D Test
+Entities:
+  - Entity: 15861629587505754
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-18.2095661, 39.2518234, 0]
+      Rotation: [0, 0, 0]
+      Scale: [4.47999525, 4.47999525, 4.48000002]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 935615878363259513
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [6.88031197, 31.942337, 0]
+      Rotation: [0, 0, 0]
+      Scale: [4.47999954, 4.47999954, 4.48000002]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 1289165777996378215
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [50, 1, 50]
+    ScriptComponent:
+      ClassHandle: 219471118
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 0
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 1352995477042327524
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-8.32969856, 30.4078159, 0]
+      Rotation: [0, 0, 0]
+      Scale: [14.000001, 4.47999334, 4.48000002]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 2157107598622182863
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-7.60411549, 44.1442184, 0]
+      Rotation: [0, 0, 0]
+      Scale: [4.47999287, 4.47999287, 4.48000002]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 3459685244807816640
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 0
+      Intensity: 1
+      Lod: 1
+      DynamicSky: true
+      TurbidityAzimuthInclination: [2, 0, 0]
+  - Entity: 3948844418381294888
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.48028564, 49.5945244, -2.38418579e-07]
+      Rotation: [0, 0, 0]
+      Scale: [1.99999976, 1.99999976, 2]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 5178862374589434728
+    TagComponent:
+      Tag: Camera
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 25, 79.75]
+      Rotation: [0, 0, 0]
+      Scale: [1, 0.999999821, 0.999999821]
+    ScriptComponent:
+      ClassHandle: 1187969155
+      StoredFields:
+        - ID: 4147174148
+          Name: Example.BasicController:Speed
+          Type: 12
+          Data: 12
+        - ID: 393052473
+          Name: Example.BasicController:DistanceFromPlayer
+          Type: 12
+          Data: 50
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 8080964283681139153
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-0.739211679, 37.7653275, 0]
+      Rotation: [0, 0, 0]
+      Scale: [5, 2, 2]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+  - Entity: 12985049603524075809
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.39626336, 0.17453292, 0]
+      Scale: [1, 1, 1]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 14057422478420564497
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 22.774044, 0]
+      Rotation: [0, 0, 0]
+      Scale: [6.00000048, 6.00000048, 6]
+    ScriptComponent:
+      ClassHandle: 697429911
+      StoredFields:
+        - ID: 3758267400
+          Name: Example.PlayerCube:HorizontalForce
+          Type: 12
+          Data: 10
+        - ID: 811897460
+          Name: Example.PlayerCube:JumpForce
+          Type: 12
+          Data: 0
+        - ID: 3408550359
+          Name: Example.PlayerCube:NumberOfCubes
+          Type: 8
+          Data: 0
+        - ID: 3886577036
+          Name: Example.PlayerCube:CubeSpawnOffset
+          Type: 17
+          Data: [-1577319, 8.54792063e-43]
+        - ID: 709808636
+          Name: Example.PlayerCube:CubeSpawnRange
+          Type: 17
+          Data: [-1577319, 8.54792063e-43]
+        - ID: 806327004
+          Name: Example.PlayerCube:MaxSpeed
+          Type: 17
+          Data: [-1577319, 8.54792063e-43]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 1
+  - Entity: 15223077898852293773
+    TagComponent:
+      Tag: Box
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [5.37350416, 43.8803978, 0.00196690857]
+      Rotation: [0, 0, 0]
+      Scale: [4.47999668, 4.47999668, 4.48000002]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    RigidBody2DComponent:
+      BodyType: 1
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 1
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

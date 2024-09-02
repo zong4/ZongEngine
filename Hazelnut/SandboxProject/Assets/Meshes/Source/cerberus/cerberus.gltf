@@ -1,0 +1,110 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Cerberus00_Fixed"
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "08 - Default.002",
+            "pbrMetallicRoughness" : {
+                "roughnessFactor" : 0.858578622341156
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Mesh.002",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 26077,
+            "max" : [
+                0.12520316243171692,
+                0.18778812885284424,
+                0.3654879927635193
+            ],
+            "min" : [
+                -0.19993121922016144,
+                -0.4720871150493622,
+                -1.1955727338790894
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 26077,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 26077,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 100623,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 312924,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 312924,
+            "byteOffset" : 312924
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 208616,
+            "byteOffset" : 625848
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 201246,
+            "byteOffset" : 834464
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1035712,
+            "uri" : "cerberus.bin"
+        }
+    ]
+}

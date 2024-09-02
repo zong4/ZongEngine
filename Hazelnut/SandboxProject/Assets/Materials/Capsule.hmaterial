@@ -1,0 +1,10 @@
+Material:
+  AlbedoColor: [0.163891405, 0.509363115, 0.922779918]
+  Emission: 2
+  UseNormalMap: false
+  Metalness: 0
+  Roughness: 0.400000006
+  AlbedoMap: 0
+  NormalMap: 0
+  MetalnessMap: 0
+  RoughnessMap: 0

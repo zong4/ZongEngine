@@ -1,0 +1,66 @@
+Prefab:
+  - Entity: 1213177877817108335
+    TagComponent:
+      Tag: Projectile
+    Parent: 5317155733655023860
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 9489948257369493199
+      Entity: 1213177877817108335
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [0.298125029, 0.298125029, 0.298125029]
+    ScriptComponent:
+      ModuleName: PrefabSandbox.Projectile
+      StoredFields:
+        - Name: LifeTime
+          Type: 2
+          Data: 0
+    StaticMeshComponent:
+      AssetID: 12408118837772859208
+      MaterialTable:
+        0: 1162716615310863507
+    PointLightComponent:
+      Radiance: [0.133853123, 0.845559835, 0.243769243]
+      Intensity: 2
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 4.19999981
+      LightSize: 0.5
+      Falloff: 1
+    RigidBodyComponent:
+      BodyType: 1
+      Mass: 0.5
+      LinearDrag: 0
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsKinematic: false
+      Layer: 0
+      Constraints:
+        LockPositionX: false
+        LockPositionY: false
+        LockPositionZ: false
+        LockRotationX: false
+        LockRotationY: false
+        LockRotationZ: false
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      Size: [1, 1, 1]
+      IsTrigger: false
+      Material: 10310996624323047332
+  - Entity: 5317155733655023860
+    TagComponent:
+      Tag: PContainer
+    Parent: 0
+    Children:
+      - Handle: 1213177877817108335
+    PrefabComponent:
+      Prefab: 9489948257369493199
+      Entity: 5317155733655023860
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]

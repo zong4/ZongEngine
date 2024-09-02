@@ -1,0 +1,23 @@
+#pragma once
+
+#if (USE_HALF_FLOAT_PRECISION != 0)
+    #if 1 // old fp16 approach (<SM6.2)
+        typedef min16float      lpfloat;
+        typedef min16float2     lpfloat2;
+        typedef min16float3     lpfloat3;
+        typedef min16float4     lpfloat4;
+        typedef min16float3x3   lpfloat3x3;
+    #else // new fp16 approach (requires SM6.2 and -enable-16bit-types) - WARNING: perf degradation noticed on some HW, while the old (min16float) path is mostly at least a minor perf gain so this is more useful for quality testing
+        typedef float16_t       lpfloat;
+        typedef float16_t2      lpfloat2;
+        typedef float16_t3      lpfloat3;
+        typedef float16_t4      lpfloat4;
+        typedef float16_t3x3    lpfloat3x3;
+    #endif
+#else
+    typedef float           lpfloat;
+    typedef float2          lpfloat2;
+    typedef float3          lpfloat3;
+    typedef float4          lpfloat4;
+    typedef float3x3        lpfloat3x3;
+#endif

@@ -1,0 +1,89 @@
+Prefab:
+  - Entity: 10715435798022469685
+    TagComponent:
+      Tag: Camera
+    Parent: 12235881377538634391
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 10715435798022469685
+    TransformComponent:
+      Position: [0, 0.787638187, 0]
+      Rotation: [0, 1.63912773e-07, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 60.0000038
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 12235881377538634391
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 10715435798022469685
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 12235881377538634391
+    TransformComponent:
+      Position: [4.84976101, 1.38370681, 2.53372455]
+      Rotation: [0, -1.40094519, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1703576679
+      Name: Sandbox.FirstPersonController
+      StoredFields:
+        - ID: 442613449
+          Name: MovementSpeed
+          Type: Float
+          Data: 3
+        - ID: 944303073
+          Name: GamepadSensitivity
+          Type: Float
+          Data: 3
+        - ID: 4167077733
+          Name: MouseSensitivity
+          Type: Float
+          Data: 0.100000001
+        - ID: 1479820618
+          Name: JumpPower
+          Type: Float
+          Data: 5
+        - ID: 603041627
+          Name: ShootingCooldown
+          Type: Float
+          Data: 0.150000006
+        - ID: 692094311
+          Name: FootstepVolume
+          Type: Float
+          Data: 0.219999999
+        - ID: 280898344
+          Name: ProjectilePrefab
+          Type: Prefab
+          Data: 5349322122580055698
+        - ID: 3559253847
+          Name: m_CameraEntity
+          Type: Entity
+          Data: 4362651766733805767
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: false
+      SlopeLimit: 0
+      StepOffset: 0
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioListenerComponent:
+      Active: true
+      ConeInnerAngle: 6.28318501
+      ConeOuterAngle: 6.28318501
+      ConeOuterGain: 0

@@ -1,0 +1,1160 @@
+Scene: PhysicsScene
+Entities:
+  - Entity: 20440964712106627
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 0
+      Intensity: 0.5
+      Lod: 0
+      DynamicSky: true
+      TurbidityAzimuthInclination: [2, 0, 0]
+  - Entity: 735541872318707123
+    TagComponent:
+      Tag: Sphere
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [10.8000002, 9.60000038, 10.8999996]
+      Rotation: [0, 0, 0]
+      Scale: [2, 2, 2]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 759724018533584822
+    TagComponent:
+      Tag: Sphere
+    Parent: 0
+    Children:
+      - Handle: 14406763130532870330
+    TransformComponent:
+      Position: [-6.11868048, 4.19425821, -4.34872341]
+      Rotation: [0, -0, 0]
+      Scale: [1.1500001, 1.1500001, 1.1500001]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 1005161126606504163
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-5.47535419, 11.4139175, 3.96430111]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 1
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 1113995310724776240
+    TagComponent:
+      Tag: Collider
+    Parent: 12502634097337334974
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.5, 0]
+      Rotation: [-1.57043874, 1.49557735e-08, -1.48431845e-08]
+      Scale: [6.66666937, 6.66710949, 0.500000834]
+    BoxColliderComponent:
+      Offset: [0, 0, -1]
+      HalfSize: [0.074000001, 0.074000001, 1]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 3839338342626429134
+    TagComponent:
+      Tag: Bouncy Text
+    Parent: 4121531223804695745
+    Children:
+      []
+    TransformComponent:
+      Position: [-0.450957209, 0.50073719, 0]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [0.0444444455, 0.133320481, 0.39994207]
+    TextComponent:
+      TextString: "The capsule has a physics material with bounciness.\nIt should bounce."
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 10
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 3996400633997660668
+    TagComponent:
+      Tag: RightEye
+    Parent: 4300599089782596284
+    Children:
+      - Handle: 16779823688087825828
+    TransformComponent:
+      Position: [-0.175072193, 0.594007254, 0.460000008]
+      Rotation: [0, -0, 0]
+      Scale: [0.200000003, 0.200000003, 0.200000003]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 1561346292037904914
+      Visible: true
+  - Entity: 4121531223804695745
+    TagComponent:
+      Tag: Walkway
+    Parent: 0
+    Children:
+      - Handle: 3839338342626429134
+    TransformComponent:
+      Position: [6, 1.5, -7.5]
+      Rotation: [0, -0, 0]
+      Scale: [9, 1, 3]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 4168813033457359762
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      - Handle: 15411419709473003057
+    TransformComponent:
+      Position: [12.0202246, 7.63001442, 5.00939655]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 1
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 4258248824546820982
+    TagComponent:
+      Tag: Point Light
+    Parent: 9451717043276739639
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.156862751, 0.917647064, 0.0705882385]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 4300599089782596284
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 3996400633997660668
+      - Handle: 18424988274428115980
+    TransformComponent:
+      Position: [-5, 1, 4]
+      Rotation: [0, -0, 0]
+      Scale: [0.999999762, 1, 0.999999762]
+    ScriptComponent:
+      ScriptID: 3344414930
+      ScriptName: ThirdPersonExample.PlayerController
+      Fields:
+        - ID: 1284670357
+          Name: Camera
+          Type: Entity
+          Value: 5010948553435040244
+        - ID: 1718582423
+          Name: JumpPower
+          Type: Float
+          Value: 3
+        - ID: 2191167308
+          Name: WalkSpeed
+          Type: Float
+          Value: 1.5
+        - ID: 2312663208
+          Name: RunSpeed
+          Type: Float
+          Value: 3
+        - ID: 1881019763
+          Name: RotationSpeed
+          Type: Float
+          Value: 10
+    StaticMeshComponent:
+      AssetID: 6794048458811322821
+      MaterialTable:
+        0: 3067266531766851022
+      Visible: true
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: false
+      ControlMovementInAir: false
+      ControlRotationInAir: false
+      SlopeLimit: 30
+      StepOffset: 0.5
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 4413781705375052503
+    TagComponent:
+      Tag: Long Ramp
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-9.00018692, 1, -3]
+      Rotation: [0, -0, 0]
+      Scale: [3, 2, 6]
+    StaticMeshComponent:
+      AssetID: 4590843730977251518
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    MeshColliderComponent:
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x00"
+  - Entity: 4506300414988682867
+    TagComponent:
+      Tag: Back Wall Title
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-14.2754831, 6.29795218, -14.8467484]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    TextComponent:
+      TextString: Welcome to PhysicsTest
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 10
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 5010948553435040244
+    TagComponent:
+      Tag: Camera
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-5, 1.54928124, 1.16968918]
+      Rotation: [0, 3.14159274, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ScriptID: 2270050778
+      ScriptName: ThirdPersonExample.OverShoulderCamera
+      Fields:
+        - ID: 3456511295
+          Name: Player
+          Type: Entity
+          Value: 4300599089782596284
+        - ID: 3214182610
+          Name: DistanceFromPlayer
+          Type: Float
+          Value: 4.5
+        - ID: 3757378719
+          Name: MaxPitchDegrees
+          Type: Float
+          Value: 30
+        - ID: 1072483039
+          Name: OrbitVerticalOffset
+          Type: Float
+          Value: 2
+        - ID: 329360147
+          Name: YawOffsetDegrees
+          Type: Float
+          Value: 25
+        - ID: 1292115233
+          Name: MinPitchDegrees
+          Type: Float
+          Value: -27
+        - ID: 2574021282
+          Name: MouseSensitivity
+          Type: Float
+          Value: 1
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 60.0000038
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: true
+      ControlMovementInAir: true
+      ControlRotationInAir: true
+      SlopeLimit: 60
+      StepOffset: 0.5
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 5360269414762040475
+    TagComponent:
+      Tag: Pole Text
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [11.4092464, 0, 9.25839424]
+      Rotation: [-1.57079637, -1.57010579, 0]
+      Scale: [0.400000006, 0.399979293, 0.399941921]
+    TextComponent:
+      TextString: "Each part of this pole has a box collider.\nThe square hoop is parented to the pole (tests parenting of colliders).\nThe hoop has been set up with child colliders that are scaled and offset so that the collider shape matches the mesh (tests scale and offset of colliders).\nThe sphere should fall and be caught by the square hoop."
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 13.6000004
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 5582984017383076913
+    TagComponent:
+      Tag: Pillar
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [3, 0.5, -7.5]
+      Rotation: [0, -0, 0]
+      Scale: [3, 1, 3]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 5873161240301435968
+    TagComponent:
+      Tag: Pillar
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9, 0.5, -7.5]
+      Rotation: [0, -0, 0]
+      Scale: [3, 1, 3]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 5889227503353944679
+    TagComponent:
+      Tag: Point Light
+    Parent: 7394362911315949141
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.156862751, 0.917647064, 0.0705882385]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 6286004914576355288
+    TagComponent:
+      Tag: Collider
+    Parent: 13273742642113875678
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.5, 0]
+      Rotation: [-1.57043874, 1.49557735e-08, -1.48431845e-08]
+      Scale: [6.66666937, 6.66710949, 0.500000834]
+    BoxColliderComponent:
+      Offset: [0, 0, -1]
+      HalfSize: [0.074000001, 0.074000001, 1]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 6548673881686529475
+    TagComponent:
+      Tag: Step Text
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [7.03999996, 0, -4.59000015]
+      Rotation: [-1.57079637, -1.57010579, 0]
+      Scale: [0.399969399, 0.399979353, 0.399949044]
+    TextComponent:
+      TextString: Player should be able to move up one step at a time
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 15
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 7260701566068467834
+    TagComponent:
+      Tag: Back Wall
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 3.75, -15]
+      Rotation: [1.57079637, -0, 0]
+      Scale: [30, 0.290436238, 7.5]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 7394362911315949141
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      - Handle: 5889227503353944679
+    TransformComponent:
+      Position: [12.0202246, 5.63555336, 5.00939655]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 1
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 7504683599569560599
+    TagComponent:
+      Tag: Point Light
+    Parent: 18424988274428115980
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [5.00000095, 5, 5.00000095]
+    PointLightComponent:
+      Radiance: [0.898039222, 0.349019617, 0.0549019612]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 7884766072033529293
+    TagComponent:
+      Tag: Capsule
+    Parent: 0
+    Children:
+      - Handle: 12642495876189139529
+    TransformComponent:
+      Position: [3, 4.60958195, -7]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 6794048458811322821
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 1
+  - Entity: 9451717043276739639
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      - Handle: 4258248824546820982
+    TransformComponent:
+      Position: [3.22196913, 7.62967491, -7.69634056]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 1
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 10318428513043006562
+    TagComponent:
+      Tag: Walkway
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-6, 1, -7.5]
+      Rotation: [0, -0, 0]
+      Scale: [9, 2, 3]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 12464356806444282843
+    TagComponent:
+      Tag: Empty Entity
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 1.01507998, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ScriptID: 2975013435
+      ScriptName: Sandbox.TeleportTest
+      Fields:
+        []
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 12502634097337334974
+    TagComponent:
+      Tag: Hoop1
+    Parent: 17200835155675412937
+    Children:
+      - Handle: 1113995310724776240
+    TransformComponent:
+      Position: [0.0068965489, 0.458686054, -3.82695007]
+      Rotation: [1.57079315, -5.55111512e-17, -1.7881403e-09]
+      Scale: [0.499999791, 6.66665745, 0.0299980082]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+  - Entity: 12642495876189139529
+    TagComponent:
+      Tag: Point Light
+    Parent: 7884766072033529293
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.156862751, 0.917647064, 0.0705882385]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 12737315502442940139
+    TagComponent:
+      Tag: Trigger Text
+    Parent: 14621520654437839928
+    Children:
+      []
+    TransformComponent:
+      Position: [0.100000001, 0.00100000005, -0.400000006]
+      Rotation: [-1.57079637, -1.57010579, 0]
+      Scale: [0.0799999982, 0.0799999982, 0.0799999982]
+    TextComponent:
+      TextString: There is a physics trigger here.  Enter this area and the lights should go out.
+      FontHandle: 0
+      Color: [0, 0, 0, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 10
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 12759262066815033680
+    TagComponent:
+      Tag: Long step
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9, 0.25, -1.5]
+      Rotation: [0, -0, 0]
+      Scale: [3, 0.5, 9]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 13016334536687306376
+    TagComponent:
+      Tag: Ramp Text
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-9.99833202, 0, 0.501706541]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [0.400000006, 0.399977148, 0.399977148]
+    TextComponent:
+      TextString: Player should be able to move up the long and medium ramp, but not the short one.
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 15
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 13035964952140571219
+    TagComponent:
+      Tag: Short Ramp
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-4.5, 1, -5]
+      Rotation: [0, -0, 0]
+      Scale: [2, 2, 2]
+    StaticMeshComponent:
+      AssetID: 4590843730977251518
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    MeshColliderComponent:
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x00"
+  - Entity: 13273742642113875678
+    TagComponent:
+      Tag: Hoop2
+    Parent: 17200835155675412937
+    Children:
+      - Handle: 6286004914576355288
+    TransformComponent:
+      Position: [-5.20805359, 0.458686054, -3.82695007]
+      Rotation: [1.57079315, -5.55111512e-17, -1.7881403e-09]
+      Scale: [0.499999791, 6.66665745, 0.0299980082]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+  - Entity: 13726817294368440498
+    TagComponent:
+      Tag: Collider
+    Parent: 15746268832439625883
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.5, 0]
+      Rotation: [-1.57043874, 1.49557735e-08, -1.48431845e-08]
+      Scale: [6.66666937, 6.66710949, 0.500000834]
+    BoxColliderComponent:
+      Offset: [0, 0, -1]
+      HalfSize: [0.074000001, 0.074000001, 1]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 14406763130532870330
+    TagComponent:
+      Tag: Point Light
+    Parent: 759724018533584822
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [0.400000006, 0.400000006, 0.400000006]
+    PointLightComponent:
+      Radiance: [0.156862751, 0.917647064, 0.0705882385]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 3
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 14621520654437839928
+    TagComponent:
+      Tag: Trigger
+    Parent: 0
+    Children:
+      - Handle: 12737315502442940139
+    TransformComponent:
+      Position: [0, -9.99999975e-05, 9.58870316]
+      Rotation: [0, 1.22173071, 0]
+      Scale: [4, 4, 4]
+    ScriptComponent:
+      ScriptID: 2488766177
+      ScriptName: PhysicsTest.PhysicsTestTrigger
+      Fields:
+        []
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 0
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: true
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 15158631481251068243
+    TagComponent:
+      Tag: Medium Ramp
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-6.5, 1, -4]
+      Rotation: [0, -0, 0]
+      Scale: [2, 2, 4]
+    StaticMeshComponent:
+      AssetID: 4590843730977251518
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    MeshColliderComponent:
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x00"
+  - Entity: 15295787635636188661
+    TagComponent:
+      Tag: Hoop4
+    Parent: 17200835155675412937
+    Children:
+      - Handle: 16458209446618174055
+    TransformComponent:
+      Position: [-2.59459686, 0.458686054, -0.744884491]
+      Rotation: [1.57079637, 1.57079637, -1.7881403e-09]
+      Scale: [0.499999315, 4.71999979, 0.0299979933]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+  - Entity: 15411419709473003057
+    TagComponent:
+      Tag: Point Light
+    Parent: 4168813033457359762
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.156862751, 0.917647064, 0.0705882385]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 15746268832439625883
+    TagComponent:
+      Tag: Hoop3
+    Parent: 17200835155675412937
+    Children:
+      - Handle: 13726817294368440498
+    TransformComponent:
+      Position: [-2.59459686, 0.458686054, -6.90967178]
+      Rotation: [1.57079637, 1.57079637, -1.7881403e-09]
+      Scale: [0.499999315, 4.71999979, 0.0299979933]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+  - Entity: 16458209446618174055
+    TagComponent:
+      Tag: Collider
+    Parent: 15295787635636188661
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.5, 0]
+      Rotation: [-1.57043874, 1.49557735e-08, -1.48431845e-08]
+      Scale: [6.66666937, 6.66710949, 0.500000834]
+    BoxColliderComponent:
+      Offset: [0, 0, -1]
+      HalfSize: [0.074000001, 0.074000001, 1]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 16496121145408705524
+    TagComponent:
+      Tag: Medium step
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9, 0.75, -3]
+      Rotation: [0, -0, 0]
+      Scale: [3, 0.5, 6]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 16779823688087825828
+    TagComponent:
+      Tag: Point Light
+    Parent: 3996400633997660668
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [5.00000095, 5, 5.00000095]
+    PointLightComponent:
+      Radiance: [0.898039222, 0.349019617, 0.0549019612]
+      Intensity: 1
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 17027005064923681460
+    TagComponent:
+      Tag: Floor
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, -0.14599967, 0]
+      Rotation: [0, -0, 0]
+      Scale: [30, 0.290442556, 30]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 17092959967197669672
+    TagComponent:
+      Tag: Short step
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9, 1.25, -4.5]
+      Rotation: [0, -0, 0]
+      Scale: [3, 0.5, 3]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 17200835155675412937
+    TagComponent:
+      Tag: Pole
+    Parent: 0
+    Children:
+      - Handle: 12502634097337334974
+      - Handle: 13273742642113875678
+      - Handle: 15746268832439625883
+      - Handle: 15295787635636188661
+    TransformComponent:
+      Position: [12, 2.5, 12]
+      Rotation: [0, -0, 0]
+      Scale: [0.300000012, 5, 0.300000012]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 17537731318332290313
+    TagComponent:
+      Tag: Back Wall Description
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-13.9812126, 5.49476337, -14.8500004]
+      Rotation: [0, -0, 0]
+      Scale: [0.400000006, 0.400000006, 0.400000006]
+    TextComponent:
+      TextString: "The green glowing objecs are rigid bodies, and should fall, affected by gravity.\nThe red player capsule has a physics character controller.  It should collide with other physics objects, but it is not affected by forces.  Instead, movement of the player capsule is controlled via C# scripting.  WASD to move, left shift to move faster, spacebar to jump.\n"
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 20
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 18424988274428115980
+    TagComponent:
+      Tag: LeftEye
+    Parent: 4300599089782596284
+    Children:
+      - Handle: 7504683599569560599
+    TransformComponent:
+      Position: [0.170372486, 0.601184607, 0.45872879]
+      Rotation: [0, -0, 0]
+      Scale: [0.200000003, 0.200000003, 0.200000003]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 1561346292037904914
+      Visible: true
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

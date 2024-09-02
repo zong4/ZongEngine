@@ -1,0 +1,243 @@
+Scene: Flocking
+Entities:
+  - Entity: 508053834603976180
+    TagComponent:
+      Tag: Cylinder
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 3.3122375, 0]
+      Rotation: [0, -0, 0]
+      Scale: [4.3119998, 6.73102522, 4.3119998]
+    StaticMeshComponent:
+      AssetID: 6583382716572344530
+      MaterialTable:
+        0: 12387183670818522676
+      Visible: true
+    MeshColliderComponent:
+      ColliderHandle: 7100213513680618343
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x00"
+  - Entity: 1048288953654928000
+    TagComponent:
+      Tag: BoidManager
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 5.76214457, 10.0645008]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 4101253457
+      Name: Sandbox.BoidManager
+      StoredFields:
+        - ID: 1890296687
+          Name: SpawnCount
+          Type: Int32
+          Data: 20
+        - ID: 3280456108
+          Name: SpawnRadius
+          Type: Float
+          Data: 10
+        - ID: 1587916085
+          Name: BoidPrefab
+          Type: Prefab
+          Data: 15628841434999106376
+        - ID: 3193757810
+          Name: Target
+          Type: Entity
+          Data: 9320247353140466124
+  - Entity: 1366198998841373154
+    TagComponent:
+      Tag: Cube
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [-11.5541019, 3.81629753, -6.41406536]
+      Rotation: [0, 0.946887732, 0]
+      Scale: [21.9257088, 14.2793331, 0.283901721]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 2727522405022725177
+    TagComponent:
+      Tag: Text
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [-15.8424845, 7.05192471, -0.210028842]
+      Rotation: [0, 0.94684124, 0]
+      Scale: [0.635997951, 0.635999978, 0.635997951]
+    TextComponent:
+      TextString: "Boids will follow blue sphere target\n(Press Alt+C in Play mode to use editor camera, and try moving the Target!)"
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 15.8000002
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 4828542320169788372
+    TagComponent:
+      Tag: Cube
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [2.38418579e-07, 0, 0]
+      Rotation: [-1.57079625, -0, 0]
+      Scale: [20, 19.9997578, 0.0999990553]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 4840815431507011312
+    TagComponent:
+      Tag: Camera
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 2.74737215, 13.6700954]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 45
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 5153686082212518855
+    TagComponent:
+      Tag: World
+    Parent: 0
+    Children:
+      - Handle: 14826808367245922565
+      - Handle: 4828542320169788372
+      - Handle: 1366198998841373154
+      - Handle: 508053834603976180
+      - Handle: 10363821255918225344
+      - Handle: 2727522405022725177
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 9320247353140466124
+    TagComponent:
+      Tag: Target
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-4.79638672, 5.43715906, 8.24303341]
+      Rotation: [0, 0, 0]
+      Scale: [0.319999993, 0.319999993, 0.319999993]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 6906888403547450146
+      Visible: true
+  - Entity: 10363821255918225344
+    TagComponent:
+      Tag: Text
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [-15.8699799, 8.20406914, -0.171834871]
+      Rotation: [0, 0.94684124, 0]
+      Scale: [1.12799644, 1.12800002, 1.12799644]
+    TextComponent:
+      TextString: "Simple Flocking Example\n"
+      FontHandle: 0
+      Color: [1, 1, 1, 1]
+      LineSpacing: 0
+      Kerning: 0
+      MaxWidth: 10
+      ScreenSpace: false
+      DropShadow: false
+      ShadowDistance: 0
+      ShadowColor: [0, 0, 0, 1]
+  - Entity: 10814096218603282541
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.99029541, 0.109722912, -0.323934376]
+      Scale: [1, 0.999996901, 0.999998212]
+    DirectionalLightComponent:
+      Intensity: 0.5
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 11527267104837527205
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 17776251001083650100
+      Intensity: 0.5
+      Lod: 2.66100001
+      DynamicSky: false
+  - Entity: 14826808367245922565
+    TagComponent:
+      Tag: Cube
+    Parent: 5153686082212518855
+    Children:
+      []
+    TransformComponent:
+      Position: [2.38418579e-07, 5, -10]
+      Rotation: [0, -0, 0]
+      Scale: [20, 10, 0.100000001]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

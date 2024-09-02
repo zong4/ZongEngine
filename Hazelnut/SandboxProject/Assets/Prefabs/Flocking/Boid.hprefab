@@ -1,0 +1,62 @@
+Prefab:
+  - Entity: 978379222863301909
+    TagComponent:
+      Tag: BoidMesh
+    Parent: 4066791391264045611
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 3814919855551205021
+      Entity: 978379222863301909
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [1.57079637, -0, 0]
+      Scale: [0.100000001, 0.200000003, 0.100000001]
+    StaticMeshComponent:
+      AssetID: 6583382716572344530
+      MaterialTable:
+        0: 3067266531766851022
+  - Entity: 4066791391264045611
+    TagComponent:
+      Tag: Boid
+    Parent: 0
+    Children:
+      - Handle: 978379222863301909
+    PrefabComponent:
+      Prefab: 3814919855551205021
+      Entity: 4066791391264045611
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1304788252
+      StoredFields:
+        - ID: 1316592527
+          Name: Sandbox.Boid:position
+          Type: 17
+          Data: [0, 0, 0]
+        - ID: 3440322853
+          Name: Sandbox.Boid:forward
+          Type: 17
+          Data: [0, 0, 0]
+        - ID: 2422179129
+          Name: Sandbox.Boid:avgFlockHeading
+          Type: 17
+          Data: [0, 0, 0]
+        - ID: 2807733506
+          Name: Sandbox.Boid:avgAvoidanceHeading
+          Type: 17
+          Data: [0, 0, 0]
+        - ID: 3127014023
+          Name: Sandbox.Boid:centreOfFlockmates
+          Type: 17
+          Data: [0, 0, 0]
+        - ID: 2126614798
+          Name: Sandbox.Boid:numPerceivedFlockmates
+          Type: 8
+          Data: 0
+        - ID: 3133317009
+          Name: Sandbox.Boid:Target
+          Type: 18
+          Data: 0

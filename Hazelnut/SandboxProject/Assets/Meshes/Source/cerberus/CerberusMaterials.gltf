@@ -1,0 +1,155 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Cerberus00_Fixed"
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "08 - Default.003",
+            "normalTexture" : {
+                "index" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 2
+                }
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Mesh.003",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "Cerberus_N",
+            "uri" : "Cerberus_N.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Cerberus_A",
+            "uri" : "Cerberus_A.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Cerberus_M-Cerberus_R",
+            "uri" : "Cerberus_M-Cerberus_R.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 26077,
+            "max" : [
+                0.12520316243171692,
+                0.1877879947423935,
+                1.3026896715164185
+            ],
+            "min" : [
+                -0.19993121922016144,
+                -0.4720870852470398,
+                -0.2583712041378021
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 26077,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 26077,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 100623,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 312924,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 312924,
+            "byteOffset" : 312924
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 208616,
+            "byteOffset" : 625848
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 201246,
+            "byteOffset" : 834464
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1035712,
+            "uri" : "CerberusMaterials.bin"
+        }
+    ]
+}

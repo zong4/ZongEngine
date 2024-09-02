@@ -1,0 +1,26 @@
+#pragma once
+
+struct Camera
+{
+	float4x4 ViewProjectionMatrix;
+	float4x4 InverseViewProjectionMatrix;
+	float4x4 ProjectionMatrix;
+	float4x4 InverseProjectionMatrix;
+	float4x4 ViewMatrix;
+	float4x4 InverseViewMatrix;
+	float2 NDCToViewMul;
+	float2 NDCToViewAdd;
+	float2 DepthUnpackConsts;
+	float2 CameraTanHalfFOV;
+};
+[[vk::binding(0,2)]] ConstantBuffer<Camera> u_Camera;
+
+struct ScreenData
+{
+    float2 InvFullResolution;
+    float2 FullResolution;
+    float2 InvHalfResolution;
+    float2 HalfResolution;
+};
+[[vk::binding(2,2)]] ConstantBuffer<ScreenData> u_ScreenData;
+ 

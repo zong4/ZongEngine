@@ -1,0 +1,25 @@
+Prefab:
+  - Entity: 6127397292301203388
+    TagComponent:
+      Tag: ScriptTestingCube
+    Parent: 0
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 13570648905700154054
+      Entity: 6127397292301203388
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 241871390
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      Size: [1, 1, 1]
+      IsTrigger: false
+      Material: 5386909771039622480

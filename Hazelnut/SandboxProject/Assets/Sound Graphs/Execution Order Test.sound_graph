@@ -1,0 +1,245 @@
+Nodes:
+  - ID: 5326252962750778457
+    Category: Base
+    Name: Input Action
+    Colour: [1, 0.501960814, 0.501960814, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":410,\"y\":286}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 15833679126209103773
+        Name: Play
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+  - ID: 1570976934590535481
+    Category: Trigger
+    Name: Trigger Counter
+    Colour: [0.909803987, 0.937254965, 1, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":646,\"y\":286}}"
+    Inputs:
+      - ID: 15868569106432591644
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 7879408448704042358
+        Name: Reset
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 13023485166273638460
+        Name: Start Value
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 24769249833383212
+        Name: Step Size
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 1}
+      - ID: 5294850451763436288
+        Name: Reset Count
+        Type: Int
+        Storage: Value
+        Value: {Type: int, Value: 0}
+    Outputs:
+      - ID: 11918843600550582896
+        Name: On Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 12364687793619381573
+        Name: On Reset
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 2025200720220857883
+        Name: Count
+        Type: Int
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+      - ID: 11797531320293210230
+        Name: Value
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 10333201978596930399
+    Category: Input
+    Name: Input
+    Colour: [0.266666681, 0.788235366, 0.611764729, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1072,\"y\":358}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 16614116805268296131
+        Name: ItemsArray
+        Type: Int
+        Storage: Array
+        Value:
+          Type: Array
+          Value:
+            - {Type: int, Value: 9}
+            - {Type: int, Value: 10}
+            - {Type: int, Value: 11}
+  - ID: 3543669239375194889
+    Category: Math
+    Name: Subtract (Int)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1130,\"y\":458}}"
+    Inputs:
+      - ID: 14662938259951443125
+        Name: Value1
+        Type: Int
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+      - ID: 17845878043863290733
+        Name: Value2
+        Type: Int
+        Storage: Value
+        Value: {Type: int, Value: 1}
+    Outputs:
+      - ID: 153330193784027403
+        Name: Out
+        Type: Int
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 1953931145241883248
+    Category: Array
+    Name: Get (Int)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1293,\"y\":286}}"
+    Inputs:
+      - ID: 13480572243265739885
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 2393756499201339859
+        Name: Array
+        Type: Int
+        Storage: Array
+        Value: {Type: void, Value: "null"}
+      - ID: 716367544828474773
+        Name: Index
+        Type: Int
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 15098531804591247988
+        Name: On Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 1559899015300205104
+        Name: Element
+        Type: Int
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 9171238908776680127
+    Category: Base
+    Name: On Finished
+    Colour: [1, 0.501960814, 0.501960814, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1608,\"y\":286}}"
+    Inputs:
+      - ID: 1987405975434530017
+        Name: On Finished
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+    Outputs:
+      []
+Links:
+  - ID: 7694529478825075602
+    StartPinID: 15833679126209103773
+    EndPinID: 15868569106432591644
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 4575234190332923976
+    StartPinID: 11918843600550582896
+    EndPinID: 13480572243265739885
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 1294371801017635838
+    StartPinID: 2025200720220857883
+    EndPinID: 14662938259951443125
+    Colour: [0.266666681, 0.788235366, 0.611764729, 1]
+  - ID: 1509832339968809936
+    StartPinID: 16614116805268296131
+    EndPinID: 2393756499201339859
+    Colour: [0.266666681, 0.788235366, 0.611764729, 1]
+  - ID: 16825007567056552921
+    StartPinID: 153330193784027403
+    EndPinID: 716367544828474773
+    Colour: [0.266666681, 0.788235366, 0.611764729, 1]
+  - ID: 7847036223743864204
+    StartPinID: 15098531804591247988
+    EndPinID: 1987405975434530017
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members:
+      ItemsArray:
+        Type: Array
+        Value:
+          - {Type: int, Value: 9}
+          - {Type: int, Value: 10}
+          - {Type: int, Value: 11}
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+GraphState: "{\"nodes\":{\"node:10333201978596930399\":{\"location\":{\"x\":1072,\"y\":358}},\"node:1570976934590535481\":{\"location\":{\"x\":646,\"y\":286}},\"node:1953931145241883248\":{\"location\":{\"x\":1293,\"y\":286}},\"node:3543669239375194889\":{\"location\":{\"x\":1130,\"y\":458}},\"node:5326252962750778457\":{\"location\":{\"x\":410,\"y\":286}},\"node:9171238908776680127\":{\"location\":{\"x\":1608,\"y\":286}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":329.24285888671875,\"y\":-168.189453125},\"visible_rect\":{\"max\":{\"x\":1976.242919921875,\"y\":974.810546875},\"min\":{\"x\":329.24285888671875,\"y\":-168.189453125}},\"zoom\":1}}"
+Waves:
+  []
+CachedPrototype: SandboxProject\Cache\SoundGraph\sound_graph_cache_Execution Order Test

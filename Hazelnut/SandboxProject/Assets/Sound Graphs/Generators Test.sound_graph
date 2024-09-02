@@ -1,0 +1,855 @@
+Nodes:
+  - ID: 55813299291894815
+    Category: Base
+    Name: Output Audio
+    Colour: [1, 0.501960814, 0.501960814, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":2160,\"y\":518}}"
+    Inputs:
+      - ID: 16656657730778364142
+        Name: Left
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+      - ID: 14965066961047057830
+        Name: Right
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+    Outputs:
+      []
+  - ID: 12685134498495385198
+    Category: Generators
+    Name: Noise
+    Colour: [0.909803987, 0.894117713, 0.474509835, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1342,\"y\":362}}"
+    Inputs:
+      - ID: 10709700077280371933
+        Name: Seed
+        Type: Int
+        Storage: Value
+        Value: {Type: int, Value: 456456}
+      - ID: 3507565623028685813
+        Name: Type
+        Type: Enum
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGEnum
+            Members:
+              Value: {Type: int, Value: 1}
+    Outputs:
+      - ID: 16848137260440820373
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+  - ID: 9658992114039401895
+    Category: Base
+    Name: Input Action
+    Colour: [1, 0.501960814, 0.501960814, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":-246,\"y\":686}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 17669978691721829927
+        Name: Play
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+  - ID: 3366532521615158749
+    Category: Input
+    Name: Input
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":-182,\"y\":806}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 723584453864469396
+        Name: Period
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 2}
+  - ID: 1411450663726520296
+    Category: Trigger
+    Name: Repeat Trigger
+    Colour: [0.909803987, 0.937254965, 1, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":-32,\"y\":686}}"
+    Inputs:
+      - ID: 4960323390567392031
+        Name: Start
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 16842165915356476000
+        Name: Stop
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 6306688073117989912
+        Name: Period
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 10310221716057420862
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+  - ID: 5769803755246285119
+    Category: Envelope
+    Name: AD Envelope
+    Colour: [0.850980461, 0.768627524, 1, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":248,\"y\":798}}"
+    Inputs:
+      - ID: 6864265699449429196
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 14086404931904930905
+        Name: Attack Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 4768483873610896431
+        Name: Decay Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.0399999991}
+      - ID: 2444250662374706872
+        Name: Attack Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 1}
+      - ID: 14993867335862025050
+        Name: Decay Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.200000003}
+      - ID: 14554009696828131619
+        Name: Looping
+        Type: Bool
+        Storage: Value
+        Value: {Type: bool, Value: false}
+    Outputs:
+      - ID: 423336956709564063
+        Name: On Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 14998032625823979072
+        Name: On Complete
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 1301345422896157349
+        Name: Out Envelope
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 13745591842293392365
+    Category: Input
+    Name: Input
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":789,\"y\":918}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 1535368920027664836
+        Name: HitVolume
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.910000026}
+  - ID: 1451276075965936573
+    Category: Math
+    Name: Multiply (Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":954,\"y\":880}}"
+    Inputs:
+      - ID: 14488078937527494153
+        Name: Value
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+      - ID: 16661395189569889502
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 5923335824102966895
+        Name: Out
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 10140292550014797019
+    Category: Generators
+    Name: Noise
+    Colour: [0.941176534, 0.921568692, 0.443137288, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":772,\"y\":758}}"
+    Inputs:
+      - ID: 12629675202384643975
+        Name: Seed
+        Type: Int
+        Storage: Value
+        Value: {Type: int, Value: -1}
+      - ID: 12956725573227057680
+        Name: Type
+        Type: Enum
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGEnum
+            Members:
+              Value: {Type: int, Value: 0}
+    Outputs:
+      - ID: 5112498162739097053
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+  - ID: 10508805553109288140
+    Category: Math
+    Name: Multiply (Audio by Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1173,\"y\":774}}"
+    Inputs:
+      - ID: 8359455216943728463
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 14657802972096248497
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 10332074790561648295
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 4334729116109612162
+    Category: Envelope
+    Name: AD Envelope
+    Colour: [0.850980461, 0.768627524, 1, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":731,\"y\":1058}}"
+    Inputs:
+      - ID: 1540654454917339684
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 18130735410454129034
+        Name: Attack Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 16340123642548347972
+        Name: Decay Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.200000003}
+      - ID: 6396495643750399247
+        Name: Attack Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 1}
+      - ID: 15335686306713801867
+        Name: Decay Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.349999994}
+      - ID: 2143112458973768519
+        Name: Looping
+        Type: Bool
+        Storage: Value
+        Value: {Type: bool, Value: false}
+    Outputs:
+      - ID: 5556192312516332779
+        Name: On Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 10186527795156137630
+        Name: On Complete
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 12054386993710452437
+        Name: Out Envelope
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 14282655581067353516
+    Category: Input
+    Name: Input
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1078,\"y\":1206}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 10310982425872733289
+        Name: SubFrequency
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 55}
+  - ID: 11761943306124147666
+    Category: Generators
+    Name: Sine
+    Colour: [0.941176534, 0.921568692, 0.443137288, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1282,\"y\":1062}}"
+    Inputs:
+      - ID: 6073937575369605789
+        Name: Reset Phase
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 5617819719871777672
+        Name: Frequency
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+      - ID: 17408677087600468891
+        Name: Phase Offset
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 2}
+    Outputs:
+      - ID: 6552536493559863834
+        Name: Sine
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+  - ID: 2685564911816012970
+    Category: Math
+    Name: Multiply (Audio by Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1600,\"y\":1172}}"
+    Inputs:
+      - ID: 5302931734626261802
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 5912604601938705070
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 9405540102259121460
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 4107409395036884652
+    Category: Math
+    Name: Add (Audio)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1765,\"y\":784}}"
+    Inputs:
+      - ID: 17777384985301169219
+        Name: Value1
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 883026537925038369
+        Name: Value2
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+    Outputs:
+      - ID: 13053872680838741749
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 13353681563205752288
+    Category: Envelope
+    Name: AD Envelope
+    Colour: [0.850980461, 0.768627524, 1, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":829,\"y\":430}}"
+    Inputs:
+      - ID: 2065133577982761892
+        Name: Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 17023259631045729728
+        Name: Attack Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.100000001}
+      - ID: 3125441968378150559
+        Name: Decay Time
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.699999988}
+      - ID: 500982290836937180
+        Name: Attack Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.5}
+      - ID: 1507389628898828969
+        Name: Decay Curve
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.300000012}
+      - ID: 11617553991836609677
+        Name: Looping
+        Type: Bool
+        Storage: Value
+        Value: {Type: bool, Value: false}
+    Outputs:
+      - ID: 17458145187022618013
+        Name: On Trigger
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 11759177888307302783
+        Name: On Complete
+        Type: Flow
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGFlow
+            Members: ~
+      - ID: 14913433718221345778
+        Name: Out Envelope
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 1254578984741614123
+    Category: Input
+    Name: Input
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1210,\"y\":574}}"
+    Inputs:
+      []
+    Outputs:
+      - ID: 10390087252966188025
+        Name: Volume
+        Type: Float
+        Storage: Value
+        Value: {Type: float, Value: 0.370000005}
+  - ID: 7252396676391034170
+    Category: Math
+    Name: Multiply (Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1347,\"y\":508}}"
+    Inputs:
+      - ID: 6083955071159155872
+        Name: Value
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+      - ID: 12190833795901793093
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 5781054503695731360
+        Name: Out
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+  - ID: 13046947401002823594
+    Category: Math
+    Name: Multiply (Audio by Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1643,\"y\":440}}"
+    Inputs:
+      - ID: 7095119501310896474
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 8854982710884877723
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 15171204518960139129
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 9975657011500122698
+    Category: Math
+    Name: Add (Audio)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1980,\"y\":452}}"
+    Inputs:
+      - ID: 4609956403801443494
+        Name: Value1
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 817269480833189802
+        Name: Value2
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+    Outputs:
+      - ID: 8867504924735710820
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 16020172465667524169
+    Category: Generators
+    Name: Noise
+    Colour: [0.909803987, 0.894117713, 0.474509835, 1]
+    Type: Blueprint
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1343,\"y\":634}}"
+    Inputs:
+      - ID: 5421620293019906198
+        Name: Seed
+        Type: Int
+        Storage: Value
+        Value: {Type: int, Value: -1}
+      - ID: 2605274121666476486
+        Name: Type
+        Type: Enum
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGEnum
+            Members:
+              Value: {Type: int, Value: 1}
+    Outputs:
+      - ID: 610956156481048929
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value:
+          Type: Object
+          Value:
+            ClassName: TSGAudio
+            Members:
+              Data:
+                Type: Array
+                Value:
+                  - {Type: int, Value: 0}
+  - ID: 6947080385076669376
+    Category: Math
+    Name: Multiply (Audio by Float)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1646,\"y\":574}}"
+    Inputs:
+      - ID: 17776716117588644894
+        Name: Value
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 3318509932623716991
+        Name: Multiplier
+        Type: Float
+        Storage: Value
+        Value: {Type: void, Value: "null"}
+    Outputs:
+      - ID: 6952102847226934404
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+  - ID: 11341425229789463538
+    Category: Math
+    Name: Add (Audio)
+    Colour: [0.501960814, 0.764705956, 0.972549081, 1]
+    Type: Simple
+    Size: [0, 0]
+    Location: "{\"location\":{\"x\":1992,\"y\":592}}"
+    Inputs:
+      - ID: 502481315622894377
+        Name: Value1
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+      - ID: 5409073391523014960
+        Name: Value2
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+    Outputs:
+      - ID: 3310645250496793447
+        Name: Out
+        Type: Audio
+        Storage: Value
+        Value: {Type: float, Value: 0}
+Links:
+  - ID: 14535536767634129413
+    StartPinID: 16848137260440820373
+    EndPinID: 7095119501310896474
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 509372791632839679
+    StartPinID: 17669978691721829927
+    EndPinID: 4960323390567392031
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 17856605846614169381
+    StartPinID: 723584453864469396
+    EndPinID: 6306688073117989912
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 9242076892906693101
+    StartPinID: 10310221716057420862
+    EndPinID: 6864265699449429196
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 14956640338079858359
+    StartPinID: 1301345422896157349
+    EndPinID: 14488078937527494153
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 5660488535116578098
+    StartPinID: 14998032625823979072
+    EndPinID: 2065133577982761892
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 14852224501681234975
+    StartPinID: 14998032625823979072
+    EndPinID: 1540654454917339684
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 6403277369970417822
+    StartPinID: 1535368920027664836
+    EndPinID: 16661395189569889502
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 2629797681131660941
+    StartPinID: 5923335824102966895
+    EndPinID: 14657802972096248497
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 7363981120647783765
+    StartPinID: 5112498162739097053
+    EndPinID: 8359455216943728463
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 17489555497516918102
+    StartPinID: 10332074790561648295
+    EndPinID: 17777384985301169219
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 15559820771482301478
+    StartPinID: 12054386993710452437
+    EndPinID: 5912604601938705070
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 17837803856722102388
+    StartPinID: 5556192312516332779
+    EndPinID: 6073937575369605789
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 9369531859097988379
+    StartPinID: 10310982425872733289
+    EndPinID: 5617819719871777672
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 5756712403106066522
+    StartPinID: 6552536493559863834
+    EndPinID: 5302931734626261802
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 5169760820273147796
+    StartPinID: 9405540102259121460
+    EndPinID: 883026537925038369
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 5223408270563983198
+    StartPinID: 13053872680838741749
+    EndPinID: 817269480833189802
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 12749072781172489147
+    StartPinID: 13053872680838741749
+    EndPinID: 5409073391523014960
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 4921544948216675050
+    StartPinID: 14913433718221345778
+    EndPinID: 6083955071159155872
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 15832830150708380030
+    StartPinID: 10390087252966188025
+    EndPinID: 12190833795901793093
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 5598126699134466069
+    StartPinID: 5781054503695731360
+    EndPinID: 8854982710884877723
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 13264176297271562857
+    StartPinID: 5781054503695731360
+    EndPinID: 3318509932623716991
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 8183634217785219151
+    StartPinID: 15171204518960139129
+    EndPinID: 4609956403801443494
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 13000380660148407605
+    StartPinID: 8867504924735710820
+    EndPinID: 16656657730778364142
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 13028013678558096526
+    StartPinID: 610956156481048929
+    EndPinID: 17776716117588644894
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 9895761079487739257
+    StartPinID: 6952102847226934404
+    EndPinID: 502481315622894377
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+  - ID: 14226253825649112313
+    StartPinID: 3310645250496793447
+    EndPinID: 14965066961047057830
+    Colour: [0.400000036, 0.800000072, 0.639215708, 1]
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members:
+      Volume: {Type: float, Value: 0.370000005}
+      Period: {Type: float, Value: 2}
+      HitVolume: {Type: float, Value: 0.910000026}
+      SubFrequency: {Type: float, Value: 55}
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+GraphState: "{\"nodes\":{\"node:10140292550014797019\":{\"location\":{\"x\":772,\"y\":758}},\"node:10508805553109288140\":{\"location\":{\"x\":1173,\"y\":774}},\"node:11341425229789463538\":{\"location\":{\"x\":1992,\"y\":592}},\"node:11761943306124147666\":{\"location\":{\"x\":1282,\"y\":1062}},\"node:1254578984741614123\":{\"location\":{\"x\":1210,\"y\":574}},\"node:12685134498495385198\":{\"location\":{\"x\":1342,\"y\":362}},\"node:13046947401002823594\":{\"location\":{\"x\":1643,\"y\":440}},\"node:13353681563205752288\":{\"location\":{\"x\":829,\"y\":430}},\"node:13745591842293392365\":{\"location\":{\"x\":789,\"y\":918}},\"node:1411450663726520296\":{\"location\":{\"x\":-32,\"y\":686}},\"node:14282655581067353516\":{\"location\":{\"x\":1078,\"y\":1206}},\"node:1451276075965936573\":{\"location\":{\"x\":954,\"y\":880}},\"node:16020172465667524169\":{\"location\":{\"x\":1343,\"y\":634}},\"node:2685564911816012970\":{\"location\":{\"x\":1600,\"y\":1172}},\"node:3366532521615158749\":{\"location\":{\"x\":-182,\"y\":806}},\"node:4107409395036884652\":{\"location\":{\"x\":1765,\"y\":784}},\"node:4334729116109612162\":{\"location\":{\"x\":731,\"y\":1058}},\"node:55813299291894815\":{\"location\":{\"x\":2160,\"y\":518}},\"node:5769803755246285119\":{\"location\":{\"x\":248,\"y\":798}},\"node:6947080385076669376\":{\"location\":{\"x\":1646,\"y\":574}},\"node:7252396676391034170\":{\"location\":{\"x\":1347,\"y\":508}},\"node:9658992114039401895\":{\"location\":{\"x\":-246,\"y\":686}},\"node:9975657011500122698\":{\"location\":{\"x\":1980,\"y\":452}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":773.73785400390625,\"y\":312.55731201171875},\"visible_rect\":{\"max\":{\"x\":2420.73779296875,\"y\":1455.557373046875},\"min\":{\"x\":773.73785400390625,\"y\":312.55731201171875}},\"zoom\":1}}"
+Waves:
+  []
+CachedPrototype: SandboxProject\Cache\SoundGraph\sound_graph_cache_Generators Test

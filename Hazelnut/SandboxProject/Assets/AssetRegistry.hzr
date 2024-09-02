@@ -1,0 +1,1027 @@
+Assets:
+  - Handle: 66626710595523400
+    FilePath: Meshes/Source/mosin/arms1_Mat_spec.jpg
+    Type: Texture
+  - Handle: 77242325597269194
+    FilePath: Audio/AudioDemo/SC_Env_Hum.hsoundc
+    Type: SoundConfig
+  - Handle: 118004803757876196
+    FilePath: env/rooitou_park_4k.hdr
+    Type: EnvMap
+  - Handle: 141958302728525404
+    FilePath: Meshes/Source/cerberus/Cerberus_A.png
+    Type: Texture
+  - Handle: 189941332072233889
+    FilePath: Meshes/Source/Sponza/17556969131407844942.jpg
+    Type: Texture
+  - Handle: 211816492794932423
+    FilePath: Meshes/Source/Sponza/5792855332885324923.jpg
+    Type: Texture
+  - Handle: 286930305540671256
+    FilePath: Non-SG Config.hsoundc
+    Type: SoundConfig
+  - Handle: 407372237544972090
+    FilePath: Audio/SoundGraph Demo/hit-03.wav
+    Type: Audio
+  - Handle: 420185002721568440
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-07-2.wav
+    Type: Audio
+  - Handle: 461541584939857254
+    FilePath: scenes/Flocking.hscene
+    Type: Scene
+  - Handle: 540509545745494095
+    FilePath: Meshes/Source/Sponza/14650633544276105767.jpg
+    Type: Texture
+  - Handle: 689039470629100212
+    FilePath: Meshes/Source/HazelText.gltf
+    Type: MeshSource
+  - Handle: 764190760845490054
+    FilePath: Meshes/Source/Default/Cube.gltf
+    Type: MeshSource
+  - Handle: 835162086435293605
+    FilePath: Scripts/Source/SandboxUtility.cs
+    Type: ScriptFile
+  - Handle: 857562190608691350
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-10 - mono.wav
+    Type: Audio
+  - Handle: 1086112730671953050
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-13 - mono.wav
+    Type: Audio
+  - Handle: 1091917666990205045
+    FilePath: Audio/SoundGraph Demo/hit-02.wav
+    Type: Audio
+  - Handle: 1125348764119971728
+    FilePath: Audio/AudioDemo/sequence one-shots/SC_Env_MachineLang.hsoundc
+    Type: SoundConfig
+  - Handle: 1136474555955904259
+    FilePath: Animation/Knight-Walking_A.hanim
+    Type: Animation
+  - Handle: 1149581991421307762
+    FilePath: Meshes/Source/Sponza/7815564343179553343.jpg
+    Type: Texture
+  - Handle: 1156798854046566821
+    FilePath: Meshes/Bloom/BloomText.hmesh
+    Type: Mesh
+  - Handle: 1162716615310863507
+    FilePath: Materials/GreenEmission.hmaterial
+    Type: Material
+  - Handle: 1339293093445584609
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-06.wav
+    Type: Audio
+  - Handle: 1345859412746239839
+    FilePath: Meshes/Source/KayKit/Target_wall_large_B.glb
+    Type: MeshSource
+  - Handle: 1383285483934982465
+    FilePath: Meshes/Source/Sponza/11872827283454512094.jpg
+    Type: Texture
+  - Handle: 1432437442017206635
+    FilePath: Meshes/AnimationTest/Pillar_A.hsmesh
+    Type: StaticMesh
+  - Handle: 1459666753629663484
+    FilePath: Meshes/Source/mosin/arms1_Mat_spec.png
+    Type: Texture
+  - Handle: 1482624767082475192
+    FilePath: Audio/AudioDemo/footsteps/footstep-06.wav
+    Type: Audio
+  - Handle: 1503033083699106041
+    FilePath: Scripts/Source/BasicController.cs
+    Type: ScriptFile
+  - Handle: 1548966832157659476
+    FilePath: Audio/AudioDemo/Fake copter L.wav
+    Type: Audio
+  - Handle: 1558966051656197298
+    FilePath: Audio/AudioDemo/Ambiance/SC_Amb_Windy.hsoundc
+    Type: SoundConfig
+  - Handle: 1561346292037904914
+    FilePath: Materials/M_ExplosiveParticle.hmaterial
+    Type: Material
+  - Handle: 1622113326071562637
+    FilePath: Meshes/Source/Sponza/8747919177698443163.jpg
+    Type: Texture
+  - Handle: 1629480713620347480
+    FilePath: Scripts/Source/Tests/EntityTest.cs
+    Type: ScriptFile
+  - Handle: 1634026461609665942
+    FilePath: Audio/AudioDemo/Machine hum L.wav
+    Type: Audio
+  - Handle: 1911310269322171474
+    FilePath: Meshes/Source/Sponza/7268504077753552595.jpg
+    Type: Texture
+  - Handle: 1983862766378250075
+    FilePath: Meshes/Source/mosin/E_bullet_3_ddna.jpg
+    Type: Texture
+  - Handle: 2009170222837063759
+    FilePath: Meshes/Source/cerberus/cerberus.gltf
+    Type: MeshSource
+  - Handle: 2064596624880331265
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-02 - mono.wav
+    Type: Audio
+  - Handle: 2126746479130028110
+    FilePath: Meshes/SponzaDemo/Sponza.hsmesh
+    Type: StaticMesh
+  - Handle: 2144431724192485925
+    FilePath: Audio/AudioDemo/SC_Env_Sliding.hsoundc
+    Type: SoundConfig
+  - Handle: 2208831434898998405
+    FilePath: Scripts/Source/RandomColor.cs
+    Type: ScriptFile
+  - Handle: 2305603173028849847
+    FilePath: Meshes/Source/Sponza/2374361008830720677.jpg
+    Type: Texture
+  - Handle: 2347472529549082540
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-33.wav
+    Type: Audio
+  - Handle: 2545302574705535667
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-05 - mono.wav
+    Type: Audio
+  - Handle: 2673130448644595908
+    FilePath: Prefabs/Flocking/Boid.hprefab
+    Type: Prefab
+  - Handle: 2737862794404612495
+    FilePath: Meshes/Source/KayKit/Wall_decorated.glb
+    Type: MeshSource
+  - Handle: 2746435334876449799
+    FilePath: Meshes/Source/Sponza/8783994986360286082.jpg
+    Type: Texture
+  - Handle: 2828684559418037201
+    FilePath: Meshes/Source/Sponza/466164707995436622.jpg
+    Type: Texture
+  - Handle: 2830454609799518984
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-09.wav
+    Type: Audio
+  - Handle: 2949960365415118735
+    FilePath: models/m1911/m1911.gltf
+    Type: MeshSource
+  - Handle: 3029741095178676151
+    FilePath: Meshes/Source/Sponza/10381718147657362067.jpg
+    Type: Texture
+  - Handle: 3054253712434282661
+    FilePath: Meshes/Source/KayKit/Wall_window_closed.glb
+    Type: MeshSource
+  - Handle: 3067266531766851022
+    FilePath: Materials/M_Red.hmaterial
+    Type: Material
+  - Handle: 3077514264241016289
+    FilePath: Meshes/Source/Sponza/6047387724914829168.jpg
+    Type: Texture
+  - Handle: 3130190545593214810
+    FilePath: Audio/AudioDemo/footsteps/footstep-08.wav
+    Type: Audio
+  - Handle: 3271057034469422252
+    FilePath: Meshes/Default/Torus.hsmesh
+    Type: StaticMesh
+  - Handle: 3317670836861388941
+    FilePath: Materials/M_Crosshair.hmaterial
+    Type: Material
+  - Handle: 3341697050454220741
+    FilePath: Meshes/Source/Sponza/2411100444841994089.jpg
+    Type: Texture
+  - Handle: 3380040293548241533
+    FilePath: Meshes/Source/Sponza/1219024358953944284.jpg
+    Type: Texture
+  - Handle: 3432672104596164256
+    FilePath: Meshes/Source/mosin/mat0_r.png
+    Type: Texture
+  - Handle: 3459207485863178962
+    FilePath: Meshes/Source/TestScene.gltf
+    Type: MeshSource
+  - Handle: 3482052407977123962
+    FilePath: scenes/AudioTesting.hscene
+    Type: Scene
+  - Handle: 3510758455484699540
+    FilePath: models/m1911/m1911.gltf
+    Type: MeshSource
+  - Handle: 3626345300503769458
+    FilePath: Meshes/Source/KayKit/Wall.glb
+    Type: MeshSource
+  - Handle: 3663621928160335031
+    FilePath: Meshes/Source/mosin/mat1_r.png
+    Type: Texture
+  - Handle: 3683833343127827128
+    FilePath: models/m1911/m1911_normal.png
+    Type: Texture
+  - Handle: 3693271946708449666
+    FilePath: Scripts/Source/Tests/ExceptionTest.cs
+    Type: ScriptFile
+  - Handle: 3698012614985289450
+    FilePath: Prefabs/Prefab Test.hprefab
+    Type: Prefab
+  - Handle: 3751576190127064440
+    FilePath: Meshes/Source/KayKit/Workbench.glb
+    Type: MeshSource
+  - Handle: 3796420699481870312
+    FilePath: Meshes/Source/KayKit/Door.glb
+    Type: MeshSource
+  - Handle: 3828050120030364380
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-07-1.wav
+    Type: Audio
+  - Handle: 3829378899541222998
+    FilePath: Audio/AudioDemo/footsteps/footstep-02.wav
+    Type: Audio
+  - Handle: 3870995290491390100
+    FilePath: Meshes/Source/Sponza/16885566240357350108.jpg
+    Type: Texture
+  - Handle: 3991378131044472810
+    FilePath: scenes/Physics2DTest.hscene
+    Type: Scene
+  - Handle: 4029215348592173170
+    FilePath: Audio/Sound Configs/SC_SimpleLoop.hsoundc
+    Type: SoundConfig
+  - Handle: 4049422758425996595
+    FilePath: Meshes/Source/Sponza/8006627369776289000.png
+    Type: Texture
+  - Handle: 4052701913952080658
+    FilePath: scenes/AudioDemo.hscene
+    Type: Scene
+  - Handle: 4121616649471341695
+    FilePath: Meshes/AnimationTest/Workbench.hsmesh
+    Type: StaticMesh
+  - Handle: 4256841120731152137
+    FilePath: Meshes/Source/KayKit/Knight.glb
+    Type: MeshSource
+  - Handle: 4263076323975630866
+    FilePath: Audio/Sound Configs/SpreadFocus_test.hsoundc
+    Type: SoundConfig
+  - Handle: 4394048987326145199
+    FilePath: Meshes/Source/Sponza/7441062115984513793.jpg
+    Type: Texture
+  - Handle: 4478061676510658327
+    FilePath: Audio/AudioDemo/Ambiance/Thunder - ambiance - MS.wav
+    Type: Audio
+  - Handle: 4509377601687825807
+    FilePath: Meshes/Source/cerberus/CerberusMaterials.gltf
+    Type: MeshSource
+  - Handle: 4562650144502248003
+    FilePath: Meshes/Source/stormtrooper/Stormtrooper_D.png
+    Type: Texture
+  - Handle: 4590843730977251518
+    FilePath: Meshes/PhysicsScene/Ramp.hsmesh
+    Type: StaticMesh
+  - Handle: 4591123325363960341
+    FilePath: Meshes/AnimationTest/Target_wall_large_B.hsmesh
+    Type: StaticMesh
+  - Handle: 4616275216144182592
+    FilePath: Meshes/Source/Sponza/Sponza.gltf
+    Type: MeshSource
+  - Handle: 4672151301586969229
+    FilePath: Meshes/Source/Sponza/6151467286084645207.jpg
+    Type: Texture
+  - Handle: 4763877228524265775
+    FilePath: Meshes/Source/Sponza/2299742237651021498.jpg
+    Type: Texture
+  - Handle: 4766185437692679377
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-09 - mono.wav
+    Type: Audio
+  - Handle: 4783633036323863009
+    FilePath: Meshes/Source/Sponza/2775690330959970771.jpg
+    Type: Texture
+  - Handle: 4800997079957848490
+    FilePath: Meshes/Source/Sponza/8051790464816141987.jpg
+    Type: Texture
+  - Handle: 4803387761944899470
+    FilePath: Meshes/Source/Sponza/4601176305987539675.jpg
+    Type: Texture
+  - Handle: 4858144110231129140
+    FilePath: Meshes/Source/cerberus/cerberus.gltf
+    Type: MeshSource
+  - Handle: 4877262646081255670
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-12.wav
+    Type: Audio
+  - Handle: 4909713688515929039
+    FilePath: scenes/Tests/ScriptingTest.hscene
+    Type: Scene
+  - Handle: 4918112557500125981
+    FilePath: Audio/LR test.wav
+    Type: Audio
+  - Handle: 4942083338876796022
+    FilePath: Meshes/Source/Sponza/2969916736137545357.jpg
+    Type: Texture
+  - Handle: 5133064746270170913
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-28.wav
+    Type: Audio
+  - Handle: 5146336405325241375
+    FilePath: Sound Graphs/Music Test.sound_graph
+    Type: SoundGraphSound
+  - Handle: 5186669951354466325
+    FilePath: Scripts/Source/Testing.cs
+    Type: ScriptFile
+  - Handle: 5293821427051120712
+    FilePath: Meshes/Source/KayKit/Pillar_A.glb
+    Type: MeshSource
+  - Handle: 5297662896059799094
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-07.wav
+    Type: Audio
+  - Handle: 5335834865867409016
+    FilePath: scenes/PrefabSandbox.hscene
+    Type: Scene
+  - Handle: 5343642556929506002
+    FilePath: Audio/AudioDemo/Ambiance/SC_Amb_Thunder.hsoundc
+    Type: SoundConfig
+  - Handle: 5349322122580055698
+    FilePath: Prefabs/Projectile.hprefab
+    Type: Prefab
+  - Handle: 5420938529618182203
+    FilePath: Meshes/Source/mosin/E_bullet_3_diff.jpg
+    Type: Texture
+  - Handle: 5459505710282102157
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-03 - mono.wav
+    Type: Audio
+  - Handle: 5459788161427489287
+    FilePath: scenes/PhysicsStress.hscene
+    Type: Scene
+  - Handle: 5529791772057870063
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-11 - mono.wav
+    Type: Audio
+  - Handle: 5538200033349376371
+    FilePath: Meshes/Source/Sponza/8773302468495022225.jpg
+    Type: Texture
+  - Handle: 5717913345001425079
+    FilePath: Materials/M_Ground.hmaterial
+    Type: Material
+  - Handle: 5754739731855155933
+    FilePath: Meshes/Source/mosin/arms1_Mat_diff.jpg
+    Type: Texture
+  - Handle: 5820269841314861732
+    FilePath: Meshes/Source/KayKit/Bullet.glb
+    Type: MeshSource
+  - Handle: 5904573125766052476
+    FilePath: Audio/SoundGraph Demo/hit-04.wav
+    Type: Audio
+  - Handle: 6022566873237277952
+    FilePath: Meshes/Source/Sponza/2051777328469649772.jpg
+    Type: Texture
+  - Handle: 6052051215760767847
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-07 - mono.wav
+    Type: Audio
+  - Handle: 6076325736745432522
+    FilePath: Meshes/Source/Sponza/15295713303328085182.jpg
+    Type: Texture
+  - Handle: 6087919094517431490
+    FilePath: Meshes/Source/Default/Sphere.gltf
+    Type: MeshSource
+  - Handle: 6090468609339042727
+    FilePath: Materials/HazelText.hmaterial
+    Type: Material
+  - Handle: 6092368092518963256
+    FilePath: Meshes/Source/Sponza/16299174074766089871.jpg
+    Type: Texture
+  - Handle: 6149057548850182078
+    FilePath: Meshes/TransformTest.hmesh
+    Type: Mesh
+  - Handle: 6220176263305420680
+    FilePath: Meshes/Source/PhysicsTestMesh.gltf
+    Type: MeshSource
+  - Handle: 6223803375270489531
+    FilePath: Audio/AudioDemo/random one-shots/SC_Env_Machine.hsoundc
+    Type: SoundConfig
+  - Handle: 6328776700247618008
+    FilePath: Scripts/Source/FPSPlayer.cs
+    Type: ScriptFile
+  - Handle: 6426169865760279824
+    FilePath: Meshes/Source/mosin/mat0_r.jpg
+    Type: Texture
+  - Handle: 6434215585553145792
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-14-1.wav
+    Type: Audio
+  - Handle: 6514567314689135449
+    FilePath: Scripts/Source/PlayerSphere.cs
+    Type: ScriptFile
+  - Handle: 6539429146271473720
+    FilePath: Meshes/Source/Sponza/755318871556304029.jpg
+    Type: Texture
+  - Handle: 6580021957480079246
+    FilePath: Meshes/Source/KayKit/Wall_targets.glb
+    Type: MeshSource
+  - Handle: 6583382716572344530
+    FilePath: Meshes/Default/Cylinder.hsmesh
+    Type: StaticMesh
+  - Handle: 6702031623914222884
+    FilePath: Meshes/Source/Sponza/13824894030729245199.jpg
+    Type: Texture
+  - Handle: 6789971386037729794
+    FilePath: Meshes/Source/Sponza/715093869573992647.jpg
+    Type: Texture
+  - Handle: 6794048458811322821
+    FilePath: Meshes/Default/Capsule.hsmesh
+    Type: StaticMesh
+  - Handle: 6869073007230388254
+    FilePath: Meshes/Source/Sponza/2185409758123873465.jpg
+    Type: Texture
+  - Handle: 6906888403547450146
+    FilePath: Materials/M_Blue.hmaterial
+    Type: Material
+  - Handle: 6920784319519238094
+    FilePath: Scripts/Source/Tests/DOF-Test.cs
+    Type: ScriptFile
+  - Handle: 6993939114711341288
+    FilePath: Meshes/Source/KayKit/Dummy_base.glb
+    Type: MeshSource
+  - Handle: 7027208433100875984
+    FilePath: Meshes/Source/Sponza/14267839433702832875.jpg
+    Type: Texture
+  - Handle: 7209251785265234620
+    FilePath: Meshes/AnimationTest/Pillar_B.hsmesh
+    Type: StaticMesh
+  - Handle: 7227181416634894325
+    FilePath: Audio/AudioDemo/footsteps/footstep-07.wav
+    Type: Audio
+  - Handle: 7291860544997086872
+    FilePath: Audio/test tone 110Hz -6dB - short.wav
+    Type: Audio
+  - Handle: 7324637778221490707
+    FilePath: Meshes/Source/Default/Plane.gltf
+    Type: MeshSource
+  - Handle: 7404906430998063428
+    FilePath: Meshes/Source/mosin/E_bullet_3_spec.jpg
+    Type: Texture
+  - Handle: 7444538013932551440
+    FilePath: Meshes/Source/KayKit/Primitive_floor.glb
+    Type: MeshSource
+  - Handle: 7452266498379741730
+    FilePath: Audio/Sound Configs/New Sound Config.hsoundc
+    Type: SoundConfig
+  - Handle: 7527427480791004515
+    FilePath: Meshes/Source/Sponza/8503262930880235456.jpg
+    Type: Texture
+  - Handle: 7527720138506375287
+    FilePath: Meshes/Source/Default/Cone.gltf
+    Type: MeshSource
+  - Handle: 7552331254382453041
+    FilePath: Scripts/Source/PhysicsTest.cs
+    Type: ScriptFile
+  - Handle: 7602023799138165432
+    FilePath: Meshes/Source/Sponza/14118779221266351425.jpg
+    Type: Texture
+  - Handle: 7605145566498522077
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-07.wav
+    Type: Audio
+  - Handle: 7623609278401711842
+    FilePath: Meshes/AnimationTest/Primitive_floor.hsmesh
+    Type: StaticMesh
+  - Handle: 7679288095843405373
+    FilePath: Meshes/AnimationTest/Pistol.hsmesh
+    Type: StaticMesh
+  - Handle: 7745898825945863141
+    FilePath: Meshes/Source/Ramp.gltf
+    Type: MeshSource
+  - Handle: 7816398183765727095
+    FilePath: Prefabs/ExplosiveParticle.hprefab
+    Type: Prefab
+  - Handle: 7964114745939190751
+    FilePath: env/venice_dawn_1_4k.hdr
+    Type: EnvMap
+  - Handle: 8072494109223024173
+    FilePath: Audio/AudioDemo/footsteps/footstep-10.wav
+    Type: Audio
+  - Handle: 8156127618462347342
+    FilePath: Meshes/Source/Sponza/17876391417123941155.jpg
+    Type: Texture
+  - Handle: 8262129762245524469
+    FilePath: Animation/Knight-Idle.hanim
+    Type: Animation
+  - Handle: 8292951257165322941
+    FilePath: Meshes/Source/mosin/mosin.gltf
+    Type: MeshSource
+  - Handle: 8428220783520776882
+    FilePath: scenes/SponzaDemo.hscene
+    Type: Scene
+  - Handle: 8548413365413454451
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-04.wav
+    Type: Audio
+  - Handle: 8625676271195271907
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-76.wav
+    Type: Audio
+  - Handle: 8677430186157251879
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-38.wav
+    Type: Audio
+  - Handle: 8760076623739549991
+    FilePath: env/pink_sunrise_4k.hdr
+    Type: EnvMap
+  - Handle: 8787852789505108321
+    FilePath: Meshes/Source/Sponza/8481240838833932244.jpg
+    Type: Texture
+  - Handle: 8987586188804361884
+    FilePath: Materials/M_RedGlow.hmaterial
+    Type: Material
+  - Handle: 9093041422778520396
+    FilePath: Meshes/Source/Tests/TransformTest.gltf
+    Type: MeshSource
+  - Handle: 9115012619965163339
+    FilePath: Meshes/Source/Sponza/4675343432951571524.jpg
+    Type: Texture
+  - Handle: 9192547327808807500
+    FilePath: Scripts/Source/Flocking/BoidHelper.cs
+    Type: ScriptFile
+  - Handle: 9377009172689421300
+    FilePath: scenes/ShadowTest.hscene
+    Type: Scene
+  - Handle: 9534702217413729862
+    FilePath: Animation/Knight-Jump_Idle.hanim
+    Type: Animation
+  - Handle: 9535819336621834600
+    FilePath: Prefabs/PhysicsStress/PhysicsCube.hprefab
+    Type: Prefab
+  - Handle: 9553728205620439484
+    FilePath: Meshes/SponzaDemo/Sponza.hmesh
+    Type: Mesh
+  - Handle: 9583568526989671259
+    FilePath: Audio/AudioDemo/footsteps/SC_Footsteps.hsoundc
+    Type: SoundConfig
+  - Handle: 9625329407996625652
+    FilePath: Audio/AudioDemo/Ambiance/City - windy tree tops - early autumn - XY 120 03.wav
+    Type: Audio
+  - Handle: 9650976044382409798
+    FilePath: Audio/Sound Configs/Sound Config_test.hsoundc
+    Type: SoundConfig
+  - Handle: 9761722086632354929
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-06.wav
+    Type: Audio
+  - Handle: 10020883473318137388
+    FilePath: Prefabs/AnimationTest/Interact.hprefab
+    Type: Prefab
+  - Handle: 10055721632731299449
+    FilePath: Meshes/Source/Sponza/4871783166746854860.jpg
+    Type: Texture
+  - Handle: 10055918697243385744
+    FilePath: scenes/Bloom.hscene
+    Type: Scene
+  - Handle: 10059192058201574845
+    FilePath: scenes/PhysicsTest.hscene
+    Type: Scene
+  - Handle: 10104946651903273225
+    FilePath: Scripts/Source/Noise.cs
+    Type: ScriptFile
+  - Handle: 10110396679634548524
+    FilePath: Meshes/Source/Sponza/white.png
+    Type: Texture
+  - Handle: 10221250517039080129
+    FilePath: Meshes/Source/Sponza/6593109234861095314.jpg
+    Type: Texture
+  - Handle: 10254819538148995611
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-11.wav
+    Type: Audio
+  - Handle: 10305417802510925618
+    FilePath: Meshes/Source/Bloom/BloomText.glb
+    Type: MeshSource
+  - Handle: 10339593368754743314
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-04 - mono.wav
+    Type: Audio
+  - Handle: 10423215624682529430
+    FilePath: Meshes/Source/Sponza/6772804448157695701.jpg
+    Type: Texture
+  - Handle: 10456784991617266774
+    FilePath: Meshes/AnimationTest/Bullet.hsmesh
+    Type: StaticMesh
+  - Handle: 10484241858998844673
+    FilePath: Meshes/Source/Sponza/3455394979645218238.jpg
+    Type: Texture
+  - Handle: 10507952110125455248
+    FilePath: Meshes/AnimationTest/Knight.hmesh
+    Type: Mesh
+  - Handle: 10515544330197388004
+    FilePath: Meshes/Source/Sponza/13196865903111448057.jpg
+    Type: Texture
+  - Handle: 10536880707179872245
+    FilePath: Animation/Knight - PickUp.hanim
+    Type: Animation
+  - Handle: 10774206732522829362
+    FilePath: Prefabs/PContainer.hprefab
+    Type: Prefab
+  - Handle: 10798493144512862104
+    FilePath: Meshes/Source/Sponza/11490520546946913238.jpg
+    Type: Texture
+  - Handle: 10869701420768300365
+    FilePath: Meshes/AnimationTest/Wall_decorated.hsmesh
+    Type: StaticMesh
+  - Handle: 10926006293265612791
+    FilePath: Audio/spread, focus test.wav
+    Type: Audio
+  - Handle: 10933357939000270365
+    FilePath: Meshes/Source/mosin/E_bullet_3_diff.png
+    Type: Texture
+  - Handle: 10942759881061867516
+    FilePath: Scripts/Source/PlayerController2D.cs
+    Type: ScriptFile
+  - Handle: 10955635232759700792
+    FilePath: Meshes/AnimationTest/Wall.hsmesh
+    Type: StaticMesh
+  - Handle: 11064927683948350998
+    FilePath: scenes/GeometryTest.hscene
+    Type: Scene
+  - Handle: 11084502412619037170
+    FilePath: models/m1911/m1911_metalness-m1911_roughness.png
+    Type: Texture
+  - Handle: 11190879308782347684
+    FilePath: Meshes/Source/Default/Capsule.gltf
+    Type: MeshSource
+  - Handle: 11192841287651603092
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-01 - mono.wav
+    Type: Audio
+  - Handle: 11260758525488298770
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-05.wav
+    Type: Audio
+  - Handle: 11300885141127292514
+    FilePath: Meshes/Source/mosin/arms1_Mat_ddna.jpg
+    Type: Texture
+  - Handle: 11334789309423834203
+    FilePath: Scripts/Source/AudioController.cs
+    Type: ScriptFile
+  - Handle: 11380404743473314815
+    FilePath: Meshes/Source/Sponza/332936164838540657.jpg
+    Type: Texture
+  - Handle: 11479476565713318331
+    FilePath: Meshes/Source/Sponza/5061699253647017043.png
+    Type: Texture
+  - Handle: 11521482051459744292
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-18.wav
+    Type: Audio
+  - Handle: 11582173770379276440
+    FilePath: Meshes/Source/Sponza/9916269861720640319.jpg
+    Type: Texture
+  - Handle: 11644006195257847095
+    FilePath: Meshes/Source/Sponza/8114461559286000061.jpg
+    Type: Texture
+  - Handle: 11665984590734068069
+    FilePath: Meshes/Default/Cone.hsmesh
+    Type: StaticMesh
+  - Handle: 11757411323514812788
+    FilePath: env/dikhololo_night_4k.hdr
+    Type: EnvMap
+  - Handle: 11762520650546959128
+    FilePath: scenes/Tests/DOF-Test.hscene
+    Type: Scene
+  - Handle: 11777979739347490440
+    FilePath: Scripts/Source/ScriptSpawner.cs
+    Type: ScriptFile
+  - Handle: 11824568267591754966
+    FilePath: Scripts/Source/Flocking/Boid.cs
+    Type: ScriptFile
+  - Handle: 11872421932365004570
+    FilePath: Audio/test tone 110Hz -6dB.wav
+    Type: Audio
+  - Handle: 11924812177066952063
+    FilePath: Meshes/Source/Sponza/6667038893015345571.jpg
+    Type: Texture
+  - Handle: 11927567576579508938
+    FilePath: models/m1911/m1911_color.png
+    Type: Texture
+  - Handle: 11978776728096222271
+    FilePath: Scripts/Source/FirstPersonController.cs
+    Type: ScriptFile
+  - Handle: 11986721429015450371
+    FilePath: Audio/AudioDemo/footsteps/footstep-05.wav
+    Type: Audio
+  - Handle: 12068737483717256003
+    FilePath: Sound Graphs/Descriptors Test.sound_graph
+    Type: SoundGraphSound
+  - Handle: 12081167142690250793
+    FilePath: Meshes/Source/Default/Torus.gltf
+    Type: MeshSource
+  - Handle: 12089417870887502986
+    FilePath: Meshes/Source/Sponza/12501374198249454378.jpg
+    Type: Texture
+  - Handle: 12093959561278069439
+    FilePath: Meshes/Source/Sponza/8750083169368950601.jpg
+    Type: Texture
+  - Handle: 12307221527388590361
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-08 - mono.wav
+    Type: Audio
+  - Handle: 12342321886722967226
+    FilePath: Meshes/Source/Sponza/5823059166183034438.jpg
+    Type: Texture
+  - Handle: 12362215793690749782
+    FilePath: Animation/Knight-Jump_Start.hanim
+    Type: Animation
+  - Handle: 12387183670818522676
+    FilePath: Materials/M_Green.hmaterial
+    Type: Material
+  - Handle: 12441722515605644810
+    FilePath: Audio/SoundGraph Demo/hit-01.wav
+    Type: Audio
+  - Handle: 12489272931902552519
+    FilePath: Meshes/Source/Sponza/3371964815757888145.jpg
+    Type: Texture
+  - Handle: 12537088908601087921
+    FilePath: Sound Graphs/Generators Test.sound_graph
+    Type: SoundGraphSound
+  - Handle: 12576614770624510448
+    FilePath: Meshes/AnimationTest/Target_stand_B.hsmesh
+    Type: StaticMesh
+  - Handle: 12595651368961715538
+    FilePath: Meshes/AnimationTest/Dummy_base.hsmesh
+    Type: StaticMesh
+  - Handle: 12664526321608038957
+    FilePath: Prefabs/AnimationTest/Bullet.hprefab
+    Type: Prefab
+  - Handle: 12681702855030813109
+    FilePath: Meshes/Source/cerberus/Cerberus_N.png
+    Type: Texture
+  - Handle: 12765578716787132266
+    FilePath: Meshes/Source/CubeScene.gltf
+    Type: MeshSource
+  - Handle: 12816966528384967725
+    FilePath: Meshes/Source/Sponza/11968150294050148237.jpg
+    Type: Texture
+  - Handle: 12846556980320989806
+    FilePath: scenes/RenderingTests.hscene
+    Type: Scene
+  - Handle: 12922385587991456946
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-02.wav
+    Type: Audio
+  - Handle: 12925078460507727076
+    FilePath: scenes/levels/Physics2D-Game.hscene
+    Type: Scene
+  - Handle: 12934117490652501854
+    FilePath: Audio/AudioDemo/SC_FlyingCopter.hsoundc
+    Type: SoundConfig
+  - Handle: 12944507251945525648
+    FilePath: Animation/Knight-Jump_Land.hanim
+    Type: Animation
+  - Handle: 13031411846938873736
+    FilePath: Meshes/Source/Sponza/759203620573749278.jpg
+    Type: Texture
+  - Handle: 13036517337047779604
+    FilePath: Scripts/Intermediates/Debug/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+    Type: ScriptFile
+  - Handle: 13053343862854994954
+    FilePath: Audio/AudioDemo/Ambiance/City Ambiance - Light layer.wav
+    Type: Audio
+  - Handle: 13067130000672557672
+    FilePath: Meshes/Source/Sponza/7645212358685992005.jpg
+    Type: Texture
+  - Handle: 13119023927099968085
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-04.wav
+    Type: Audio
+  - Handle: 13192991837872384683
+    FilePath: Audio/AudioDemo/footsteps/footstep-09.wav
+    Type: Audio
+  - Handle: 13221344830749982769
+    FilePath: scenes/AnimationTest.hscene
+    Type: Scene
+  - Handle: 13239525511227455322
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot.wav
+    Type: Audio
+  - Handle: 13252539105319627786
+    FilePath: Meshes/Source/Sponza/4910669866631290573.jpg
+    Type: Texture
+  - Handle: 13551542371252504961
+    FilePath: Meshes/Source/stormtrooper/stormtrooper.gltf
+    Type: MeshSource
+  - Handle: 13570648905700154054
+    FilePath: Prefabs/ScriptTestingcube.hprefab
+    Type: Prefab
+  - Handle: 13635817213924177454
+    FilePath: Scripts/Source/Flocking/BoidManager.cs
+    Type: ScriptFile
+  - Handle: 13673478726255814053
+    FilePath: Meshes/Source/Sponza/13982482287905699490.jpg
+    Type: Texture
+  - Handle: 13876884313646513982
+    FilePath: Meshes/Source/Sponza/15722799267630235092.jpg
+    Type: Texture
+  - Handle: 13881273147016533094
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-13.wav
+    Type: Audio
+  - Handle: 13897908244136967776
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-14.wav
+    Type: Audio
+  - Handle: 13957599674144021238
+    FilePath: Meshes/AudioDemo/TestScene.hsmesh
+    Type: StaticMesh
+  - Handle: 14033387603395490773
+    FilePath: Scripts/Source/PhysicsCubeSpawner.cs
+    Type: ScriptFile
+  - Handle: 14092022933524868416
+    FilePath: scenes/Sandbox2D.hscene
+    Type: Scene
+  - Handle: 14134065128092833809
+    FilePath: Animation/Player.hanimgraph
+    Type: AnimationGraph
+  - Handle: 14138938821069844168
+    FilePath: Meshes/PhysicsScene/PhysicsTestMesh.hmesh
+    Type: Mesh
+  - Handle: 14188607024417025701
+    FilePath: Audio/AudioDemo/footsteps/footstep-01.wav
+    Type: Audio
+  - Handle: 14220184755527937974
+    FilePath: Scripts/Source/TeleportTest.cs
+    Type: ScriptFile
+  - Handle: 14282957894802893613
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-03.wav
+    Type: Audio
+  - Handle: 14377900482014930165
+    FilePath: Meshes/Source/SubmeshCubeTest.gltf
+    Type: MeshSource
+  - Handle: 14393082122476873383
+    FilePath: Sound Graphs/Sample Accuracy Test.sound_graph
+    Type: SoundGraphSound
+  - Handle: 14441348987670251530
+    FilePath: Scripts/Intermediates/Debug/Sandbox.AssemblyInfo.cs
+    Type: ScriptFile
+  - Handle: 14515017745207993764
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-14 - mono.wav
+    Type: Audio
+  - Handle: 14681592752185001376
+    FilePath: Audio/AudioDemo/footsteps/footstep-04.wav
+    Type: Audio
+  - Handle: 14826592959083090978
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-14-2.wav
+    Type: Audio
+  - Handle: 14850578521430012189
+    FilePath: Sound Graphs/New SG Sound.sound_graph
+    Type: SoundGraphSound
+  - Handle: 14890103595425184226
+    FilePath: Animation/Knight-Running_B.hanim
+    Type: Animation
+  - Handle: 14924744775604793321
+    FilePath: Meshes/Default/Sphere.hsmesh
+    Type: StaticMesh
+  - Handle: 14933909024854722123
+    FilePath: Scripts/Source/Tests/CSharpTest.cs
+    Type: ScriptFile
+  - Handle: 14951974819821632778
+    FilePath: Meshes/Source/KayKit/Pillar_B.glb
+    Type: MeshSource
+  - Handle: 15009684737818880502
+    FilePath: Audio/AudioDemo/short one-shot/SC_Env_Cone.hsoundc
+    Type: SoundConfig
+  - Handle: 15061018486519086864
+    FilePath: Audio/AudioDemo/SC_FlyingSphere.hsoundc
+    Type: SoundConfig
+  - Handle: 15158814570223635596
+    FilePath: Meshes/AnimationTest/Ammo_Box.hsmesh
+    Type: StaticMesh
+  - Handle: 15205211325709386121
+    FilePath: Meshes/Source/Sponza/9288698199695299068.jpg
+    Type: Texture
+  - Handle: 15289707740528396545
+    FilePath: Meshes/Source/Sponza/10388182081421875623.jpg
+    Type: Texture
+  - Handle: 15371037092775135738
+    FilePath: Sound Graphs/Execution Order Test.sound_graph
+    Type: SoundGraphSound
+  - Handle: 15393244339891198872
+    FilePath: Meshes/Source/Sponza/14170708867020035030.jpg
+    Type: Texture
+  - Handle: 15426746729834656513
+    FilePath: Audio/AudioDemo/SC_Env_SoundCube.hsoundc
+    Type: SoundConfig
+  - Handle: 15456511139640960552
+    FilePath: Meshes/Source/Sponza/4477655471536070370.jpg
+    Type: Texture
+  - Handle: 15545230246112451656
+    FilePath: Scripts/Source/AudioDemo.cs
+    Type: ScriptFile
+  - Handle: 15628841434999106376
+    FilePath: Prefabs/Flocking/Boid.hprefab
+    Type: Prefab
+  - Handle: 15644984880458673382
+    FilePath: Prefabs/Player.hprefab
+    Type: Prefab
+  - Handle: 15647131286026575122
+    FilePath: Scripts/Source/MapGenerator.cs
+    Type: ScriptFile
+  - Handle: 15774598851803312388
+    FilePath: Animation/1H_Ranged_Shooting.hanim
+    Type: Animation
+  - Handle: 15814472123339703786
+    FilePath: Scripts/Source/PlayerCube.cs
+    Type: ScriptFile
+  - Handle: 15915731513620633657
+    FilePath: Meshes/Source/cerberus/Cerberus_M-Cerberus_R.png
+    Type: Texture
+  - Handle: 15927336987113925097
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-01.wav
+    Type: Audio
+  - Handle: 15967763609866477828
+    FilePath: Materials/Capsule.hmaterial
+    Type: Material
+  - Handle: 16041715245213672897
+    FilePath: Meshes/Shadow Test/CerberusMaterials.hmesh
+    Type: Mesh
+  - Handle: 16052114925186506995
+    FilePath: Animation/Knight.hskel
+    Type: Skeleton
+  - Handle: 16262250128137508158
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-06 - mono.wav
+    Type: Audio
+  - Handle: 16266400171653307415
+    FilePath: Meshes/Source/KayKit/Target_stand_B.glb
+    Type: MeshSource
+  - Handle: 16268335169957407051
+    FilePath: Audio/AudioDemo/footsteps/footstep-03.wav
+    Type: Audio
+  - Handle: 16279427311265524656
+    FilePath: Animation/Knight - Interact.hanim
+    Type: Animation
+  - Handle: 16406712956626846946
+    FilePath: Meshes/Source/mosin/mat1_r.jpg
+    Type: Texture
+  - Handle: 16549488645610299280
+    FilePath: Meshes/Source/Sponza/11474523244911310074.jpg
+    Type: Texture
+  - Handle: 16575421628514050062
+    FilePath: Meshes/Source/Sponza/4975155472559461469.jpg
+    Type: Texture
+  - Handle: 16661967549420579512
+    FilePath: Scripts/Source/Tests/CollisionCallbackTest.cs
+    Type: ScriptFile
+  - Handle: 16697803555771648169
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-08.wav
+    Type: Audio
+  - Handle: 16702744201807666559
+    FilePath: Meshes/Source/Sponza/3827035219084910048.jpg
+    Type: Texture
+  - Handle: 16704718035390383336
+    FilePath: Meshes/Default/Cube.hsmesh
+    Type: StaticMesh
+  - Handle: 16724618810269419794
+    FilePath: Scripts/Source/ThirdPerson.cs
+    Type: ScriptFile
+  - Handle: 16731012073360840596
+    FilePath: Prefabs/Flocking/Boid.hprefab
+    Type: Prefab
+  - Handle: 16758713873145882216
+    FilePath: Meshes/Source/mosin/mat1_diff.jpg
+    Type: Texture
+  - Handle: 16902489934535872374
+    FilePath: Meshes/HazelText.hsmesh
+    Type: StaticMesh
+  - Handle: 16947718648921030200
+    FilePath: Scripts/Source/Flocking/BoidSettings.cs
+    Type: ScriptFile
+  - Handle: 16988715112262787437
+    FilePath: Meshes/Source/Sponza/16275776544635328252.png
+    Type: Texture
+  - Handle: 17005257768720546959
+    FilePath: Meshes/Source/mosin/mat1_n.png
+    Type: Texture
+  - Handle: 17059958549184663336
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-10.wav
+    Type: Audio
+  - Handle: 17106171938871456364
+    FilePath: Meshes/Source/KayKit/Ammo_Box.glb
+    Type: MeshSource
+  - Handle: 17207971976338702314
+    FilePath: SoundGraph Config.hsoundc
+    Type: SoundConfig
+  - Handle: 17221404812161725890
+    FilePath: Meshes/AnimationTest/Door.hsmesh
+    Type: StaticMesh
+  - Handle: 17232021335644421545
+    FilePath: Meshes/Source/mosin/mat0_c.jpg
+    Type: Texture
+  - Handle: 17245528667614161737
+    FilePath: Meshes/Source/Sponza/3628158980083700836.jpg
+    Type: Texture
+  - Handle: 17257923804703518165
+    FilePath: Meshes/Source/KayKit/Pistol.glb
+    Type: MeshSource
+  - Handle: 17312714032670472674
+    FilePath: Audio/AudioDemo/short one-shot/weird sfx-09-1.wav
+    Type: Audio
+  - Handle: 17398776197667709858
+    FilePath: Audio/AudioDemo/Sliding L.wav
+    Type: Audio
+  - Handle: 17468550292540788615
+    FilePath: Materials/Rough.hmaterial
+    Type: Material
+  - Handle: 17518797968244539495
+    FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-36.wav
+    Type: Audio
+  - Handle: 17618720637158600454
+    FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-03.wav
+    Type: Audio
+  - Handle: 17747240878314774267
+    FilePath: Audio/AudioDemo/Rattle L.wav
+    Type: Audio
+  - Handle: 17776251001083650100
+    FilePath: env/birchwood_4k.hdr
+    Type: EnvMap
+  - Handle: 17810696831416626779
+    FilePath: Meshes/Default/Plane.hsmesh
+    Type: StaticMesh
+  - Handle: 17853518740815327945
+    FilePath: Materials/Reflective.hmaterial
+    Type: Material
+  - Handle: 17940637405112131345
+    FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-12 - mono.wav
+    Type: Audio
+  - Handle: 17948184813918906566
+    FilePath: Scripts/Source/Projectile.cs
+    Type: ScriptFile
+  - Handle: 18075972389904841956
+    FilePath: Meshes/Source/Default/Cylinder.gltf
+    Type: MeshSource
+  - Handle: 18134401423384770021
+    FilePath: Meshes/AnimationTest/Wall_window_closed.hsmesh
+    Type: StaticMesh
+  - Handle: 18209261166127008169
+    FilePath: Meshes/Source/Sponza/7056944414013900257.jpg
+    Type: Texture
+  - Handle: 18297471099767966675
+    FilePath: Audio/AudioDemo/Haunted L.wav
+    Type: Audio
+  - Handle: 18442412098063382630
+    FilePath: Meshes/CubeScene.hmesh
+    Type: Mesh

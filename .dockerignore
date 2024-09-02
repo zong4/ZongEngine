@@ -1,0 +1,21 @@
+**
+
+# Direct mirror of Dockerfile `COPY` contents
+
+!vendor/**
+!scripts/Linux-Build.sh
+!premake5.lua
+!Dependencies.lua
+
+!HazelnutLauncher/**
+!Hazel-Launcher/**
+!Hazel-ScriptCore/**
+!Hazel-Runtime/**
+
+!Hazelnut/src/**
+!Hazelnut/premake5.lua
+!Hazelnut/Resources/LUA/**
+!Hazelnut/SandboxProject/premake5.lua
+!Hazelnut/SandboxProject/Assets/Scripts/**
+
+!Hazel/**

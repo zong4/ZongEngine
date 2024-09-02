@@ -1,0 +1,344 @@
+Scene: RenderingTests
+Entities:
+  - Entity: 492260644621164234
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-1.60720575, 0.901592851, -0.730437458]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 786525488897351341
+    TagComponent:
+      Tag: Torus
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [1.342453, 0.573435307, 13.8552094]
+      Rotation: [0, 0, -1.63680065]
+      Scale: [3.4712975, 3.4712975, 3.46016288]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 0
+    MeshColliderComponent:
+      ColliderHandle: 4298672626758263456
+      IsTrigger: false
+      UseSharedShape: false
+      OverrideMaterial: 0
+      CollisionComplexity: "\x00"
+  - Entity: 1741501273259217433
+    TagComponent:
+      Tag: Point Light
+    Parent: 15655314229017363675
+    Children:
+      []
+    TransformComponent:
+      Position: [5.80429411, 2.42589331, 17.5965729]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.862903237, 1, 0]
+      Intensity: 1.64999998
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 5.80000019
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 2627321198254516796
+    TagComponent:
+      Tag: Capsule
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9.23010159, 1.11864281, 13.0120573]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 6794048458811322821
+      MaterialTable:
+        0: 17853518740815327945
+    CapsuleColliderComponent:
+      Radius: 0.5
+      Height: 1
+      Offset: [0, 0, 0]
+      IsTrigger: false
+      Material: 0
+  - Entity: 4932475457617982109
+    TagComponent:
+      Tag: Point Light
+    Parent: 15655314229017363675
+    Children:
+      []
+    TransformComponent:
+      Position: [6.36902285, 2.42589331, 1.12514472]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [1, 0, 0]
+      Intensity: 2.25
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 7.5999999
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 5397537735395125647
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 3.60556078, 4.00880575]
+      Rotation: [0, 0, 0]
+      Scale: [1, 6.58894634, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 6510791824745464689
+    TagComponent:
+      Tag: Plane
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.46898669, 16.3622036]
+      Rotation: [0, 0, 0]
+      Scale: [23.8875065, 1, 15.7124214]
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 17468550292540788615
+    MeshColliderComponent:
+      ColliderHandle: 12280942863637812378
+      IsTrigger: false
+      UseSharedShape: false
+      OverrideMaterial: 0
+      CollisionComplexity: "\x00"
+  - Entity: 8082160342895275715
+    TagComponent:
+      Tag: Torus
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [5.25254917, 0.573435307, 11.8038273]
+      Rotation: [0, 0, 0]
+      Scale: [3.47129941, 3.47129989, 3.46016288]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 15967763609866477828
+    MeshColliderComponent:
+      ColliderHandle: 7204724795763085350
+      IsTrigger: false
+      UseSharedShape: false
+      OverrideMaterial: 0
+      CollisionComplexity: "\x00"
+  - Entity: 9280875284895382158
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [2.55217886, 1.70757604, 2.52458382]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 11036588182782981811
+    TagComponent:
+      Tag: Plane
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0.46898669, 0]
+      Rotation: [0, 0, 0]
+      Scale: [23.8875065, 1, 15.7124214]
+    StaticMeshComponent:
+      AssetID: 17810696831416626779
+      MaterialTable:
+        0: 17853518740815327945
+    MeshColliderComponent:
+      ColliderHandle: 8295569627200335976
+      IsTrigger: false
+      UseSharedShape: false
+      OverrideMaterial: 0
+      CollisionComplexity: "\x00"
+  - Entity: 11266527304938774427
+    TagComponent:
+      Tag: Directional Light
+    Parent: 15655314229017363675
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [-1.81974757, -1.07038581, 2.84921575]
+      Scale: [0.000999998068, 0.999999523, 0.999997616]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 14249600797581432014
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [2.55217886, 1.70757604, 18.1397934]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 14747611662222322865
+    TagComponent:
+      Tag: Torus
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [5.25254917, 0.573435307, 3.91501999]
+      Rotation: [0, 0, 0]
+      Scale: [3.47129941, 3.47129989, 3.46016288]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 15967763609866477828
+    MeshColliderComponent:
+      ColliderHandle: 9069382046701620773
+      IsTrigger: false
+      UseSharedShape: false
+      OverrideMaterial: 0
+      CollisionComplexity: "\x00"
+  - Entity: 15655314229017363675
+    TagComponent:
+      Tag: Lighting
+    Parent: 0
+    Children:
+      - Handle: 11266527304938774427
+      - Handle: 17485239510661114609
+      - Handle: 1741501273259217433
+      - Handle: 4932475457617982109
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 16582385242780570925
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 3.60556078, 10.5922194]
+      Rotation: [0, 0, 0]
+      Scale: [1, 6.58894634, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 1162716615310863507
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 17286941507521704407
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-5.79067659, 3.94252968, -0.730437458]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 17417070125591688717
+    TagComponent:
+      Tag: Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [9.63440037, 2.97078657, 16.6395969]
+      Rotation: [0, 0, 0]
+      Scale: [0.263593316, 5.24117279, 14.7107983]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      IsTrigger: false
+      Material: 0
+  - Entity: 17485239510661114609
+    TagComponent:
+      Tag: Sky Light
+    Parent: 15655314229017363675
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 8760076623739549991
+      Intensity: 1
+      Lod: 0
+      DynamicSky: false
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 50
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

@@ -1,0 +1,40 @@
+Prefab:
+  - Entity: 4917911564235632741
+    TagComponent:
+      Tag: PhysicsCube
+    Parent: 0
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 9535819336621834600
+      Entity: 4917911564235632741
+    TransformComponent:
+      Position: [-0.00186318159, 4.69330025, -0.00130733848]
+      Rotation: [0, 0, 0]
+      Scale: [0.25, 0.25, 0.25]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      SubmeshIndex: 0
+      MaterialTable:
+        0: 0
+    RigidBodyComponent:
+      BodyType: 1
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsKinematic: false
+      Layer: 0
+      CollisionDetection: 0
+      Constraints:
+        LockPositionX: false
+        LockPositionY: false
+        LockPositionZ: false
+        LockRotationX: false
+        LockRotationY: false
+        LockRotationZ: false
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      Size: [1, 1, 1]
+      IsTrigger: false
+      Material: 8259788456103620220

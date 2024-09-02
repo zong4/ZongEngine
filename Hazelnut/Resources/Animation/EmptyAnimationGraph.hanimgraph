@@ -1,0 +1,36 @@
+Skeleton: 0
+0:
+  Nodes:
+    - ID: 17234011670002181332
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":968,\"y\":446}}"
+      Inputs:
+        - ID: 5928440281298659758
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+  Links:
+    []
+  GraphState: "{\"nodes\":{\"node:17234011670002181332\":{\"location\":{\"x\":968,\"y\":446}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":465.8328857421875,\"y\":137.405792236328125},\"visible_rect\":{\"max\":{\"x\":1202.6761474609375,\"y\":836.28948974609375},\"min\":{\"x\":271.59063720703125,\"y\":80.1105422973632812}},\"zoom\":1.7152024507522583}}"
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~

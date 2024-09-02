@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "master", "dev" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: "Hazel.sln"
+  
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: [Windows, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        build-configuration: [Debug, Release, Dist]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: 'StudioCherno/Hazel'
+        submodules: recursive
+        lfs: true
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - uses: microsoft/setup-msbuild@v1.1
+      with:
+        msbuild-architecture: x64
+    - name: Setup
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Setup.py must be called from scripts directory
+      run: |
+        cd scripts
+        python Setup.py
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: MSBuild ${{env.SOLUTION_FILE_PATH}} /m /p:Configuration=${{matrix.build-configuration}} -fl -flp:logfile=logs/Build-${{matrix.build-configuration}}.log
+  build-linux:
+    runs-on: [Linux, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        build-configuration: [debug, release]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: 'StudioCherno/Hazel'
+        submodules: recursive
+        lfs: true
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Setup
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # NOTE(Yan): Global environment vars aren't set automatically for some reason
+      #            These build commands should be replaced by build script in future.
+      run: |
+        source /etc/hazel-env
+        premake5 --cc=clang gmake2
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make -j$(($(nproc) - 1)) config=${{matrix.build-configuration}}

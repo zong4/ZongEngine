@@ -1,0 +1,2061 @@
+Skeleton: 16052114925186506995
+0:
+  Nodes:
+    - ID: 17234011670002181332
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":696,\"y\":334}}"
+      Inputs:
+        - ID: 5928440281298659758
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 11858404868537269695
+      Category: Animation
+      Name: State Machine
+      Description: State Machine
+      Color: [0.92549026, 0.619607866, 0.141176477, 1]
+      Type: Subroutine
+      Size: [166, 72]
+      Location: "{\"location\":{\"x\":483,\"y\":323}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 12458859200077771182
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+  Links:
+    - ID: 7432677150584377178
+      StartPinID: 12458859200077771182
+      EndPinID: 5928440281298659758
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":21.1871337890625,\"y\":-90.1477813720703125},\"visible_rect\":{\"max\":{\"x\":1181.4581298828125,\"y\":708.568115234375},\"min\":{\"x\":14.124755859375,\"y\":-60.0985221862792969}},\"zoom\":1.5}}"
+946665602881729343:
+  Nodes:
+    - ID: 4928454852245642064
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1216,\"y\":966}}"
+      Inputs:
+        - ID: 14142878331012499478
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 9046919286188471405
+      Category: Input
+      Name: Input
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":530,\"y\":150}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 6792072812952454034
+          Name: Forwards
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 5695479589854095014
+      Category: Blend
+      Name: Blend Space
+      Description: Locomotion
+      Color: [1, 1, 0, 1]
+      Type: Subroutine
+      Size: [263, 93]
+      Location: "{\"location\":{\"x\":689,\"y\":123}}"
+      Inputs:
+        - ID: 1631672522038026280
+          Name: X
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 10474472435549168203
+          Name: Y
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 15848268809071049521
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+      Offset: [-0.114587456, -0.154180765]
+      Scale: [0.00125944579, -0.00395256886]
+      LerpSecondsPerUnit: [0.200000003, 0.200000003]
+      ShowDetails: true
+    - ID: 5441696170411756564
+      Category: Input
+      Name: Input
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":531,\"y\":286}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 12139362745709090131
+          Name: Interact
+          Type: Flow
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+    - ID: 6096139465036038280
+      Category: Blend
+      Name: One Shot
+      Description: Interact
+      Color: [1, 1, 0, 1]
+      Type: Subroutine
+      Size: [437, 233]
+      Location: "{\"location\":{\"x\":688,\"y\":255}}"
+      Inputs:
+        - ID: 17603593264829333179
+          Name: Base Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 17628257685224889499
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 10181362692471167167
+          Name: Weight
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 2678471151132173219
+          Name: Additive
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 15555521115635301745
+          Name: Blend Root Bone
+          Type: Bone
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TBone
+              Members:
+                Value: {Type: string, Value: root}
+        - ID: 3110726685900913858
+          Name: Blend In Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+        - ID: 10061378845624065004
+          Name: Blend Out Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+      Outputs:
+        - ID: 6300988201520983015
+          Name: On Finished
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 12942115141765243962
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+    - ID: 9777389629807249628
+      Category: Input
+      Name: Input
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":536,\"y\":558}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 16149152647823400212
+          Name: Pickup
+          Type: Flow
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+    - ID: 6330070084082742990
+      Category: Blend
+      Name: One Shot
+      Description: Pickup
+      Color: [1, 1, 0, 1]
+      Type: Subroutine
+      Size: [437, 233]
+      Location: "{\"location\":{\"x\":691,\"y\":527}}"
+      Inputs:
+        - ID: 9101133937724704654
+          Name: Base Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 8122296703766460789
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 5172371005574444380
+          Name: Weight
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 5568690353337614935
+          Name: Additive
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 17950429960656048068
+          Name: Blend Root Bone
+          Type: Bone
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TBone
+              Members:
+                Value: {Type: string, Value: root}
+        - ID: 17217386693681377123
+          Name: Blend In Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+        - ID: 12973402386734801084
+          Name: Blend Out Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+      Outputs:
+        - ID: 9332061617671210247
+          Name: On Finished
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 9039867922944807670
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+    - ID: 3443083312212747970
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":522,\"y\":830}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 5786300680417847975
+          Name: IsShooting
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+    - ID: 17943863944747789743
+      Category: Blend
+      Name: Conditional Blend
+      Description: Shoot
+      Color: [1, 1, 0, 1]
+      Type: Subroutine
+      Size: [398, 233]
+      Location: "{\"location\":{\"x\":698,\"y\":799}}"
+      Inputs:
+        - ID: 15316577430351457068
+          Name: Base Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 4548152440269366152
+          Name: Condition
+          Type: Bool
+          Storage: Value
+          Value: {Type: string, Value: IsShooting}
+        - ID: 10075350353788624268
+          Name: Weight
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 14224291336017858514
+          Name: Additive
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 15551561603034467024
+          Name: Blend Root Bone
+          Type: Bone
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TBone
+              Members:
+                Value: {Type: string, Value: spine}
+        - ID: 9169420419208133722
+          Name: Blend In Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+        - ID: 8816975755831786144
+          Name: Blend Out Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.100000001}
+      Outputs:
+        - ID: 5727607866018075761
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+    - ID: 15613055091034019683
+      Category: Animation
+      Name: Event
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1216,\"y\":258}}"
+      Inputs:
+        - ID: 401360206513551405
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 4497648633882345232
+          Name: Event ID
+          Type: String
+          Storage: Value
+          Value: {Type: string, Value: Interacted}
+      Outputs:
+        []
+    - ID: 13027730293230302814
+      Category: Animation
+      Name: Event
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1208,\"y\":530}}"
+      Inputs:
+        - ID: 12642355623356549205
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 4045911888501530912
+          Name: Event ID
+          Type: String
+          Storage: Value
+          Value: {Type: string, Value: PickedUp}
+      Outputs:
+        []
+  Links:
+    - ID: 5719332429398783938
+      StartPinID: 6792072812952454034
+      EndPinID: 10474472435549168203
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 9150501318954181294
+      StartPinID: 15848268809071049521
+      EndPinID: 17603593264829333179
+      Color: [1, 1, 0, 1]
+    - ID: 3578499368667276053
+      StartPinID: 12139362745709090131
+      EndPinID: 17628257685224889499
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 3427579124523607688
+      StartPinID: 12942115141765243962
+      EndPinID: 9101133937724704654
+      Color: [1, 1, 0, 1]
+    - ID: 18050208867390054697
+      StartPinID: 6300988201520983015
+      EndPinID: 401360206513551405
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 11125962602636032853
+      StartPinID: 16149152647823400212
+      EndPinID: 8122296703766460789
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 16395729896111826023
+      StartPinID: 9332061617671210247
+      EndPinID: 12642355623356549205
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 9764031698622243081
+      StartPinID: 9039867922944807670
+      EndPinID: 15316577430351457068
+      Color: [1, 1, 0, 1]
+    - ID: 4026419775167035831
+      StartPinID: 5786300680417847975
+      EndPinID: 4548152440269366152
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+    - ID: 3315127639123262537
+      StartPinID: 5727607866018075761
+      EndPinID: 14142878331012499478
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:13561517212115392637\":{\"location\":{\"x\":520,\"y\":386}},\"node:13938227492919254013\":{\"location\":{\"x\":672,\"y\":342}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2570769309705390703\":{\"location\":{\"x\":274,\"y\":406}},\"node:275719208480247976\":{\"location\":{\"x\":936,\"y\":442}},\"node:2867603305926441356\":{\"location\":{\"x\":944,\"y\":694}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:549811274567552376\":{\"location\":{\"x\":338,\"y\":398}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:6621040964076596859\":{\"location\":{\"x\":1112,\"y\":654}},\"node:7059088199930730145\":{\"location\":{\"x\":463,\"y\":406}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":[\"node:946665602881729343\"],\"view\":{\"scroll\":{\"x\":120.581329345703125,\"y\":64.9598007202148438},\"visible_rect\":{\"max\":{\"x\":1871.58154296875,\"y\":1217.9599609375},\"min\":{\"x\":120.581344604492188,\"y\":64.959808349609375}},\"zoom\":0.999999880790710449}}"
+2903671851622028896:
+  Nodes:
+    - ID: 6621040964076596859
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1112,\"y\":654}}"
+      Inputs:
+        - ID: 13085619769376230618
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 2570769309705390703
+      Category: Input
+      Name: Input
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":274,\"y\":406}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 3574795812391796692
+          Name: Forwards
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 7059088199930730145
+      Category: Math
+      Name: Divide (Float)
+      Description: Divide (Float)
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Simple
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":463,\"y\":406}}"
+      Inputs:
+        - ID: 12850266221311634585
+          Name: Value
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 3724132368626127879
+          Name: Divisor
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 2}
+      Outputs:
+        - ID: 7496110752265603751
+          Name: Out
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 13938227492919254013
+      Category: Blend
+      Name: Ranged Blend
+      Description: Ranged Blend
+      Color: [1, 1, 0, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":672,\"y\":342}}"
+      Inputs:
+        - ID: 10340898368931827727
+          Name: Animation A
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 14890103595425184226
+        - ID: 3683656498405064255
+          Name: Animation B
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 9534702217413729862
+        - ID: 17133963010875905396
+          Name: Playback Speed A
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 17003532180695778264
+          Name: Offset A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 17989537472985861634
+          Name: Loop A
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 16068110872236817899
+          Name: Playback Speed B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 9349265386069460009
+          Name: Offset B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 3784804302186495287
+          Name: Loop B
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 6593185315998707494
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 13527468909955114723
+          Name: Range A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 3}
+        - ID: 6077857572583170596
+          Name: Range B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 1851241991680691084
+          Name: Value
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 9743125745453342098
+          Name: On Finish A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 13268280361387685906
+          Name: On Loop A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 14869313651525625781
+          Name: On Finish B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 15804388173147082922
+          Name: On Loop B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 9130858598184362013
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+  Links:
+    - ID: 12467960413293507239
+      StartPinID: 3574795812391796692
+      EndPinID: 1851241991680691084
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 14795344201668912012
+      StartPinID: 3574795812391796692
+      EndPinID: 12850266221311634585
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 5955696474728171155
+      StartPinID: 7496110752265603751
+      EndPinID: 17133963010875905396
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 480086466492403969
+      StartPinID: 9130858598184362013
+      EndPinID: 13085619769376230618
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:13938227492919254013\":{\"location\":{\"x\":672,\"y\":342}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2570769309705390703\":{\"location\":{\"x\":274,\"y\":406}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:6621040964076596859\":{\"location\":{\"x\":1112,\"y\":654}},\"node:7059088199930730145\":{\"location\":{\"x\":463,\"y\":406}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":71.2882156372070312,\"y\":12.0209283828735352},\"visible_rect\":{\"max\":{\"x\":1418.7645263671875,\"y\":907.0411376953125},\"min\":{\"x\":55.5023040771484375,\"y\":9.359039306640625}},\"zoom\":1.28441905975341797}}"
+5063204715853572691:
+  Nodes:
+    - ID: 12529321179130832767
+      Category: Transition
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":967,\"y\":376}}"
+      Inputs:
+        - ID: 8942090262101517957
+          Name: Transition
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 8761326422053914955
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 15447690367350992324
+          Name: Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.133333325}
+      Outputs:
+        []
+    - ID: 1814430632707590897
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":779,\"y\":374}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 14519576083053060257
+          Name: IsJumping
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+  Links:
+    - ID: 182660348847803774
+      StartPinID: 14519576083053060257
+      EndPinID: 8942090262101517957
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+  GraphState: "{\"nodes\":{\"node:12529321179130832767\":{\"location\":{\"x\":967,\"y\":376}},\"node:1814430632707590897\":{\"location\":{\"x\":779,\"y\":374}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":255.97705078125,\"y\":304.69903564453125},\"visible_rect\":{\"max\":{\"x\":1624.488525390625,\"y\":697.952392578125},\"min\":{\"x\":223.688507080078125,\"y\":266.2647705078125}},\"zoom\":1.14434599876403809}}"
+5695479589854095014:
+  Nodes:
+    - ID: 17608778206572010424
+      Category: BlendSpace
+      Name: Blend Space Vertex
+      Description: Blend Space Vertex
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":90,\"y\":-39}}"
+      Inputs:
+        - ID: 8134930514321857980
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 8262129762245524469
+        - ID: 2117261782443260584
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+      Outputs:
+        - ID: 3970701296814213745
+          Name: Pose
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Offset: [0, 0]
+    - ID: 6347625263062011862
+      Category: BlendSpace
+      Name: Blend Space Vertex
+      Description: Blend Space Vertex
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":90,\"y\":-292}}"
+      Inputs:
+        - ID: 6324276450676836400
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 1136474555955904259
+        - ID: 7774473228998938933
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 14795410696395075003
+          Name: Pose
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Offset: [0, 1]
+    - ID: 11545311590244745253
+      Category: BlendSpace
+      Name: Blend Space Vertex
+      Description: Blend Space Vertex
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":90,\"y\":-545}}"
+      Inputs:
+        - ID: 4020396024663240388
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 14890103595425184226
+        - ID: 13763016255833187884
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 6350157418384224686
+          Name: Pose
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Offset: [0, 2]
+  Links:
+    []
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11545311590244745253\":{\"location\":{\"x\":90,\"y\":-545}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:13561517212115392637\":{\"location\":{\"x\":520,\"y\":386}},\"node:13938227492919254013\":{\"location\":{\"x\":672,\"y\":342}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17608778206572010424\":{\"location\":{\"x\":90,\"y\":-39}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2570769309705390703\":{\"location\":{\"x\":274,\"y\":406}},\"node:275719208480247976\":{\"location\":{\"x\":936,\"y\":442}},\"node:2867603305926441356\":{\"location\":{\"x\":944,\"y\":694}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:549811274567552376\":{\"location\":{\"x\":338,\"y\":398}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:6347625263062011862\":{\"location\":{\"x\":90,\"y\":-292}},\"node:6621040964076596859\":{\"location\":{\"x\":1112,\"y\":654}},\"node:7059088199930730145\":{\"location\":{\"x\":463,\"y\":406}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":-869.28973388671875,\"y\":-918.1204833984375},\"visible_rect\":{\"max\":{\"x\":829.13238525390625,\"y\":220.873245239257812},\"min\":{\"x\":-817.4525146484375,\"y\":-863.37139892578125}},\"zoom\":1.06341314315795898}}"
+5960763958709899919:
+  Nodes:
+    - ID: 11473610549371737841
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":944,\"y\":710}}"
+      Inputs:
+        - ID: 18303098325965312704
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+      Outputs:
+        []
+    - ID: 8834530541900446124
+      Category: Input
+      Name: Input
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":338,\"y\":398}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 10248183131832201091
+          Name: Forwards
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 17892016121017402211
+      Category: Blend
+      Name: Ranged Blend
+      Description: Ranged Blend
+      Color: [1, 1, 0, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":512,\"y\":398}}"
+      Inputs:
+        - ID: 5028773523152522580
+          Name: Animation A
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 14890103595425184226
+        - ID: 2715400241913738220
+          Name: Animation B
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 12944507251945525648
+        - ID: 11079037530778717340
+          Name: Playback Speed A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 7567122365312091204
+          Name: Offset A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 3128979831261080744
+          Name: Loop A
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 9018357016526922244
+          Name: Playback Speed B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 9337222309570675748
+          Name: Offset B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 3425903884907177747
+          Name: Loop B
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 8973954098656256298
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 12874492060805012576
+          Name: Range A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 3}
+        - ID: 10485658022113645195
+          Name: Range B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 12278769260614271133
+          Name: Value
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 14551634247234524640
+          Name: On Finish A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 17956274598283217833
+          Name: On Loop A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 2100988009779700242
+          Name: On Finish B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 6815126959833800276
+          Name: On Loop B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 1982540331939109741
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+  Links:
+    - ID: 6640995259132990934
+      StartPinID: 10248183131832201091
+      EndPinID: 12278769260614271133
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 1041577434854053031
+      StartPinID: 1982540331939109741
+      EndPinID: 18303098325965312704
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":168.900482177734375,\"y\":292.777130126953125},\"visible_rect\":{\"max\":{\"x\":1338.3978271484375,\"y\":1007.87774658203125},\"min\":{\"x\":117.743621826171875,\"y\":204.100311279296875}},\"zoom\":1.43447661399841309}}"
+6096139465036038280:
+  Nodes:
+    - ID: 13920506957469884364
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":960,\"y\":398}}"
+      Inputs:
+        - ID: 8915315874500306277
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 7707312546937529719
+      Category: Animation
+      Name: Animation Player
+      Description: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":575,\"y\":390}}"
+      Inputs:
+        - ID: 18235934539435334970
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 16279427311265524656
+        - ID: 7356553241389597372
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 10059534542958254133
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 7998534854170042292
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 11989340161900050552
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 11392242060234323497
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 15990551363008554704
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+  Links:
+    - ID: 4056021472464843439
+      StartPinID: 15990551363008554704
+      EndPinID: 8915315874500306277
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1104,\"y\":578}},\"node:13920506957469884364\":{\"location\":{\"x\":960,\"y\":398}},\"node:15613055091034019683\":{\"location\":{\"x\":1104,\"y\":302}},\"node:16100790255873352674\":{\"location\":{\"x\":501,\"y\":462}},\"node:16655482719709283199\":{\"location\":{\"x\":904,\"y\":494}},\"node:17184713888716082971\":{\"location\":{\"x\":520,\"y\":478}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17943863944747789743\":{\"location\":{\"x\":616,\"y\":859}},\"node:18377196185640310975\":{\"location\":{\"x\":908,\"y\":605}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":412,\"y\":902}},\"node:4928454852245642064\":{\"location\":{\"x\":1128,\"y\":942}},\"node:5441696170411756564\":{\"location\":{\"x\":427,\"y\":326}},\"node:5695479589854095014\":{\"location\":{\"x\":369,\"y\":163}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":611,\"y\":299}},\"node:6330070084082742990\":{\"location\":{\"x\":611,\"y\":575}},\"node:6386572207020898896\":{\"location\":{\"x\":925,\"y\":481}},\"node:7707312546937529719\":{\"location\":{\"x\":575,\"y\":390}},\"node:9046919286188471405\":{\"location\":{\"x\":183,\"y\":186}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":424,\"y\":598}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":429.728851318359375,\"y\":106.68408203125},\"visible_rect\":{\"max\":{\"x\":1457.296875,\"y\":979.5372314453125},\"min\":{\"x\":289.9635009765625,\"y\":71.9860687255859375}},\"zoom\":1.4820101261138916}}"
+6330070084082742990:
+  Nodes:
+    - ID: 16655482719709283199
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":904,\"y\":494}}"
+      Inputs:
+        - ID: 1701632497767416467
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 17184713888716082971
+      Category: Animation
+      Name: Animation Player
+      Description: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":520,\"y\":478}}"
+      Inputs:
+        - ID: 1198549833086241496
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 10536880707179872245
+        - ID: 5619515699795907111
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 3081372675152133668
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 1713235090143080613
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 13114430978377113585
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 1989409158415780834
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 774136902857735090
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+  Links:
+    - ID: 17424494985842485333
+      StartPinID: 774136902857735090
+      EndPinID: 1701632497767416467
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1696,\"y\":490}},\"node:15613055091034019683\":{\"location\":{\"x\":1272,\"y\":214}},\"node:16655482719709283199\":{\"location\":{\"x\":904,\"y\":494}},\"node:17184713888716082971\":{\"location\":{\"x\":520,\"y\":478}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17943863944747789743\":{\"location\":{\"x\":1698,\"y\":727}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":1524,\"y\":758}},\"node:4928454852245642064\":{\"location\":{\"x\":2744,\"y\":990}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:5695479589854095014\":{\"location\":{\"x\":369,\"y\":163}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":1192,\"y\":487}},\"node:9046919286188471405\":{\"location\":{\"x\":183,\"y\":186}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":1024,\"y\":518}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":429.728759765625,\"y\":106.68408203125},\"visible_rect\":{\"max\":{\"x\":1457.296875,\"y\":979.5372314453125},\"min\":{\"x\":289.96343994140625,\"y\":71.9860687255859375}},\"zoom\":1.4820101261138916}}"
+7708473944054599345:
+  Nodes:
+    - ID: 7995874527648917241
+      Category: Transition
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":967,\"y\":376}}"
+      Inputs:
+        - ID: 6747578031013455126
+          Name: Transition
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 7904675386728507471
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 15767732843568395506
+          Name: Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.133333325}
+      Outputs:
+        []
+    - ID: 17096378190329190739
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":605,\"y\":366}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 6964200653997501737
+          Name: IsGrounded
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+    - ID: 2948060787371344444
+      Category: Logic
+      Name: Not
+      Description: Not
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Simple
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":784,\"y\":388}}"
+      Inputs:
+        - ID: 17763433150308187776
+          Name: Value
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 5797785655295735073
+          Name: Out
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+  Links:
+    - ID: 1457880778185939021
+      StartPinID: 6964200653997501737
+      EndPinID: 17763433150308187776
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+    - ID: 7421542580668405309
+      StartPinID: 5797785655295735073
+      EndPinID: 6747578031013455126
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+  GraphState: "{\"nodes\":{\"node:12529321179130832767\":{\"location\":{\"x\":967,\"y\":376}},\"node:17096378190329190739\":{\"location\":{\"x\":605,\"y\":366}},\"node:1814430632707590897\":{\"location\":{\"x\":779,\"y\":374}},\"node:2948060787371344444\":{\"location\":{\"x\":784,\"y\":388}},\"node:7995874527648917241\":{\"location\":{\"x\":967,\"y\":376}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":255.977127075195312,\"y\":304.69903564453125},\"visible_rect\":{\"max\":{\"x\":1624.4886474609375,\"y\":697.952392578125},\"min\":{\"x\":223.688568115234375,\"y\":266.2647705078125}},\"zoom\":1.14434599876403809}}"
+9295727469096095385:
+  Nodes:
+    - ID: 2867603305926441356
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":944,\"y\":694}}"
+      Inputs:
+        - ID: 525784796566178095
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 549811274567552376
+      Category: Input
+      Name: Input
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":338,\"y\":398}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 13033822111826562773
+          Name: Forwards
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 13561517212115392637
+      Category: Blend
+      Name: Ranged Blend
+      Description: Ranged Blend
+      Color: [1, 1, 0, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":520,\"y\":386}}"
+      Inputs:
+        - ID: 16653836237786680664
+          Name: Animation A
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 14890103595425184226
+        - ID: 17205912985035198162
+          Name: Animation B
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 12362215793690749782
+        - ID: 79595227464839449
+          Name: Playback Speed A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 13407764198020168158
+          Name: Offset A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 508686588508627490
+          Name: Loop A
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 3042882650342967511
+          Name: Playback Speed B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 15257602317223224696
+          Name: Offset B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 9785360571959017257
+          Name: Loop B
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 16846398208012486
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 473699884863374841
+          Name: Range A
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 3}
+        - ID: 2042386840142390788
+          Name: Range B
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 18149852274029506448
+          Name: Value
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 5312942376522912077
+          Name: On Finish A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 16518326311969075246
+          Name: On Loop A
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 6047016233359126050
+          Name: On Finish B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 13068312321680658296
+          Name: On Loop B
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 8473664155069394848
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+    - ID: 275719208480247976
+      Category: Animation
+      Name: Event
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":936,\"y\":442}}"
+      Inputs:
+        - ID: 9569194832331458385
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 12102577402106269328
+          Name: Event ID
+          Type: String
+          Storage: Value
+          Value: {Type: string, Value: Jumped}
+      Outputs:
+        []
+  Links:
+    - ID: 5025838073732501633
+      StartPinID: 13033822111826562773
+      EndPinID: 18149852274029506448
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 12475376706511228909
+      StartPinID: 8473664155069394848
+      EndPinID: 525784796566178095
+      Color: [1, 1, 0, 1]
+    - ID: 17515563299904286820
+      StartPinID: 6047016233359126050
+      EndPinID: 9569194832331458385
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:13561517212115392637\":{\"location\":{\"x\":520,\"y\":386}},\"node:13938227492919254013\":{\"location\":{\"x\":672,\"y\":342}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2570769309705390703\":{\"location\":{\"x\":274,\"y\":406}},\"node:275719208480247976\":{\"location\":{\"x\":936,\"y\":442}},\"node:2867603305926441356\":{\"location\":{\"x\":944,\"y\":694}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:549811274567552376\":{\"location\":{\"x\":338,\"y\":398}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:6621040964076596859\":{\"location\":{\"x\":1112,\"y\":654}},\"node:7059088199930730145\":{\"location\":{\"x\":463,\"y\":406}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":-44.1855049133300781,\"y\":194.12310791015625},\"visible_rect\":{\"max\":{\"x\":1184.5360107421875,\"y\":934.90869140625},\"min\":{\"x\":-30.6649150848388672,\"y\":134.722198486328125}},\"zoom\":1.44091403484344482}}"
+9366651097046826183:
+  Nodes:
+    - ID: 3025154402682677850
+      Category: Transition
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1008,\"y\":436}}"
+      Inputs:
+        - ID: 12193595438421754601
+          Name: Transition
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 1883523258853779544
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 7257114160587008313
+          Name: Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.200000003}
+      Outputs:
+        []
+    - ID: 13037509607743030323
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":685,\"y\":436}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 17146659702686139607
+          Name: IsGrounded
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+    - ID: 15389673755598297456
+      Category: Logic
+      Name: Not
+      Description: Not
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Simple
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":851,\"y\":458}}"
+      Inputs:
+        - ID: 16670827728439706663
+          Name: Value
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 3540723050219698129
+          Name: Out
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+  Links:
+    - ID: 1105678223422322258
+      StartPinID: 17146659702686139607
+      EndPinID: 16670827728439706663
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+    - ID: 7377712411423663611
+      StartPinID: 3540723050219698129
+      EndPinID: 12193595438421754601
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+  GraphState: "{\"nodes\":{\"node:13037509607743030323\":{\"location\":{\"x\":685,\"y\":436}},\"node:14365755100214328465\":{\"location\":{\"x\":624,\"y\":355}},\"node:15389673755598297456\":{\"location\":{\"x\":851,\"y\":458}},\"node:3025154402682677850\":{\"location\":{\"x\":1008,\"y\":436}},\"node:3726887377219386897\":{\"location\":{\"x\":446,\"y\":353}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":411.687225341796875,\"y\":323.167816162109375},\"visible_rect\":{\"max\":{\"x\":1611.75,\"y\":653.73431396484375},\"min\":{\"x\":329.349822998046875,\"y\":258.534271240234375}},\"zoom\":1.24999988079071045}}"
+11858404868537269695:
+  Nodes:
+    - ID: 946665602881729343
+      Category: StateMachine
+      Name: State
+      Description: Grounded
+      Color: [0.56078434, 0.737254918, 0.56078434, 1]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":496,\"y\":488}}"
+      Inputs:
+        - ID: 8162400103087425152
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 4634453136780617621
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 1366563375447637719
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 15712920078898164627
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 8048760308316210164
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 6009901277594701708
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 9169162298166568926
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 872198588969402022
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 4104980293505114623
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 2903671851622028896
+      Category: StateMachine
+      Name: State
+      Description: In Air
+      Color: [0.56078434, 0.737254918, 0.56078434, 1]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":512,\"y\":712}}"
+      Inputs:
+        - ID: 14855988010515676962
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 15926228339193190627
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 13925004730910781772
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 89351622037224732
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 13449345162915771150
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 27964566431973525
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 9366651097046826183
+      Category: StateMachine
+      Name: Transition
+      Description: Transition
+      Color: [0, 0, 0, 0]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: ""
+      Inputs:
+        - ID: 2801130066036616653
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 11567124476792621619
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 5960763958709899919
+      Category: StateMachine
+      Name: State
+      Description: Land
+      Color: [0.56078434, 0.737254918, 0.56078434, 1]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":600,\"y\":600}}"
+      Inputs:
+        - ID: 4348125699882547938
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 10283718935982126505
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 899959579546103383
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 14092120013006297685
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 15951681794034724689
+      Category: StateMachine
+      Name: Transition
+      Description: Transition
+      Color: [0, 0, 0, 0]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: ""
+      Inputs:
+        - ID: 17491355491105003423
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 3983553366585219678
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 13077177570603165883
+      Category: StateMachine
+      Name: Transition
+      Description: Transition
+      Color: [0, 0, 0, 0]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: ""
+      Inputs:
+        - ID: 10553394844616020469
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 13090454620557142890
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 9295727469096095385
+      Category: StateMachine
+      Name: State
+      Description: Jump
+      Color: [0.56078434, 0.737254918, 0.56078434, 1]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":432,\"y\":600}}"
+      Inputs:
+        - ID: 3645837685163970944
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 7564449780170077678
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 12886512644864437629
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 5063204715853572691
+      Category: StateMachine
+      Name: Transition
+      Description: Transition
+      Color: [0, 0, 0, 0]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: ""
+      Inputs:
+        - ID: 6882322721808235855
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 1930483606518068739
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+    - ID: 7708473944054599345
+      Category: StateMachine
+      Name: Transition
+      Description: Transition
+      Color: [0, 0, 0, 0]
+      Type: Subroutine
+      Size: [0, 0]
+      Location: ""
+      Inputs:
+        - ID: 5271278845420027765
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+      Outputs:
+        - ID: 12893833547640152618
+          Name: Transition
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+  Links:
+    - ID: 14061404544740443207
+      StartPinID: 872198588969402022
+      EndPinID: 2801130066036616653
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 568184199617631767
+      StartPinID: 11567124476792621619
+      EndPinID: 14855988010515676962
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 6862901708618353376
+      StartPinID: 27964566431973525
+      EndPinID: 17491355491105003423
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 2135571899815564016
+      StartPinID: 3983553366585219678
+      EndPinID: 4348125699882547938
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 17872282800456181705
+      StartPinID: 899959579546103383
+      EndPinID: 10553394844616020469
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 9614934801059448040
+      StartPinID: 13090454620557142890
+      EndPinID: 15712920078898164627
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 9289613534343407017
+      StartPinID: 4104980293505114623
+      EndPinID: 6882322721808235855
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 12046248931077201430
+      StartPinID: 1930483606518068739
+      EndPinID: 3645837685163970944
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 6914630209032065677
+      StartPinID: 12886512644864437629
+      EndPinID: 5271278845420027765
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+    - ID: 16346483046361037727
+      StartPinID: 12893833547640152618
+      EndPinID: 13925004730910781772
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+  GraphState: "{\"nodes\":{\"node:11473610549371737841\":{\"location\":{\"x\":944,\"y\":710}},\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1208,\"y\":530}},\"node:13561517212115392637\":{\"location\":{\"x\":520,\"y\":386}},\"node:13938227492919254013\":{\"location\":{\"x\":672,\"y\":342}},\"node:15613055091034019683\":{\"location\":{\"x\":1216,\"y\":258}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17892016121017402211\":{\"location\":{\"x\":512,\"y\":398}},\"node:17943863944747789743\":{\"location\":{\"x\":698,\"y\":799}},\"node:2570769309705390703\":{\"location\":{\"x\":274,\"y\":406}},\"node:275719208480247976\":{\"location\":{\"x\":936,\"y\":442}},\"node:2867603305926441356\":{\"location\":{\"x\":944,\"y\":694}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":522,\"y\":830}},\"node:4928454852245642064\":{\"location\":{\"x\":1216,\"y\":966}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:549811274567552376\":{\"location\":{\"x\":338,\"y\":398}},\"node:5695479589854095014\":{\"location\":{\"x\":689,\"y\":123}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":691,\"y\":527}},\"node:6621040964076596859\":{\"location\":{\"x\":1112,\"y\":654}},\"node:7059088199930730145\":{\"location\":{\"x\":463,\"y\":406}},\"node:8834530541900446124\":{\"location\":{\"x\":338,\"y\":398}},\"node:9046919286188471405\":{\"location\":{\"x\":530,\"y\":150}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":536,\"y\":558}}},\"selection\":[\"node:946665602881729343\"],\"view\":{\"scroll\":{\"x\":-2.3986973762512207,\"y\":475.747955322265625},\"visible_rect\":{\"max\":{\"x\":1165.7340087890625,\"y\":894.49847412109375},\"min\":{\"x\":-1.59913134574890137,\"y\":317.165252685546875}},\"zoom\":1.5000002384185791}}"
+13077177570603165883:
+  Nodes:
+    - ID: 15277356673846532962
+      Category: Transition
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":967,\"y\":376}}"
+      Inputs:
+        - ID: 15843753873315919267
+          Name: Transition
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 11339667749993615192
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+        - ID: 10519542314760746971
+          Name: Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.25}
+      Outputs:
+        []
+    - ID: 9258589112271223013
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":782,\"y\":389}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 6013342380365477013
+          Name: IsGrounded
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+  Links:
+    - ID: 2810119119271961694
+      StartPinID: 6013342380365477013
+      EndPinID: 15843753873315919267
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+  GraphState: "{\"nodes\":{\"node:15277356673846532962\":{\"location\":{\"x\":967,\"y\":376}},\"node:4014871388550472893\":{\"location\":{\"x\":765,\"y\":374}},\"node:8596102811095074239\":{\"location\":{\"x\":967,\"y\":376}},\"node:9258589112271223013\":{\"location\":{\"x\":782,\"y\":389}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":255.977264404296875,\"y\":304.69903564453125},\"visible_rect\":{\"max\":{\"x\":1624.48876953125,\"y\":697.952392578125},\"min\":{\"x\":223.688690185546875,\"y\":266.2647705078125}},\"zoom\":1.14434599876403809}}"
+15951681794034724689:
+  Nodes:
+    - ID: 8596102811095074239
+      Category: Transition
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":967,\"y\":376}}"
+      Inputs:
+        - ID: 14619758552540619531
+          Name: Transition
+          Type: Bool
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 11036196611911983735
+          Name: Synchronize
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: false}
+        - ID: 16814916376641778327
+          Name: Duration
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0.25}
+      Outputs:
+        []
+    - ID: 4014871388550472893
+      Category: Input
+      Name: Input
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":765,\"y\":374}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 4606034785944759890
+          Name: IsGrounded
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+  Links:
+    - ID: 13097217422817190520
+      StartPinID: 4606034785944759890
+      EndPinID: 14619758552540619531
+      Color: [0.862745166, 0.188235313, 0.188235313, 1]
+  GraphState: "{\"nodes\":{\"node:4014871388550472893\":{\"location\":{\"x\":765,\"y\":374}},\"node:8596102811095074239\":{\"location\":{\"x\":967,\"y\":376}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":255.977203369140625,\"y\":304.69903564453125},\"visible_rect\":{\"max\":{\"x\":1624.4886474609375,\"y\":697.952392578125},\"min\":{\"x\":223.688629150390625,\"y\":266.2647705078125}},\"zoom\":1.14434599876403809}}"
+17943863944747789743:
+  Nodes:
+    - ID: 6386572207020898896
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":925,\"y\":481}}"
+      Inputs:
+        - ID: 14562716881301584161
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 16100790255873352674
+      Category: Animation
+      Name: Animation Player
+      Description: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":501,\"y\":462}}"
+      Inputs:
+        - ID: 15174802371812497858
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 15774598851803312388
+        - ID: 101036227328195756
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 8655729049877835799
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 9056931691899783584
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 1280404078021675568
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 6041615658918538615
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 16315970576781665959
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+    - ID: 18377196185640310975
+      Category: Animation
+      Name: Event
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":908,\"y\":605}}"
+      Inputs:
+        - ID: 15240634151011936243
+          Name: Trigger
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 6056746165897117340
+          Name: Event ID
+          Type: String
+          Storage: Value
+          Value: {Type: string, Value: Shoot}
+      Outputs:
+        []
+  Links:
+    - ID: 15814609136841632483
+      StartPinID: 16315970576781665959
+      EndPinID: 14562716881301584161
+      Color: [1, 1, 0, 1]
+    - ID: 12371760973095590694
+      StartPinID: 6041615658918538615
+      EndPinID: 15240634151011936243
+      Color: [0.784313798, 0.784313798, 0.784313798, 1]
+  GraphState: "{\"nodes\":{\"node:11858404868537269695\":{\"location\":{\"x\":483,\"y\":323}},\"node:13027730293230302814\":{\"location\":{\"x\":1696,\"y\":490}},\"node:15613055091034019683\":{\"location\":{\"x\":1272,\"y\":214}},\"node:16100790255873352674\":{\"location\":{\"x\":501,\"y\":462}},\"node:16951826942028510588\":{\"location\":{\"x\":2208,\"y\":982}},\"node:17234011670002181332\":{\"location\":{\"x\":696,\"y\":334}},\"node:17943863944747789743\":{\"location\":{\"x\":1698,\"y\":727}},\"node:18377196185640310975\":{\"location\":{\"x\":908,\"y\":605}},\"node:1932056323401490641\":{\"location\":{\"x\":2002,\"y\":998}},\"node:2903671851622028896\":{\"location\":{\"x\":512,\"y\":712}},\"node:3443083312212747970\":{\"location\":{\"x\":1524,\"y\":758}},\"node:4928454852245642064\":{\"location\":{\"x\":2744,\"y\":990}},\"node:5441696170411756564\":{\"location\":{\"x\":531,\"y\":286}},\"node:5695479589854095014\":{\"location\":{\"x\":369,\"y\":163}},\"node:5960763958709899919\":{\"location\":{\"x\":600,\"y\":600}},\"node:6096139465036038280\":{\"location\":{\"x\":688,\"y\":255}},\"node:6330070084082742990\":{\"location\":{\"x\":1192,\"y\":487}},\"node:6386572207020898896\":{\"location\":{\"x\":925,\"y\":481}},\"node:9046919286188471405\":{\"location\":{\"x\":183,\"y\":186}},\"node:9295727469096095385\":{\"location\":{\"x\":432,\"y\":600}},\"node:946665602881729343\":{\"location\":{\"x\":496,\"y\":488}},\"node:9777389629807249628\":{\"location\":{\"x\":1024,\"y\":518}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":429.72869873046875,\"y\":106.684005737304688},\"visible_rect\":{\"max\":{\"x\":1457.2969970703125,\"y\":979.5372314453125},\"min\":{\"x\":289.963409423828125,\"y\":71.98602294921875}},\"zoom\":1.48201000690460205}}"
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members:
+      Forwards: {Type: float, Value: 0}
+      Interact: {Type: void, Value: "null"}
+      IsGrounded: {Type: bool, Value: true}
+      IsJumping: {Type: bool, Value: false}
+      IsShooting: {Type: bool, Value: false}
+      Pickup: {Type: void, Value: "null"}
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~

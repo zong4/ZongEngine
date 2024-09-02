@@ -1,0 +1,48 @@
+Prefab:
+  - Entity: 16006396102374656182
+    TagComponent:
+      Tag: ExplosiveParticle
+    Parent: 0
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 7816398183765727095
+      Entity: 16006396102374656182
+    TransformComponent:
+      Position: [5.96046448e-08, 9.3508358, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.300000012, 0.298125029, 0.298125029]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      SubmeshIndex: 0
+      MaterialTable:
+        0: 1561346292037904914
+    PointLightComponent:
+      Radiance: [0.926640928, 0.249835566, 0.0715552866]
+      Intensity: 0.5
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 4
+      LightSize: 0.5
+      Falloff: 1
+    RigidBodyComponent:
+      BodyType: 1
+      Mass: 0.5
+      LinearDrag: 0
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsKinematic: false
+      Layer: 0
+      CollisionDetection: 0
+      Constraints:
+        LockPositionX: false
+        LockPositionY: false
+        LockPositionZ: false
+        LockRotationX: false
+        LockRotationY: false
+        LockRotationZ: false
+    SphereColliderComponent:
+      Radius: 1
+      IsTrigger: false
+      Material: 16896157977626701514

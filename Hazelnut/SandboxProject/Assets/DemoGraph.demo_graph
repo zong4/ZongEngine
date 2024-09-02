@@ -1,0 +1,462 @@
+Nodes:
+  - ID: 11919566930726824267
+    Category: DemoNodes
+    Name: Some Float
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":671,\"y\":214}}"
+    Inputs:
+      - ID: 8039958608879627446
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 16218288078587938092
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: 0.10000000149011612
+    Outputs:
+      - ID: 8121377214212016971
+        Name: Result
+        Type: Float
+        Storage: Value
+        Value: "null"
+  - ID: 2517481977423414621
+    Category: DemoNodes
+    Name: Some Float
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":368,\"y\":354}}"
+    Inputs:
+      - ID: 4787998690312088778
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: 0.5
+      - ID: 15765692235170244367
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: 1.600000023841858
+    Outputs:
+      - ID: 2068418957738664904
+        Name: Result
+        Type: Float
+        Storage: Value
+        Value: "null"
+  - ID: 9238062510598618215
+    Category: DemoNodes
+    Name: All Pin Types
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":248,\"y\":514}}"
+    Inputs:
+      - ID: 17194551926019203755
+        Name: Flow In
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 6689112048625351717
+        Name: Function In
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 2782996220510686578
+        Name: Float In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 7107764892876428061
+        Name: Int In
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 1497029205080921570
+        Name: Bool In
+        Type: Bool
+        Storage: Value
+        Value: "null"
+      - ID: 17043935425594224477
+        Name: String In
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 11938236303423899245
+        Name: Object In
+        Type: Object
+        Storage: Value
+        Value: "{\"TypeName\": \"AssetHandle\", \"Value\": \"4918112557500125981\"}"
+    Outputs:
+      - ID: 5267006829851950318
+        Name: Flow Out
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 7066378863704097150
+        Name: Function Out
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 6483561692298442259
+        Name: Float Out
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 2945952703501451838
+        Name: Int Out
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 16853138607827381862
+        Name: Bool Out
+        Type: Bool
+        Storage: Value
+        Value: "null"
+      - ID: 8176320733311767143
+        Name: String Out
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 1660006065339282713
+        Name: Object Out
+        Type: Object
+        Storage: Value
+        Value: "null"
+  - ID: 17343758481877837382
+    Category: DemoNodes
+    Name: All Pin Types
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":696,\"y\":514}}"
+    Inputs:
+      - ID: 15329809239009696518
+        Name: Flow In
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 9975094317502118268
+        Name: Function In
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 15302972735829944452
+        Name: Float In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 6928729717838031628
+        Name: Int In
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 4446713980997541413
+        Name: Bool In
+        Type: Bool
+        Storage: Value
+        Value: "null"
+      - ID: 4538217211564363711
+        Name: String In
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 8061309830815709200
+        Name: Object In
+        Type: Object
+        Storage: Value
+        Value: "null"
+    Outputs:
+      - ID: 17206238283667049177
+        Name: Flow Out
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 15645681559843346702
+        Name: Function Out
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 15330861715502373184
+        Name: Float Out
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 10914970129821880211
+        Name: Int Out
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 17156631174313616573
+        Name: Bool Out
+        Type: Bool
+        Storage: Value
+        Value: "null"
+      - ID: 13689969763328884278
+        Name: String Out
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 311997540233343806
+        Name: Object Out
+        Type: Object
+        Storage: Value
+        Value: "null"
+  - ID: 7639670469434104179
+    Category: DemoNodes
+    Name: All Pin Type Arrays
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":967,\"y\":262}}"
+    Inputs:
+      - ID: 90886540011417905
+        Name: Flow In
+        Type: Flow
+        Storage: Array
+        Value: "null"
+      - ID: 8527056459442338723
+        Name: Function In
+        Type: Function
+        Storage: Array
+        Value: "null"
+      - ID: 12112020859007808725
+        Name: Float In
+        Type: Float
+        Storage: Array
+        Value: "null"
+      - ID: 3411681688610743806
+        Name: Int In
+        Type: Int
+        Storage: Array
+        Value: "null"
+      - ID: 2109309821949644972
+        Name: Bool In
+        Type: Bool
+        Storage: Array
+        Value: "null"
+      - ID: 15446884429514847574
+        Name: String In
+        Type: String
+        Storage: Array
+        Value: "null"
+      - ID: 12664666474171946312
+        Name: Object In
+        Type: Object
+        Storage: Array
+        Value: "null"
+    Outputs:
+      - ID: 14096892319979340641
+        Name: Flow Out
+        Type: Flow
+        Storage: Array
+        Value: "null"
+      - ID: 10373277164648647584
+        Name: Function Out
+        Type: Function
+        Storage: Array
+        Value: "null"
+      - ID: 346352169597810689
+        Name: Float Out
+        Type: Float
+        Storage: Array
+        Value: "null"
+      - ID: 13427764274707920247
+        Name: Int Out
+        Type: Int
+        Storage: Array
+        Value: "null"
+      - ID: 8658673843794922502
+        Name: Bool Out
+        Type: Bool
+        Storage: Array
+        Value: "null"
+      - ID: 2437327699172650554
+        Name: String Out
+        Type: String
+        Storage: Array
+        Value: "null"
+      - ID: 17465218520564496909
+        Name: Object Out
+        Type: Object
+        Storage: Array
+        Value: "null"
+  - ID: 9662052679023003914
+    Category: Utility
+    Name: Floating floats
+    Colour: [1, 1, 1, 1]
+    Type: Comment
+    Size: [300, 200]
+    Location: "{\"group_size\":{\"x\":584,\"y\":290},\"location\":{\"x\":328,\"y\":152}}"
+    Inputs:
+      []
+    Outputs:
+      []
+  - ID: 9586340297455179855
+    Category: DemoNodes
+    Name: Some Float
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":961,\"y\":134}}"
+    Inputs:
+      - ID: 3773708843229509182
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 15396432660585871753
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: "null"
+    Outputs:
+      - ID: 1549804292002902083
+        Name: Result
+        Type: Float
+        Storage: Value
+        Value: "null"
+  - ID: 8334452234029184111
+    Category: DemoNodes
+    Name: Some Float
+    Colour: [1, 1, 1, 1]
+    Type: Blueprint
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":1305,\"y\":270}}"
+    Inputs:
+      - ID: 1581780642587115671
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 1509554387397204270
+        Name: In
+        Type: Float
+        Storage: Value
+        Value: "null"
+    Outputs:
+      - ID: 14811755112484811241
+        Name: Result
+        Type: Float
+        Storage: Value
+        Value: "null"
+  - ID: 11704766981333209398
+    Category: DemoNodes
+    Name: Simple All Pin Types
+    Colour: [1, 1, 1, 1]
+    Type: Simple
+    Size: [300, 200]
+    Location: "{\"location\":{\"x\":992,\"y\":516}}"
+    Inputs:
+      - ID: 16851604186323228970
+        Name: Flow In
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 619742612383555914
+        Name: Function In
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 3278496238160713687
+        Name: Float In
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 17066775983851943900
+        Name: Int In
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 9204685595168070952
+        Name: Bool In
+        Type: Bool
+        Storage: Value
+        Value: false
+      - ID: 3647710058843956255
+        Name: String In
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 8341365021936419537
+        Name: Object In
+        Type: Object
+        Storage: Value
+        Value: "{\"TypeName\": \"AssetHandle\", \"Value\": \"17398776197667709858\"}"
+    Outputs:
+      - ID: 16701401926360823275
+        Name: Flow Out
+        Type: Flow
+        Storage: Value
+        Value: "null"
+      - ID: 5526447869119449284
+        Name: Function Out
+        Type: Function
+        Storage: Value
+        Value: "null"
+      - ID: 17817423017038554233
+        Name: Float Out
+        Type: Float
+        Storage: Value
+        Value: "null"
+      - ID: 9245688396978645519
+        Name: Int Out
+        Type: Int
+        Storage: Value
+        Value: "null"
+      - ID: 13810142438111105805
+        Name: Bool Out
+        Type: Bool
+        Storage: Value
+        Value: "null"
+      - ID: 4848395899712794164
+        Name: String Out
+        Type: String
+        Storage: Value
+        Value: "null"
+      - ID: 7085697945368486938
+        Name: Object Out
+        Type: Object
+        Storage: Value
+        Value: "null"
+Links:
+  - ID: 14907821901454104636
+    StartPinID: 2068418957738664904
+    EndPinID: 8039958608879627446
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 9107106650139728487
+    StartPinID: 5267006829851950318
+    EndPinID: 15329809239009696518
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 3407302862122345285
+    StartPinID: 7066378863704097150
+    EndPinID: 9975094317502118268
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+  - ID: 2428506283151544719
+    StartPinID: 6483561692298442259
+    EndPinID: 15302972735829944452
+    Colour: [0.576470613, 0.886274576, 0.290196091, 1]
+  - ID: 15104316026342782527
+    StartPinID: 2945952703501451838
+    EndPinID: 6928729717838031628
+    Colour: [0.266666681, 0.788235366, 0.611764729, 1]
+  - ID: 7986146836532746896
+    StartPinID: 16853138607827381862
+    EndPinID: 4446713980997541413
+    Colour: [0.862745166, 0.188235313, 0.188235313, 1]
+  - ID: 16339363901612477713
+    StartPinID: 8176320733311767143
+    EndPinID: 4538217211564363711
+    Colour: [0.760784388, 0.294117659, 0.890196145, 1]
+  - ID: 4680695864411389801
+    StartPinID: 1660006065339282713
+    EndPinID: 8061309830815709200
+    Colour: [0.200000018, 0.588235319, 0.843137324, 1]
+  - ID: 12775119747488778752
+    StartPinID: 17206238283667049177
+    EndPinID: 16851604186323228970
+    Colour: [0.784313798, 0.784313798, 0.784313798, 1]
+GraphState: "{\"nodes\":{\"node:11704766981333209398\":{\"location\":{\"x\":992,\"y\":516}},\"node:11919566930726824267\":{\"location\":{\"x\":671,\"y\":214}},\"node:17343758481877837382\":{\"location\":{\"x\":696,\"y\":514}},\"node:2517481977423414621\":{\"location\":{\"x\":368,\"y\":354}},\"node:7639670469434104179\":{\"location\":{\"x\":967,\"y\":262}},\"node:8334452234029184111\":{\"location\":{\"x\":1305,\"y\":270}},\"node:9238062510598618215\":{\"location\":{\"x\":248,\"y\":514}},\"node:9586340297455179855\":{\"location\":{\"x\":961,\"y\":134}},\"node:9662052679023003914\":{\"group_size\":{\"x\":584,\"y\":290},\"location\":{\"x\":328,\"y\":152}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":179.5,\"y\":-0},\"visible_rect\":{\"max\":{\"x\":1642.5,\"y\":1120},\"min\":{\"x\":179.5,\"y\":-0}},\"zoom\":1}}"

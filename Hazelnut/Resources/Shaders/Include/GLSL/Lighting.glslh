@@ -1,0 +1,191 @@
+#pragma once
+
+#pragma stage : frag
+#include <Common.glslh>
+#include <Buffers.glslh>
+
+// Used in PBR shader
+struct PBRParameters
+{
+	vec3 Albedo;
+	float Roughness;
+	float Metalness;
+
+	vec3 Normal;
+	vec3 View;
+	float NdotV;
+} m_Params;
+
+vec3 CalculateDirLights(vec3 F0)
+{
+	vec3 result = vec3(0.0);
+	for (int i = 0; i < 1; i++) //Only one light for now
+	{
+		if (u_Scene.DirectionalLights.Multiplier == 0.0)
+			continue;
+
+		vec3 Li = u_Scene.DirectionalLights.Direction;
+		vec3 Lradiance = u_Scene.DirectionalLights.Radiance * u_Scene.DirectionalLights.Multiplier;
+		vec3 Lh = normalize(Li + m_Params.View);
+
+		// Calculate angles between surface normal and various light vectors.
+		float cosLi = max(0.0, dot(m_Params.Normal, Li));
+		float cosLh = max(0.0, dot(m_Params.Normal, Lh));
+
+		vec3 F = FresnelSchlickRoughness(F0, max(0.0, dot(Lh, m_Params.View)), m_Params.Roughness);
+		float D = NdfGGX(cosLh, m_Params.Roughness);
+		float G = GaSchlickGGX(cosLi, m_Params.NdotV, m_Params.Roughness);
+
+		vec3 kd = (1.0 - F) * (1.0 - m_Params.Metalness);
+		vec3 diffuseBRDF = kd * m_Params.Albedo;
+
+		// Cook-Torrance
+		vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * m_Params.NdotV);
+		specularBRDF = clamp(specularBRDF, vec3(0.0f), vec3(10.0f));
+		result += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
+	}
+	return result;
+}
+
+//////////////////////////////////////////
+// POINT LIGHT
+//////////////////////////////////////////
+
+
+int GetPointLightBufferIndex(int i)
+{
+	ivec2 tileID = ivec2(gl_FragCoord) / ivec2(16, 16);
+	uint index = tileID.y * u_RendererData.TilesCountX + tileID.x;
+
+	uint offset = index * 1024;
+	return s_VisiblePointLightIndicesBuffer.Indices[offset + i];
+}
+
+int GetPointLightCount()
+{
+	int result = 0;
+	for (int i = 0; i < u_PointLights.LightCount; i++)
+	{
+		uint lightIndex = GetPointLightBufferIndex(i);
+		if (lightIndex == -1)
+			break;
+
+		result++;
+	}
+
+	return result;
+}
+
+vec3 CalculatePointLights(in vec3 F0, vec3 worldPos)
+{
+	vec3 result = vec3(0.0);
+	for (int i = 0; i < u_PointLights.LightCount; i++)
+	{
+		uint lightIndex = GetPointLightBufferIndex(i);
+		if (lightIndex == -1)
+			break;
+
+		PointLight light = u_PointLights.Lights[lightIndex];
+		vec3 Li = normalize(light.Position - worldPos);
+		float lightDistance = length(light.Position - worldPos);
+		vec3 Lh = normalize(Li + m_Params.View);
+
+		float attenuation = clamp(1.0 - (lightDistance * lightDistance) / (light.Radius * light.Radius), 0.0, 1.0);
+		attenuation *= mix(attenuation, 1.0, light.Falloff);
+
+		vec3 Lradiance = light.Radiance * light.Multiplier * attenuation;
+
+		// Calculate angles between surface normal and various light vectors.
+		float cosLi = max(0.0, dot(m_Params.Normal, Li));
+		float cosLh = max(0.0, dot(m_Params.Normal, Lh));
+
+		vec3 F = FresnelSchlickRoughness(F0, max(0.0, dot(Lh, m_Params.View)), m_Params.Roughness);
+		float D = NdfGGX(cosLh, m_Params.Roughness);
+		float G = GaSchlickGGX(cosLi, m_Params.NdotV, m_Params.Roughness);
+
+		vec3 kd = (1.0 - F) * (1.0 - m_Params.Metalness);
+		vec3 diffuseBRDF = kd * m_Params.Albedo;
+
+		// Cook-Torrance
+		vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * m_Params.NdotV);
+		specularBRDF = clamp(specularBRDF, vec3(0.0f), vec3(10.0f));
+		result += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
+	}
+	return result;
+}
+
+
+//////////////////////////////////////////
+// SPOT LIGHT
+//////////////////////////////////////////
+
+int GetSpotLightBufferIndex(int i)
+{
+	ivec2 tileID = ivec2(gl_FragCoord) / ivec2(16, 16);
+	uint index = tileID.y * u_RendererData.TilesCountX + tileID.x;
+
+	uint offset = index * 1024;
+	return s_VisibleSpotLightIndicesBuffer.Indices[offset + i];
+}
+
+
+int GetSpotLightCount()
+{
+	int result = 0;
+	for (int i = 0; i < u_SpotLights.LightCount; i++)
+	{
+		uint lightIndex = GetSpotLightBufferIndex(i);
+		if (lightIndex == -1)
+			break;
+
+		result++;
+	}
+
+	return result;
+}
+
+vec3 CalculateSpotLights(in vec3 F0, vec3 worldPos)
+{
+	vec3 result = vec3(0.0);
+	for (int i = 0; i < u_SpotLights.LightCount; i++)
+	{
+		uint lightIndex = GetSpotLightBufferIndex(i); 
+		if (lightIndex == -1)
+			break;
+
+		SpotLight light = u_SpotLights.Lights[lightIndex];
+		vec3 Li = normalize(light.Position - worldPos);
+		float lightDistance = length(light.Position - worldPos);
+
+		float cutoff = cos(radians(light.Angle * 0.5f));
+		float scos = max(dot(Li, light.Direction), cutoff);
+		float rim = (1.0 - scos) / (1.0 - cutoff);
+
+		float attenuation = clamp(1.0 - (lightDistance * lightDistance) / (light.Range * light.Range), 0.0, 1.0);
+		attenuation *= mix(attenuation, 1.0, light.Falloff);
+		attenuation *= 1.0 - pow(max(rim, 0.001), light.AngleAttenuation);
+
+		vec3 Lradiance = light.Radiance * light.Multiplier * attenuation;
+		vec3 Lh = normalize(Li + m_Params.View);
+
+		// Calculate angles between surface normal and various light vectors.
+		float cosLi = max(0.0, dot(m_Params.Normal, Li));
+		float cosLh = max(0.0, dot(m_Params.Normal, Lh));
+
+		vec3 F = FresnelSchlickRoughness(F0, max(0.0, dot(Lh, m_Params.View)), m_Params.Roughness);
+		float D = NdfGGX(cosLh, m_Params.Roughness);
+		float G = GaSchlickGGX(cosLi, m_Params.NdotV, m_Params.Roughness);
+
+		vec3 kd = (1.0 - F) * (1.0 - m_Params.Metalness);
+		vec3 diffuseBRDF = kd * m_Params.Albedo;
+
+		// Cook-Torrance
+		vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * m_Params.NdotV);
+		specularBRDF = clamp(specularBRDF, vec3(0.0f), vec3(10.0f));
+		result += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
+
+	}
+	return result;
+}
+
+

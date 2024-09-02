@@ -1,0 +1,247 @@
+Scene: SponzaDemo
+Entities:
+  - Entity: 2143608321399101581
+    TagComponent:
+      Tag: Sky Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 8760076623739549991
+      Intensity: 1
+      Lod: 1
+      DynamicSky: false
+  - Entity: 5503248384331396990
+    TagComponent:
+      Tag: Torus
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 3.24900579, 0]
+      Rotation: [0.580988586, -0.212728336, 0.311113209]
+      Scale: [2.6000011, 2.59999943, 2.59999943]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 0
+      Visible: true
+  - Entity: 6040838675230410392
+    TagComponent:
+      Tag: Camera
+    Parent: 17754733419460451366
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 13363237840358869142
+      Entity: 10499318103166740538
+    TransformComponent:
+      Position: [0, 0.787638187, 0]
+      Rotation: [0, 1.63912773e-07, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 60.0000038
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 11081956374634559166
+    TagComponent:
+      Tag: HazelText
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [6.92396784, 8.67417145, -0.131094441]
+      Rotation: [-2.1262764e-07, -1.52836752, 2.16718476e-07]
+      Scale: [0.769986749, 0.769999921, 0.769986749]
+    StaticMeshComponent:
+      AssetID: 16902489934535872374
+      MaterialTable:
+        0: 6090468609339042727
+      Visible: true
+    PointLightComponent:
+      Radiance: [1, 0.764478743, 0]
+      Intensity: 1.89999998
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 3.9000001
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 13840373595412035885
+    TagComponent:
+      Tag: Sponza
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 2126746479130028110
+      MaterialTable:
+        0: 0
+        1: 0
+        2: 0
+        3: 0
+        4: 0
+        5: 0
+        6: 0
+        7: 0
+        8: 0
+        9: 0
+        10: 0
+        11: 0
+        12: 0
+        13: 0
+        14: 0
+        15: 0
+        16: 0
+        17: 0
+        18: 0
+        19: 0
+        20: 0
+        21: 0
+        22: 0
+        23: 0
+        24: 0
+        25: 0
+      Visible: true
+    MeshColliderComponent:
+      ColliderHandle: 15872767083493438537
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x01"
+  - Entity: 13882838760121718506
+    TagComponent:
+      Tag: Directional Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [2.60752177, 0, -0.315904588]
+      Scale: [1, 1, 1]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [1, 1, 1]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 0.5
+      ShadowAmount: 1
+  - Entity: 14453322576615758437
+    TagComponent:
+      Tag: Point Light
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 4.28000021, -3.94000006]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PointLightComponent:
+      Radiance: [0.0535713434, 1, 0]
+      Intensity: 6
+      CastShadows: true
+      SoftShadows: true
+      MinRadius: 1
+      Radius: 2.9000001
+      LightSize: 0.5
+      Falloff: 1
+  - Entity: 15814871064555130561
+    TagComponent:
+      Tag: Sphere
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 4.27992392, -3.93549323]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 1162716615310863507
+      Visible: true
+  - Entity: 17754733419460451366
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 6040838675230410392
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 3912134598091010927
+    TransformComponent:
+      Position: [4.84976101, 1.38370681, 2.53372455]
+      Rotation: [0, -1.40094519, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1703576679
+      Name: Sandbox.FirstPersonController
+      StoredFields:
+        - ID: 442613449
+          Name: MovementSpeed
+          Type: Float
+          Data: 3
+        - ID: 944303073
+          Name: GamepadSensitivity
+          Type: Float
+          Data: 3
+        - ID: 4167077733
+          Name: MouseSensitivity
+          Type: Float
+          Data: 0.100000001
+        - ID: 1479820618
+          Name: JumpPower
+          Type: Float
+          Data: 5
+        - ID: 603041627
+          Name: ShootingCooldown
+          Type: Float
+          Data: 0.150000006
+        - ID: 692094311
+          Name: FootstepVolume
+          Type: Float
+          Data: 0.219999999
+        - ID: 280898344
+          Name: ProjectilePrefab
+          Type: Prefab
+          Data: 5349322122580055698
+        - ID: 3559253847
+          Name: m_CameraEntity
+          Type: Entity
+          Data: 6040838675230410392
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: false
+      SlopeLimit: 0
+      StepOffset: 0
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioListenerComponent:
+      Active: true
+      ConeInnerAngle: 6.28318501
+      ConeOuterAngle: 6.28318501
+      ConeOuterGain: 0
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 50
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

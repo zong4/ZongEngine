@@ -1,0 +1,10 @@
+#pragma once
+#include "Common.slh"
+
+#define HZ_AO_METHOD_GTAO BIT(1)
+#define HZ_AO_METHOD_HBAO BIT(2)
+
+#define HZ_REFLECTION_OCCLUSION_METHOD_GTAO BIT(1)
+#define HZ_REFLECTION_OCCLUSION_METHOD_HBAO BIT(2)
+
+#define XE_GTAO_OCCLUSION_TERM_SCALE (1.5f) // for packing in UNORM (because raw, pre-denoised occlusion term can overshoot 1 but will later average out to 1)

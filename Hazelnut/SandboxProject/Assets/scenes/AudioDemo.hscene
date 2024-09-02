@@ -1,0 +1,528 @@
+Scene: AudioDemo
+Entities:
+  - Entity: 247099514217866787
+    TagComponent:
+      Tag: Floor
+    Parent: 13110620254254437234
+    Children:
+      []
+    TransformComponent:
+      Position: [-0.28107664, -0.699999988, -0.340484709]
+      Rotation: [0, -0.0712076053, 0]
+      Scale: [22.3134861, 1, 22.6721535]
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 362953680802480667
+    TagComponent:
+      Tag: Windy
+    Parent: 5909065766504284979
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    AudioComponent:
+      StartEvent: play_amb_windy
+      StartCommandID: 1472264919
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 0.129999995
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 2430989870794355118
+    TagComponent:
+      Tag: Thunder
+    Parent: 5909065766504284979
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    AudioComponent:
+      StartEvent: play_amb_thunder
+      StartCommandID: 3800972795
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 1
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 2627458027721937687
+    TagComponent:
+      Tag: Sound Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 1.4703002, 1.29662144]
+      Rotation: [0, -0.0540359393, 0]
+      Scale: [0.999999881, 1, 0.999999881]
+    AudioComponent:
+      StartEvent: play_sound_cube
+      StartCommandID: 1869018435
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 0.5
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 3607112592760578749
+    TagComponent:
+      Tag: TransformTest
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-8.91946316, -0.24582839, 3.04246831]
+      Rotation: [3.14159226, 1.19432735, 3.14159226]
+      Scale: [1.00000012, 1, 1.00000012]
+    MeshComponent:
+      AssetID: 6149057548850182078
+      SubmeshIndex: 0
+      MaterialTable:
+        0: 0
+      Visible: true
+    MeshColliderComponent:
+      ColliderHandle: 13214786870184249001
+      UseSharedShape: false
+      Friction: 0.5
+      Restitution: 0.150000006
+      CollisionComplexity: "\x00"
+  - Entity: 4362651766733805767
+    TagComponent:
+      Tag: Camera
+    Parent: 16043809173028454089
+    Children:
+      []
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 10499318103166740538
+    TransformComponent:
+      Position: [0, 0.787638187, 0]
+      Rotation: [0, 1.63912773e-07, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 60.0000038
+        PerspectiveNear: 0.100000001
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 5236788878815609694
+    TagComponent:
+      Tag: Sound Cone
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0.179772854, 0.5, -2.75]
+      Rotation: [0, 0, 0]
+      Scale: [0.300000012, 0.300000012, 0.300000012]
+    ScriptComponent:
+      ClassHandle: 941837708
+      Name: AudioDemo.SoundCone
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 0
+      Visible: true
+    AudioComponent:
+      StartEvent: play_sound_cone
+      StartCommandID: 3529678057
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 0.800000012
+      PitchMultiplier: 1.53999996
+      AutoDestroy: false
+  - Entity: 5909065766504284979
+    TagComponent:
+      Tag: Ambient Sounds
+    Parent: 0
+    Children:
+      - Handle: 2430989870794355118
+      - Handle: 362953680802480667
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 6151203729242867256
+    TagComponent:
+      Tag: Lighting
+    Parent: 0
+    Children:
+      - Handle: 9010891156897511670
+      - Handle: 16189048305669213946
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 6174311028970814496
+    TagComponent:
+      Tag: Flying Sphere
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-6.20760155, 2.16897607, -55.6440086]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1245331231
+      Name: AudioDemo.DopplerCube
+      StoredFields:
+        - ID: 1450972260
+          Name: numberOfLoops
+          Type: Int32
+          Data: -1
+        - ID: 2768718046
+          Name: amplitude
+          Type: Float
+          Data: 10
+        - ID: 4114011232
+          Name: slope
+          Type: Float
+          Data: 0.200000003
+        - ID: 3048382510
+          Name: xAxis
+          Type: Int32
+          Data: 0
+    StaticMeshComponent:
+      AssetID: 14924744775604793321
+      MaterialTable:
+        0: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0
+      AngularDrag: 0
+      DisableGravity: true
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    SphereColliderComponent:
+      Radius: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioComponent:
+      StartEvent: play_flying_sphere
+      StartCommandID: 2330722508
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 1
+      PitchMultiplier: 0.400000006
+      AutoDestroy: false
+  - Entity: 9010891156897511670
+    TagComponent:
+      Tag: Directional Light
+    Parent: 6151203729242867256
+    Children:
+      []
+    TransformComponent:
+      Position: [-7.27691685e-08, 1.8584646, -1.0028851e-07]
+      Rotation: [0.443818063, -1.28743219, 1.13158512]
+      Scale: [1, 0.999998808, 0.999998569]
+    DirectionalLightComponent:
+      Intensity: 1
+      Radiance: [0.729729772, 0.648957729, 0.349368691]
+      CastShadows: true
+      SoftShadows: true
+      LightSize: 62.7999992
+      ShadowAmount: 1
+  - Entity: 9298445879550890221
+    TagComponent:
+      Tag: TestScene
+    Parent: 13110620254254437234
+    Children:
+      []
+    TransformComponent:
+      Position: [0.177551463, -0.225337982, -2.75052142]
+      Rotation: [-3.14159226, -1.50633383, -3.14159226]
+      Scale: [0.999999762, 1, 0.999999762]
+    StaticMeshComponent:
+      AssetID: 13957599674144021238
+      MaterialTable:
+        0: 0
+      Visible: true
+  - Entity: 9567580318373611644
+    TagComponent:
+      Tag: Sound Area
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-8.93000031, 3.06999993, 2.88000011]
+      Rotation: [0, 0.360410482, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 2213933750
+      Name: AudioDemo.TriggerVolume
+    RigidBodyComponent:
+      BodyType: 0
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 1
+      LinearDrag: 0.00999999978
+      AngularDrag: 0.0500000007
+      DisableGravity: false
+      IsTrigger: true
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [5.5, 3.28500009, 5.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+  - Entity: 10726806350724451218
+    TagComponent:
+      Tag: Humming Capsule
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [-6.67098618, 0.254324406, -1.88109362]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 6794048458811322821
+      MaterialTable:
+        0: 0
+      Visible: true
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 1.39999998
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioComponent:
+      StartEvent: play_humming_capsule
+      StartCommandID: 328514977
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 2
+      PitchMultiplier: 0.289999992
+      AutoDestroy: false
+  - Entity: 13110620254254437234
+    TagComponent:
+      Tag: Geometry (decor)
+    Parent: 0
+    Children:
+      - Handle: 16876170588823210727
+      - Handle: 247099514217866787
+      - Handle: 9298445879550890221
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 13259527633592436384
+    TagComponent:
+      Tag: Sound Sphere
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [0.412180901, 1.69326925, -6.69890594]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 351365716
+      Name: AudioDemo.OneShotTrigger
+    SphereColliderComponent:
+      Radius: 1
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioComponent:
+      StartEvent: ""
+      StartCommandID: 0
+      PlayOnAwake: false
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 2
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 16043809173028454089
+    TagComponent:
+      Tag: Player
+    Parent: 0
+    Children:
+      - Handle: 4362651766733805767
+    PrefabComponent:
+      Prefab: 15644984880458673382
+      Entity: 3912134598091010927
+    TransformComponent:
+      Position: [4.84976101, 1.38370681, 2.53372455]
+      Rotation: [0, -1.40094519, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1703576679
+      Name: Sandbox.FirstPersonController
+      StoredFields:
+        - ID: 442613449
+          Name: MovementSpeed
+          Type: Float
+          Data: 3
+        - ID: 944303073
+          Name: GamepadSensitivity
+          Type: Float
+          Data: 3
+        - ID: 4167077733
+          Name: MouseSensitivity
+          Type: Float
+          Data: 0.100000001
+        - ID: 1479820618
+          Name: JumpPower
+          Type: Float
+          Data: 5
+        - ID: 603041627
+          Name: ShootingCooldown
+          Type: Float
+          Data: 0.150000006
+        - ID: 692094311
+          Name: FootstepVolume
+          Type: Float
+          Data: 0.219999999
+        - ID: 280898344
+          Name: ProjectilePrefab
+          Type: Prefab
+          Data: 5349322122580055698
+        - ID: 3559253847
+          Name: m_CameraEntity
+          Type: Entity
+          Data: 4362651766733805767
+    CharacterControllerComponent:
+      Layer: 0
+      DisableGravity: false
+      SlopeLimit: 0
+      StepOffset: 0
+    CapsuleColliderComponent:
+      Radius: 0.5
+      HalfHeight: 0.5
+      Offset: [0, 0, 0]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioListenerComponent:
+      Active: true
+      ConeInnerAngle: 6.28318501
+      ConeOuterAngle: 6.28318501
+      ConeOuterGain: 0
+  - Entity: 16055641903422369177
+    TagComponent:
+      Tag: Flying Cube
+    Parent: 0
+    Children:
+      []
+    TransformComponent:
+      Position: [700, 1.5780642, -4.35760117]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassHandle: 1245331231
+      Name: AudioDemo.DopplerCube
+      StoredFields:
+        - ID: 1450972260
+          Name: numberOfLoops
+          Type: Int32
+          Data: -1
+        - ID: 2768718046
+          Name: amplitude
+          Type: Float
+          Data: 300
+        - ID: 4114011232
+          Name: slope
+          Type: Float
+          Data: 8
+        - ID: 3048382510
+          Name: xAxis
+          Type: Int32
+          Data: 1
+    StaticMeshComponent:
+      AssetID: 16704718035390383336
+      MaterialTable:
+        0: 0
+      Visible: true
+    RigidBodyComponent:
+      BodyType: 1
+      LayerID: 0
+      EnableDynamicTypeChange: false
+      Mass: 0.5
+      LinearDrag: 0
+      AngularDrag: 0
+      DisableGravity: true
+      IsTrigger: false
+      CollisionDetection: 0
+      InitialLinearVelocity: [0, 0, 0]
+      InitialAngularVelocity: [0, 0, 0]
+      MaxLinearVelocity: 500
+      MaxAngularVelocity: 50
+      LockedAxes: 0
+    BoxColliderComponent:
+      Offset: [0, 0, 0]
+      HalfSize: [0.5, 0.5, 0.5]
+      Friction: 0.5
+      Restitution: 0.150000006
+    AudioComponent:
+      StartEvent: play_flying_cube
+      StartCommandID: 3553984890
+      PlayOnAwake: true
+      StopIfEntityDestroyed: true
+      VolumeMultiplier: 0.5
+      PitchMultiplier: 1
+      AutoDestroy: false
+  - Entity: 16189048305669213946
+    TagComponent:
+      Tag: Sky Light
+    Parent: 6151203729242867256
+    Children:
+      []
+    TransformComponent:
+      Position: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SkyLightComponent:
+      EnvironmentMap: 11757411323514812788
+      Intensity: 1
+      Lod: 1
+      DynamicSky: false
+  - Entity: 16876170588823210727
+    TagComponent:
+      Tag: Torus
+    Parent: 13110620254254437234
+    Children:
+      []
+    TransformComponent:
+      Position: [0.193782091, 4.5999999, -2.70588756]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    StaticMeshComponent:
+      AssetID: 3271057034469422252
+      MaterialTable:
+        0: 0
+      Visible: true
+SceneAudio:
+  MasterReverb:
+    Pre-delay: 44
+    Room size: 0.49999994
+    Damping: 0.5
+    Width: 1

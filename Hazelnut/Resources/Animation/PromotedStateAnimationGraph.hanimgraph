@@ -1,0 +1,95 @@
+Skeleton: 0
+0:
+  Nodes:
+    - ID: 17234011670002181332
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":1040,\"y\":502}}"
+      Inputs:
+        - ID: 5928440281298659758
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 12700463392645752979
+      Category: Animation
+      Name: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":504,\"y\":446}}"
+      Inputs:
+        - ID: 17039700168063870762
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: UUID
+              Value: 0
+        - ID: 13033440801412670690
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 9935305339182624525
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 3769475810178649203
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 3669515828900115251
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 8360099551484095420
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 16069348604012977373
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+  Links:
+    - ID: 14769419041171203681
+      StartPinID: 3669515828900115251
+      EndPinID: 5928440281298659758
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:12700463392645752979\":{\"location\":{\"x\":504,\"y\":446}},\"node:17234011670002181332\":{\"location\":{\"x\":1040,\"y\":502}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":424.922454833984375,\"y\":253.35467529296875},\"visible_rect\":{\"max\":{\"x\":1577.5382080078125,\"y\":1049.8839111328125},\"min\":{\"x\":339.938018798828125,\"y\":202.68377685546875}},\"zoom\":1.2499997615814209}}"
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
