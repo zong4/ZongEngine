@@ -1,27 +1,18 @@
 ﻿namespace Hazel
 {
-	[EditorAssignable]
 	public class StaticMesh : MeshBase
 	{
-		internal StaticMesh() : base() { }
-		internal StaticMesh(ulong handle) : base(handle) { }
+		internal StaticMesh() : base() {}
+		internal StaticMesh(AssetHandle handle) : base(handle) {}
 
-		public override Material? GetMaterial(int index)
+		public override Material GetMaterial(int index)
 		{
-			AssetHandle materialHandle = AssetHandle.Invalid;
+			if (!InternalCalls.StaticMesh_GetMaterialByIndex(ref m_Handle, index, out AssetHandle materialHandle))
+				return null;
 
-			unsafe
-			{
-				if (!InternalCalls.StaticMesh_GetMaterialByIndex(Handle, index, &materialHandle))
-					return null;
-			}
-
-			return new Material(Handle, materialHandle, null);
+			return new Material(m_Handle, materialHandle, null);
 		}
 
-		public override int GetMaterialCount()
-		{
-			unsafe { return InternalCalls.StaticMesh_GetMaterialCount(Handle); }
-		}
+		public override int GetMaterialCount() => InternalCalls.StaticMesh_GetMaterialCount(ref m_Handle);
 	}
 }

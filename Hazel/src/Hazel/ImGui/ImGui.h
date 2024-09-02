@@ -2,36 +2,30 @@
 
 #include "UICore.h"
 
-#include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Asset/AssetMetadata.h"
-#include "Hazel/Editor/AssetEditorPanelInterface.h"
-#include "Hazel/ImGui/Colors.h"
-#include "Hazel/ImGui/ImGuiFonts.h"
-#include "Hazel/ImGui/ImGuiUtilities.h"
-#include "Hazel/ImGui/ImGuiWidgets.h"
-#include "Hazel/Scene/Prefab.h"
-#include "Hazel/Scene/Scene.h"
-#include "Hazel/Utilities/StringUtils.h"
-
-#include <choc/text/choc_StringUtilities.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
-#include <imgui_internal.h>
+#include "imgui_internal.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <filesystem>
-#include <format>
 #include <map>
 
+#include "Hazel/Scene/Scene.h"
+#include "Hazel/Scene/Prefab.h"
+#include "Hazel/Asset/AssetManager.h"
+#include "Hazel/Editor/AssetEditorPanelInterface.h"
+#include "Hazel/ImGui/Colors.h"
+#include "Hazel/ImGui/ImGuiUtilities.h"
+#include "Hazel/ImGui/ImGuiWidgets.h"
+#include "Hazel/ImGui/ImGuiFonts.h"
+#include "Hazel/Utilities/StringUtils.h"
+#include "Hazel/Script/ScriptCache.h"
 
-namespace Hazel {
-
-	class FieldStorage;
-
-}
+#include "choc/text/choc_StringUtilities.h"
 
 namespace Hazel::UI {
 
@@ -72,12 +66,15 @@ namespace Hazel::UI {
 		ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 	}
 
-	template<uint32_t flags = 0, typename... Args>
-	static void ShowSimpleMessageBox(const char* title, std::format_string<Args...> message, Args&&... args)
+	template<uint32_t flags = 0, typename... TArgs>
+	static void ShowSimpleMessageBox(const char* title, const char* content, TArgs&&... contentArgs)
 	{
 		auto& messageBoxData = s_MessageBoxes[title];
-		messageBoxData.Title = std::format("{0}##MessageBox{1}", title, s_MessageBoxes.size() + 1);
-		messageBoxData.Body = std::format(message, std::forward<Args>(args)...);
+		messageBoxData.Title = fmt::format("{0}##MessageBox{1}", title, s_MessageBoxes.size() + 1);
+		if constexpr (sizeof...(contentArgs) > 0)
+			messageBoxData.Body = fmt::format(content, std::forward<TArgs>(contentArgs)...);
+		else
+			messageBoxData.Body = content;
 		messageBoxData.Flags = flags;
 		messageBoxData.Width = 600;
 		messageBoxData.Height = 0;
@@ -87,7 +84,7 @@ namespace Hazel::UI {
 	static void ShowMessageBox(const char* title, const std::function<void()>& renderFunction, uint32_t width = 600, uint32_t height = 0, uint32_t minWidth = 0, uint32_t minHeight = 0, uint32_t maxWidth = -1, uint32_t maxHeight = -1, uint32_t flags = HZ_MESSAGE_BOX_AUTO_SIZE)
 	{
 		auto& messageBoxData = s_MessageBoxes[title];
-		messageBoxData.Title = std::format("{0}##MessageBox{1}", title, s_MessageBoxes.size() + 1);
+		messageBoxData.Title = fmt::format("{0}##MessageBox{1}", title, s_MessageBoxes.size() + 1);
 		messageBoxData.UserRenderFunction = renderFunction;
 		messageBoxData.Flags = HZ_MESSAGE_BOX_USER_FUNC | flags;
 		messageBoxData.Width = width;
@@ -232,32 +229,6 @@ namespace Hazel::UI {
 		ImGui::Separator();
 	}
 
-	static bool PropertyButton(const char* label, const char* buttonText, const char* helpText = "")
-	{
-		bool modified = false;
-
-		ShiftCursor(10.0f, 9.0f);
-		ImGui::Text(label);
-
-		if (std::strlen(helpText) != 0)
-		{
-			ImGui::SameLine();
-			HelpMarker(helpText);
-		}
-
-		ImGui::NextColumn();
-		ShiftCursorY(4.0f);
-		ImGui::PushItemWidth(-1);
-
-		modified = ImGui::Button(std::format("{0}##{1}", buttonText, label).c_str());
-
-		ImGui::PopItemWidth();
-		ImGui::NextColumn();
-		Draw::Underline();
-
-		return modified;
-	}
-
 	static bool Property(const char* label, std::string& value, const char* helpText = "")
 	{
 		bool modified = false;
@@ -275,7 +246,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		modified = UI::InputText(std::format("##{0}", label).c_str(), &value);
+		modified = UI::InputText(fmt::format("##{0}", label).c_str(), &value);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -299,7 +270,7 @@ namespace Hazel::UI {
 		ImGui::NextColumn();
 		ImGui::PushItemWidth(-1);
 
-		modified = UI::InputTextMultiline(std::format("##{0}", label).c_str(), &value);
+		modified = UI::InputTextMultiline(fmt::format("##{0}", label).c_str(), &value);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -322,7 +293,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 		BeginDisabled();
-		UI::InputText(std::format("##{0}", label).c_str(), (char*)value.c_str(), value.size(), ImGuiInputTextFlags_ReadOnly);
+		UI::InputText(fmt::format("##{0}", label).c_str(), (char*)value.c_str(), value.size(), ImGuiInputTextFlags_ReadOnly);
 		EndDisabled();
 
 		ImGui::PopItemWidth();
@@ -345,7 +316,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 		BeginDisabled();
-		UI::InputText(std::format("##{0}", label).c_str(), (char*)value, 256, ImGuiInputTextFlags_ReadOnly);
+		UI::InputText(fmt::format("##{0}", label).c_str(), (char*)value, 256, ImGuiInputTextFlags_ReadOnly);
 		EndDisabled();
 
 		ImGui::PopItemWidth();
@@ -368,7 +339,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::InputText(std::format("##{0}", label).c_str(), value, length);
+		bool modified = UI::InputText(fmt::format("##{0}", label).c_str(), value, length);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -394,7 +365,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		modified = UI::Checkbox(std::format("##{0}", label).c_str(), &value);
+		modified = UI::Checkbox(fmt::format("##{0}", label).c_str(), &value);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -418,7 +389,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragInt8(std::format("##{0}", label).c_str(), &value, 1.0f, min, max);
+		bool modified = UI::DragInt8(fmt::format("##{0}", label).c_str(), &value, 1.0f, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -442,7 +413,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragInt16(std::format("##{0}", label).c_str(), &value, 1.0f, min, max);
+		bool modified = UI::DragInt16(fmt::format("##{0}", label).c_str(), &value, 1.0f, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -466,7 +437,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragInt32(std::format("##{0}", label).c_str(), &value, 1.0f, min, max);
+		bool modified = UI::DragInt32(fmt::format("##{0}", label).c_str(), &value, 1.0f, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -490,7 +461,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragInt64(std::format("##{0}", label).c_str(), &value, 1.0f, min, max);
+		bool modified = UI::DragInt64(fmt::format("##{0}", label).c_str(), &value, 1.0f, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -514,7 +485,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragUInt8(std::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
+		bool modified = UI::DragUInt8(fmt::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -538,7 +509,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragUInt16(std::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
+		bool modified = UI::DragUInt16(fmt::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -562,7 +533,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragUInt32(std::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
+		bool modified = UI::DragUInt32(fmt::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -586,7 +557,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragUInt64(std::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
+		bool modified = UI::DragUInt64(fmt::format("##{0}", label).c_str(), &value, 1.0f, minValue, maxValue);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -613,7 +584,7 @@ namespace Hazel::UI {
 
 		for (auto [value, option] : options)
 		{
-			std::string radioLabel = std::format("{}##{}", option.data(), label);
+			std::string radioLabel = fmt::format("{}##{}", option.data(), label);
 			if (ImGui::RadioButton(radioLabel.c_str(), &chosen, value))
 				modified = true;
 
@@ -649,7 +620,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragFloat(std::format("##{0}", label).c_str(), &value, delta, min, max);
+		bool modified = UI::DragFloat(fmt::format("##{0}", label).c_str(), &value, delta, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -673,7 +644,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragDouble(std::format("##{0}", label).c_str(), &value, delta, min, max);
+		bool modified = UI::DragDouble(fmt::format("##{0}", label).c_str(), &value, delta, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -697,7 +668,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragFloat2(std::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
+		bool modified = UI::DragFloat2(fmt::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -721,11 +692,8 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		//bool modified = UI::DragFloat3(std::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
-		ImVec2 size(ImGui::GetContentRegionAvail().x - 8.0f, ImGui::GetFrameHeightWithSpacing());
-		bool manuallyEdited = false;
-		bool modified = UI::Widgets::EditVec3(std::format("##{0}", label).c_str(), size, 0.0f, manuallyEdited, value, UI::VectorAxis::None, delta, glm::vec3{ min }, glm::vec3{ max });
-		
+		bool modified = UI::DragFloat3(fmt::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
+
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
 		Draw::Underline();
@@ -748,7 +716,7 @@ namespace Hazel::UI {
 		ShiftCursorY(4.0f);
 		ImGui::PushItemWidth(-1);
 
-		bool modified = UI::DragFloat4(std::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
+		bool modified = UI::DragFloat4(fmt::format("##{0}", label).c_str(), glm::value_ptr(value), delta, min, max);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -775,15 +743,15 @@ namespace Hazel::UI {
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(" X");
 		ImGui::SameLine();
-		bool modified = UI::Checkbox(std::format("##1{0}", label).c_str(), &value.x);
+		bool modified = UI::Checkbox(fmt::format("##1{0}", label).c_str(), &value.x);
 		ImGui::SameLine();
 		ImGui::TextUnformatted(" Y");
 		ImGui::SameLine();
-		modified |= UI::Checkbox(std::format("##2{0}", label).c_str(), &value.y);
+		modified |= UI::Checkbox(fmt::format("##2{0}", label).c_str(), &value.y);
 		ImGui::SameLine();
 		ImGui::TextUnformatted(" Z");
 		ImGui::SameLine();
-		modified |= UI::Checkbox(std::format("##3{0}", label).c_str(), &value.z);
+		modified |= UI::Checkbox(fmt::format("##3{0}", label).c_str(), &value.z);
 
 		ImGui::PopItemWidth();
 		ImGui::NextColumn();
@@ -1380,54 +1348,11 @@ namespace Hazel::UI {
 		bool AdvanceToNextColumn = true;
 		bool NoItemSpacing = false; // After label
 		float WidthOffset = 0.0f;
+		bool AllowMemoryOnlyAssets = false;
 		ImVec4 ButtonLabelColor = ImGui::ColorConvertU32ToFloat4(Colors::Theme::text);
 		ImVec4 ButtonLabelColorError = ImGui::ColorConvertU32ToFloat4(Colors::Theme::textError);
 		bool ShowFullFilePath = false;
 	};
-
-	inline auto AssetValidityAndName(AssetHandle handle, const PropertyAssetReferenceSettings& settings)
-	{
-		std::string name = "Null";
-
-		bool valid = AssetManager::IsAssetHandleValid(handle);
-		if (valid)
-		{
-			if (settings.ShowFullFilePath)
-				name = Project::GetEditorAssetManager()->GetMetadata(handle).FilePath.string();
-			else
-				name = Project::GetEditorAssetManager()->GetMetadata(handle).FilePath.stem().string();
-
-
-			if (AssetManager::IsAssetMissing(handle))
-			{
-				valid = false;
-				name += " (Missing)";
-			}
-#if WHAT
-			if (!AssetManager::GetAsset<Asset>(handle))
-			{
-				if (name.empty())
-				{
-					valid = false;
-					name = "Invalid Handle";
-				}
-
-				if (AssetManager::IsAssetMissing(handle))
-				{
-					valid = false;
-					name += " (Missing)";
-				}
-				else
-				{
-					valid = false;
-					name += " (Invalid)";
-				}
-			}
-#endif
-		}
-
-		return std::make_pair(valid, name);
-	}
 
 	template<typename T>
 	static bool PropertyAssetReference(const char* label, AssetHandle& outHandle, const char* helpText = "", PropertyAssetReferenceError* outError = nullptr, const PropertyAssetReferenceSettings& settings = {})
@@ -1455,7 +1380,24 @@ namespace Hazel::UI {
 			float width = ImGui::GetContentRegionAvail().x - settings.WidthOffset;
 			float itemHeight = 28.0f;
 
-			auto [valid, buttonText] = AssetValidityAndName(outHandle, settings);
+			std::string buttonText = "Null";
+			bool valid = true;
+			if (AssetManager::IsAssetHandleValid(outHandle))
+			{
+				auto object = AssetManager::GetAsset<T>(outHandle);
+				valid = object && !object->IsFlagSet(AssetFlag::Invalid) && !object->IsFlagSet(AssetFlag::Missing);
+				if (object && !object->IsFlagSet(AssetFlag::Missing))
+				{
+					if (settings.ShowFullFilePath)
+						buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.string();
+					else
+						buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.stem().string();
+				}
+				else
+				{
+					buttonText = "Missing";
+				}
+			}
 
 			if ((GImGui->CurrentItemFlags & ImGuiItemFlags_MixedValue) != 0)
 				buttonText = "---";
@@ -1491,7 +1433,7 @@ namespace Hazel::UI {
 			ImGui::GetStyle().ButtonTextAlign = originalButtonTextAlign;
 
 			bool clear = false;
-			if (Widgets::AssetSearchPopup(assetSearchPopupID.c_str(), T::GetStaticType(), outHandle, &clear))
+			if (Widgets::AssetSearchPopup(assetSearchPopupID.c_str(), T::GetStaticType(), outHandle, settings.AllowMemoryOnlyAssets, &clear))
 			{
 				if (clear)
 					outHandle = 0;
@@ -1532,8 +1474,6 @@ namespace Hazel::UI {
 		return modified;
 	}
 
-	bool PropertyScriptReference(const char* label, UUID& outScriptID, const PropertyAssetReferenceSettings& settings = {});
-
 	template<AssetType... TAssetTypes>
 	static bool PropertyMultiAssetReference(const char* label, AssetHandle& outHandle, const char* helpText = "", PropertyAssetReferenceError* outError = nullptr, const PropertyAssetReferenceSettings& settings = PropertyAssetReferenceSettings())
 	{
@@ -1562,7 +1502,22 @@ namespace Hazel::UI {
 			float width = ImGui::GetContentRegionAvail().x - settings.WidthOffset;
 			float itemHeight = 28.0f;
 
-			auto [valid, buttonText] = AssetValidityAndName(outHandle, settings);
+			std::string buttonText = "Null";
+			if (AssetManager::IsAssetHandleValid(outHandle))
+			{
+				auto object = AssetManager::GetAsset<Asset>(outHandle);
+				if (object && !object->IsFlagSet(AssetFlag::Missing))
+				{
+					if (settings.ShowFullFilePath)
+						buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.string();
+					else
+						buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.stem().string();
+				}
+				else
+				{
+					buttonText = "Missing";
+				}
+			}
 
 			if ((GImGui->CurrentItemFlags & ImGuiItemFlags_MixedValue) != 0)
 				buttonText = "---";
@@ -1668,7 +1623,22 @@ namespace Hazel::UI {
 
 		float itemHeight = 28.0f;
 
-		auto [valid, buttonText] = AssetValidityAndName(outHandle, settings);
+		std::string buttonText = "Null";
+		bool valid = true;
+
+		if (AssetManager::IsAssetHandleValid(outHandle))
+		{
+			auto object = AssetManager::GetAsset<TAssetType>(outHandle);
+			valid = object && !object->IsFlagSet(AssetFlag::Invalid) && !object->IsFlagSet(AssetFlag::Missing);
+			if (object && !object->IsFlagSet(AssetFlag::Missing))
+			{
+				buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.stem().string();
+			}
+			else
+			{
+				buttonText = "Missing";
+			}
+		}
 
 		if ((GImGui->CurrentItemFlags & ImGuiItemFlags_MixedValue) != 0)
 			buttonText = "---";
@@ -1951,7 +1921,30 @@ namespace Hazel::UI {
 
 		float itemHeight = 28.0f;
 
-		auto [valid, buttonText] = AssetValidityAndName(outHandle, settings);
+		std::string buttonText = "Null";
+		bool valid = true;
+
+		if (AssetManager::IsAssetHandleValid(outHandle))
+		{
+			auto source = AssetManager::GetAsset<T>(outHandle);
+			valid = source && !source->IsFlagSet(AssetFlag::Invalid) && !source->IsFlagSet(AssetFlag::Missing);
+			if (source && !source->IsFlagSet(AssetFlag::Missing))
+			{
+				if (assetName)
+				{
+					buttonText = assetName;
+				}
+				else
+				{
+					buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.stem().string();
+					assetName = buttonText.c_str();
+				}
+			}
+			else
+			{
+				buttonText = "Missing";
+			}
+		}
 
 		if ((GImGui->CurrentItemFlags & ImGuiItemFlags_MixedValue) != 0)
 			buttonText = "---";
@@ -2053,9 +2046,9 @@ namespace Hazel::UI {
 
 		if (object)
 		{
-			if (!AssetManager::IsAssetMissing(object->Handle))
+			if (!object->IsFlagSet(AssetFlag::Missing))
 			{
-				UI::ScopedColour text(ImGuiCol_Text, AssetManager::IsAssetValid(object->Handle) ? Colors::Theme::text : Colors::Theme::textError);
+				UI::ScopedColour text(ImGuiCol_Text, object->IsFlagSet(AssetFlag::Invalid) ? Colors::Theme::textError : Colors::Theme::text);
 				auto assetFileName = Project::GetEditorAssetManager()->GetMetadata(object->Handle).FilePath.stem().string();
 
 				if ((GImGui->CurrentItemFlags & ImGuiItemFlags_MixedValue) != 0)
@@ -2144,6 +2137,60 @@ namespace Hazel::UI {
 		return pressed;
 	}
 
+	template<typename TAssetType>
+	static bool PropertyAssetDropdown(const char* label, Ref<TAssetType>& object, const ImVec2& size, AssetHandle* selected)
+	{
+		bool modified = false;
+		std::string preview;
+		float itemHeight = size.y / 10.0f;
+
+		if (AssetManager::IsAssetHandleValid(*selected))
+			object = AssetManager::GetAsset<TAssetType>(*selected);
+
+		if (object)
+		{
+			if (!object->IsFlagSet(AssetFlag::Missing))
+				preview = Project::GetEditorAssetManager()->GetMetadata(object->Handle).FilePath.stem().string();
+			else
+				preview = "Missing";
+		}
+		else
+		{
+			preview = "Null";
+		}
+
+		auto& assets = AssetManager::GetLoadedAssets();
+		AssetHandle current = *selected;
+
+		ImGui::SetNextWindowSize(size);
+		if (UI::BeginPopup(label, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		{
+			ImGui::SetKeyboardFocusHere(0);
+
+			for (auto& [handle, asset] : assets)
+			{
+				if (asset->GetAssetType() != TAssetType::GetStaticType())
+					continue;
+
+				auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
+
+				bool is_selected = (current == handle);
+				if (ImGui::Selectable(metadata.FilePath.string().c_str(), is_selected))
+				{
+					current = handle;
+					*selected = handle;
+					modified = true;
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			UI::EndPopup();
+		}
+
+		return modified;
+	}
+
 	static int s_CheckboxCount = 0;
 
 	static void BeginCheckboxGroup(const char* label)
@@ -2184,10 +2231,275 @@ namespace Hazel::UI {
 		Never, NotWritable, Always
 	};
 
-	bool DrawFieldValue(Ref<Scene> sceneContext, std::string_view fieldName, FieldStorage& storage);
-	bool DrawFieldArray(Ref<Scene> sceneContext, std::string_view fieldName, FieldStorage& storage);
+	static bool DrawFieldValue(Ref<Scene> sceneContext, const std::string& fieldName, Ref<FieldStorage> storage)
+	{
+		if (!storage)
+			return false;
 
-#if 0
+		const FieldInfo* field = storage->GetFieldInfo();
+
+		float min = 0.0f;
+		float max = 0.0f;
+		float delta = 0.1f;
+
+		/*if (field->HasAttribute("Hazel.ClampValueAttribute"))
+		{
+			MonoObject* attr = field->GetAttribute("Hazel.ClampValueAttribute");
+			HZ_TRY_GET_FIELD_VALUE(min, "Hazel.ClampValueAttribute", "Min", attr);
+			HZ_TRY_GET_FIELD_VALUE(max, "Hazel.ClampValueAttribute", "Max", attr);
+		}*/
+
+		std::string id = fmt::format("{0}-{1}", fieldName, field->ID);
+		ImGui::PushID(id.c_str());
+
+		bool result = false;
+
+		switch (field->Type)
+		{
+			case FieldType::Bool:
+			{
+				bool value = storage->GetValue<bool>();
+				if (Property(fieldName.c_str(), value))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Int8:
+			{
+				int8_t value = storage->GetValue<int8_t>();
+				if (Property(fieldName.c_str(), value, (int8_t)min, (int8_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Int16:
+			{
+				int16_t value = storage->GetValue<int16_t>();
+				if (Property(fieldName.c_str(), value, (int16_t)min, (int16_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Int32:
+			{
+				int32_t value = storage->GetValue<int32_t>();
+				if (Property(fieldName.c_str(), value, (int32_t)min, (int32_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Int64:
+			{
+				int64_t value = storage->GetValue<int64_t>();
+				if (Property(fieldName.c_str(), value, (int64_t)min, (int64_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::UInt8:
+			{
+				uint8_t value = storage->GetValue<uint8_t>();
+				if (Property(fieldName.c_str(), value, (uint8_t)min, (uint8_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::UInt16:
+			{
+				uint16_t value = storage->GetValue<uint16_t>();
+				if (Property(fieldName.c_str(), value, (uint16_t)min, (uint16_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::UInt32:
+			{
+				uint32_t value = storage->GetValue<uint32_t>();
+				if (Property(fieldName.c_str(), value, (uint32_t)min, (uint32_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::UInt64:
+			{
+				uint64_t value = storage->GetValue<uint64_t>();
+				if (Property(fieldName.c_str(), value, (uint64_t)min, (uint64_t)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Float:
+			{
+				float value = storage->GetValue<float>();
+				if (Property(fieldName.c_str(), value, delta, min, max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Double:
+			{
+				double value = storage->GetValue<double>();
+				if (Property(fieldName.c_str(), value, delta, (double)min, (double)max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::String:
+			{
+				std::string value = storage->GetValue<std::string>();
+				if (Property(fieldName.c_str(), value))
+				{
+					storage->SetValue<std::string>(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Vector2:
+			{
+				glm::vec2 value = storage->GetValue<glm::vec2>();
+				if (Property(fieldName.c_str(), value, min, max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Vector3:
+			{
+				glm::vec3 value = storage->GetValue<glm::vec3>();
+				if (Property(fieldName.c_str(), value, min, max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Vector4:
+			{
+				glm::vec4 value = storage->GetValue<glm::vec4>();
+				if (Property(fieldName.c_str(), value, min, max))
+				{
+					storage->SetValue(value);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Prefab:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<Prefab>(fieldName.c_str(), handle))
+				{
+					storage->SetValue(handle);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Entity:
+			{
+				UUID uuid = storage->GetValue<UUID>();
+				if (PropertyEntityReference(fieldName.c_str(), uuid, sceneContext))
+				{
+					storage->SetValue(uuid);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Mesh:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<Mesh>(fieldName.c_str(), handle))
+				{
+					storage->SetValue(handle);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::StaticMesh:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<StaticMesh>(fieldName.c_str(), handle))
+				{
+					storage->SetValue(handle);
+					result = true;
+				}
+				break;
+			}
+			case FieldType::Material:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<MaterialAsset>(fieldName.c_str(), handle))
+				{
+					storage->SetValue(handle);
+					result = true;
+				}
+				break;
+			}
+			/*case UnmanagedType::PhysicsMaterial:
+			{
+				ColliderMaterial material = storage->GetValue<ColliderMaterial>(managedInstance);
+				
+				if (PropertyGridHeader(fmt::format("{} (ColliderMaterial)", fieldName)))
+				{
+					if (Property("Friction", material.Friction))
+					{
+						storage->SetValue(managedInstance, material);
+						result = true;
+					}
+
+					if (Property("Restitution", material.Restitution))
+					{
+						storage->SetValue(managedInstance, material);
+						result = true;
+					}
+
+					EndTreeNode();
+				}
+
+				break;
+			}*/
+			case FieldType::Texture2D:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<Texture2D>(fieldName.c_str(), handle))
+					storage->SetValue(handle);
+				break;
+			}
+			case FieldType::Scene:
+			{
+				AssetHandle handle = storage->GetValue<AssetHandle>();
+				if (PropertyAssetReference<Scene>(fieldName.c_str(), handle))
+					storage->SetValue(handle);
+				break;
+			}
+		}
+
+		ImGui::PopID();
+
+		return result;
+	}
+
 	template<typename T>
 	static bool PropertyAssetReferenceArray(const char* label, AssetHandle& outHandle, Ref<ArrayFieldStorage>& arrayStorage, uint32_t index, intptr_t& elementToRemove, const char* helpText = "", const PropertyAssetReferenceSettings& settings = {})
 	{
@@ -2217,7 +2529,21 @@ namespace Hazel::UI {
 			ImGui::GetStyle().ButtonTextAlign = { 0.0f, 0.5f };
 			float itemHeight = 28.0f;
 
-			auto [valid, buttonText] = AssetValidityAndName(outHandle, settings);
+			std::string buttonText = "Null";
+			bool valid = true;
+			if (AssetManager::IsAssetHandleValid(outHandle))
+			{
+				auto object = AssetManager::GetAsset<T>(outHandle);
+				valid = object && !object->IsFlagSet(AssetFlag::Invalid) && !object->IsFlagSet(AssetFlag::Missing);
+				if (object && !object->IsFlagSet(AssetFlag::Missing))
+				{
+					buttonText = Project::GetEditorAssetManager()->GetMetadata(outHandle).FilePath.stem().string();
+				}
+				else
+				{
+					buttonText = "Missing";
+				}
+			}
 
 			// PropertyAssetReferenceTarget could be called multiple times in same "context"
 			// and so we need a unique id for the asset search popup each time.
@@ -2363,7 +2689,7 @@ namespace Hazel::UI {
 		bool modified = false;
 		intptr_t elementToRemove = -1;
 
-		std::string arrayID = std::format("{0}FieldArray", fieldName);
+		std::string arrayID = fmt::format("{0}FieldArray", fieldName);
 		ImGui::PushID(arrayID.c_str());
 
 		ShiftCursor(10.0f, 9.0f);
@@ -2455,8 +2781,8 @@ namespace Hazel::UI {
 
 		for (uint32_t i = 0; i < (uint32_t)length; i++)
 		{
-			std::string idString = std::format("[{0}]{1}-{0}", i, arrayID);
-			std::string indexString = std::format("[{0}]", i);
+			std::string idString = fmt::format("[{0}]{1}-{0}", i, arrayID);
+			std::string indexString = fmt::format("[{0}]", i);
 
 			ImGui::PushID(idString.c_str());
 
@@ -2590,7 +2916,7 @@ namespace Hazel::UI {
 				{
 					ColliderMaterial material = storage->GetValue<ColliderMaterial>(managedInstance);
 
-					if (PropertyGridHeader(std::format("{} (ColliderMaterial)", fieldName)))
+					if (PropertyGridHeader(fmt::format("{} (ColliderMaterial)", fieldName)))
 					{
 						if (Property("Friction", material.Friction))
 						{
@@ -2638,5 +2964,5 @@ namespace Hazel::UI {
 
 		return modified;
 	}
-#endif
+
 }

@@ -10,11 +10,9 @@ namespace Hazel {
 	class MaterialAsset : public Asset
 	{
 	public:
-		explicit MaterialAsset(bool transparent = false);
-		explicit MaterialAsset(Ref<Material> material);
+		MaterialAsset(bool transparent = false);
+		MaterialAsset(Ref<Material> material);
 		~MaterialAsset();
-
-		virtual void OnDependencyUpdated(AssetHandle handle) override;
 
 		glm::vec3& GetAlbedoColor();
 		void SetAlbedoColor(const glm::vec3& color);
@@ -30,21 +28,21 @@ namespace Hazel {
 
 		// Textures
 		Ref<Texture2D> GetAlbedoMap();
-		void SetAlbedoMap(AssetHandle handle);
+		void SetAlbedoMap(Ref<Texture2D> texture);
 		void ClearAlbedoMap();
 
 		Ref<Texture2D> GetNormalMap();
-		void SetNormalMap(AssetHandle handle);
+		void SetNormalMap(Ref<Texture2D> texture);
 		bool IsUsingNormalMap();
 		void SetUseNormalMap(bool value);
 		void ClearNormalMap();
 
 		Ref<Texture2D> GetMetalnessMap();
-		void SetMetalnessMap(AssetHandle handle);
+		void SetMetalnessMap(Ref<Texture2D> texture);
 		void ClearMetalnessMap();
 
 		Ref<Texture2D> GetRoughnessMap();
-		void SetRoughnessMap(AssetHandle handle);
+		void SetRoughnessMap(Ref<Texture2D> texture);
 		void ClearRoughnessMap();
 
 		float& GetTransparency();
@@ -64,15 +62,6 @@ namespace Hazel {
 		void SetDefaults();
 	private:
 		Ref<Material> m_Material;
-
-		struct MapAssets
-		{
-			AssetHandle AlbedoMap = 0;
-			AssetHandle NormalMap = 0;
-			AssetHandle MetalnessMap = 0;
-			AssetHandle RoughnessMap = 0;
-		} m_Maps;
-
 		bool m_Transparent = false;
 
 		friend class MaterialEditor;
@@ -91,7 +80,7 @@ namespace Hazel {
 
 		AssetHandle GetMaterial(uint32_t materialIndex) const
 		{
-			HZ_CORE_VERIFY(HasMaterial(materialIndex));
+			HZ_CORE_ASSERT(HasMaterial(materialIndex));
 			return m_Materials.at(materialIndex);
 		}
 		std::map<uint32_t, AssetHandle>& GetMaterials() { return m_Materials; }

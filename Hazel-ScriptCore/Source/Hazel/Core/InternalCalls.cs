@@ -1,601 +1,1032 @@
-﻿using Coral.Managed.Interop;
-using System;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Hazel
 {
-	internal static unsafe class InternalCalls
+	internal static class InternalCalls
 	{
-#pragma warning disable CS0649 // Variable is never assigned to
-
 		#region AssetHandle
 
-		internal static delegate* unmanaged<AssetHandle, bool> AssetHandle_IsValid;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AssetHandle_IsValid(ref AssetHandle assetHandle);
 
 		#endregion
 
 		#region Application
 
-		internal static delegate* unmanaged<void> Application_Quit;
-		internal static delegate* unmanaged<uint> Application_GetWidth;
-		internal static delegate* unmanaged<uint> Application_GetHeight;
-		internal static delegate* unmanaged<NativeString> Application_GetDataDirectoryPath;
-		internal static delegate* unmanaged<NativeString, NativeString, NativeString> Application_GetSetting;
-		internal static delegate* unmanaged<NativeString, int, int> Application_GetSettingInt;
-		internal static delegate* unmanaged<NativeString, float, float> Application_GetSettingFloat;
-
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Application_Quit();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint Application_GetWidth();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint Application_GetHeight();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string Application_GetDataDirectoryPath();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string Application_GetSetting(string name, string defaultValue);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int Application_GetSettingInt(string name, int defaultValue);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Application_GetSettingFloat(string name, float defaultValue);
 
 		#endregion
 
 		#region SceneManager
 
-		internal static delegate* unmanaged<NativeString, bool> SceneManager_IsSceneValid;
-		internal static delegate* unmanaged<ulong, bool> SceneManager_IsSceneIDValid;
-		internal static delegate* unmanaged<AssetHandle, void> SceneManager_LoadScene;
-		internal static delegate* unmanaged<ulong, void> SceneManager_LoadSceneByID;
-		internal static delegate* unmanaged<ulong> SceneManager_GetCurrentSceneID;
-		internal static delegate* unmanaged<NativeString> SceneManager_GetCurrentSceneName;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SceneManager_IsSceneValid(string scene);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SceneManager_IsSceneIDValid(ulong sceneID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneManager_LoadScene(ref AssetHandle sceneHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneManager_LoadSceneByID(ulong sceneID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong SceneManager_GetCurrentSceneID();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string SceneManager_GetCurrentSceneName();
 
 		#endregion
 
 		#region Scene
 
-		internal static delegate* unmanaged<NativeString, ulong> Scene_FindEntityByTag;
-		internal static delegate* unmanaged<ulong, bool> Scene_IsEntityValid;
-		internal static delegate* unmanaged<NativeString, ulong> Scene_CreateEntity;
-		internal static delegate* unmanaged<AssetHandle, ulong> Scene_InstantiatePrefab;
-		internal static delegate* unmanaged<AssetHandle, Vector3*, ulong> Scene_InstantiatePrefabWithTranslation;
-		internal static delegate* unmanaged<ulong, AssetHandle, Vector3*, ulong> Scene_InstantiateChildPrefabWithTranslation;
-		internal static delegate* unmanaged<ulong, AssetHandle, Vector3*, Vector3*, Vector3*, ulong> Scene_InstantiateChildPrefabWithTransform;
-		internal static delegate* unmanaged<AssetHandle, Vector3*, Vector3*, Vector3*, ulong> Scene_InstantiatePrefabWithTransform;
-		internal static delegate* unmanaged<ulong, void> Scene_DestroyEntity;
-		internal static delegate* unmanaged<ulong, void> Scene_DestroyAllChildren;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_FindEntityByTag(string tag);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Scene_IsEntityValid(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_CreateEntity(string tag);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_InstantiatePrefab(ref AssetHandle prefabHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_InstantiatePrefabWithTranslation(ref AssetHandle prefabHandle, ref Vector3 translation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_InstantiateChildPrefabWithTranslation(ulong parentID, ref AssetHandle prefabHandle, ref Vector3 translation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_InstantiateChildPrefabWithTransform(ulong parentID, ref AssetHandle prefabHandle, ref Vector3 translation, ref Vector3 rotation, ref Vector3 scale);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Scene_InstantiatePrefabWithTransform(ref AssetHandle prefabHandle, ref Vector3 translation, ref Vector3 rotation, ref Vector3 scale);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Scene_DestroyEntity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Scene_DestroyAllChildren(ulong entityID);
 
-		internal static delegate* unmanaged<NativeArray<ulong>> Scene_GetEntities;
-		internal static delegate* unmanaged<ulong, NativeArray<ulong>> Scene_GetChildrenIDs;
-		internal static delegate* unmanaged<float, void> Scene_SetTimeScale;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern Entity[] Scene_GetEntities();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong[] Scene_GetChildrenIDs(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Scene_SetTimeScale(float timeScale);
 
 		#endregion
 
 		#region Entity
 
-		internal static delegate* unmanaged<ulong, ulong> Entity_GetParent;
-		internal static delegate* unmanaged<ulong, ulong, void> Entity_SetParent;
-		internal static delegate* unmanaged<ulong, NativeArray<ulong>> Entity_GetChildren;
-		internal static delegate* unmanaged<ulong, ReflectionType, void> Entity_CreateComponent;
-		internal static delegate* unmanaged<ulong, ReflectionType, bool> Entity_HasComponent;
-		internal static delegate* unmanaged<ulong, ReflectionType, bool> Entity_RemoveComponent;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Entity_GetParent(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Entity_SetParent(ulong entityID, ulong parentID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern Entity[] Entity_GetChildren(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Entity_CreateComponent(ulong entityID, Type type);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Entity_HasComponent(ulong entityID, Type type);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Entity_RemoveComponent(ulong entityID, Type type);
 
 		#endregion
 
 		#region TagComponent
 
-		internal static delegate* unmanaged<ulong, NativeString> TagComponent_GetTag;
-		internal static delegate* unmanaged<ulong, NativeString, void> TagComponent_SetTag;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string TagComponent_GetTag(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TagComponent_SetTag(ulong entityID, string tag);
 
 		#endregion
 
 		#region TransformComponent
 
-		internal static delegate* unmanaged<ulong, Transform*, void> TransformComponent_GetTransform;
-		internal static delegate* unmanaged<ulong, Transform*, void> TransformComponent_SetTransform;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_GetTranslation;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_SetTranslation;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_GetRotation;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_SetRotation;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_GetScale;
-		internal static delegate* unmanaged<ulong, Vector3*, void> TransformComponent_SetScale;
-		internal static delegate* unmanaged<ulong, Transform*, void> TransformComponent_GetWorldSpaceTransform;
-		internal static delegate* unmanaged<ulong, Matrix4*, void> TransformComponent_GetTransformMatrix;
-		internal static delegate* unmanaged<ulong, Matrix4*, void> TransformComponent_SetTransformMatrix;
-		internal static delegate* unmanaged<ulong, Quaternion*, void> TransformComponent_GetRotationQuat;
-		internal static delegate* unmanaged<ulong, Quaternion*, void> TransformComponent_SetRotationQuat;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetTransform(ulong entityID, out Transform outTransform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetTransform(ulong entityID, ref Transform inTransform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetTranslation(ulong entityID, out Vector3 outTranslation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetTranslation(ulong entityID, ref Vector3 inTranslation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetRotation(ulong entityID, out Vector3 outRotation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetRotation(ulong entityID, ref Vector3 inRotation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetScale(ulong entityID, out Vector3 outScale);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetScale(ulong entityID, ref Vector3 inScale);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetWorldSpaceTransform(ulong entityID, out Transform outTransform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_GetTransformMatrix(ulong entityID, out Matrix4 outTransformMatrix);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetTransformMatrix(ulong entityID, ref Matrix4 outTransformMatrix);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TransformComponent_SetRotationQuat(ulong entityID, ref Quaternion inRotation);
 
 		#endregion
 
 		#region Transform
 
-		internal static delegate* unmanaged<Transform*, Transform*, Transform*, void> TransformMultiply_Native;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void TransformMultiply_Native(Transform a, Transform b, out Transform result);
 		
 		#endregion
 
 		#region MeshComponent
 
-		internal static delegate* unmanaged<ulong, AssetHandle*, bool> MeshComponent_GetMesh;
-		internal static delegate* unmanaged<ulong, AssetHandle, void> MeshComponent_SetMesh;
-		internal static delegate* unmanaged<ulong, bool> MeshComponent_GetVisible;
-		internal static delegate* unmanaged<ulong, bool, void> MeshComponent_SetVisible;
-		internal static delegate* unmanaged<ulong, int, bool> MeshComponent_HasMaterial;
-		internal static delegate* unmanaged<ulong, int, AssetHandle*, bool> MeshComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, bool> MeshComponent_GetIsRigged;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshComponent_GetMesh(ulong entityID, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void MeshComponent_SetMesh(ulong entityID, ref AssetHandle meshHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshComponent_HasMaterial(ulong entityID, int index);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshComponent_GetMaterial(ulong entityID, int index, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshComponent_GetIsRigged(ulong entityID);
 
 		#endregion
 
 		#region StaticMeshComponent
 
-		internal static delegate* unmanaged<ulong, AssetHandle*, bool> StaticMeshComponent_GetMesh;
-		internal static delegate* unmanaged<ulong, AssetHandle, void> StaticMeshComponent_SetMesh;
-		internal static delegate* unmanaged<ulong, int, bool> StaticMeshComponent_HasMaterial;
-		internal static delegate* unmanaged<ulong, int, AssetHandle*, bool> StaticMeshComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, int, AssetHandle, void> StaticMeshComponent_SetMaterial;
-		internal static delegate* unmanaged<ulong, bool> StaticMeshComponent_GetVisible;
-		internal static delegate* unmanaged<ulong, bool, void> StaticMeshComponent_SetVisible;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool StaticMeshComponent_GetMesh(ulong entityID, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void StaticMeshComponent_SetMesh(ulong entityID, ref AssetHandle meshHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool StaticMeshComponent_HasMaterial(ulong entityID, int index);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool StaticMeshComponent_GetMaterial(ulong entityID, int index, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void StaticMeshComponent_SetMaterial(ulong entityID, int index, ulong handle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool StaticMeshComponent_IsVisible(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void StaticMeshComponent_SetVisible(ulong entityID, bool visible);
 
 		#endregion
 
 		#region AnimationComponent
-
-		internal static delegate* unmanaged<NativeString, uint> Identifier_Get;
-		internal static delegate* unmanaged<ulong, uint, bool> AnimationComponent_GetInputBool;
-		internal static delegate* unmanaged<ulong, uint, bool, void> AnimationComponent_SetInputBool;
-		internal static delegate* unmanaged<ulong, uint, int> AnimationComponent_GetInputInt;
-		internal static delegate* unmanaged<ulong, uint, int, void> AnimationComponent_SetInputInt;
-		internal static delegate* unmanaged<ulong, uint, float> AnimationComponent_GetInputFloat;
-		internal static delegate* unmanaged<ulong, uint, float, void> AnimationComponent_SetInputFloat;
-		internal static delegate* unmanaged<ulong, uint, Vector3*, void> AnimationComponent_GetInputVector3;
-		internal static delegate* unmanaged<ulong, uint, Vector3*, void> AnimationComponent_SetInputVector3;
-		internal static delegate* unmanaged<ulong, uint, void> AnimationComponent_SetInputTrigger;
-		internal static delegate* unmanaged<ulong, Transform*, void> AnimationComponent_GetRootMotion;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern uint Identifier_Get(string name);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern bool AnimationComponent_GetInputBool(ulong entityID, uint inputID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void AnimationComponent_SetInputBool(ulong entityID, uint inputID, bool value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern int AnimationComponent_GetInputInt(ulong entityID, uint inputID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void AnimationComponent_SetInputInt(ulong entityID, uint inputID, int value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern float AnimationComponent_GetInputFloat(ulong entityID, uint inputID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void AnimationComponent_SetInputFloat(ulong entityID, uint inputID, float value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public static extern void AnimationComponent_GetRootMotion(ulong entityID, out Transform result);
 
 		#endregion
 
 		#region ScriptComponent
 
-		internal static delegate* unmanaged<ulong, NativeInstance<object>> ScriptComponent_GetInstance;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern object ScriptComponent_GetInstance(ulong entityID);
 
 		#endregion
 
 		#region CameraComponent
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetPerspective(ulong entityID, float verticalFOV, float nearClip, float farClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetOrthographic(ulong entityID, float size, float nearClip, float farClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetVerticalFOV(ulong entityID); 
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_SetVerticalFOV(ulong entityID, float verticalFOV);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetPerspectiveNearClip(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetPerspectiveNearClip(ulong entityID, float nearClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetPerspectiveFarClip(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetPerspectiveFarClip(ulong entityID, float farClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetOrthographicSize(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetOrthographicSize(ulong entityID, float size);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetOrthographicNearClip(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetOrthographicNearClip(ulong entityID, float nearClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CameraComponent_GetOrthographicFarClip(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetOrthographicFarClip(ulong entityID, float farClip);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern CameraComponentType CameraComponent_GetProjectionType(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetProjectionType(ulong entityID, CameraComponentType type);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool CameraComponent_GetPrimary(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CameraComponent_SetPrimary(ulong entityID, bool value);
 
-		internal static delegate* unmanaged<ulong, float, float, float, void> CameraComponent_SetPerspective;
-		internal static delegate* unmanaged<ulong, float, float, float, void> CameraComponent_SetOrthographic;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetVerticalFOV;
-		internal static delegate* unmanaged<ulong, float, float> CameraComponent_SetVerticalFOV;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetPerspectiveNearClip;
-		internal static delegate* unmanaged<ulong, float, void> CameraComponent_SetPerspectiveNearClip;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetPerspectiveFarClip;
-		internal static delegate* unmanaged<ulong, float, void> CameraComponent_SetPerspectiveFarClip;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetOrthographicSize;
-		internal static delegate* unmanaged<ulong, float, void> CameraComponent_SetOrthographicSize;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetOrthographicNearClip;
-		internal static delegate* unmanaged<ulong, float, void> CameraComponent_SetOrthographicNearClip;
-		internal static delegate* unmanaged<ulong, float> CameraComponent_GetOrthographicFarClip;
-		internal static delegate* unmanaged<ulong, float, void> CameraComponent_SetOrthographicFarClip;
-		internal static delegate* unmanaged<ulong, CameraComponentType> CameraComponent_GetProjectionType;
-		internal static delegate* unmanaged<ulong, CameraComponentType, void> CameraComponent_SetProjectionType;
-		internal static delegate* unmanaged<ulong, bool> CameraComponent_GetPrimary;
-		internal static delegate* unmanaged<ulong, bool, void> CameraComponent_SetPrimary;
-		internal static delegate* unmanaged<ulong, Vector3*, Vector2*, void> CameraComponent_ToScreenSpace;
 
 		#endregion
 
 		#region DirectionalLightComponent
 
-		internal static delegate* unmanaged<ulong, Vector3*, void> DirectionalLightComponent_GetRadiance;
-		internal static delegate* unmanaged<ulong, Vector3*, void> DirectionalLightComponent_SetRadiance;
-		internal static delegate* unmanaged<ulong, float> DirectionalLightComponent_GetIntensity;
-		internal static delegate* unmanaged<ulong, float, void> DirectionalLightComponent_SetIntensity;
-		internal static delegate* unmanaged<ulong, bool> DirectionalLightComponent_GetCastShadows;
-		internal static delegate* unmanaged<ulong, bool, void> DirectionalLightComponent_SetCastShadows;
-		internal static delegate* unmanaged<ulong, bool> DirectionalLightComponent_GetSoftShadows;
-		internal static delegate* unmanaged<ulong, bool, void> DirectionalLightComponent_SetSoftShadows;
-		internal static delegate* unmanaged<ulong, float> DirectionalLightComponent_GetLightSize;
-		internal static delegate* unmanaged<ulong, float, void> DirectionalLightComponent_SetLightSize;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_GetRadiance(ulong entityID, out Vector3 outRadiance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_SetRadiance(ulong entityID, ref Vector3 inRadiance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float DirectionalLightComponent_GetIntensity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_SetIntensity(ulong entityID, float intensity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool DirectionalLightComponent_GetCastShadows(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_SetCastShadows(ulong entityID, bool castShadows);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool DirectionalLightComponent_GetSoftShadows(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_SetSoftShadows(ulong entityID, bool softShadows);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float DirectionalLightComponent_GetLightSize(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DirectionalLightComponent_SetLightSize(ulong entityID, float lightSize);
 
 		#endregion
 
 		#region PointLightComponent
 
-		internal static delegate* unmanaged<ulong, Vector3*, void> PointLightComponent_GetRadiance;
-		internal static delegate* unmanaged<ulong, Vector3*, void> PointLightComponent_SetRadiance;
-		internal static delegate* unmanaged<ulong, float> PointLightComponent_GetIntensity;
-		internal static delegate* unmanaged<ulong, float, void> PointLightComponent_SetIntensity;
-		internal static delegate* unmanaged<ulong, float> PointLightComponent_GetRadius;
-		internal static delegate* unmanaged<ulong, float, void> PointLightComponent_SetRadius;
-		internal static delegate* unmanaged<ulong, float> PointLightComponent_GetFalloff;
-		internal static delegate* unmanaged<ulong, float, void> PointLightComponent_SetFalloff;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void PointLightComponent_GetRadiance(ulong entityID, out Vector3 outRadiance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void PointLightComponent_SetRadiance(ulong entityID, ref Vector3 inRadiance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PointLightComponent_GetIntensity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void PointLightComponent_SetIntensity(ulong entityID, float intensity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PointLightComponent_GetRadius(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void PointLightComponent_SetRadius(ulong entityID, float radius);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PointLightComponent_GetFalloff(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void PointLightComponent_SetFalloff(ulong entityID, float falloff);
 
 		#endregion
 
 		#region SpotLightComponent
 
-		internal static delegate* unmanaged<ulong, Vector3*, void> SpotLightComponent_GetRadiance;
-		internal static delegate* unmanaged<ulong, Vector3*, void> SpotLightComponent_SetRadiance;
-		internal static delegate* unmanaged<ulong, float> SpotLightComponent_GetIntensity;
-		internal static delegate* unmanaged<ulong, float, void> SpotLightComponent_SetIntensity;
-		internal static delegate* unmanaged<ulong, float> SpotLightComponent_GetRange;
-		internal static delegate* unmanaged<ulong, float, void> SpotLightComponent_SetRange;
-		internal static delegate* unmanaged<ulong, float> SpotLightComponent_GetAngle;
-		internal static delegate* unmanaged<ulong, float, void> SpotLightComponent_SetAngle;
-		internal static delegate* unmanaged<ulong, float> SpotLightComponent_GetAngleAttenuation;
-		internal static delegate* unmanaged<ulong, float, void> SpotLightComponent_SetAngleAttenuation;
-		internal static delegate* unmanaged<ulong, float> SpotLightComponent_GetFalloff;
-		internal static delegate* unmanaged<ulong, float, void> SpotLightComponent_SetFalloff;
-		internal static delegate* unmanaged<ulong, bool> SpotLightComponent_GetCastsShadows;
-		internal static delegate* unmanaged<ulong, bool, void> SpotLightComponent_SetCastsShadows;
-		internal static delegate* unmanaged<ulong, bool> SpotLightComponent_GetSoftShadows;
-		internal static delegate* unmanaged<ulong, bool, void> SpotLightComponent_SetSoftShadows;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_GetRadiance(ulong entityID, out Vector3 outRadiance);
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetRadiance(ulong entityID, ref Vector3 inRadiance);
+		
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpotLightComponent_GetIntensity(ulong entityID);
+		
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetIntensity(ulong entityID, float intensity);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpotLightComponent_GetRange(ulong entityID);
+		
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetRange(ulong entityID, float range);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpotLightComponent_GetAngle(ulong entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetAngle(ulong entityID, float angle);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpotLightComponent_GetAngleAttenuation(ulong entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetAngleAttenuation(ulong entityID, float angleAttenuation);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpotLightComponent_GetFalloff(ulong entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetFalloff(ulong entityID, float falloff);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SpotLightComponent_GetCastsShadows(ulong entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetCastsShadows(ulong entityID, bool falloff);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SpotLightComponent_GetSoftShadows(ulong entityID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpotLightComponent_SetSoftShadows(ulong entityID, bool falloff);
 		#endregion
 		
 		#region SkyLightComponent
 
-		internal static delegate* unmanaged<ulong, float> SkyLightComponent_GetIntensity;
-		internal static delegate* unmanaged<ulong, float, void> SkyLightComponent_SetIntensity;
-		internal static delegate* unmanaged<ulong, float> SkyLightComponent_GetTurbidity;
-		internal static delegate* unmanaged<ulong, float, void> SkyLightComponent_SetTurbidity;
-		internal static delegate* unmanaged<ulong, float> SkyLightComponent_GetAzimuth;
-		internal static delegate* unmanaged<ulong, float, void> SkyLightComponent_SetAzimuth;
-		internal static delegate* unmanaged<ulong, float> SkyLightComponent_GetInclination;
-		internal static delegate* unmanaged<ulong, float, void> SkyLightComponent_SetInclination;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SkyLightComponent_GetIntensity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SkyLightComponent_SetIntensity(ulong entityID, float intensity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SkyLightComponent_GetTurbidity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SkyLightComponent_SetTurbidity(ulong entityID, float turbidity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SkyLightComponent_GetAzimuth(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SkyLightComponent_SetAzimuth(ulong entityID, float azimuth);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SkyLightComponent_GetInclination(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SkyLightComponent_SetInclination(ulong entityID, float inclination);
 
 		#endregion
 
 		#region SpriteRendererComponent
 
-		internal static delegate* unmanaged<ulong, Vector4*, void> SpriteRendererComponent_GetColor;
-		internal static delegate* unmanaged<ulong, Vector4*, void> SpriteRendererComponent_SetColor;
-		internal static delegate* unmanaged<ulong, float> SpriteRendererComponent_GetTilingFactor;
-		internal static delegate* unmanaged<ulong, float, void> SpriteRendererComponent_SetTilingFactor;
-		internal static delegate* unmanaged<ulong, Vector2*, void> SpriteRendererComponent_GetUVStart;
-		internal static delegate* unmanaged<ulong, Vector2*, void> SpriteRendererComponent_SetUVStart;
-		internal static delegate* unmanaged<ulong, Vector2*, void> SpriteRendererComponent_GetUVEnd;
-		internal static delegate* unmanaged<ulong, Vector2*, void> SpriteRendererComponent_SetUVEnd;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_GetColor(ulong entityID, out Vector4 color);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_SetColor(ulong entityID, ref Vector4 color);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SpriteRendererComponent_GetTilingFactor(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_SetTilingFactor(ulong entityID, float tilingFactor);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_GetUVStart(ulong entityID, out Vector2 uvStart);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_SetUVStart(ulong entityID, ref Vector2 uvStart);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_GetUVEnd(ulong entityID, out Vector2 uvEnd);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SpriteRendererComponent_SetUVEnd(ulong entityID, ref Vector2 uvEnd);
 
 		#endregion
 
 		#region RigidBody2DComponent
 
-		internal static delegate* unmanaged<ulong, RigidBody2DBodyType> RigidBody2DComponent_GetBodyType;
-		internal static delegate* unmanaged<ulong, RigidBody2DBodyType, void> RigidBody2DComponent_SetBodyType;
-		internal static delegate* unmanaged<ulong, Vector2*, void> RigidBody2DComponent_GetTranslation;
-		internal static delegate* unmanaged<ulong, Vector2*, void> RigidBody2DComponent_SetTranslation;
-		internal static delegate* unmanaged<ulong, float> RigidBody2DComponent_GetRotation;
-		internal static delegate* unmanaged<ulong, float, void> RigidBody2DComponent_SetRotation;
-		internal static delegate* unmanaged<ulong, float> RigidBody2DComponent_GetMass;
-		internal static delegate* unmanaged<ulong, float, void> RigidBody2DComponent_SetMass;
-		internal static delegate* unmanaged<ulong, Vector2*, void> RigidBody2DComponent_GetLinearVelocity;
-		internal static delegate* unmanaged<ulong, Vector2*, void> RigidBody2DComponent_SetLinearVelocity;
-		internal static delegate* unmanaged<ulong, float> RigidBody2DComponent_GetGravityScale;
-		internal static delegate* unmanaged<ulong, float, void> RigidBody2DComponent_SetGravityScale;
-		internal static delegate* unmanaged<ulong, Vector2*, Vector2*, bool, void> RigidBody2DComponent_ApplyLinearImpulse;
-		internal static delegate* unmanaged<ulong, float, bool, void> RigidBody2DComponent_ApplyAngularImpulse;
-		internal static delegate* unmanaged<ulong, Vector2*, Vector2*, bool, void> RigidBody2DComponent_AddForce;
-		internal static delegate* unmanaged<ulong, float, bool, void> RigidBody2DComponent_AddTorque;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern RigidBody2DBodyType RigidBody2DComponent_GetBodyType(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetBodyType(ulong entityID, RigidBody2DBodyType type);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_GetTranslation(ulong entityID, out Vector2 translation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetTranslation(ulong entityID, ref Vector2 translation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBody2DComponent_GetRotation(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetRotation(ulong entityID, float rotation);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBody2DComponent_GetMass(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetMass(ulong entityID, float mass);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_GetLinearVelocity(ulong entityID, out Vector2 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetLinearVelocity(ulong entityID, ref Vector2 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBody2DComponent_GetGravityScale(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_SetGravityScale(ulong entityID, float gravityScale);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_ApplyLinearImpulse(ulong entityID, ref Vector2 impulse, ref Vector2 offset, bool wake);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_ApplyAngularImpulse(ulong entityID, float impulse, bool wake);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_AddForce(ulong entityID, ref Vector2 force, ref Vector2 offset, bool wake);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBody2DComponent_AddTorque(ulong entityID, float torque, bool wake);
 
 		#endregion
 
 		#region RigidBodyComponent
 
-		internal static delegate* unmanaged<ulong, Vector3*, EForceMode, void> RigidBodyComponent_AddForce;
-		internal static delegate* unmanaged<ulong, Vector3*, Vector3*, EForceMode, void> RigidBodyComponent_AddForceAtLocation;
-		internal static delegate* unmanaged<ulong, Vector3*, EForceMode, void> RigidBodyComponent_AddTorque;
-		internal static delegate* unmanaged<ulong, Vector3*, void> RigidBodyComponent_GetLinearVelocity;
-		internal static delegate* unmanaged<ulong, Vector3*, void> RigidBodyComponent_SetLinearVelocity;
-		internal static delegate* unmanaged<ulong, Vector3*, void> RigidBodyComponent_GetAngularVelocity;
-		internal static delegate* unmanaged<ulong, Vector3*, void> RigidBodyComponent_SetAngularVelocity;
-		internal static delegate* unmanaged<ulong, float> RigidBodyComponent_GetMaxLinearVelocity;
-		internal static delegate* unmanaged<ulong, float, void> RigidBodyComponent_SetMaxLinearVelocity;
-		internal static delegate* unmanaged<ulong, float> RigidBodyComponent_GetMaxAngularVelocity;
-		internal static delegate* unmanaged<ulong, float, void> RigidBodyComponent_SetMaxAngularVelocity;
-		internal static delegate* unmanaged<ulong, float> RigidBodyComponent_GetLinearDrag;
-		internal static delegate* unmanaged<ulong, float, void> RigidBodyComponent_SetLinearDrag;
-		internal static delegate* unmanaged<ulong, float> RigidBodyComponent_GetAngularDrag;
-		internal static delegate* unmanaged<ulong, float, void> RigidBodyComponent_SetAngularDrag;
-		internal static delegate* unmanaged<ulong, Vector3*, void> RigidBodyComponent_Rotate;
-		internal static delegate* unmanaged<ulong, uint> RigidBodyComponent_GetLayer;
-		internal static delegate* unmanaged<ulong, uint, void> RigidBodyComponent_SetLayer;
-		internal static delegate* unmanaged<ulong, NativeString> RigidBodyComponent_GetLayerName;
-		internal static delegate* unmanaged<ulong, NativeString, void> RigidBodyComponent_SetLayerByName;
-		internal static delegate* unmanaged<ulong, float> RigidBodyComponent_GetMass;
-		internal static delegate* unmanaged<ulong, float, void> RigidBodyComponent_SetMass;
-		internal static delegate* unmanaged<ulong, EBodyType> RigidBodyComponent_GetBodyType;
-		internal static delegate* unmanaged<ulong, EBodyType, void> RigidBodyComponent_SetBodyType;
-		internal static delegate* unmanaged<ulong, bool> RigidBodyComponent_IsTrigger;
-		internal static delegate* unmanaged<ulong, bool, void> RigidBodyComponent_SetTrigger;
-		internal static delegate* unmanaged<ulong, Vector3*, Vector3*, float, void> RigidBodyComponent_MoveKinematic;
-		internal static delegate* unmanaged<ulong, EActorAxis, bool, bool, void> RigidBodyComponent_SetAxisLock;
-		internal static delegate* unmanaged<ulong, EActorAxis, bool> RigidBodyComponent_IsAxisLocked;
-		internal static delegate* unmanaged<ulong, uint> RigidBodyComponent_GetLockedAxes;
-		internal static delegate* unmanaged<ulong, bool> RigidBodyComponent_IsSleeping;
-		internal static delegate* unmanaged<ulong, bool, void> RigidBodyComponent_SetIsSleeping;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_AddForce(ulong entityID, ref Vector3 force, EForceMode forceMode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_AddForceAtLocation(ulong entityID, ref Vector3 force, ref Vector3 location, EForceMode forceMode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_AddTorque(ulong entityID, ref Vector3 torque, EForceMode forceMode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_GetLinearVelocity(ulong entityID, out Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetLinearVelocity(ulong entityID, ref Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_GetAngularVelocity(ulong entityID, out Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetAngularVelocity(ulong entityID, ref Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBodyComponent_GetMaxLinearVelocity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetMaxLinearVelocity(ulong entityID, float maxVelocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBodyComponent_GetMaxAngularVelocity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetMaxAngularVelocity(ulong entityID, float maxVelocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBodyComponent_GetLinearDrag(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetLinearDrag(ulong entityID, float linearDrag);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBodyComponent_GetAngularDrag(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetAngularDrag(ulong entityID, float angularDrag);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_Rotate(ulong entityID, ref Vector3 rotation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint RigidBodyComponent_GetLayer(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetLayer(ulong entityID, uint layerID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string RigidBodyComponent_GetLayerName(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetLayerByName(ulong entityID, string layerName);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float RigidBodyComponent_GetMass(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetMass(ulong entityID, float mass);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern EBodyType RigidBodyComponent_GetBodyType(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetBodyType(ulong entityID, EBodyType type);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool RigidBodyComponent_IsTrigger(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetTrigger(ulong entityID, bool isTrigger);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_MoveKinematic(ulong entityID, ref Vector3 targetPosition, ref Vector3 targetRotation, float deltaSeconds);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetAxisLock(ulong entityID, EActorAxis axis, bool value, bool forceWake);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool RigidBodyComponent_IsAxisLocked(ulong entityID, EActorAxis axis);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint RigidBodyComponent_GetLockedAxes(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool RigidBodyComponent_IsSleeping(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_SetIsSleeping(ulong entityID, bool isSleeping);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void RigidBodyComponent_Teleport(ulong entityID, ref Vector3 targetPosition, ref Vector3 targetRotation, bool force);
 
 		#endregion
 
 		#region CharacterControllerComponent
 
-		internal static delegate* unmanaged<ulong, bool> CharacterControllerComponent_GetIsGravityEnabled;
-		internal static delegate* unmanaged<ulong, bool, bool> CharacterControllerComponent_SetIsGravityEnabled;
-		internal static delegate* unmanaged<ulong, float> CharacterControllerComponent_GetSlopeLimit;
-		internal static delegate* unmanaged<ulong, float, void> CharacterControllerComponent_SetSlopeLimit;
-		internal static delegate* unmanaged<ulong, float> CharacterControllerComponent_GetStepOffset;
-		internal static delegate* unmanaged<ulong, float, void> CharacterControllerComponent_SetStepOffset;
-		internal static delegate* unmanaged<ulong, Vector3*, void> CharacterControllerComponent_SetTranslation;
-		internal static delegate* unmanaged<ulong, Quaternion*, void> CharacterControllerComponent_SetRotation;
-		internal static delegate* unmanaged<ulong, Vector3*, void> CharacterControllerComponent_Move;
-		internal static delegate* unmanaged<ulong, Quaternion*, void> CharacterControllerComponent_Rotate;
-		internal static delegate* unmanaged<ulong, float, void> CharacterControllerComponent_Jump;
-		internal static delegate* unmanaged<ulong, Vector3*, void> CharacterControllerComponent_GetLinearVelocity;
-		internal static delegate* unmanaged<ulong, Vector3*, void> CharacterControllerComponent_SetLinearVelocity;
-		internal static delegate* unmanaged<ulong, bool> CharacterControllerComponent_IsGrounded;
-		internal static delegate* unmanaged<ulong, ECollisionFlags> CharacterControllerComponent_GetCollisionFlags;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool CharacterControllerComponent_GetIsGravityEnabled(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool CharacterControllerComponent_SetIsGravityEnabled(ulong entityID, bool isGravityEnabled);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CharacterControllerComponent_GetSlopeLimit(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_SetSlopeLimit(ulong entityID, float mass);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CharacterControllerComponent_GetStepOffset(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_SetStepOffset(ulong entityID, float mass);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_SetTranslation(ulong entityID, ref Vector3 translation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_SetRotation(ulong entityID, ref Quaternion rotation);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_Move(ulong entityID, ref Vector3 displacement);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_Jump(ulong entityID, float jumpPower);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_GetLinearVelocity(ulong entityID, out Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CharacterControllerComponent_SetLinearVelocity(ulong entityID, ref Vector3 velocity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool CharacterControllerComponent_IsGrounded(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ECollisionFlags CharacterControllerComponent_GetCollisionFlags(ulong entityID);
+
+		#endregion
+
+		#region FixedJointComponent
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong FixedJointComponent_GetConnectedEntity(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetConnectedEntity(ulong entityID, ulong connectedEntityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool FixedJointComponent_IsBreakable(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetIsBreakable(ulong entityID, bool isBreakable);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool FixedJointComponent_IsBroken(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_Break(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float FixedJointComponent_GetBreakForce(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetBreakForce(ulong entityID, float breakForce);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float FixedJointComponent_GetBreakTorque(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetBreakTorque(ulong entityID, float breakForce);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool FixedJointComponent_IsCollisionEnabled(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetCollisionEnabled(ulong entityID, bool isCollisionEnabled);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool FixedJointComponent_IsPreProcessingEnabled(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void FixedJointComponent_SetPreProcessingEnabled(ulong entityID, bool isPreProcessingEnabled);
 
 		#endregion
 
 		#region BoxColliderComponent
 
-		internal static delegate* unmanaged<ulong, Vector3*, void> BoxColliderComponent_GetHalfSize;
-		internal static delegate* unmanaged<ulong, Vector3*, void> BoxColliderComponent_GetOffset;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, bool> BoxColliderComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, void> BoxColliderComponent_SetMaterial;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void BoxColliderComponent_GetHalfSize(ulong entityID, out Vector3 halfSize);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void BoxColliderComponent_GetOffset(ulong entityID, out Vector3 offset);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool BoxColliderComponent_GetMaterial(ulong entityID, out PhysicsMaterial outMaterial);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void BoxColliderComponent_SetMaterial(ulong entityID, ref PhysicsMaterial outMaterial);
 
 		#endregion
 
 		#region SphereColliderComponent
 
-		internal static delegate* unmanaged<ulong, float> SphereColliderComponent_GetRadius;
-		internal static delegate* unmanaged<ulong, Vector3*, void> SphereColliderComponent_GetOffset;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, bool> SphereColliderComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, void> SphereColliderComponent_SetMaterial;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SphereColliderComponent_GetRadius(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SphereColliderComponent_GetOffset(ulong entityID, out Vector3 offset);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SphereColliderComponent_GetMaterial(ulong entityID, out PhysicsMaterial outMaterial);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SphereColliderComponent_SetMaterial(ulong entityID, ref PhysicsMaterial outMaterial);
 
 		#endregion
 
 		#region CapsuleColliderComponent
 
-		internal static delegate* unmanaged<ulong, float> CapsuleColliderComponent_GetRadius;
-		internal static delegate* unmanaged<ulong, float> CapsuleColliderComponent_GetHeight;
-		internal static delegate* unmanaged<ulong, Vector3*, void> CapsuleColliderComponent_GetOffset;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, bool> CapsuleColliderComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, void> CapsuleColliderComponent_SetMaterial;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CapsuleColliderComponent_GetRadius(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float CapsuleColliderComponent_GetHeight(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleColliderComponent_GetOffset(ulong entityID, out Vector3 offset);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool CapsuleColliderComponent_GetMaterial(ulong entityID, out PhysicsMaterial outMaterial);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void CapsuleColliderComponent_SetMaterial(ulong entityID, ref PhysicsMaterial outMaterial);
 
 		#endregion
 
 		#region MeshColliderComponent
 
-		internal static delegate* unmanaged<ulong, bool> MeshColliderComponent_IsMeshStatic;
-		internal static delegate* unmanaged<ulong, AssetHandle*, bool> MeshColliderComponent_IsColliderMeshValid;
-		internal static delegate* unmanaged<ulong, AssetHandle*, bool> MeshColliderComponent_GetColliderMesh;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, bool> MeshColliderComponent_GetMaterial;
-		internal static delegate* unmanaged<ulong, PhysicsMaterial*, void> MeshColliderComponent_SetMaterial;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshColliderComponent_IsMeshStatic(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshColliderComponent_IsColliderMeshValid(ulong entityID, ref AssetHandle meshHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshColliderComponent_GetColliderMesh(ulong entityID, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshColliderComponent_GetMaterial(ulong entityID, out PhysicsMaterial outMaterial);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void MeshColliderComponent_SetMaterial(ulong entityID, ref PhysicsMaterial outMaterial);
 
 		#endregion
 
 		#region MeshCollider
 
-		internal static delegate* unmanaged<AssetHandle, bool> MeshCollider_IsStaticMesh;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool MeshCollider_IsStaticMesh(ref AssetHandle meshHandle);
 
 		#endregion
 
 		#region AudioComponent
 
-		internal static delegate* unmanaged<ulong, bool> AudioComponent_IsPlaying;
-		internal static delegate* unmanaged<ulong, float, bool> AudioComponent_Play;
-		internal static delegate* unmanaged<ulong, bool> AudioComponent_Stop;
-		internal static delegate* unmanaged<ulong, bool> AudioComponent_Pause;
-		internal static delegate* unmanaged<ulong, bool> AudioComponent_Resume;
-		internal static delegate* unmanaged<ulong, float> AudioComponent_GetVolumeMult;
-		internal static delegate* unmanaged<ulong, float, void> AudioComponent_SetVolumeMult;
-		internal static delegate* unmanaged<ulong, float> AudioComponent_GetPitchMult;
-		internal static delegate* unmanaged<ulong, float, void> AudioComponent_SetPitchMult;
-		internal static delegate* unmanaged<ulong, uint, void> AudioComponent_SetEvent;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AudioComponent_IsPlaying(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AudioComponent_Play(ulong entityID, float startTime);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AudioComponent_Stop(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AudioComponent_Pause(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool AudioComponent_Resume(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float AudioComponent_GetVolumeMult(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void AudioComponent_SetVolumeMult(ulong entityID, float volumeMult);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float AudioComponent_GetPitchMult(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void AudioComponent_SetPitchMult(ulong entityID, float pitchMult);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void AudioComponent_SetEvent(ulong entityID, uint eventID);
 
 		#endregion
 
 		#region TextComponent
 
-		internal static delegate* unmanaged<ulong, ulong> TextComponent_GetHash;
-		internal static delegate* unmanaged<ulong, NativeString> TextComponent_GetText;
-		internal static delegate* unmanaged<ulong, NativeString, void> TextComponent_SetText;
-		internal static delegate* unmanaged<ulong, Vector4*, void> TextComponent_GetColor;
-		internal static delegate* unmanaged<ulong, Vector4*, void> TextComponent_SetColor;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong TextComponent_GetHash(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string TextComponent_GetText(ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TextComponent_SetText(ulong entityID, string text);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TextComponent_GetColor(ulong entityID, out Vector4 outColor);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void TextComponent_SetColor(ulong entityID, ref Vector4 inColor);
 
 		#endregion
 
 		#region Audio
 
-		internal static delegate* unmanaged<ulong, bool> Audio_GetObjectInfo;
-		internal static delegate* unmanaged<ulong, void> Audio_ReleaseAudioObject;
-		internal static delegate* unmanaged<uint, ulong, uint> Audio_PostEvent;
-		internal static delegate* unmanaged<uint, ulong, uint> Audio_PostEventFromAC;
-		internal static delegate* unmanaged<uint, Transform*, uint> Audio_PostEventAtLocation;
-		internal static delegate* unmanaged<uint, bool> Audio_StopEventID;
-		internal static delegate* unmanaged<uint, bool> Audio_PauseEventID;
-		internal static delegate* unmanaged<uint, bool> Audio_ResumeEventID;
-		internal static delegate* unmanaged<uint, Transform*, float, float, ulong> Audio_CreateAudioEntity;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Audio_GetObjectInfo(ulong objectID, out string debugName);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_ReleaseAudioObject(ulong objectID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint Audio_PostEvent(uint id, ulong objectID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint Audio_PostEventFromAC(uint id, ulong entityID);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint Audio_PostEventAtLocation(uint id, ref Transform transform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Audio_StopEventID(uint id);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Audio_PauseEventID(uint id);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Audio_ResumeEventID(uint id);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong Audio_CreateAudioEntity(uint eventID, ref Transform transform, float volume, float pitch);
 
 		#endregion
 
 		#region AudioCommandID
 
-		internal static delegate* unmanaged<NativeString, uint> AudioCommandID_Constructor;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint AudioCommandID_Constructor(string commandName);
 
 		#endregion
 
 		#region AudioObject
 
-		internal static delegate* unmanaged<NativeString, Transform*, ulong> AudioObject_Constructor;
-		internal static delegate* unmanaged<ulong, Transform*, void> AudioObject_SetTransform;
-		internal static delegate* unmanaged<ulong, Transform*, void> AudioObject_GetTransform;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern ulong AudioObject_Constructor(string debugName, ref Transform objectTransform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void AudioObject_SetTransform(ulong objectID, ref Transform objectTransform);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void AudioObject_GetTransform(ulong objectID, out Transform transformOut);
 
 		//============================================================================================
 		/// Audio Parameters Interface
-		internal static delegate* unmanaged<uint, ulong, float, void> Audio_SetParameterFloat;
-		internal static delegate* unmanaged<uint, ulong, float, void> Audio_SetParameterFloatForAC;
-		internal static delegate* unmanaged<uint, ulong, int, void> Audio_SetParameterInt;
-		internal static delegate* unmanaged<uint, ulong, int, void> Audio_SetParameterIntForAC;
-		internal static delegate* unmanaged<uint, ulong, bool, void> Audio_SetParameterBool;
-		internal static delegate* unmanaged<uint, ulong, bool, void> Audio_SetParameterBoolForAC;
-		internal static delegate* unmanaged<uint, uint, float, void> Audio_SetParameterFloatForEvent;
-		internal static delegate* unmanaged<uint, uint, int, void> Audio_SetParameterIntForEvent;
-		internal static delegate* unmanaged<uint, uint, bool, void> Audio_SetParameterBoolForEvent;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterFloat(uint id, ulong objectID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterFloatForAC(uint id, ulong entityID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterInt(uint id, ulong objectID, int value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterIntForAC(uint id, ulong entityID, int value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterBool(uint id, ulong objectID, bool value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterBoolForAC(uint id, ulong entityID, bool value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterFloatForEvent(uint id, uint eventID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterIntForEvent(uint id, uint eventID, int value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetParameterBoolForEvent(uint id, uint eventID, bool value);
 
 		//============================================================================================
-		internal static delegate* unmanaged<uint, void> Audio_PreloadEventSources;
-		internal static delegate* unmanaged<uint, void> Audio_UnloadEventSources;
-		internal static delegate* unmanaged<ulong, float, void> Audio_SetLowPassFilterValue;
-		internal static delegate* unmanaged<ulong, float, void> Audio_SetHighPassFilterValue;
-		internal static delegate* unmanaged<uint, float, void> Audio_SetLowPassFilterValue_Event;
-		internal static delegate* unmanaged<uint, float, void> Audio_SetHighPassFilterValue_Event;
-		internal static delegate* unmanaged<ulong, float, void> Audio_SetLowPassFilterValue_AC;
-		internal static delegate* unmanaged<ulong, float, void> Audio_SetHighPassFilterValue_AC;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_PreloadEventSources(uint eventID);
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_UnloadEventSources(uint eventID);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetLowPassFilterValue(ulong objectID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetHighPassFilterValue(ulong objectID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetLowPassFilterValue_Event(uint eventID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetHighPassFilterValue_Event(uint eventID, float value);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetLowPassFilterValue_AC(ulong entityID, float value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Audio_SetHighPassFilterValue_AC(ulong entityID, float value);
 		#endregion
 
 		#region Texture2D
 
-		internal static delegate* unmanaged<uint, uint, TextureWrapMode, TextureFilterMode, AssetHandle*, bool> Texture2D_Create;
-		internal static delegate* unmanaged<uint*, uint*, void> Texture2D_GetSize;
-		internal static delegate* unmanaged<AssetHandle, NativeArray<Vector4>, void> Texture2D_SetData;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Texture2D_Create(uint width, uint height, TextureWrapMode wrapMode, TextureFilterMode filterMode, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Texture2D_GetSize(out uint outWidth, out uint outHeight);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Texture2D_SetData(ref AssetHandle handle, Vector4[] data);
+		//[MethodImpl(MethodImplOptions.InternalCall)]
+		//internal static extern Vector4[] Texture2D_GetData(ref AssetHandle handle);
 
 		#endregion
 
 		#region Mesh
 
-		internal static delegate* unmanaged<AssetHandle, int, AssetHandle*, bool> Mesh_GetMaterialByIndex;
-		internal static delegate* unmanaged<AssetHandle, int> Mesh_GetMaterialCount;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Mesh_GetMaterialByIndex(ref AssetHandle meshHandle, int index, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int Mesh_GetMaterialCount(ref AssetHandle meshHandle);
 
 		#endregion
 
 		#region StaticMesh
 
-		internal static delegate* unmanaged<AssetHandle, int, AssetHandle*, bool> StaticMesh_GetMaterialByIndex;
-		internal static delegate* unmanaged<AssetHandle, int> StaticMesh_GetMaterialCount;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool StaticMesh_GetMaterialByIndex(ref AssetHandle meshHandle, int index, out AssetHandle outHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int StaticMesh_GetMaterialCount(ref AssetHandle meshHandle);
 
 		#endregion
 
 		#region Material
 
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, Vector3*, void> Material_GetAlbedoColor;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, Vector3*, void> Material_SetAlbedoColor;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float> Material_GetMetalness;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float, void> Material_SetMetalness;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float> Material_GetRoughness;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float, void> Material_SetRoughness;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float> Material_GetEmission;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, float, void> Material_SetEmission;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_GetAlbedoColor(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, out Vector3 outAlbedoColor);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetAlbedoColor(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, ref Vector3 inAlbedoColor);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Material_GetMetalness(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetMetalness(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, float inMetalness);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Material_GetRoughness(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetRoughness(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, float inRoughness);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Material_GetEmission(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetEmission(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, float inEmission);
 
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, NativeString, float, void> Material_SetFloat;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, NativeString, Vector3*, void> Material_SetVector3;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, NativeString, Vector4*, void> Material_SetVector4;
-		internal static delegate* unmanaged<ulong, AssetHandle, AssetHandle, NativeString, AssetHandle, void> Material_SetTexture;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetFloat(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, string uniform, float value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetVector3(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, string uniform, ref Vector3 value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetVector4(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, string uniform, ref Vector4 value);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Material_SetTexture(ulong entityID, ref AssetHandle meshHandle, ref AssetHandle materialHandle, string uniform, ref AssetHandle textureHandle);
 
 		#endregion
 
 		#region MeshFactory
 
-		internal static delegate* unmanaged<float, float, IntPtr> MeshFactory_CreatePlane;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern IntPtr MeshFactory_CreatePlane(float width, float height);
 
 		#endregion
 
 		#region Physics
 
-		internal static delegate* unmanaged<RaycastData*, SceneQueryHit*, bool> Physics_CastRay;
-		internal static delegate* unmanaged<ShapeQueryData*, SceneQueryHit*, bool> Physics_CastShape;
-		internal static delegate* unmanaged<ShapeQueryData*, NativeArray<SceneQueryHit>*, int> Physics_OverlapShape;
-		internal static delegate* unmanaged<RaycastData2D*, NativeArray<RaycastHit2D>> Physics_Raycast2D;
-		internal static delegate* unmanaged<Vector3*, void> Physics_GetGravity;
-		internal static delegate* unmanaged<Vector3*, void> Physics_SetGravity;
-		internal static delegate* unmanaged<Vector3*, float, float, EFalloffMode, bool, void> Physics_AddRadialImpulse;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Physics_CastRay(ref RaycastData raycastData, out SceneQueryHit outHit);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Physics_CastShape(ref ShapeQueryData shapeCastData, out SceneQueryHit outHit);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int Physics_OverlapShape(ref ShapeQueryData shapeQueryData, out SceneQueryHit[] outHits);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern RaycastHit2D[] Physics_Raycast2D(ref RaycastData2D raycastData);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Physics_GetGravity(out Vector3 gravity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Physics_SetGravity(ref Vector3 gravity);
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Physics_AddRadialImpulse(ref Vector3 origin, float radius, float strength, EFalloffMode falloff, bool velocityChange);
 
 		#endregion
 
 		#region Noise
 
-		internal static delegate* unmanaged<int, IntPtr> Noise_Constructor;
-		internal static delegate* unmanaged<IntPtr, void> Noise_Destructor;
-		internal static delegate* unmanaged<IntPtr, float> Noise_GetFrequency;
-		internal static delegate* unmanaged<IntPtr, float, void> Noise_SetFrequency;
-		internal static delegate* unmanaged<IntPtr, int> Noise_GetFractalOctaves;
-		internal static delegate* unmanaged<IntPtr, int, void> Noise_SetFractalOctaves;
-		internal static delegate* unmanaged<IntPtr, float> Noise_GetFractalLacunarity;
-		internal static delegate* unmanaged<IntPtr, float, void> Noise_SetFractalLacunarity;
-		internal static delegate* unmanaged<IntPtr, float> Noise_GetFractalGain;
-		internal static delegate* unmanaged<IntPtr, float, void> Noise_SetFractalGain;
-		internal static delegate* unmanaged<IntPtr, float, float, float> Noise_Get;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern IntPtr Noise_Constructor(int seed);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_Destructor(IntPtr instance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Noise_GetFrequency(IntPtr instance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_SetFrequency(IntPtr instance, float frequency);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int Noise_GetFractalOctaves(IntPtr instance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_SetFractalOctaves(IntPtr instance, int octaves);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Noise_GetFractalLacunarity(IntPtr instance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_SetFractalLacunarity(IntPtr instance, float lacunarity);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Noise_GetFractalGain(IntPtr instance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_SetFractalGain(IntPtr instance, float gain);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Noise_Get(IntPtr instance, float x, float y);
 
-		internal static delegate* unmanaged<int, void> Noise_SetSeed;
-		internal static delegate* unmanaged<float, float, float> Noise_Perlin;
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Noise_SetSeed(int seed);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Noise_Perlin(float x, float y);
+
 
 		#endregion
 
 		#region Matrix4
 
-		internal static delegate* unmanaged<Vector3*, Vector3*, Vector3*, Matrix4*, void> Matrix4_LookAt;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Matrix4_LookAt(ref Vector3 eye, ref Vector3 center, ref Vector3 up, ref Matrix4 outMatrix);
 
 		#endregion
 
 		#region Log
 
-		internal static delegate* unmanaged<Log.LogLevel, NativeString, void> Log_LogMessage;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Log_LogMessage(Log.LogLevel level, string formattedMessage);
 
 		#endregion
 
 		#region Input
 
-		internal static delegate* unmanaged<KeyCode, Bool32> Input_IsKeyPressed;
-		internal static delegate* unmanaged<KeyCode, Bool32> Input_IsKeyHeld;
-		internal static delegate* unmanaged<KeyCode, Bool32> Input_IsKeyDown;
-		internal static delegate* unmanaged<KeyCode, Bool32> Input_IsKeyReleased;
-		internal static delegate* unmanaged<MouseButton, bool> Input_IsMouseButtonPressed;
-		internal static delegate* unmanaged<MouseButton, bool> Input_IsMouseButtonHeld;
-		internal static delegate* unmanaged<MouseButton, bool> Input_IsMouseButtonDown;
-		internal static delegate* unmanaged<MouseButton, bool> Input_IsMouseButtonReleased;
-		internal static delegate* unmanaged<Vector2*, void> Input_GetMousePosition;
-		internal static delegate* unmanaged<CursorMode, void> Input_SetCursorMode;
-		internal static delegate* unmanaged<CursorMode> Input_GetCursorMode;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsKeyPressed(KeyCode keycode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsKeyHeld(KeyCode keycode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsKeyDown(KeyCode keycode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsKeyReleased(KeyCode keycode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsMouseButtonPressed(MouseButton button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsMouseButtonHeld(MouseButton button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsMouseButtonDown(MouseButton button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsMouseButtonReleased(MouseButton button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Input_GetMousePosition(out Vector2 position);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Input_SetCursorMode(CursorMode mode);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern CursorMode Input_GetCursorMode();
 
-		internal static delegate* unmanaged<int, bool> Input_IsControllerPresent;
-		internal static delegate* unmanaged<NativeArray<int>> Input_GetConnectedControllerIDs;
-		internal static delegate* unmanaged<int, NativeString> Input_GetControllerName;
-		internal static delegate* unmanaged<int, int, bool> Input_IsControllerButtonPressed;
-		internal static delegate* unmanaged<int, int, bool> Input_IsControllerButtonHeld;
-		internal static delegate* unmanaged<int, int, bool> Input_IsControllerButtonDown;
-		internal static delegate* unmanaged<int, int, bool> Input_IsControllerButtonReleased;
-		internal static delegate* unmanaged<int, int, float> Input_GetControllerAxis;
-		internal static delegate* unmanaged<int, int, byte> Input_GetControllerHat;
-		internal static delegate* unmanaged<int, int, float> Input_GetControllerDeadzone;
-		internal static delegate* unmanaged<int, int, float, void> Input_SetControllerDeadzone;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsControllerPresent(int id);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern int[] Input_GetConnectedControllerIDs();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern string Input_GetControllerName(int id);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsControllerButtonPressed(int id, int button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsControllerButtonHeld(int id, int button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsControllerButtonDown(int id, int button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool Input_IsControllerButtonReleased(int id, int button);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Input_GetControllerAxis(int id, int axis);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern byte Input_GetControllerHat(int id, int hat);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float Input_GetControllerDeadzone(int id, int axis);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void Input_SetControllerDeadzone(int id, int axis, float deadzone);
 
+
+		#endregion
+
+		#region EditorUI
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void EditorUI_Text(string inLabel);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_Button(string inLabel, ref Vector2 inSize);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_BeginPropertyHeader(string label, bool openByDefault);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void EditorUI_EndPropertyHeader();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void EditorUI_PropertyGrid(bool begin);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_PropertyFloat(string inLabel, ref float outValue);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_PropertyVec2(string inLabel, ref Vector2 outValue);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_PropertyVec3(string inLabel, ref Vector3 outValue);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool EditorUI_PropertyVec4(string inLabel, ref Vector4 outValue);
+		
 		#endregion
 		
 		#region SceneRenderer
 
-		internal static delegate* unmanaged<bool> SceneRenderer_IsFogEnabled;
-		internal static delegate* unmanaged<bool, void> SceneRenderer_SetFogEnabled;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SceneRenderer_IsFogEnabled();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneRenderer_SetFogEnabled(bool enable);
 
-		internal static delegate* unmanaged<float> SceneRenderer_GetOpacity;
-		internal static delegate* unmanaged<float, void> SceneRenderer_SetOpacity;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SceneRenderer_GetOpacity();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneRenderer_SetOpacity(float opacity);
 
-		internal static delegate* unmanaged<bool> SceneRenderer_DepthOfField_IsEnabled;
-		internal static delegate* unmanaged<bool, void> SceneRenderer_DepthOfField_SetEnabled;
-		internal static delegate* unmanaged<float> SceneRenderer_DepthOfField_GetFocusDistance;
-		internal static delegate* unmanaged<float, void> SceneRenderer_DepthOfField_SetFocusDistance;
-		internal static delegate* unmanaged<float> SceneRenderer_DepthOfField_GetBlurSize;
-		internal static delegate* unmanaged<float, void> SceneRenderer_DepthOfField_SetBlurSize;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern bool SceneRenderer_DepthOfField_IsEnabled();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneRenderer_DepthOfField_SetEnabled(bool enabled);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SceneRenderer_DepthOfField_GetFocusDistance();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneRenderer_DepthOfField_SetFocusDistance(float focusDistance);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float SceneRenderer_DepthOfField_GetBlurSize();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void SceneRenderer_DepthOfField_SetBlurSize(float blurSize);
 
 		#endregion
 
 		#region DebugRenderer
 
-		internal static delegate* unmanaged<Vector3*, Vector3*, Vector4*, void> DebugRenderer_DrawLine;
-		internal static delegate* unmanaged<Vector3*, Vector2*, Vector4*, void> DebugRenderer_DrawQuadBillboard;
-		internal static delegate* unmanaged<float, void> DebugRenderer_SetLineWidth;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DebugRenderer_DrawLine(ref Vector3 p0, ref Vector3 p1, ref Vector4 color);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DebugRenderer_DrawQuadBillboard(ref Vector3 translation, ref Vector2 size, ref Vector4 color);
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern void DebugRenderer_SetLineWidth(float width);
+
 
 		#endregion
 
 		#region PerformanceTimers
 
-		internal static delegate* unmanaged<float> PerformanceTimers_GetFrameTime;
-		internal static delegate* unmanaged<float> PerformanceTimers_GetGPUTime;
-		internal static delegate* unmanaged<float> PerformanceTimers_GetMainThreadWorkTime;
-		internal static delegate* unmanaged<float> PerformanceTimers_GetMainThreadWaitTime;
-		internal static delegate* unmanaged<float> PerformanceTimers_GetRenderThreadWorkTime;
-		internal static delegate* unmanaged<float> PerformanceTimers_GetRenderThreadWaitTime;
-		internal static delegate* unmanaged<uint> PerformanceTimers_GetFramesPerSecond;
-		internal static delegate* unmanaged<uint> PerformanceTimers_GetEntityCount;
-		internal static delegate* unmanaged<uint> PerformanceTimers_GetScriptEntityCount;
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetFrameTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetGPUTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetMainThreadWorkTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetMainThreadWaitTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetRenderThreadWorkTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern float PerformanceTimers_GetRenderThreadWaitTime();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint PerformanceTimers_GetFramesPerSecond();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint PerformanceTimers_GetEntityCount();
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		internal static extern uint PerformanceTimers_GetScriptEntityCount();
 
 		#endregion
-
-#pragma warning restore CS0649
 	}
 }

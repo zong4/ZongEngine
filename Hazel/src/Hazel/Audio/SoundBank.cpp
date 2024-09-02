@@ -170,7 +170,7 @@ namespace Hazel
 		for (const auto& handle : waveAssets)
 		{
 			auto audioFile = AssetManager::GetAsset<AudioFile>(handle);
-			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(audioFile->Handle);
+			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(audioFile);
 
 			auto fileSystemPath = Project::GetEditorAssetManager()->GetFileSystemPath(metadata);
 		
@@ -191,7 +191,7 @@ namespace Hazel
 				info.Info = *optInfo;
 				
 				// Print filepath relative to Assets dir path
-				auto serializedPath = std::filesystem::relative(fileSystemPath, Project::GetActiveAssetDirectory());
+				auto serializedPath = std::filesystem::relative(fileSystemPath, Project::GetAssetDirectory());
 				const std::string serializedPathString = serializedPath.string();
 				HZ_CORE_WARN("SoundBank - {}", serializedPathString);
 

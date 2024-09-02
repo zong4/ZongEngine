@@ -26,11 +26,6 @@ namespace Hazel {
 		UUID HoveredNode = 0;
 		UUID HoveredTransition = 0;
 		ImVec2 LastTransitionEndPoint = { 0.0f, 0.0f };
-		
-		// For blend spaces
-		UUID HoveredVertex = 0;
-		UUID DraggingVertex = 0;
-		UUID DraggedVertex = 0;
 	};
 
 }

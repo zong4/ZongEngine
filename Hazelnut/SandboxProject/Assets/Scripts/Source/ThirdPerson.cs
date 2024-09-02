@@ -19,93 +19,98 @@ using System;
 //       - holds a reference to the Player entity
 //
 // The player and camera controllers work in concert to provide the following functionality:
-// PlayerController (and PlayerControllerAnimated):
+// Player Controller (and PlayerControllerAnimated):
 //    - WASD keys move the player forwards, left, right, backwards relative to the direction the camera is facing.
 //    - Left shift key to run
 //    - Spacebar to jump
 //
-// OverShoulderCamera:
-//    - Camera moves with, and orbits around, the player character
-//    - Mouse movement (when right button held) changes the pitch and yaw of the camera
-//    - Parameters control the distance from the player, the height of the camera, and the pitch and yaw offsets
-
+// Camera Controller:
+//    - Mouse changes direction that the camera is facing.
+//    - Escape key: stops camera movement so that you can (for example) fiddle around with settings in Hazelnut.
+//    - F5 key: resumes camera movement
+//
 namespace ThirdPersonExample
 {
-	public class OverShoulderCamera : Entity
+	public class CameraController : Entity
 	{
-		public Entity? Player;
-		public float DistanceFromPlayer = 3.5f;
-		public float OrbitVerticalOffset = 2.0f;
-		public float YawOffsetDegrees = 25.0f;
-		public float MinPitchDegrees = -27.0f;
-		public float MaxPitchDegrees = 30.0f;
+		public Entity Player;
+		public float DistanceFromPlayer = 8.0f;
 		public float MouseSensitivity = 1.0f;
 
 		private Vector2 m_LastMousePosition;
-		private Vector3 LocalRotation = Vector3.Zero;
-		private Vector3 LocalTranslation = Vector3.Zero;
-		private CharacterControllerComponent? m_CharacterController;
 
-		protected override void OnCreate()
-		{
-			m_CharacterController = GetComponent<CharacterControllerComponent>();
-		}
+		private bool m_CameraMovementEnabled = true;
+		private Transform m_Transform = new Transform(new Vector3(0.0f, 2.0f, 8.0f), new Vector3(177.8f * Mathf.Deg2Rad, 0.0f, 180.0f * Mathf.Deg2Rad), Vector3.One);
 
 		protected override void OnUpdate(float ts)
 		{
-			if (Player is null)
+			if (Player == null)
 			{
 				return;
 			}
 
-			Vector2 currentMousePosition = Input.GetMousePosition();
-
-			// sync m_Transform to the current camera rotation
-			// (this allows us to change it in editor during runtime)
-			LocalRotation = Rotation;
-
-			// Rotate camera (only if the right mouse button is down)
-			if (Input.IsMouseButtonDown(MouseButton.Right))
+			if (Input.IsKeyPressed(KeyCode.Escape) && m_CameraMovementEnabled)
 			{
-				Vector2 delta = currentMousePosition - m_LastMousePosition;
-				LocalRotation.Y = ((Mathf.PI + LocalRotation.Y - delta.X * MouseSensitivity / 10.0f * ts) % Mathf.TwoPI) - Mathf.PI; // ensure Rotation.Y is in range -PI to PI
-				LocalRotation.X = Mathf.Clamp(LocalRotation.X - delta.Y * MouseSensitivity / 10.0f * ts, Mathf.Clamp(MinPitchDegrees, -85, 85) * Mathf.Deg2Rad, Mathf.Clamp(MaxPitchDegrees, -85.0f, 85.0f) * Mathf.Deg2Rad);
+				m_CameraMovementEnabled = false;
 			}
 
-			float yawOffsetRadians = YawOffsetDegrees * Mathf.Deg2Rad;
-			float rFactor = DistanceFromPlayer * Mathf.Cos(LocalRotation.X);
-			LocalTranslation.X = Mathf.Sin(LocalRotation.Y + yawOffsetRadians) * rFactor;
-			LocalTranslation.Y = OrbitVerticalOffset - (DistanceFromPlayer * Mathf.Sin(LocalRotation.X));
-			LocalTranslation.Z = Mathf.Cos(LocalRotation.Y + yawOffsetRadians) * rFactor;
+			if (Input.IsKeyPressed(KeyCode.F5) && !m_CameraMovementEnabled)
+			{
+				m_CameraMovementEnabled = true;
+			}
 
-			m_CharacterController?.Move(Player.Transform.WorldTransform.Position + LocalTranslation - Translation);
-			m_CharacterController?.Rotate(RotationQuat.Conjugate * new Quaternion(LocalRotation));
+			Vector2 currentMousePosition = Input.GetMousePosition();
+			if (m_CameraMovementEnabled)
+			{
+				Vector2 delta = m_LastMousePosition - currentMousePosition;
+				m_Transform.Rotation.Y = (m_Transform.Rotation.Y - delta.X * MouseSensitivity * ts) % Mathf.TwoPI;
+
+				m_Transform.Position.X = DistanceFromPlayer * Mathf.Sin(m_Transform.Rotation.Y);
+				m_Transform.Position.Z = DistanceFromPlayer * -Mathf.Cos(m_Transform.Rotation.Y);
+			}
+
+			//Hazel.Transform transform = Player.Transform.WorldTransform * m_Transform;
+			Transform.Translation = m_Transform.Position + Player.Transform.WorldTransform.Position;
+			Transform.Rotation = m_Transform.Rotation;
+			Transform.Scale = m_Transform.Scale;
 
 			m_LastMousePosition = currentMousePosition;
+
 		}
 	}
 
 
 	public class PlayerController : Entity
 	{
-		public Entity? Camera;
+		public Entity Camera;
 		public float WalkSpeed = 1.5f;
 		public float RunSpeed = 3.0f;
 		public float RotationSpeed = 10.0f;
 		public float JumpPower = 3.0f;
 
-		private CharacterControllerComponent? m_CharacterController;
+		private CharacterControllerComponent m_CharacterController;
+		private TransformComponent m_CameraTransform;
+		private Vector3 m_LastMovement;
 
 		protected override void OnCreate()
 		{
 			m_CharacterController = GetComponent<CharacterControllerComponent>();
 
-			if (Camera is null)
+			if (Camera == null)
 			{
 				Log.Error("Camera entity is not set!");
 			}
+			else
+			{
+				m_CameraTransform = Camera.GetComponent<TransformComponent>();
+			}
 
-			if (m_CharacterController is null)
+			if (m_CameraTransform == null)
+			{
+				Log.Error("Could not find camera transform.");
+			}
+
+			if (m_CharacterController == null)
 			{
 				Log.Error("Could not find Player model's transform.");
 			}
@@ -113,7 +118,7 @@ namespace ThirdPersonExample
 
 		protected override void OnUpdate(float ts)
 		{
-			if (Camera is null || m_CharacterController is null)
+			if (m_CameraTransform == null || m_CharacterController == null)
 			{
 				return;
 			}
@@ -127,26 +132,26 @@ namespace ThirdPersonExample
 			{
 				Z = 1.0f;
 				keyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y - Mathf.PI;
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y;
 			}
 			else if (Input.IsKeyDown(KeyCode.S))
 			{
 				Z = -1.0f;
 				keyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y;
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y + Mathf.PI;
 			}
 
 			if (Input.IsKeyDown(KeyCode.A))
 			{
 				X = -1.0f;
 				keyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y - (Mathf.PI / 2.0f);
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y + (Mathf.PI / 2.0f);
 			}
 			else if (Input.IsKeyDown(KeyCode.D))
 			{
 				X = 1.0f;
 				keyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y + (Mathf.PI / 2.0f);
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y - (Mathf.PI / 2.0f);
 			}
 
 			bool isGrounded = m_CharacterController.IsGrounded;
@@ -166,15 +171,33 @@ namespace ThirdPersonExample
 
 				if (Math.Abs(delta) < 0.001f)
 				{
-					Vector3 movement = (Camera.Transform.LocalTransform.Right * X) + (Camera.Transform.LocalTransform.Forward * Z);
+					Vector3 movement = (m_CameraTransform.LocalTransform.Right * X) + (m_CameraTransform.LocalTransform.Forward * Z);
 					movement.Normalize();
 					bool shiftDown = Input.IsKeyDown(KeyCode.LeftShift);
 					float speed = shiftDown ? RunSpeed : WalkSpeed;
 					movement *= speed * ts;
 
-					// Note: Properties on the character controller can be used to control whether or movement will be applied
-					// if the character is not grounded
-					m_CharacterController.Move(movement);
+					// We could simply move the character according to player's key presses and leave it at that.
+					// Like this:
+					//    m_CharacterController.Move(movement);
+					//
+					// However, that means the player can still control movement of the character even if it is
+					// in mid-air.
+					//
+					// If you don't want the character to be able to change direction mid-air, then you
+					// can use the IsGrounded property to check whether or not to move player, like the following code:
+					if (isGrounded)
+					{
+						m_CharacterController.Move(movement);
+						m_LastMovement = movement / ts;
+					}
+					else
+					{
+						// If not grounded, carry on moving per last grounded movement.
+						// This gives the effect of momentum, rather than just falling straight down.
+						// Note adjustment by ts is in case frame times are not exactly the same.
+						m_CharacterController.Move(m_LastMovement * ts);
+					}
 				}
 			}
 
@@ -188,29 +211,20 @@ namespace ThirdPersonExample
 
 	public class PlayerControllerAnimated : Entity
 	{
-		public Entity? Camera;
-		public float JumpPower = 3.0f;
+		public Entity Camera;
+		public float JumpPower = 3.0f; 
 		public float RotationSpeed = 10.0f;
-		public Entity? HandSlot;
-		public Prefab? InteractPrefab;
-		public Prefab? BulletPrefab;
-		public int Ammo = 0;
 
-		private AnimationComponent? m_Animation;
-		private CharacterControllerComponent? m_CharacterController;
-
-		private static Identifier ForwardsInputID = new Identifier("Forwards");
+		private AnimationComponent m_Animation;
+		private CharacterControllerComponent m_CharacterController;
+		private TransformComponent m_CameraTransform;
+		private Vector3 m_LastMovement = Vector3.Zero;
+		private static Identifier ForwardsStateInputID = new Identifier("ForwardsState");
 		private static Identifier IsGroundedInputID = new Identifier("IsGrounded");
-		private static Identifier IsJumpingInputID = new Identifier("IsJumping");
-		private static Identifier IsShootingInputID = new Identifier("IsShooting");
 
-		private static Identifier JumpedEventID = new Identifier("Jumped");
-		private static Identifier InteractedEventID = new Identifier("Interacted");
-		private static Identifier ShootEventID = new Identifier("Shoot");
-
-		private Identifier m_InteractTriggerID;
-		private Entity? m_InteractEntity;
-		private Entity? m_InteractionTextEntity;
+		private static Identifier WalkingEventID = new Identifier("Walking");
+		private static Identifier RunningEventID = new Identifier("Running");
+		private static Identifier FallingEventID = new Identifier("Falling");
 
 		protected override void OnCreate()
 		{
@@ -218,17 +232,26 @@ namespace ThirdPersonExample
 
 			m_CharacterController = GetComponent<CharacterControllerComponent>();
 
-			if (Camera is null)
+			if (Camera == null)
 			{
 				Log.Error("Camera entity is not set!");
 			}
+			else
+			{
+				m_CameraTransform = Camera.GetComponent<TransformComponent>();
+			}
 
-			if (m_Animation is null)
+			if (m_CameraTransform == null)
+			{
+				Log.Error("Could not find camera transform.");
+			}
+
+			if (m_Animation == null)
 			{
 				Log.Error("Could not find animation component.");
 			}
 
-			if (m_CharacterController is null)
+			if (m_CharacterController == null)
 			{
 				Log.Error("Could not find character controller component.");
 			}
@@ -239,46 +262,45 @@ namespace ThirdPersonExample
 
 		protected override void OnUpdate(float ts)
 		{
-			if (Camera is null || m_Animation is null || m_CharacterController is null)
+			if (m_CameraTransform == null || m_Animation == null || m_CharacterController == null)
 			{
 				return;
 			}
-			float forwards = 0;
+			int forwardsState = 0;
 			bool isKeyDown = false;
 			bool isShiftDown = false;
-			bool isShooting = false;
 
 			Vector3 desiredRotation = Rotation;
 
 			if (Input.IsKeyDown(KeyCode.W))
 			{
 				isKeyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y - Mathf.PI;
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y;
 			}
 			else if (Input.IsKeyDown(KeyCode.S))
 			{
 				isKeyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y;
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y + Mathf.PI;
 			}
 
 			if (Input.IsKeyDown(KeyCode.A))
 			{
 				isKeyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y - (Mathf.PI / 2.0f);
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y + (Mathf.PI / 2.0f);
 			}
 			else if (Input.IsKeyDown(KeyCode.D))
 			{
 				isKeyDown = true;
-				desiredRotation.Y = Camera.Rotation.Y + (Mathf.PI / 2.0f);
+				desiredRotation.Y = -m_CameraTransform.Rotation.Y - (Mathf.PI / 2.0f);
 			}
 
 			if (isKeyDown)
 			{
 				isShiftDown = Input.IsKeyDown(KeyCode.LeftShift);
-				forwards = isShiftDown ? 2.0f : 1.0f;
+				forwardsState = isShiftDown ? 2 : 1;
 			}
 
-			if ((forwards != 0.0f) && Mathf.Abs(Rotation.Y - desiredRotation.Y) > 0.0001f)
+			if ((forwardsState != 0) && Mathf.Abs(Rotation.Y - desiredRotation.Y) > 0.0001)
 			{
 				// rotate to face camera direction first, then move
 				Vector3 currentRotation = Rotation;
@@ -290,199 +312,87 @@ namespace ThirdPersonExample
 				float delta = useDiff2 ? Mathf.Max(-diff2, -Mathf.Abs(RotationSpeed * ts)) : Mathf.Min(diff1, Mathf.Abs(RotationSpeed * ts));
 
 				currentRotation.Y += delta;
-
-				// Note: Rotate() here rather than SetRotation() as the latter "teleports" the character to the new rotation
-				// Rotate() on the other hand, moves the character with "physics" (so will, for example, pay attention to whether or not the character is grounded)
-				m_CharacterController.Rotate(RotationQuat.Conjugate * new Quaternion(currentRotation));
+				m_CharacterController.SetRotation(new Quaternion(currentRotation));
 			}
 
 			if (m_CharacterController.IsGrounded)
 			{
-				if (Input.IsKeyPressed(KeyCode.Space))
+				if (Input.IsKeyDown(KeyCode.Space))
 				{
-					// Note: When we get an event back from the animation graph that the jump start animation is complete, then
-					// we tell the character controller to apply a jump force.
-					m_Animation.SetInputBool(IsJumpingInputID, true);
+					m_CharacterController.Jump(JumpPower);
 				}
 
-				// If the player presses "E" and there there is an entity to interact with, then trigger interaction animation
-				// (we get an event when the animation is done, and that's when we actually interact with the entity)
-				if(Input.IsKeyPressed(KeyCode.E) && (m_InteractEntity is not null))
-				{
-					m_Animation.SetInputTrigger(m_InteractTriggerID);
-				}
-
-				// If the player presses "R" and there is an item in the HandSlot, then drop the item
-				if (Input.IsKeyPressed(KeyCode.R) && (HandSlot is not null) && (HandSlot.Children.Length > 0))
-				{
-					Entity item = HandSlot.Children[0];
-					RigidBodyComponent? rb = item.GetComponent<RigidBodyComponent>();
-					if (rb is not null)
-					{
-						rb.BodyType = EBodyType.Dynamic;
-					}
-					item.Parent = null;
-					if (InteractPrefab is not null)
-					{
-						item.InstantiateChild(InteractPrefab);
-					}
-				}
-
-				// While the player is holding down left mouse button and there is a pistol in the HandSlot, then fire the pistol
-				if (Input.IsMouseButtonDown(MouseButton.Left) && (HandSlot is not null) && (HandSlot.Children.Length > 0) && (HandSlot.Children[0].Tag == "Pistol") && BulletPrefab is not null)
-				{
-					isShooting = true;
-				}
+				// Store the animation's current root motion as "movement.
+				// If the character leaves the ground, we will apply that movement to give the illusion of momentum.
+				// (as opposed to instantly falling straight down, which would look weird)
+				// The thing is, the animation root motion is in coordinate system relative to the model entity.
+				// We need to transform to coordinate system of the player entity (which is the entity we wish to move).
+				//
+				// Strictly speaking, it should be something like this:   m_LastMovement = Matrix3(Inverse(ParentEntity.WorldTransform) * Matrix3(ModelEntity.WorldTransform) * m_Animation.RootMotion.Position
+				// But we do not yet have:
+				//    construction of Matrix4 from a Transform
+				//    Inverse function for Matrix4
+				//    A Matrix3 class
+				//    Multiplication of Vector3 by Matrix3
+				//
+				// So, in the meantime, this shortcut will have to do:
+				// 1) Assume that there is no Parent (i.e. player entity is at top level of scene)
+				// 2) Assume that the model is not scaled (i.e. so the only thing we need to account for is rotation of the model entity)
+				// If 1) and 2) hold, then we have enough stuff implemented to be able to do the transformation
+				Quaternion quat = new Quaternion(Rotation);
+				m_LastMovement = quat * m_Animation.RootMotion.Position / ts;
 			}
-
-			m_Animation.SetInputFloat(ForwardsInputID, forwards);
-			m_Animation.SetInputBool(IsGroundedInputID, m_CharacterController.IsGrounded);
-			m_Animation.SetInputBool(IsShootingInputID, isShooting);
-
-			if(m_InteractionTextEntity is not null)
+			else
 			{
-				if (Camera is not null)
-				{
-					m_InteractionTextEntity.Transform.Rotation = Camera.Transform.WorldTransform.Rotation;
-				}
+				// If not grounded, carry on moving per last grounded movement.
+				// This gives the effect of momentum, rather than just falling straight down.
+				// Note adjustment by ts is in case frame times are not exactly the same.
+				m_CharacterController.Move(m_LastMovement * ts);
 			}
+
+			m_Animation.SetInputInt(ForwardsStateInputID, forwardsState);
+			m_Animation.SetInputBool(IsGroundedInputID, m_CharacterController.IsGrounded);
 		}
 
 
+		// Example handler for events received from animation graph
 		void OnAnimationEvent(Identifier eventID)
 		{
-			if(eventID == JumpedEventID)
+			if (eventID == WalkingEventID)
 			{
-				m_CharacterController?.Jump(JumpPower);
-				m_Animation?.SetInputBool(IsJumpingInputID, false);
-				return;
+				Log.Info("Walking");
+			} else if (eventID == RunningEventID)
+			{
+				Log.Info("Running");
 			}
-
-			if (eventID == InteractedEventID)
+			else if (eventID == FallingEventID)
 			{
-				// "interact" with the entity.
-				// In this case, pick it up
-				// Note that m_InteractEntity is the interaction trigger.
-				// The parent of m_InteractEntity is the actual entity we are interested in interacting with.
-				if (m_InteractEntity is not null && m_InteractEntity.Parent is not null)
-				{
-					Entity item = m_InteractEntity.Parent;
-
-					// Change parent's rigid body from dynamic to kinematic
-					// (since the player is now carrying that entity, its movement is controlled by player movement
-					// rather than by physics);
-					RigidBodyComponent? rb = item.GetComponent<RigidBodyComponent>();
-					if (rb is not null)
-					{
-						rb.BodyType = EBodyType.Kinematic;
-					}
-
-					// Take appropriate action depending on which entity we are interacting with
-					if (item.Tag == "Pistol")
-					{
-						// Pickup the pistol by parenting it to HandSlot
-						item.Parent = HandSlot;
-						item.Translation = new Vector3(0.0f, 0.1f, 0.0f);
-						item.Rotation = new Vector3(0.0f, 90.0f * Mathf.Deg2Rad, 0.0f);
-					}
-					else if(item.Tag == "Ammo Box")
-					{
-						// Add to ammo count, and destroy the ammo box.
-						item.Destroy();
-						Ammo += 12;
-					}
-					else
-					{
-						Log.Info("Unrecognized entity type for interaction!");
-					}
-
-					m_InteractEntity.Destroy();
-				}
-
-				DisableInteraction();
-				return;
+				Log.Info("Falling");
 			}
-
-			if(eventID == ShootEventID)
+			else
 			{
-				if (Ammo > 0)
-				{
-					--Ammo;
-					Entity weapon = HandSlot!.Children[0];
-					Transform transform = new();
-					foreach (Entity child in weapon.Children)
-					{
-						if (child.Tag == "Muzzle")
-						{
-							transform = child.Transform.WorldTransform;
-							break;
-						}
-					}
-
-					RigidBodyComponent? rb = Scene.InstantiatePrefab(BulletPrefab!, transform)?.GetComponent<RigidBodyComponent>();
-					if (rb is not null)
-					{
-						rb.AngularVelocity = Vector3.Zero;
-						rb.LinearVelocity = transform.Forward * -40.0f;  // Note: Hazel's "Forward" vector is -Z, but all our assets face forwards in +Z
-					}
-				}
-				return;
-			}
-
-			Log.Info("Unrecognized animation event received!");
-		}
-
-
-		public void EnableInteraction(Identifier triggerID, Entity other)
-		{
-			if(m_InteractEntity is not null)
-			{
-				return;
-			}
-
-			m_InteractTriggerID = triggerID;
-			m_InteractEntity = other;
-			Transform transform = new Transform();
-			transform.Position = other.Transform.WorldTransform.Position + new Vector3(0, 0.3f, 0);
-			if (Camera is not null)
-			{
-				transform.Rotation = Camera.Transform.WorldTransform.Rotation;
-			}
-			transform.Scale = new Vector3(0.1f, 0.1f, 0.1f);
-
-			m_InteractionTextEntity = Scene.CreateEntity("InteractionText");
-			m_InteractionTextEntity.Translation = transform.Position;
-			m_InteractionTextEntity.Rotation = transform.Rotation;
-			m_InteractionTextEntity.Scale = transform.Scale;
-			TextComponent? tc = m_InteractionTextEntity.CreateComponent<TextComponent>();
-			if (tc is not null)
-			{
-				// Here, you could check which entity m_InteractEntity is, and set the text accordingly
-				tc.Text = "E - Pickup";
+				Log.Info("Unrecognized animation event received!");
 			}
 		}
 
-
-		public void DisableInteraction()
-		{
-			m_InteractTriggerID = Identifier.Invalid;
-			m_InteractEntity = null;
-			m_InteractionTextEntity?.Destroy();
-			m_InteractionTextEntity = null;
-		}
 	}
 
 
-	class Trigger : Entity
+	class PhysicsTestTrigger : Entity
 	{
-		public Entity? Player;
-		public String TriggerTag = "Interact";  // This is the name of the trigger that is sent to the player animation graph if/when the player presses "E"
-
-		private Identifier m_TriggerID;
+		private SkyLightComponent m_Lights;
 
 		protected override void OnCreate()
 		{
-			m_TriggerID = new Identifier(TriggerTag);
+			Entity skylight = Scene.FindEntityByTag("Sky Light");
+			if (skylight != null)
+			{
+				m_Lights = skylight.GetComponent<SkyLightComponent>();
+			}
+			else
+			{
+				Log.Error("'Sky Light' entity was not found, or it did not have a SkyLightComponent!");
+			}
 
 			TriggerBeginEvent += OnTriggerBegin;
 			TriggerEndEvent += OnTriggerEnd;
@@ -490,12 +400,15 @@ namespace ThirdPersonExample
 
 		void OnTriggerBegin(Entity other)
 		{
-			Player?.As<PlayerControllerAnimated>()?.EnableInteraction(m_TriggerID, other);
+			Log.Trace("Trigger begin");
+			m_Lights.Intensity = 0.0f;
 		}
 
 		void OnTriggerEnd(Entity other)
 		{
-			Player?.As<PlayerControllerAnimated>()?.DisableInteraction();
+			Log.Trace("Trigger end");
+			m_Lights.Intensity = 1.0f;
 		}
+
 	}
 }

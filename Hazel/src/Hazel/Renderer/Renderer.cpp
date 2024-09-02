@@ -3,23 +3,24 @@
 
 #include "Shader.h"
 
-#include "Renderer2D.h"
+#include <map>
+
 #include "RendererAPI.h"
 #include "SceneRenderer.h"
+#include "Renderer2D.h"
 #include "ShaderPack.h"
 
 #include "Hazel/Core/Timer.h"
 #include "Hazel/Debug/Profiler.h"
+
 #include "Hazel/Platform/Vulkan/VulkanComputePipeline.h"
-#include "Hazel/Platform/Vulkan/VulkanContext.h"
 #include "Hazel/Platform/Vulkan/VulkanRenderer.h"
+
+#include "Hazel/Platform/Vulkan/VulkanContext.h"
+
 #include "Hazel/Project/Project.h"
 
 #include <filesystem>
-#include <format>
-#include <shared_mutex>
-#include <thread>
-#include <unordered_map>
 
 namespace std {
 	template<>
@@ -45,8 +46,6 @@ namespace Hazel {
 		std::vector<Ref<Material>> Materials;
 	};
 	static std::unordered_map<size_t, ShaderDependencies> s_ShaderDependencies;
-	static std::shared_mutex s_ShaderDependenciesMutex; // ShaderDependencies can be accessed (and modified) from multiple threads, hence require synchronization
-
 
 	struct GlobalShaderInfo
 	{
@@ -59,45 +58,38 @@ namespace Hazel {
 
 	void Renderer::RegisterShaderDependency(Ref<Shader> shader, Ref<PipelineCompute> computePipeline)
 	{
-		std::scoped_lock lock(s_ShaderDependenciesMutex);
 		s_ShaderDependencies[shader->GetHash()].ComputePipelines.push_back(computePipeline);
 	}
 
 	void Renderer::RegisterShaderDependency(Ref<Shader> shader, Ref<Pipeline> pipeline)
 	{
-		std::scoped_lock lock(s_ShaderDependenciesMutex);
 		s_ShaderDependencies[shader->GetHash()].Pipelines.push_back(pipeline);
 	}
 
 	void Renderer::RegisterShaderDependency(Ref<Shader> shader, Ref<Material> material)
 	{
-		std::scoped_lock lock(s_ShaderDependenciesMutex);
 		s_ShaderDependencies[shader->GetHash()].Materials.push_back(material);
 	}
 
 	void Renderer::OnShaderReloaded(size_t hash)
 	{
-		ShaderDependencies dependencies;
+		if (s_ShaderDependencies.find(hash) != s_ShaderDependencies.end())
 		{
-			std::shared_lock lock(s_ShaderDependenciesMutex);
-			if (auto it = s_ShaderDependencies.find(hash); it != s_ShaderDependencies.end())
+			auto& dependencies = s_ShaderDependencies.at(hash);
+			for (auto& pipeline : dependencies.Pipelines)
 			{
-				dependencies = it->second; // expensive to copy, but we need to release the lock (in particular to avoid potential deadlock if things like material->OnShaderReloaded() happen to ask for the lock)
+				pipeline->Invalidate();
 			}
-		}
-		for (auto& pipeline : dependencies.Pipelines)
-		{
-			pipeline->Invalidate();
-		}
 
-		for (auto& computePipeline : dependencies.ComputePipelines)
-		{
-			computePipeline.As<VulkanComputePipeline>()->CreatePipeline();
-		}
+			for (auto& computePipeline : dependencies.ComputePipelines)
+			{
+				computePipeline.As<VulkanComputePipeline>()->CreatePipeline();
+			}
 
-		for (auto& material : dependencies.Materials)
-		{
-			material->OnShaderReloaded();
+			for (auto& material : dependencies.Materials)
+			{
+				material->OnShaderReloaded();
+			}
 		}
 	}
 
@@ -162,7 +154,7 @@ namespace Hazel {
 		s_RendererAPI = InitRendererAPI();
 
 		Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", "0");
-		Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", std::format("{}", (int)ShaderDef::GetAOMethod(true)));
+		Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(true)));
 		Renderer::SetGlobalMacroInShaders("__HZ_GTAO_COMPUTE_BENT_NORMALS", "0");
 
 		s_Data->m_ShaderLibrary = Ref<ShaderLibrary>::Create();
@@ -247,7 +239,7 @@ namespace Hazel {
 		{
 			TextureSpecification spec;
 			spec.SamplerWrap = TextureWrap::Clamp;
-			s_Data->BRDFLutTexture = Texture2D::Create(spec, std::filesystem::path("Resources/Renderer/BRDF_LUT.png"));
+			s_Data->BRDFLutTexture = Texture2D::Create(spec, Buffer("Resources/Renderer/BRDF_LUT.tga"));
 		}
 
 		constexpr uint32_t blackCubeTextureData[6] = { 0xff000000, 0xff000000, 0xff000000, 0xff000000, 0xff000000, 0xff000000 };
@@ -306,10 +298,7 @@ namespace Hazel {
 
 	void Renderer::Shutdown()
 	{
-		{
-			std::scoped_lock lock(s_ShaderDependenciesMutex);
-			s_ShaderDependencies.clear();
-		}
+		s_ShaderDependencies.clear();
 		s_RendererAPI->Shutdown();
 
 		delete s_Data;
@@ -360,7 +349,8 @@ namespace Hazel {
 
 		Timer workTimer;
 		s_CommandQueue[GetRenderQueueIndex()]->Execute();
-		
+		// ExecuteRenderCommandQueue();
+
 		// Rendering has completed, set state to idle
 		renderThread->Set(RenderThread::State::Idle);
 
@@ -471,9 +461,9 @@ namespace Hazel {
 		return s_RendererAPI->CreatePreethamSky(turbidity, azimuth, inclination);
 	}
 
-	void Renderer::RenderStaticMesh(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount)
+	void Renderer::RenderStaticMesh(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount)
 	{
-		s_RendererAPI->RenderStaticMesh(renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, materialTable, transformBuffer, transformOffset, instanceCount);
+		s_RendererAPI->RenderStaticMesh(renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable, transformBuffer, transformOffset, instanceCount);
 	}
 
 #if 0
@@ -483,19 +473,19 @@ namespace Hazel {
 	}
 #endif
 
-	void Renderer::RenderSubmeshInstanced(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount)
+	void Renderer::RenderSubmeshInstanced(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount)
 	{
-		s_RendererAPI->RenderSubmeshInstanced(renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, materialTable, transformBuffer, transformOffset, boneTransformsOffset, instanceCount);
+		s_RendererAPI->RenderSubmeshInstanced(renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable, transformBuffer, transformOffset, boneTransformsOffset, instanceCount);
 	}
 
-	void Renderer::RenderMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount, Ref<Material> material, Buffer additionalUniforms)
+	void Renderer::RenderMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount, Ref<Material> material, Buffer additionalUniforms)
 	{
-		s_RendererAPI->RenderMeshWithMaterial(renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, material, transformBuffer, transformOffset, boneTransformsOffset, instanceCount, additionalUniforms);
+		s_RendererAPI->RenderMeshWithMaterial(renderCommandBuffer, pipeline, mesh, submeshIndex, material, transformBuffer, transformOffset, boneTransformsOffset, instanceCount, additionalUniforms);
 	}
 
-	void Renderer::RenderStaticMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount, Ref<Material> material, Buffer additionalUniforms)
+	void Renderer::RenderStaticMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, uint32_t submeshIndex, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount, Ref<Material> material, Buffer additionalUniforms)
 	{
-		s_RendererAPI->RenderStaticMeshWithMaterial(renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, material, transformBuffer, transformOffset, instanceCount, additionalUniforms);
+		s_RendererAPI->RenderStaticMeshWithMaterial(renderCommandBuffer, pipeline, mesh, submeshIndex, material, transformBuffer, transformOffset, instanceCount, additionalUniforms);
 	}
 
 	void Renderer::RenderQuad(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Material> material, const glm::mat4& transform)
@@ -536,11 +526,6 @@ namespace Hazel {
 	void Renderer::CopyImage(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Image2D> sourceImage, Ref<Image2D> destinationImage)
 	{
 		s_RendererAPI->CopyImage(renderCommandBuffer, sourceImage, destinationImage);
-	}
-
-	void Renderer::BlitImage(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Image2D> sourceImage, Ref<Image2D> destinationImage)
-	{
-		s_RendererAPI->BlitImage(renderCommandBuffer, sourceImage, destinationImage);
 	}
 
 	void Renderer::SubmitFullscreenQuad(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Material> material)
@@ -669,7 +654,7 @@ namespace Hazel {
 
 		if (s_GlobalShaderInfo.ShaderGlobalMacrosMap.find(name) == s_GlobalShaderInfo.ShaderGlobalMacrosMap.end())
 		{
-			HZ_CORE_WARN_TAG("Renderer", "No shaders with {} macro found", name);
+			HZ_CORE_WARN("No shaders with {} macro found", name);
 			return;
 		}
 

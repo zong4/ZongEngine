@@ -33,7 +33,7 @@ namespace Hazel::Audio
 			ReleaseResources();
 
 		// Try to load previously built Sound Bank
-		const std::filesystem::path bankPath(Project::GetActiveAssetDirectory() / "SoundBank.hsb");
+		const std::filesystem::path bankPath(Project::GetAssetDirectory() / "SoundBank.hsb");
 		if (std::filesystem::exists(bankPath) && std::filesystem::is_regular_file(bankPath))
 		{
 			m_SoundBank = Ref<SoundBank>::Create(bankPath);
@@ -95,7 +95,7 @@ namespace Hazel::Audio
 		return waveAssets;
 	}
 
-	Ref<SoundBank> ResourceManager::BuildSoundBank(const std::filesystem::path& bankPath)
+	Ref<SoundBank> ResourceManager::BuildSoundBank()
 	{
 		auto project = Project::GetActive();
 		if (!project)
@@ -135,6 +135,8 @@ namespace Hazel::Audio
 		}
 
 		// 3. Package data into a Sound Bank
+		const std::filesystem::path bankPath(Project::GetAssetDirectory() / "SoundBank.hsb");
+
 		m_SoundBank = SoundBank::Create(waveAssets, bankPath);
 		
 		if (m_SoundBank)

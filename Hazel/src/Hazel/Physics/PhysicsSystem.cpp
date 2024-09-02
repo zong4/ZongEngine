@@ -46,23 +46,21 @@ namespace Hazel {
 		if (colliderAsset)
 			return colliderAsset;
 
-		if (entity.HasComponent<SubmeshComponent>())
+		if (entity.HasComponent<MeshComponent>())
 		{
-			auto& mc = entity.GetComponent<SubmeshComponent>();
-			component.ColliderAsset = AssetManager::AddMemoryOnlyAsset(Ref<MeshColliderAsset>::Create(mc.Mesh));
+			auto& mc = entity.GetComponent<MeshComponent>();
+			component.ColliderAsset = AssetManager::CreateMemoryOnlyAsset<MeshColliderAsset>(mc.Mesh);
 			component.SubmeshIndex = mc.SubmeshIndex;
 		}
 		else if (entity.HasComponent<StaticMeshComponent>())
 		{
-			component.ColliderAsset = AssetManager::AddMemoryOnlyAsset(Ref<MeshColliderAsset>::Create(entity.GetComponent<StaticMeshComponent>().StaticMesh));
+			component.ColliderAsset = AssetManager::CreateMemoryOnlyAsset<MeshColliderAsset>(entity.GetComponent<StaticMeshComponent>().StaticMesh);
 		}
 
 		colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
 
 		if (colliderAsset && !PhysicsSystem::GetMeshCache().Exists(colliderAsset))
-		{
 			s_PhysicsAPI->GetMeshCookingFactory()->CookMesh(component.ColliderAsset);
-		}
 
 		return colliderAsset;
 	}

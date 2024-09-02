@@ -1,5 +1,5 @@
 Prefab:
-  - Entity: 11570624982013900855
+  - Entity: 14123156899059482928
     TagComponent:
       Tag: Projectile
     Parent: 0
@@ -7,28 +7,26 @@ Prefab:
       []
     PrefabComponent:
       Prefab: 5349322122580055698
-      Entity: 11570624982013900855
+      Entity: 14123156899059482928
     TransformComponent:
       Position: [0, 11.3999996, 0]
       Rotation: [0, 0, 0]
       Scale: [0.298125029, 0.298125029, 0.298125029]
     ScriptComponent:
-      ScriptID: 355930221
-      ScriptName: PrefabSandbox.Projectile
-      Fields:
-        - ID: 3033165560
-          Name: LifeTime
-          Type: Float
-          Value: 2
-        - ID: 3376148124
-          Name: ExplosiveParticle
-          Type: Prefab
-          Value: 7816398183765727095
+      ClassHandle: 355930221
+      StoredFields:
+        - ID: 3085612764
+          Name: PrefabSandbox.Projectile:LifeTime
+          Type: 12
+          Data: 0
+        - ID: 179303880
+          Name: PrefabSandbox.Projectile:ExplosiveParticle
+          Type: 18
+          Data: 7816398183765727095
     StaticMeshComponent:
       AssetID: 16704718035390383336
       MaterialTable:
         0: 1162716615310863507
-      Visible: true
     PointLightComponent:
       Radiance: [0.133853123, 0.845559835, 0.243769243]
       Intensity: 2
@@ -41,20 +39,15 @@ Prefab:
     RigidBodyComponent:
       BodyType: 1
       LayerID: 0
-      EnableDynamicTypeChange: false
       Mass: 0.5
       LinearDrag: 0
       AngularDrag: 0.0500000007
       DisableGravity: false
-      IsTrigger: false
+      IsKinematic: false
       CollisionDetection: 0
-      InitialLinearVelocity: [0, 0, 0]
-      InitialAngularVelocity: [0, 0, 0]
-      MaxLinearVelocity: 500
-      MaxAngularVelocity: 50
-      LockedAxes: 0
+      LockFlags: "\x00"
     BoxColliderComponent:
       Offset: [0, 0, 0]
       HalfSize: [0.5, 0.5, 0.5]
-      Friction: 0.5
-      Restitution: 0.150000006
+      IsTrigger: false
+      Material: 10310996624323047332

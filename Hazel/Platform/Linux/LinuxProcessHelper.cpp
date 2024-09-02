@@ -33,7 +33,7 @@ namespace Hazel {
 		int result = posix_spawnattr_init(&attr);
 		if(result) HZ_CORE_VERIFY(false);
 
-		std::string ld_lib_path = std::format("LD_LIBRARY_PATH={}", FileSystem::GetEnvironmentVariable("LD_LIBRARY_PATH"));
+		std::string ld_lib_path = fmt::format("LD_LIBRARY_PATH={}", FileSystem::GetEnvironmentVariable("LD_LIBRARY_PATH"));
 		char* env[] = {ld_lib_path.data(), nullptr};
 
 		std::filesystem::path old = std::filesystem::current_path();

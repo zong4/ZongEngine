@@ -3,8 +3,6 @@
 
 #include "VulkanContext.h"
 
-#include "Hazel/Debug/Profiler.h"
-
 namespace Hazel {
 
 #define NO_STAGING 1

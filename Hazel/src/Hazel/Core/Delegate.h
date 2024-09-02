@@ -101,6 +101,7 @@ namespace Hazel {
 		{
 			HZ_CORE_ASSERT(IsBound(), "Trying to invoke unbound delegate.");
 			return std::invoke(m_Invocation.Stub, m_Invocation.Object, std::forward<TArgs>(args)...);
+			//return (*m_Invocation.Stub)(m_Invocation.Object, std::forward<TArgs>(args)...);
 		}
 
 	private:

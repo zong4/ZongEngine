@@ -1,21 +1,22 @@
 #include "hzpch.h"
 #include "VulkanShader.h"
 
-#include "VulkanShaderUtils.h"
-
 #if HZ_HAS_SHADER_COMPILER
 #include "ShaderCompiler/VulkanShaderCompiler.h"
 #endif
 
-#include "Hazel/Core/Hash.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Platform/Vulkan/VulkanContext.h"
-#include "Hazel/Platform/Vulkan/VulkanRenderer.h"
+#include <filesystem>
+
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Utilities/StringUtils.h"
 
-#include <filesystem>
-#include <format>
+#include "Hazel/Platform/Vulkan/VulkanContext.h"
+
+#include "Hazel/Core/Hash.h"
+#include "Hazel/Platform/Vulkan/VulkanRenderer.h"
+#include "VulkanShaderUtils.h"
+
+#include "Hazel/ImGui/ImGui.h"
 
 namespace Hazel {
 
@@ -103,7 +104,7 @@ namespace Hazel {
 
 			VkShaderModule shaderModule;
 			VK_CHECK_RESULT(vkCreateShaderModule(device, &moduleCreateInfo, NULL, &shaderModule));
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SHADER_MODULE, std::format("{}:{}", m_Name, ShaderUtils::ShaderStageToString(stage)), shaderModule);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SHADER_MODULE, fmt::format("{}:{}", m_Name, ShaderUtils::ShaderStageToString(stage)), shaderModule);
 
 			VkPipelineShaderStageCreateInfo& shaderStage = m_PipelineShaderStageCreateInfos.emplace_back();
 			shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -313,7 +314,7 @@ namespace Hazel {
 			descriptorLayout.bindingCount = (uint32_t)(layoutBindings.size());
 			descriptorLayout.pBindings = layoutBindings.data();
 
-			HZ_CORE_TRACE_TAG("Renderer", "Creating descriptor set {0} with {1} ubo's, {2} ssbo's, {3} samplers, {4} separate textures, {5} separate samplers and {6} storage images", set,
+			HZ_CORE_INFO_TAG("Renderer", "Creating descriptor set {0} with {1} ubo's, {2} ssbo's, {3} samplers, {4} separate textures, {5} separate samplers and {6} storage images", set,
 				shaderDescriptorSet.UniformBuffers.size(),
 				shaderDescriptorSet.StorageBuffers.size(),
 				shaderDescriptorSet.ImageSamplers.size(),

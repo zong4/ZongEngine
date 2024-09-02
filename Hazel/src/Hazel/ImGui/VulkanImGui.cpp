@@ -14,19 +14,6 @@ namespace ImGui {
 
 namespace Hazel::UI {
 
-	ImTextureID GetTextureID(Ref<Image2D> image)
-	{
-		if (image && RendererAPI::Current() == RendererAPIType::Vulkan)
-		{
-			Ref<VulkanImage2D> vulkanImage = image.As<VulkanImage2D>();
-			const VkDescriptorImageInfo& imageInfo = vulkanImage->GetDescriptorInfoVulkan();
-			if (imageInfo.imageView)
-				return ImGui_ImplVulkan_AddTexture(imageInfo.sampler, imageInfo.imageView, imageInfo.imageLayout);
-		}
-
-		return (ImTextureID)0;
-	}
-
 	ImTextureID GetTextureID(Ref<Texture2D> texture)
 	{
 		if (RendererAPI::Current() == RendererAPIType::Vulkan)
@@ -44,8 +31,6 @@ namespace Hazel::UI {
 
 	void Image(const Ref<Image2D>& image, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
 	{
-		HZ_CORE_VERIFY(image, "Image is null");
-
 		if (RendererAPI::Current() == RendererAPIType::Vulkan)
 		{
 			Ref<VulkanImage2D> vulkanImage = image.As<VulkanImage2D>();
@@ -59,8 +44,6 @@ namespace Hazel::UI {
 
 	void Image(const Ref<Image2D>& image, uint32_t imageLayer, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
 	{
-		HZ_CORE_VERIFY(image, "Image is null");
-
 		if (RendererAPI::Current() == RendererAPIType::Vulkan)
 		{
 			Ref<VulkanImage2D> vulkanImage = image.As<VulkanImage2D>();
@@ -68,7 +51,6 @@ namespace Hazel::UI {
 			imageInfo.ImageView = vulkanImage->GetLayerImageView(imageLayer);
 			if (!imageInfo.ImageView)
 				return;
-
 			const auto textureID = ImGui_ImplVulkan_AddTexture(imageInfo.Sampler, imageInfo.ImageView, vulkanImage->GetDescriptorInfoVulkan().imageLayout);
 			ImGui::Image(textureID, size, uv0, uv1, tint_col, border_col);
 		}
@@ -76,8 +58,6 @@ namespace Hazel::UI {
 
 	void ImageMip(const Ref<Image2D>& image, uint32_t mip, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
 	{
-		HZ_CORE_VERIFY(image, "Image is null");
-
 		Ref<VulkanImage2D> vulkanImage = image.As<VulkanImage2D>();
 		auto imageInfo = vulkanImage->GetImageInfo();
 		imageInfo.ImageView = vulkanImage->GetMipImageView(mip);
@@ -90,15 +70,12 @@ namespace Hazel::UI {
 
 	void Image(const Ref<Texture2D>& texture, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
 	{
-		HZ_CORE_VERIFY(texture, "Texture is null");
-
 		if (RendererAPI::Current() == RendererAPIType::Vulkan)
 		{
 			Ref<VulkanTexture2D> vulkanTexture = texture.As<VulkanTexture2D>();
 			const VkDescriptorImageInfo& imageInfo = vulkanTexture->GetDescriptorInfoVulkan();
 			if (!imageInfo.imageView)
 				return;
-
 			const auto textureID = ImGui_ImplVulkan_AddTexture(imageInfo.sampler, imageInfo.imageView, imageInfo.imageLayout);
 			ImGui::Image(textureID, size, uv0, uv1, tint_col, border_col);
 		}

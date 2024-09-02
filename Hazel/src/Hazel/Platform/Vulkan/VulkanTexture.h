@@ -14,10 +14,6 @@ namespace Hazel {
 		VulkanTexture2D(const TextureSpecification& specification, const std::filesystem::path& filepath);
 		VulkanTexture2D(const TextureSpecification& specification, Buffer data = Buffer());
 		~VulkanTexture2D() override;
-
-		virtual void CreateFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath) override;
-		virtual void ReplaceFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath) override;
-		virtual void CreateFromBuffer(const TextureSpecification& specification, Buffer data = Buffer()) override;
 		
 		virtual void Resize(const glm::uvec2& size) override;
 		virtual void Resize(uint32_t width, uint32_t height) override;
@@ -39,7 +35,7 @@ namespace Hazel {
 		void Unlock() override;
 
 		Buffer GetWriteableBuffer() override;
-		bool Loaded() const override { return m_Image && m_Image->IsValid(); }
+		bool Loaded() const override { return m_ImageData; }
 		const std::filesystem::path& GetPath() const override;
 		uint32_t GetMipLevelCount() const override;
 		virtual std::pair<uint32_t, uint32_t> GetMipSize(uint32_t mip) const override;
@@ -50,10 +46,8 @@ namespace Hazel {
 
 		void CopyToHostBuffer(Buffer& buffer);
 	private:
-		void SetData(Buffer buffer);
-	private:
-		TextureSpecification m_Specification;
 		std::filesystem::path m_Path;
+		TextureSpecification m_Specification;
 
 		Buffer m_ImageData;
 

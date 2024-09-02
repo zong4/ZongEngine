@@ -5,8 +5,6 @@
 
 #include <imgui_internal.h>
 
-#include <format>
-
 namespace Hazel::UI {
 
 	static int s_UIContextID = 0;
@@ -16,13 +14,13 @@ namespace Hazel::UI {
 
 	const char* GenerateID()
 	{
-		snprintf(s_IDBuffer + 2, 16, "%u", s_Counter++);
+        snprintf(s_IDBuffer + 2, 16, "%u", s_Counter++);
 		return s_IDBuffer;
 	}
 
 	const char* GenerateLabelID(std::string_view label)
 	{
-		*std::format_to_n(s_LabelIDBuffer, std::size(s_LabelIDBuffer), "{}##{}", label, s_Counter++).out = 0;
+		*fmt::format_to_n(s_LabelIDBuffer, std::size(s_LabelIDBuffer), "{}##{}", label, s_Counter++).out = 0;
 		return s_LabelIDBuffer;
 	}
 

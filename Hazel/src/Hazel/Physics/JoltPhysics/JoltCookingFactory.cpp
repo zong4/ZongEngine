@@ -1,19 +1,16 @@
 #include "hzpch.h"
 #include "JoltCookingFactory.h"
-
 #include "JoltBinaryStream.h"
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Core/Timer.h"
-#include "Hazel/Math/Math.h"
 #include "Hazel/Physics/PhysicsSystem.h"
+
+#include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Project/Project.h"
+#include "Hazel/Math/Math.h"
+#include "Hazel/Core/Timer.h"
 
-#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
-
-#include <filesystem>
-#include <format>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
 namespace Hazel {
 
@@ -66,22 +63,22 @@ namespace Hazel {
 		bool isStaticMesh = mesh->GetAssetType() == AssetType::StaticMesh;
 
 		// name-handle.hmc
-		std::string baseFileName = std::format("{0}-{1}", "Mesh", colliderHandle);
+		std::string baseFileName = fmt::format("{0}-{1}", "Mesh", colliderHandle);
 
-		const bool isPhysicalAsset = !AssetManager::GetMemoryAsset(colliderHandle);
+		const bool isPhysicalAsset = !AssetManager::IsMemoryAsset(colliderHandle);
 
-		std::filesystem::path simpleColliderFilePath = Utils::GetCacheDirectory() / std::format("{0}-Simple.hmc", baseFileName);
-		std::filesystem::path complexColliderFilePath = Utils::GetCacheDirectory() / std::format("{0}-Complex.hmc", baseFileName);
+		std::filesystem::path simpleColliderFilePath = Utils::GetCacheDirectory() / fmt::format("{0}-Simple.hmc", baseFileName);
+		std::filesystem::path complexColliderFilePath = Utils::GetCacheDirectory() / fmt::format("{0}-Complex.hmc", baseFileName);
 
 		CachedColliderData colliderData;
 		ECookingResult simpleMeshResult = ECookingResult::Failure;
 		ECookingResult complexMeshResult = ECookingResult::Failure;
 
-		if (auto meshSource = AssetManager::GetAsset<MeshSource>(isStaticMesh ? mesh.As<StaticMesh>()->GetMeshSource() : mesh.As<Mesh>()->GetMeshSource()); meshSource)
-		{
-			const auto& submeshIndices = isStaticMesh ? mesh.As<StaticMesh>()->GetSubmeshes() : mesh.As<Mesh>()->GetSubmeshes();
+		Ref<MeshSource> meshSource = isStaticMesh ? mesh.As<StaticMesh>()->GetMeshSource() : mesh.As<Mesh>()->GetMeshSource();
+		const auto& submeshIndices = isStaticMesh ? mesh.As<StaticMesh>()->GetSubmeshes() : mesh.As<Mesh>()->GetSubmeshes();
 
-			// Cook or load the simple collider
+		// Cook or load the simple collider
+		{
 			if (invalidateOld || !std::filesystem::exists(simpleColliderFilePath))
 			{
 				simpleMeshResult = CookConvexMesh(colliderAsset, meshSource, submeshIndices, colliderData.SimpleColliderData);
@@ -100,10 +97,12 @@ namespace Hazel {
 
 #ifndef HZ_DIST
 			if (simpleMeshResult == ECookingResult::Success)
-				GenerateDebugMesh(colliderAsset, isStaticMesh, submeshIndices, colliderData.SimpleColliderData);
+				GenerateDebugMesh(colliderAsset, colliderData.SimpleColliderData);
 #endif
+		}
 
-			// Cook or load the complex collider
+		// Cook or load the complex collider
+		{
 			if (invalidateOld || !std::filesystem::exists(complexColliderFilePath))
 			{
 				complexMeshResult = CookTriangleMesh(colliderAsset, meshSource, submeshIndices, colliderData.ComplexColliderData);
@@ -122,18 +121,18 @@ namespace Hazel {
 
 #ifndef HZ_DIST
 			if (complexMeshResult == ECookingResult::Success)
-				GenerateDebugMesh(colliderAsset, isStaticMesh, submeshIndices, colliderData.ComplexColliderData);
+				GenerateDebugMesh(colliderAsset, colliderData.ComplexColliderData);
 #endif
+		}
 
-			if (simpleMeshResult == ECookingResult::Success || complexMeshResult == ECookingResult::Success)
-			{
-				// Add to cache
-				auto& meshCache = PhysicsSystem::GetMeshCache();
-				if (isPhysicalAsset)
-					meshCache.m_MeshData[colliderAsset->ColliderMesh][colliderHandle] = colliderData;
-				else
-					meshCache.m_MeshData[colliderAsset->ColliderMesh][0] = colliderData;
-			}
+		if (simpleMeshResult == ECookingResult::Success || complexMeshResult == ECookingResult::Success)
+		{
+			// Add to cache
+			auto& meshCache = PhysicsSystem::GetMeshCache();
+			if (isPhysicalAsset)
+				meshCache.m_MeshData[colliderAsset->ColliderMesh][colliderHandle] = colliderData;
+			else
+				meshCache.m_MeshData[colliderAsset->ColliderMesh][0] = colliderData;
 		}
 
 		return { simpleMeshResult, complexMeshResult };
@@ -150,13 +149,6 @@ namespace Hazel {
 		for (auto submeshIndex : submeshIndices)
 		{
 			const auto& submesh = submeshes[submeshIndex];
-
-			if (submesh.VertexCount < 3)
-			{
-				outData.Submeshes.emplace_back();
-				continue;
-			}
-
 			JPH::Array<JPH::Vec3> positions;
 
 			for (uint32_t i = submesh.BaseIndex / 3; i < (submesh.BaseIndex / 3) + (submesh.IndexCount / 3); i++)
@@ -214,12 +206,6 @@ namespace Hazel {
 		{
 			const auto& submesh = submeshes[submeshIndex];
 
-			if (submesh.VertexCount < 3)
-			{
-				outData.Submeshes.emplace_back();
-				continue;
-			}
-
 			JPH::VertexList vertexList;
 			JPH::IndexedTriangleList triangleList;
 
@@ -266,102 +252,8 @@ namespace Hazel {
 		return cookingResult;
 	}
 
-#ifndef HZ_DIST
-	void JoltCookingFactory::GenerateDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const bool isStaticMesh, const std::vector<uint32_t>& submeshIndices, const MeshColliderData& colliderData)
+	void JoltCookingFactory::GenerateDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const MeshColliderData& colliderData)
 	{
-		std::vector<Vertex> vertices;
-		std::vector<Index> indices;
-		std::vector<Submesh> submeshes;
-		for (size_t i = 0; i < colliderData.Submeshes.size(); i++)
-		{
-			const SubmeshColliderData& submeshData = colliderData.Submeshes[i];
-
-			// retrieve the shape by restoring from the binary data
-			JoltBinaryStreamReader bufferReader(submeshData.ColliderData);
-			auto shapeResult = JPH::Shape::sRestoreFromBinaryState(bufferReader);
-			if (!shapeResult.HasError())
-			{
-				auto shape = shapeResult.Get();
-				auto jphCom = shape->GetCenterOfMass();
-				glm::vec3 com = { jphCom.GetX(), jphCom.GetY(), jphCom.GetZ() };
-				JPH::Shape::VisitedShapes ioVisitedShapes;
-				JPH::Shape::Stats stats = shape->GetStatsRecursive(ioVisitedShapes);
-
-				if (stats.mNumTriangles > 0)
-				{
-					Submesh& submesh = submeshes.emplace_back();
-					submesh.BaseVertex = static_cast<uint32_t>(vertices.size());
-					submesh.VertexCount = stats.mNumTriangles * 3;
-					submesh.BaseIndex = static_cast<uint32_t>(indices.size()) * 3;
-					submesh.IndexCount = stats.mNumTriangles * 3; // Watch out. There are 3 "indexes" per Hazel::Index
-					submesh.MaterialIndex = 0;
-					submesh.Transform = submeshData.Transform;
-					vertices.reserve(vertices.size() + stats.mNumTriangles * 3);
-					indices.reserve(indices.size() + stats.mNumTriangles);
-
-					JPH::Shape::GetTrianglesContext ioContext;
-					JPH::AABox inBox;
-					JPH::Vec3 inPositionCOM = JPH::Vec3::sZero();
-					JPH::Quat inRotation = JPH::Quat::sIdentity();
-					JPH::Vec3 inScale = JPH::Vec3::sReplicate(1.0f);
-					shape->GetTrianglesStart(ioContext, inBox, inPositionCOM, inRotation, inScale);
-
-					JPH::Float3 jphVertices[100 * 3];
-					int count = 0;
-					while ((count = shape->GetTrianglesNext(ioContext, 100, jphVertices)) > 0)
-					{
-						uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
-						for (int i = 0; i < count; ++i)
-						{
-							Vertex& v1 = vertices.emplace_back();
-							v1.Position = { jphVertices[3 * i].x, jphVertices[3 * i].y, jphVertices[3 * i].z };
-							v1.Position += com;
-
-							Vertex& v2 = vertices.emplace_back();
-							v2.Position = { jphVertices[3 * i + 1].x, jphVertices[3 * i + 1].y, jphVertices[3 * i + 1].z };
-							v2.Position += com;
-
-							Vertex& v3 = vertices.emplace_back();
-							v3.Position = { jphVertices[3 * i + 2].x, jphVertices[3 * i + 2].y, jphVertices[3 * i + 2].z };
-							v3.Position += com;
-
-							Index& index = indices.emplace_back();
-							index.V1 = static_cast<uint32_t>(baseIndex + 3 * i);
-							index.V2 = static_cast<uint32_t>(baseIndex + 3 * i + 1);
-							index.V3 = static_cast<uint32_t>(baseIndex + 3 * i + 2);
-						}
-					}
-				}
-			}
-		}
-		if (vertices.size() > 0)
-		{
-			Ref<MeshSource> meshSource = Ref<MeshSource>::Create(vertices, indices, submeshes);
-			AssetManager::AddMemoryOnlyAsset(meshSource);
-			if (colliderData.Type == MeshColliderType::Convex)
-			{
-				if (isStaticMesh)
-				{
-					PhysicsSystem::GetMeshCache().AddSimpleDebugMesh(colliderAsset, Ref<StaticMesh>::Create(meshSource->Handle, submeshIndices, /*generateColliders=*/false));
-				}
-				else
-				{
-					PhysicsSystem::GetMeshCache().AddSimpleDebugMesh(colliderAsset, Ref<Mesh>::Create(meshSource->Handle, submeshIndices, /*generateColliders=*/false));
-				}
-			}
-			else
-			{
-				if (isStaticMesh)
-				{
-					PhysicsSystem::GetMeshCache().AddComplexDebugMesh(colliderAsset, Ref<StaticMesh>::Create(meshSource->Handle, submeshIndices, /*generateColliders=*/false));
-				}
-				else
-				{
-					PhysicsSystem::GetMeshCache().AddSimpleDebugMesh(colliderAsset, Ref<Mesh>::Create(meshSource->Handle, submeshIndices, /*generateColliders=*/false));
-				}
-			}
-		}
 	}
-#endif
 
 }

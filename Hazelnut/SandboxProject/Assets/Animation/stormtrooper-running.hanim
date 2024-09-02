@@ -1,0 +1,7 @@
+Animation:
+  SkeletonSource: 13551542371252504961
+  AnimationSource: 7460194878323071041
+  AnimationIndex: 0
+  FilterRootMotion: true
+  RootTranslationMask: [0, 0, 1]
+  RootRotationMask: 0

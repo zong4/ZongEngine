@@ -86,6 +86,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <filesystem>
 
 #ifdef FILEWATCH_PLATFORM_MAC
 extern "C" int __getdirentries64(int, char *, int, long *);
@@ -99,15 +100,6 @@ namespace filewatch {
 		renamed_old,
 		renamed_new
 	};
-
-	static constexpr uint32_t ChangeSecurity      = 1 << 0;
-	static constexpr uint32_t ChangeCreation      = 1 << 1;
-	static constexpr uint32_t ChangeLastAccess    = 1 << 2;
-	static constexpr uint32_t ChangeLastWrite     = 1 << 3;
-	static constexpr uint32_t ChangeSize          = 1 << 4;
-	static constexpr uint32_t ChangeAttributes    = 1 << 5;
-	static constexpr uint32_t ChangeDirectoryName = 1 << 6;
-	static constexpr uint32_t ChangeFileName      = 1 << 7;
       
       template<typename StringType>
       struct IsWChar {
@@ -170,23 +162,6 @@ namespace filewatch {
             return path == "." || path == "..";
       }
 
-#ifdef _WIN32
-	inline DWORD GetListenerFilters(uint32_t filter) {
-      	DWORD result = 0;
-
-      	if (filter & ChangeSecurity) result |= FILE_NOTIFY_CHANGE_SECURITY;
-		if (filter & ChangeCreation) result |= FILE_NOTIFY_CHANGE_CREATION;
-		if (filter & ChangeLastAccess) result |= FILE_NOTIFY_CHANGE_LAST_ACCESS;
-      	if (filter & ChangeLastWrite) result |= FILE_NOTIFY_CHANGE_LAST_WRITE;
-      	if (filter & ChangeSize) result |= FILE_NOTIFY_CHANGE_SIZE;
-      	if (filter & ChangeAttributes) result |= FILE_NOTIFY_CHANGE_ATTRIBUTES;
-      	if (filter & ChangeDirectoryName) result |= FILE_NOTIFY_CHANGE_DIR_NAME;
-      	if (filter & ChangeFileName) result |= FILE_NOTIFY_CHANGE_FILE_NAME;
-
-      	return result;
-    }
-#endif
-
 	/**
 	* \class FileWatch
 	*
@@ -203,21 +178,18 @@ namespace filewatch {
 		typedef std::basic_regex<C, std::regex_traits<C>> UnderpinningRegex;
 
 	public:
-		FileWatch(StringType path, UnderpinningRegex pattern, uint32_t filter, std::function<void(const StringType& file, const Event event_type)> callback) :
+
+		FileWatch(StringType path, UnderpinningRegex pattern, std::function<void(const StringType& file, const Event event_type)> callback) :
 			_path(absolute_path_of(path)),
 			_pattern(pattern),
 			_callback(callback),
                   _directory(get_directory(path))
 		{
-#ifdef _WIN32
-			_listen_filters = GetListenerFilters(filter);
-#endif
-
 			init();
 		}
 
-		FileWatch(StringType path, uint32_t filter, std::function<void(const StringType& file, const Event event_type)> callback) :
-			FileWatch<StringType>(path, UnderpinningRegex(_regex_all), filter, callback) {}
+		FileWatch(StringType path, std::function<void(const StringType& file, const Event event_type)> callback) :
+			FileWatch<StringType>(path, UnderpinningRegex(_regex_all), callback) {}
 
 		~FileWatch() {
 			destroy();
@@ -238,8 +210,8 @@ namespace filewatch {
 		}
 
 		// Const memeber varibles don't let me implent moves nicely, if moves are really wanted std::unique_ptr should be used and move that.
-		FileWatch(FileWatch&&) = delete;
-		FileWatch& operator=(FileWatch&&) & = delete;
+		FileWatch<StringType>(FileWatch<StringType>&&) = delete;
+		FileWatch<StringType>& operator=(FileWatch<StringType>&&) & = delete;
 
 	private:
 		static constexpr C _regex_all[] = { '.', '*', '\0' };
@@ -278,7 +250,15 @@ namespace filewatch {
 		HANDLE _directory = { nullptr };
 		HANDLE _close_event = { nullptr };
 
-		DWORD _listen_filters = { 0 };
+		const DWORD _listen_filters =
+			FILE_NOTIFY_CHANGE_SECURITY |
+			FILE_NOTIFY_CHANGE_CREATION |
+			FILE_NOTIFY_CHANGE_LAST_ACCESS |
+			FILE_NOTIFY_CHANGE_LAST_WRITE |
+			FILE_NOTIFY_CHANGE_SIZE |
+			FILE_NOTIFY_CHANGE_ATTRIBUTES |
+			FILE_NOTIFY_CHANGE_DIR_NAME |
+			FILE_NOTIFY_CHANGE_FILE_NAME;
 
 		const std::unordered_map<DWORD, Event> _event_type_mapping = {
 			{ FILE_ACTION_ADDED, Event::added },

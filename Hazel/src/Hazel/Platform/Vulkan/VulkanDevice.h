@@ -79,8 +79,6 @@ namespace Hazel {
 
 		void Destroy();
 
-		void LockQueue(bool compute = false);
-		void UnlockQueue(bool compute = false);
 		VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
 		VkQueue GetComputeQueue() { return m_ComputeQueue; }
 
@@ -105,8 +103,6 @@ namespace Hazel {
 
 		std::map<std::thread::id, Ref<VulkanCommandPool>> m_CommandPools;
 		bool m_EnableDebugMarkers = false;
-
-		std::mutex m_GraphicsQueueMutex, m_ComputeQueueMutex;
 	};
 
 

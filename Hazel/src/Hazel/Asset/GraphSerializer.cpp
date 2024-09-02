@@ -105,7 +105,7 @@ namespace Hazel {
 	}
 #endif
 
-	void DefaultGraphSerializer::SerializeNodes(YAML::Emitter& out, const std::vector<Node*>& nodes, std::function<void(YAML::Emitter&, const Node*)> nodeCallback)
+	void DefaultGraphSerializer::SerializeNodes(YAML::Emitter& out, const std::vector<Node*>& nodes)
 	{
 		out << YAML::Key << "Nodes" << YAML::Value;
 		out << YAML::BeginSeq;
@@ -160,18 +160,13 @@ namespace Hazel {
 			}
 			out << YAML::EndSeq; // Outputs
 
-			if (nodeCallback)
-			{
-				nodeCallback(out, node);
-			}
-
 			out << YAML::EndMap; // node
 		}
 		out << YAML::EndSeq; // Nodes
 	}
 
 
-	void DefaultGraphSerializer::SerializeLinks(YAML::Emitter& out, const std::vector<Link>& links, std::function<void(YAML::Emitter&, const Link&)> linkCallback)
+	void DefaultGraphSerializer::SerializeLinks(YAML::Emitter& out, const std::vector<Link>& links)
 	{
 		out << YAML::Key << "Links" << YAML::Value;
 		out << YAML::BeginSeq;
@@ -186,11 +181,6 @@ namespace Hazel {
 			HZ_SERIALIZE_PROPERTY(StartPinID, link.StartPinID, out);
 			HZ_SERIALIZE_PROPERTY(EndPinID, link.EndPinID, out);
 			HZ_SERIALIZE_PROPERTY(Color, colOut, out);
-
-			if (linkCallback)
-			{
-				linkCallback(out, link);
-			}
 
 			out << YAML::EndMap; // link
 		}
@@ -468,7 +458,7 @@ namespace Hazel {
 					PinCandidate* candidatePin = nullptr;
 					for (auto& pin: *candidateInputs)
 					{
-						if (Utils::String::RemoveWhitespace(pin.Name) == Utils::String::RemoveWhitespace(factoryPin->Name))
+						if (pin.Name == factoryPin->Name)
 						{
 							candidatePin = &pin;
 							break;
@@ -507,7 +497,7 @@ namespace Hazel {
 					PinCandidate* candidatePin = nullptr;
 					for (auto& pin : *candidateOutputs)
 					{
-						if (Utils::String::RemoveWhitespace(pin.Name) == Utils::String::RemoveWhitespace(factoryPin->Name))
+						if (pin.Name == factoryPin->Name)
 						{
 							candidatePin = &pin;
 							break;
@@ -536,16 +526,11 @@ namespace Hazel {
 				}
 			}
 
-			if (factory.PostConstructNode)
-			{
-				factory.PostConstructNode(node, newNode);
-			}
-
 			nodes.push_back(newNode);
 		}
 	}
 
-	void DefaultGraphSerializer::TryLoadLinks(YAML::Node& data, std::vector<Link>& links, std::function<void(YAML::Node&, Link&)> linkCallback)
+	void DefaultGraphSerializer::TryLoadLinks(YAML::Node& data, std::vector<Link>& links)
 	{
 		for (auto link : data["Links"])
 		{
@@ -568,10 +553,6 @@ namespace Hazel {
 			links.emplace_back(StartPinID, EndPinID);
 			links.back().ID = ID;
 			links.back().Color = ImColor(color.x, color.y, color.z, color.w);
-			if (linkCallback)
-			{
-				linkCallback(link, links.back());
-			}
 		}
 	}
 

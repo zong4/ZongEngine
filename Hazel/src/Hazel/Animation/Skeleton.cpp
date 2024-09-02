@@ -44,20 +44,6 @@ namespace Hazel {
 	}
 
 
-	std::vector<uint32_t> Skeleton::GetChildBoneIndexes(const uint32_t boneIndex) const
-	{
-		std::vector<uint32_t> childBoneIndexes;
-		for (size_t i = 0; i < m_ParentBoneIndices.size(); ++i)
-		{
-			if (m_ParentBoneIndices[i] == boneIndex)
-			{
-				childBoneIndexes.emplace_back(static_cast<uint32_t>(i));
-			}
-		}
-		return childBoneIndexes;
-	}
-
-
 	void Skeleton::SetBones(std::vector<std::string> boneNames, std::vector<uint32_t> parentBoneIndices, std::vector<glm::vec3> boneTranslations, std::vector<glm::quat> boneRotations, std::vector<glm::vec3> boneScales)
 	{
 		HZ_CORE_ASSERT(parentBoneIndices.size() == boneNames.size());
@@ -72,27 +58,23 @@ namespace Hazel {
 	}
 
 
-	SkeletonAsset::SkeletonAsset(const AssetHandle meshSource) : m_MeshSource(meshSource)
+	SkeletonAsset::SkeletonAsset(const AssetHandle meshSource) : m_MeshSource(AssetManager::GetAsset<MeshSource>(meshSource))
 	{
-		Project::GetAssetManager()->RegisterDependency(meshSource, Handle);
 	}
 
+	SkeletonAsset::SkeletonAsset(const Ref<MeshSource> meshSource) : m_MeshSource(meshSource)
+	{
+	}
 
-	AssetHandle SkeletonAsset::GetMeshSource() const
+	Hazel::Ref<Hazel::MeshSource> SkeletonAsset::GetMeshSource() const
 	{
 		return m_MeshSource;
 	}
 
 	const Hazel::Skeleton& SkeletonAsset::GetSkeleton() const
 	{
-		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(m_MeshSource);
-		HZ_CORE_ASSERT(meshSource && meshSource->HasSkeleton());
-		return *meshSource->GetSkeleton();
-	}
-
-	void SkeletonAsset::OnDependencyUpdated(AssetHandle)
-	{
-		Project::GetAssetManager()->ReloadDataAsync(Handle);
+		HZ_CORE_ASSERT(m_MeshSource && m_MeshSource->HasSkeleton());
+		return m_MeshSource->GetSkeleton();
 	}
 
 }

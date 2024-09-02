@@ -28,8 +28,18 @@ namespace Hazel {
 
 	struct BoneInfo
 	{
+		glm::mat4 SubMeshInverseTransform;
 		glm::mat4 InverseBindPose;
+		uint32_t SubMeshIndex;
 		uint32_t BoneIndex;
+
+		BoneInfo() = default;
+		BoneInfo(glm::mat4 subMeshInverseTransform, glm::mat4 inverseBindPose, uint32_t subMeshIndex, uint32_t boneIndex)
+			: SubMeshInverseTransform(subMeshInverseTransform)
+			, InverseBindPose(inverseBindPose)
+			, SubMeshIndex(subMeshIndex)
+			, BoneIndex(boneIndex)
+		{}
 
 		static void Serialize(StreamWriter* serializer, const BoneInfo& instance)
 		{
@@ -216,16 +226,16 @@ namespace Hazel {
 
 		bool HasSkeleton() const { return (bool)m_Skeleton; }
 		bool IsSubmeshRigged(uint32_t submeshIndex) const { return m_Submeshes[submeshIndex].IsRigged; }
-		const Skeleton* GetSkeleton() const { return m_Skeleton.get(); }
-		bool IsCompatibleSkeleton(const std::string_view animationName, const Skeleton& skeleton) const;
+		const Skeleton& GetSkeleton() const { HZ_CORE_ASSERT(m_Skeleton, "Attempted to access null skeleton!"); return *m_Skeleton; }
+		bool IsCompatibleSkeleton(const uint32_t animationIndex, const Skeleton& skeleton) const;
 
 		std::vector<std::string> GetAnimationNames() const;
-		// note: can return nullptr (e.g. if named animation does not exist, or something goes wrong retrieving the animation)
-		const Animation* GetAnimation(const std::string& animationName, const Skeleton& skeleton, const bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask) const;
+		// note: can return nullptr (e.g. if animationIndex out of range, or something goes wrong retrieving the animation)
+		const Animation* GetAnimation(const uint32_t animationIndex, const Skeleton& skeleton, const bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask) const;
 		const std::vector<BoneInfluence>& GetBoneInfluences() const { return m_BoneInfluences; }
 
-		std::vector<AssetHandle>& GetMaterials() { return m_Materials; }
-		const std::vector<AssetHandle>& GetMaterials() const { return m_Materials; }
+		std::vector<Ref<Material>>& GetMaterials() { return m_Materials; }
+		const std::vector<Ref<Material>>& GetMaterials() const { return m_Materials; }
 		const std::string& GetFilePath() const { return m_FilePath; }
 
 		const std::vector<Triangle> GetTriangleCache(uint32_t index) const { return m_TriangleCache.at(index); }
@@ -257,7 +267,7 @@ namespace Hazel {
 		std::vector<std::string> m_AnimationNames;
 		mutable std::vector<Scope<Animation>> m_Animations;
 
-		std::vector<AssetHandle> m_Materials;
+		std::vector<Ref<Material>> m_Materials;
 
 		std::unordered_map<uint32_t, std::vector<Triangle>> m_TriangleCache;
 
@@ -286,35 +296,34 @@ namespace Hazel {
 	class Mesh : public Asset
 	{
 	public:
-		explicit Mesh(AssetHandle meshSource, bool generateColliders);
-		Mesh(AssetHandle meshSource, const std::vector<uint32_t>& submeshes, bool generateColliders);
-		virtual ~Mesh() = default;
+		explicit Mesh(Ref<MeshSource> meshSource);
+		Mesh(Ref<MeshSource> meshSource, const std::vector<uint32_t>& submeshes);
+		Mesh(const Ref<Mesh>& other);
+		virtual ~Mesh();
 
-		virtual void OnDependencyUpdated(AssetHandle handle) override;
+		bool HasSkeleton() { return m_MeshSource && m_MeshSource->HasSkeleton(); }
 
+		std::vector<uint32_t>& GetSubmeshes() { return m_Submeshes; }
 		const std::vector<uint32_t>& GetSubmeshes() const { return m_Submeshes; }
 
 		// Pass in an empty vector to set ALL submeshes for MeshSource
-		void SetSubmeshes(const std::vector<uint32_t>& submeshes, Ref<MeshSource> meshSource);
+		void SetSubmeshes(const std::vector<uint32_t>& submeshes);
 
-		AssetHandle GetMeshSource() const { return m_MeshSource; }
-		void SetMeshAsset(AssetHandle meshSource) { m_MeshSource = meshSource; }
+		Ref<MeshSource> GetMeshSource() { return m_MeshSource; }
+		Ref<MeshSource> GetMeshSource() const { return m_MeshSource; }
+		void SetMeshAsset(Ref<MeshSource> meshSource) { m_MeshSource = meshSource; }
 
 		Ref<MaterialTable> GetMaterials() const { return m_Materials; }
-
-		bool ShouldGenerateColliders() const { return m_GenerateColliders; }
 
 		static AssetType GetStaticType() { return AssetType::Mesh; }
 		virtual AssetType GetAssetType() const override { return GetStaticType(); }
 
 	private:
-		AssetHandle m_MeshSource;
+		Ref<MeshSource> m_MeshSource;
 		std::vector<uint32_t> m_Submeshes; // TODO(Yan): physics/render masks
 
 		// Materials
 		Ref<MaterialTable> m_Materials;
-
-		bool m_GenerateColliders = false; // should we generate physics colliders when (re)loading this mesh?
 
 		friend class Scene;
 		friend class Renderer;
@@ -328,34 +337,31 @@ namespace Hazel {
 	class StaticMesh : public Asset
 	{
 	public:
-		explicit StaticMesh(AssetHandle meshSource, bool generateColliders);
-		StaticMesh(AssetHandle meshSource, const std::vector<uint32_t>& submeshes, bool generateColliders);
-		virtual ~StaticMesh() = default;
+		explicit StaticMesh(Ref<MeshSource> meshSource);
+		StaticMesh(Ref<MeshSource> meshSource, const std::vector<uint32_t>& submeshes);
+		StaticMesh(const Ref<StaticMesh>& other);
+		virtual ~StaticMesh();
 
-		virtual void OnDependencyUpdated(AssetHandle handle) override;
-
+		std::vector<uint32_t>& GetSubmeshes() { return m_Submeshes; }
 		const std::vector<uint32_t>& GetSubmeshes() const { return m_Submeshes; }
 
 		// Pass in an empty vector to set ALL submeshes for MeshSource
-		void SetSubmeshes(const std::vector<uint32_t>& submeshes, Ref<MeshSource> meshSourceAsset);
+		void SetSubmeshes(const std::vector<uint32_t>& submeshes);
 
-		AssetHandle GetMeshSource() const { return m_MeshSource; }
-		void SetMeshAsset(AssetHandle meshSource) { m_MeshSource = meshSource; }
+		Ref<MeshSource> GetMeshSource() { return m_MeshSource; }
+		Ref<MeshSource> GetMeshSource() const { return m_MeshSource; }
+		void SetMeshAsset(Ref<MeshSource> meshAsset) { m_MeshSource = meshAsset; }
 
 		Ref<MaterialTable> GetMaterials() const { return m_Materials; }
-
-		bool ShouldGenerateColliders() const { return m_GenerateColliders; }
 
 		static AssetType GetStaticType() { return AssetType::StaticMesh; }
 		virtual AssetType GetAssetType() const override { return GetStaticType(); }
 	private:
-		AssetHandle m_MeshSource;
+		Ref<MeshSource> m_MeshSource;
 		std::vector<uint32_t> m_Submeshes; // TODO(Yan): physics/render masks
 
 		// Materials
 		Ref<MaterialTable> m_Materials;
-
-		bool m_GenerateColliders = false; // should we generate physics colliders when (re)loading this static mesh?
 
 		friend class Scene;
 		friend class Renderer;

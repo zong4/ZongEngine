@@ -37,17 +37,10 @@ namespace Hazel {
 		// Ensure that every state machine in the graph has an entry state defined
 		void EnsureEntryStates();
 
-		// Find index of specified bone into pose Bone Transforms
-		// "root" always returns 0
-		// or returns an index in range 1 .. number of bones in skeleton
-		// or returns Skeleton::NullIndex if the specified bone cannot be found (and is not "root")
-		uint32_t FindBoneIndex(std::string_view boneName) const;
-
-		// Returns empty string if the node will probably compile.
-		// Otherwise returns non-empty error message.
+		// Returns false if the node probably will not compile
 		// This does not cover 100% of all things that can go wrong, but we can check
 		// some for some of the more obvious problems.
-		std::string GetNodeError(const Node* node);
+		bool IsWellDefined(Node* node);
 
 		Node* CreateTransitionNode();
 
@@ -65,7 +58,7 @@ namespace Hazel {
 		const std::vector<Link>& GetLinks() const override { return m_AnimationGraph->m_Links.at(m_RootNodeId); }
 		void SetLinks(std::vector<Link> links) { m_AnimationGraph->m_Links[m_RootNodeId] = std::move(links); }
 
-		const std::vector<std::string>& GetInputTypes() const override { static std::vector<std::string> types = { "AnimationAsset", "Bool", "Float", "Int", "Trigger", "Vec3"}; return types; }
+		const std::vector<std::string>& GetInputTypes() const override { static std::vector<std::string> types = { "AnimationAsset", "Bool", "Float", "Int" }; return types; }
 
 		Utils::PropertySet& GetInputs() override { return m_AnimationGraph->Inputs; }
 		Utils::PropertySet& GetOutputs() override { return m_AnimationGraph->Outputs; }
@@ -99,12 +92,11 @@ namespace Hazel {
 		Node* SpawnGraphInputNode(const std::string& inputName) override;
 		Node* SpawnLocalVariableNode(const std::string& inputName, bool getter) override;
 
-		void PromoteQuickStateToState(Node* quickState);
-
 	protected:
 		bool Sort() override;
 
-		void Serialize() override;
+		void Serialize() override;;
+
 		void Deserialize() override;
 
 		const Nodes::AbstractFactory* GetNodeFactory() const override;
@@ -120,7 +112,6 @@ namespace Hazel {
 		AnimationGraph::AnimationGraphNodeFactory m_AnimationGraphNodeFactory;
 		AnimationGraph::StateMachineNodeFactory m_StateMachineNodeFactory;
 		AnimationGraph::TransitionGraphNodeFactory m_TransitionGraphNodeFactory;
-		AnimationGraph::BlendSpaceNodeFactory m_BlendSpaceNodeFactory;
 		Ref<AnimationGraphAsset> m_AnimationGraph = nullptr;
 		std::vector<Node*> m_CurrentPath;
 		UUID m_RootNodeId = 0;

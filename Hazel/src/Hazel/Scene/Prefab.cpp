@@ -7,6 +7,8 @@
 #include "Hazel/Asset/AssetImporter.h"
 #include "Hazel/Asset/AssetManager.h"
 
+#include "Hazel/Script/ScriptEngine.h"
+
 namespace Hazel {
 
 	Entity Prefab::CreatePrefabFromEntity(Entity entity)
@@ -21,8 +23,6 @@ namespace Hazel {
 		entity.m_Scene->CopyComponentIfExists<TagComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<TransformComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<MeshComponent>(newEntity, m_Scene->m_Registry, entity);
-		entity.m_Scene->CopyComponentIfExists<MeshTagComponent>(newEntity, m_Scene->m_Registry, entity);
-		entity.m_Scene->CopyComponentIfExists<SubmeshComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<StaticMeshComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<AnimationComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<DirectionalLightComponent>(newEntity, m_Scene->m_Registry, entity);
@@ -38,6 +38,7 @@ namespace Hazel {
 		entity.m_Scene->CopyComponentIfExists<CircleCollider2DComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<RigidBodyComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<CharacterControllerComponent>(newEntity, m_Scene->m_Registry, entity);
+		entity.m_Scene->CopyComponentIfExists<FixedJointComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<CompoundColliderComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<BoxColliderComponent>(newEntity, m_Scene->m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<SphereColliderComponent>(newEntity, m_Scene->m_Registry, entity);
@@ -74,11 +75,7 @@ namespace Hazel {
 		}
 
 		if (newEntity.HasComponent<ScriptComponent>())
-		{
-			const auto& scriptComponent = newEntity.GetComponent<ScriptComponent>();
-			newEntity.m_Scene->m_ScriptStorage.InitializeEntityStorage(scriptComponent.ScriptID, newEntity.GetUUID());
-			entity.m_Scene->m_ScriptStorage.CopyEntityStorage(entity.GetUUID(), newEntity.GetUUID(), newEntity.m_Scene->m_ScriptStorage);
-		}
+			ScriptEngine::DuplicateScriptInstance(entity, newEntity);
 
 		return newEntity;
 	}

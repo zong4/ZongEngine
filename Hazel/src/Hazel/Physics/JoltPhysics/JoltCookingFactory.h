@@ -15,9 +15,8 @@ namespace Hazel {
 	private:
 		static ECookingResult CookConvexMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<MeshSource>& meshSource, const std::vector<uint32_t>& submeshIndices, MeshColliderData& outData);
 		static ECookingResult CookTriangleMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<MeshSource>& meshSource, const std::vector<uint32_t>& submeshIndices, MeshColliderData& outData);
-#ifndef HZ_DIST
-		static void GenerateDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const bool isStaticMesh, const std::vector<uint32_t>& submeshIndices, const MeshColliderData& colliderData);
-#endif
+		static void GenerateDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const MeshColliderData& colliderData);
+
 	};
 
 }

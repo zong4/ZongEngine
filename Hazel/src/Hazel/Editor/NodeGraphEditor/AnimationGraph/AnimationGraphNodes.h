@@ -2,7 +2,7 @@
 #include "AnimationGraphAsset.h"
 #include "AnimationGraphEditorTypes.h"
 
-#include "Hazel/Animation/NodeDescriptor.h"
+#include "Hazel/Animation/Nodes/NodeDescriptors.h"
 #include "Hazel/Editor/NodeGraphEditor/Nodes.h"
 
 #include <choc/containers/choc_Value.h>
@@ -22,7 +22,7 @@ namespace Hazel::AnimationGraph {
 		// function template partial specialization which is not available in C++
 		template <typename>
 		struct CatchType {};
-
+	
 
 		template<typename TProcNode, typename TListDescr>
 		auto ConstructPinList() //! no constexpr
@@ -58,7 +58,7 @@ namespace Hazel::AnimationGraph {
 						return false;
 					}
 
-					pin->Name = Utils::SplitAtUpperCase(pinNameSanitized, " ", false);
+					pin->Name = Utils::SplitAtUpperCase(pinNameSanitized);
 
 					//? slight coupling: assuming all array input and output variables in NodeProcessors named this way
 					const bool isArray = isArrayC || Type::is_array_v<TMemberDecay> || std::is_array_v<TMemberDecay> || Utils::StartsWith(pinName, "in_Array") || Utils::StartsWith(pinName, "out_Array");
@@ -95,7 +95,7 @@ namespace Hazel::AnimationGraph {
 
 			using TDescriptor = NodeDescription<TProcNode>;
 
-			auto* newNode = new Types::Node(Hazel::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data(), " ", false), ImColor(255, 128, 128));
+			auto* newNode = new Types::Node(Hazel::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data()), ImColor(255, 128, 128));
 			newNode->Inputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Inputs>();
 			newNode->Outputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Outputs>();
 
@@ -127,14 +127,6 @@ namespace Hazel::AnimationGraph {
 
 
 	class TransitionGraphNodeFactory : public Nodes::Factory<TransitionGraphNodeFactory>
-	{
-	public:
-		using Types = Types;
-		[[nodiscard]] Node* SpawnNode(const std::string& category, const std::string& name) const override { return SpawnNodeStatic(category, name); }
-	};
-
-
-	class BlendSpaceNodeFactory : public Nodes::Factory<BlendSpaceNodeFactory>
 	{
 	public:
 		using Types = Types;

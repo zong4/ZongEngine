@@ -2,9 +2,7 @@
 
 #include "Hazel/Editor/EditorConsolePanel.h"
 
-#include <spdlog/sinks/base_sink.h>
-
-#include <format>
+#include "spdlog/sinks/base_sink.h"
 #include <mutex>
 
 namespace Hazel {
@@ -25,7 +23,7 @@ namespace Hazel {
 		{
 			spdlog::memory_buf_t formatted;
 			spdlog::sinks::base_sink<std::mutex>::formatter_->format(msg, formatted);
-			std::string longMessage = formatted;
+			std::string longMessage = fmt::to_string(formatted);
 			std::string shortMessage = longMessage;
 
 			if (shortMessage.length() > 100)

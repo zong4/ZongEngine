@@ -73,13 +73,6 @@ namespace Hazel::Utils {
 			return (end == std::string::npos) ? "" : trimmed.substr(0, end + 1);
 		}
 
-		std::string RemoveWhitespace(const std::string& str)
-		{
-			std::string result = str;
-			Erase(result, WHITESPACE);
-			return result;
-		}
-
 		std::string GetCurrentTimeString(bool includeDate, bool useDashes)
 		{
 			time_t currentTime = time(NULL);
@@ -225,11 +218,11 @@ namespace Hazel::Utils {
 
 		char buffer[32 + 1] {};
 
-		if (bytes >= GB)
+		if (bytes > GB)
 			snprintf(buffer, 32, "%.2f GB", (float)bytes / (float)GB);
-		else if (bytes >= MB)
+		else if (bytes > MB)
 			snprintf(buffer, 32, "%.2f MB", (float)bytes / (float)MB);
-		else if (bytes >= KB)
+		else if (bytes > KB)
 			snprintf(buffer, 32, "%.2f KB", (float)bytes / (float)KB);
 		else
 			snprintf(buffer, 32, "%.2f bytes", (float)bytes);

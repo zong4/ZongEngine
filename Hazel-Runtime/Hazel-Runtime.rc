@@ -52,7 +52,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-MAINICON                ICON                    "Hazel-IconLogo-2023.ico"
+MAINICON                ICON                    "SavingCaptainCino.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -78,10 +78,10 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "Studio Cherno"
-            VALUE "FileDescription", "Hazel Runtime"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileDescription", "Saving Captain Coffee - a game by Studio Cherno"
+            VALUE "FileVersion", "1.3.0.0"
             VALUE "LegalCopyright", "� Studio Cherno"
-            VALUE "ProductName", "Hazel Runtime"
+            VALUE "ProductName", "Saving Captain Coffee - a game by Studio Cherno"
             VALUE "ProductVersion", "1.3.0.0"
         END
     END

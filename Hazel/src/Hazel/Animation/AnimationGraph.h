@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Animation.h"
-#include "NodeProcessor.h"
+#include "AnimationNodeProcessor.h"
 #include "Skeleton.h"
+
+#include "AnimationNodeProcessor.h"
 
 #include "Hazel/Asset/Asset.h"
 
@@ -23,19 +25,12 @@ namespace Hazel::AnimationGraph {
 
 	struct IDs
 	{
-		static constexpr Identifier BlendSpace{ "Blend Space" };
-		static constexpr Identifier ConditionalBlend{ "Conditional Blend" };
 		static constexpr Identifier Event{ "Event" };
-		static constexpr Identifier LerpSecondsPerUnitX{ "LerpSecondsPerUnitX" };
-		static constexpr Identifier LerpSecondsPerUnitY{ "LerpSecondsPerUnitY" };
-		static constexpr Identifier OneShot{ "One Shot" };
 		static constexpr Identifier Pose{ "Pose" };
 		static constexpr Identifier QuickState{ "Quick State" };
 		static constexpr Identifier State{ "State" };
 		static constexpr Identifier StateMachine{ "State Machine" };
 		static constexpr Identifier Transition{ "Transition" };
-		static constexpr Identifier X{ "X" };
-		static constexpr Identifier Y{ "Y" };
 
 		IDs() = delete;
 	};
@@ -51,6 +46,8 @@ namespace Hazel::AnimationGraph {
 		std::vector<Scope<StreamWriter>> EndpointInputStreams;
 		NodeProcessor EndpointOutputStreams;
 		std::vector<Scope<StreamWriter>> LocalVariables;
+
+		OutputEvent out_Event;
 
 		NodeProcessor* FindNodeByID(UUID id);
 
@@ -93,34 +90,36 @@ namespace Hazel::AnimationGraph {
 		bool AddEventConnection(UUID sourceNodeID, Identifier sourceEndpointID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
 
 		// Graph Input Value -> Node Input Value
-		bool AddInputValueRoute(Ref<Graph> graph, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
+		bool AddInputValueRoute(const std::vector<Scope<StreamWriter>>& endpointInputStreams, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
 
 		// Graph Input Value -> Graph Output Value
-		bool AddInputValueRouteToGraphOutput(Ref<Graph> graph, Identifier graphInputID, Identifier graphOutValueID) noexcept;
+		bool AddInputValueRouteToGraphOutput(const std::vector<Scope<StreamWriter>>& endpointInputStreams, Identifier graphInputID, Identifier graphOutValueID) noexcept;
 
-		// Graph Input Value (trigger) -> Node Input Event
-		bool AddInputValueRouteToEvent(Ref<Graph> graph, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
+		// Graph Input Event -> Node Input Event
+//		bool AddInputEventsRoute(Identifier graphInputEventID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
 
 		// Node Output Value -> Graph Output Value
 		bool AddToGraphOutputConnection(UUID sourceNodeID, Identifier sourceEndpointID, Identifier graphOutValueID);
 
 		/** Node Output Event -> Graph Output Event */
-		bool AddToGraphOutEventConnection(UUID sourceNodeID, Identifier sourceEndpointID, Ref<Graph> graph, Identifier graphOutEventID, Identifier destinationEventID);
-
-		// Graph Input Value (trigger) -> Graph Output Event
-		bool AddInputValueRouteToGraphOutEventConnection(Ref<Graph> graph, Identifier graphInputID, Identifier graphOutEventID) noexcept;
+		bool AddToGraphOutEventConnection(UUID sourceNodeID, Identifier sourceEndpointID, Ref<Graph> root, Identifier graphOutEventID);
 
 		/** Graph Local Variable (StreamWriter) -> Node Input Value. Local Variable must not be of function type! */
 		bool AddLocalVariableRoute(Identifier graphLocalVariableID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept;
 
-		/** Graph Local Variable (StreamWriter) -> Graph Output Value. Local Variable must not be of function type! */
-		bool AddLocalVariableRouteToGraphOutput(Identifier graphLocalVariableID, Identifier destinationEndpointID) noexcept;
-
 	public:
 		//==============================================================================
 		/// (Animation)NodeProcessor Public API
-		void Init(const Skeleton*) override;
+		void Init() override;
 		float Process(float timestep) override;
+
+	public:
+		using HandleOutgoingEventFn = void(void* userContext, Identifier eventID);
+
+		//Flushes any outgoing events that are currently queued.
+		// This must be called periodically if the graph is generating events, otherwise
+		// the FIFO will overflow.
+		void HandleOutgoingEvents(void* userContext, HandleOutgoingEventFn* handleEvent);
 
 	private:
 		//==============================================================================
@@ -130,8 +129,9 @@ namespace Hazel::AnimationGraph {
 		void AddConnection(const choc::value::ValueView& source, choc::value::ValueView& destination) noexcept;
 
 		void AddRoute(InputEvent& source, InputEvent& destination) noexcept;
-		void AddRoute(InputEvent& source, OutputEvent& destination, Identifier eventID) noexcept;
 		void AddRoute(OutputEvent& source, OutputEvent& destination, Identifier eventID) noexcept;
+
+		choc::fifo::SingleReaderSingleWriterFIFO<Identifier> OutgoingEvents;
 	};
 
 
@@ -144,7 +144,7 @@ namespace Hazel::AnimationGraph {
 		AnimationGraph(std::string_view dbgName, UUID id, const Skeleton* skeleton);
 
 	public:
-		void Init();
+		void Init() final;
 		const Skeleton* GetSkeleton() const;
 
 		float GetAnimationDuration() const override;
@@ -153,19 +153,23 @@ namespace Hazel::AnimationGraph {
 
 		const Pose* GetPose() const;
 
-		using HandleOutgoingEventFn = void(void* userContext, Identifier eventID);
-
-		//Flushes any outgoing events that are currently queued.
-		// This must be called periodically if the graph is generating events, otherwise
-		// the FIFO will overflow.
-		void HandleOutgoingEvents(void* userContext, HandleOutgoingEventFn* handleEvent);
-
 	private:
 		const Skeleton* m_Skeleton = nullptr;
 		bool m_IsInitialized = false;
 
-		OutputEvent out_Event;
-		choc::fifo::SingleReaderSingleWriterFIFO<Identifier> OutgoingEvents;
+	};
+
+
+	// TransitionGraph is responsible for evaluating whether a state transition should occur
+	struct TransitionGraph : public Graph
+	{
+		TransitionGraph(std::string_view dbgName, UUID id);
+
+	public:
+		void Init() final;
+
+	private:
+
 	};
 
 } // namespace Hazel::AnimationGraph

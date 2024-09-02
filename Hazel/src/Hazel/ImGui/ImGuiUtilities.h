@@ -56,9 +56,6 @@ namespace Hazel::UI {
 		~ScopedID() { ImGui::PopID(); }
 	};
 
-	template<>
-	inline ScopedID::ScopedID(UUID id) { ImGui::PushID(reinterpret_cast<const void*>(static_cast<uint64_t>(id))); } // because otherwise it will call PushID(int) which is not what we want
-
 	class ScopedColourStack
 	{
 	public:
@@ -375,11 +372,11 @@ namespace Hazel::UI {
 	typedef int OutlineFlags;
 	enum OutlineFlags_
 	{
-		OutlineFlags_None            =      0,   // draw no activity outline
-		OutlineFlags_WhenHovered     = 1 << 1,   // draw an outline when item is hovered
-		OutlineFlags_WhenActive      = 1 << 2,   // draw an outline when item is active
-		OutlineFlags_WhenInactive    = 1 << 3,   // draw an outline when item is inactive
-		OutlineFlags_HighlightActive = 1 << 4,   // when active, the outline is in highlight colour
+		OutlineFlags_None = 0,               // draw no activity outline
+		OutlineFlags_WhenHovered = 1 << 1,          // draw an outline when item is hovered
+		OutlineFlags_WhenActive = 1 << 2,          // draw an outline when item is active
+		OutlineFlags_WhenInactive = 1 << 3,          // draw an outline when item is inactive
+		OutlineFlags_HighlightActive = 1 << 4,           // when active, the outline is in highlight colour
 		OutlineFlags_NoHighlightActive = OutlineFlags_WhenHovered | OutlineFlags_WhenActive | OutlineFlags_WhenInactive,
 		OutlineFlags_NoOutlineInactive = OutlineFlags_WhenHovered | OutlineFlags_WhenActive | OutlineFlags_HighlightActive,
 		OutlineFlags_All = OutlineFlags_WhenHovered | OutlineFlags_WhenActive | OutlineFlags_WhenInactive | OutlineFlags_HighlightActive,
@@ -476,79 +473,51 @@ namespace Hazel::UI {
 	//=========================================================================================
 	/// Button Image
 
-	void DrawButtonImage(Ref<Texture2D> imageNormal, Ref<Texture2D> imageHovered, Ref<Texture2D> imagePressed,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed, ImVec2 rectMin, ImVec2 rectMax,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f));
-
-	void DrawButtonImage(Ref<Image2D> imageNormal, Ref<Image2D> imageHovered, Ref<Image2D> imagePressed,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed, ImVec2 rectMin, ImVec2 rectMax,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f));
-
-	inline void DrawButtonImage(Ref<Texture2D> imageNormal, Ref<Texture2D> imageHovered, Ref<Texture2D> imagePressed,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed, ImRect rectangle,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
-	{
-		DrawButtonImage(imageNormal, imageHovered, imagePressed, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max, uv0, uv1);
-	};
-
-	inline void DrawButtonImage(Ref<Image2D> imageNormal, Ref<Image2D> imageHovered, Ref<Image2D> imagePressed,
+	inline void DrawButtonImage(const Ref<Texture2D>& imageNormal, const Ref<Texture2D>& imageHovered, const Ref<Texture2D>& imagePressed,
 		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImRect rectangle,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+		 ImVec2 rectMin, ImVec2 rectMax)
 	{
-		DrawButtonImage(imageNormal, imageHovered, imagePressed, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max, uv0, uv1);
+		auto* drawList = ImGui::GetWindowDrawList();
+		if (ImGui::IsItemActive())
+			drawList->AddImage(GetTextureID(imagePressed), rectMin, rectMax, ImVec2(0, 0), ImVec2(1, 1), tintPressed);
+		else if (ImGui::IsItemHovered())
+			drawList->AddImage(GetTextureID(imageHovered), rectMin, rectMax, ImVec2(0, 0), ImVec2(1, 1), tintHovered);
+		else
+			drawList->AddImage(GetTextureID(imageNormal), rectMin, rectMax, ImVec2(0, 0), ImVec2(1, 1), tintNormal);
 	};
 
-	inline void DrawButtonImage(Ref<Texture2D> image,
+	inline void DrawButtonImage(const Ref<Texture2D>& imageNormal, const Ref<Texture2D>& imageHovered, const Ref<Texture2D>& imagePressed,
 		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImVec2 rectMin, ImVec2 rectMax,
-			ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+		 ImRect rectangle)
 	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectMin, rectMax, uv0, uv1);
+		DrawButtonImage(imageNormal, imageHovered, imagePressed, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max);
 	};
 
-	inline void DrawButtonImage(Ref<Texture2D> image,
+	inline void DrawButtonImage(const Ref<Texture2D>& image,
 		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImRect rectangle,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+		 ImVec2 rectMin, ImVec2 rectMax)
 	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max, uv0, uv1);
+		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectMin, rectMax);
 	};
 
-	inline void DrawButtonImage(Ref<Image2D> image,
-	     ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-	     ImVec2 rectMin, ImVec2 rectMax,
-	     ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
-	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectMin, rectMax, uv0, uv1);
-	};
-
-	inline void DrawButtonImage(Ref<Image2D> image,
+	inline void DrawButtonImage(const Ref<Texture2D>& image,
 		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImRect rectangle,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+		 ImRect rectangle)
 	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max, uv0, uv1);
+		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, rectangle.Min, rectangle.Max);
 	};
 
-	inline void DrawButtonImage(Ref<Texture2D> imageNormal, Ref<Texture2D> imageHovered, Ref<Texture2D> imagePressed,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+
+	inline void DrawButtonImage(const Ref<Texture2D>& imageNormal, const Ref<Texture2D>& imageHovered, const Ref<Texture2D>& imagePressed,
+		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed)
 	{
-		DrawButtonImage(imageNormal, imageHovered, imagePressed, tintNormal, tintHovered, tintPressed, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), uv0, uv1);
+		DrawButtonImage(imageNormal, imageHovered, imagePressed, tintNormal, tintHovered, tintPressed, ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
 	};
 
-	inline void DrawButtonImage(Ref<Texture2D> image,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
+	inline void DrawButtonImage(const Ref<Texture2D>& image,
+		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed)
 	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), uv0, uv1);
-	};
-
-	inline void DrawButtonImage(Ref<Image2D> image, ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		ImVec2 uv0 = ImVec2(0.0f, 0.0f), ImVec2 uv1 = ImVec2(1.0f, 1.0f))
-	{
-		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), uv0, uv1);
+		DrawButtonImage(image, image, image, tintNormal, tintHovered, tintPressed, ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
 	};
 
 

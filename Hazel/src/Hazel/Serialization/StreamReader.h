@@ -109,17 +109,17 @@ namespace Hazel
 			}
 		}
 
+		template<>
+		void ReadArray(std::vector<std::string>& array, uint32_t size)
+		{
+			if (size == 0)
+				ReadRaw<uint32_t>(size);
+
+			array.resize(size);
+
+			for (uint32_t i = 0; i < size; i++)
+				ReadString(array[i]);
+		}
 	};
 
-	template<>
-	inline void StreamReader::ReadArray(std::vector<std::string>& array, uint32_t size)
-	{
-		if (size == 0)
-			ReadRaw<uint32_t>(size);
-
-		array.resize(size);
-
-		for (uint32_t i = 0; i < size; i++)
-			ReadString(array[i]);
-	}
 } // namespace Hazel

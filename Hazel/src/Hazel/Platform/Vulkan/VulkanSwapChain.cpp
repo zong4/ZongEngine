@@ -5,8 +5,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include <format>
-
 // Macro to get a procedure address based on a vulkan instance
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                        \
 {                                                                       \
@@ -312,7 +310,7 @@ namespace Hazel {
 			m_Images[i].Image = m_VulkanImages[i];
 
 			VK_CHECK_RESULT(vkCreateImageView(device, &colorAttachmentView, nullptr, &m_Images[i].ImageView));
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("Swapchain ImageView: {}", i), m_Images[i].ImageView);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("Swapchain ImageView: {}", i), m_Images[i].ImageView);
 		}
 
 		// Create command buffers
@@ -343,30 +341,23 @@ namespace Hazel {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Synchronization Objects
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		auto framesInFlight = Renderer::GetConfig().FramesInFlight;
-		if (m_ImageAvailableSemaphores.size() != framesInFlight)
+		if (!m_Semaphores.RenderComplete || !m_Semaphores.PresentComplete)
 		{
-			m_ImageAvailableSemaphores.resize(framesInFlight);
-			m_RenderFinishedSemaphores.resize(framesInFlight);
 			VkSemaphoreCreateInfo semaphoreCreateInfo{};
 			semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-			for (size_t i = 0; i < framesInFlight; i++)
-			{
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &m_ImageAvailableSemaphores[i]));
-				VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SEMAPHORE, std::format("Swapchain Semaphore ImageAvailable {0}", i), m_ImageAvailableSemaphores[i]);
-				VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &m_RenderFinishedSemaphores[i]));
-				VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SEMAPHORE, std::format("Swapchain Semaphore RenderFinished {0}", i), m_RenderFinishedSemaphores[i]);
-			}
+			VK_CHECK_RESULT(vkCreateSemaphore(m_Device->GetVulkanDevice(), &semaphoreCreateInfo, nullptr, &m_Semaphores.RenderComplete));
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SEMAPHORE, "Swapchain Semaphore RenderComplete", m_Semaphores.RenderComplete);
+			VK_CHECK_RESULT(vkCreateSemaphore(m_Device->GetVulkanDevice(), &semaphoreCreateInfo, nullptr, &m_Semaphores.PresentComplete));
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SEMAPHORE, "Swapchain Semaphore PresentComplete", m_Semaphores.PresentComplete);
 		}
 
-		if (m_WaitFences.size() != framesInFlight)
+		if (m_WaitFences.size() != m_ImageCount)
 		{
 			VkFenceCreateInfo fenceCreateInfo{};
 			fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 			fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-			m_WaitFences.resize(framesInFlight);
+			m_WaitFences.resize(m_ImageCount);
 			for (auto& fence : m_WaitFences)
 			{
 				VK_CHECK_RESULT(vkCreateFence(m_Device->GetVulkanDevice(), &fenceCreateInfo, nullptr, &fence));
@@ -375,6 +366,15 @@ namespace Hazel {
 		}
 
 		VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+		m_SubmitInfo = {};
+		m_SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		m_SubmitInfo.pWaitDstStageMask = &pipelineStageFlags;
+		m_SubmitInfo.waitSemaphoreCount = 1;
+		m_SubmitInfo.pWaitSemaphores = &m_Semaphores.PresentComplete;
+		m_SubmitInfo.signalSemaphoreCount = 1;
+		m_SubmitInfo.pSignalSemaphores = &m_Semaphores.RenderComplete;
+
 
 		VkFormat depthFormat = m_Device->GetPhysicalDevice()->GetDepthFormat();
 
@@ -446,7 +446,7 @@ namespace Hazel {
 			{
 				frameBufferCreateInfo.pAttachments = &m_Images[i].ImageView;
 				VK_CHECK_RESULT(vkCreateFramebuffer(m_Device->GetVulkanDevice(), &frameBufferCreateInfo, nullptr, &m_Framebuffers[i]));
-				VKUtils::SetDebugUtilsObjectName(m_Device->GetVulkanDevice(), VK_OBJECT_TYPE_FRAMEBUFFER, std::format("Swapchain framebuffer (Frame in flight: {})", i), m_Framebuffers[i]);
+				VKUtils::SetDebugUtilsObjectName(m_Device->GetVulkanDevice(), VK_OBJECT_TYPE_FRAMEBUFFER, fmt::format("Swapchain framebuffer (Frame in flight: {})", i), m_Framebuffers[i]);
 			}
 		}
 	}
@@ -463,30 +463,24 @@ namespace Hazel {
 
 		for (auto& image : m_Images)
 			vkDestroyImageView(device, image.ImageView, nullptr);
-		m_Images.clear();
 
 		for (auto& commandBuffer : m_CommandBuffers)
 			vkDestroyCommandPool(device, commandBuffer.CommandPool, nullptr);
-		m_CommandBuffers.clear();
 
 		if (m_RenderPass)
 			vkDestroyRenderPass(device, m_RenderPass, nullptr);
 
 		for (auto framebuffer : m_Framebuffers)
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
-		m_Framebuffers.clear();
 
-		for(auto& semaphore : m_ImageAvailableSemaphores)
-			vkDestroySemaphore(device, semaphore, nullptr);
-		m_ImageAvailableSemaphores.clear();
+		if (m_Semaphores.RenderComplete)
+			vkDestroySemaphore(device, m_Semaphores.RenderComplete, nullptr);
 
-		for (auto& semaphore : m_RenderFinishedSemaphores)
-			vkDestroySemaphore(device, semaphore, nullptr);
-		m_RenderFinishedSemaphores.clear();
+		if (m_Semaphores.PresentComplete)
+			vkDestroySemaphore(device, m_Semaphores.PresentComplete, nullptr);
 
 		for (auto& fence : m_WaitFences)
 			vkDestroyFence(device, fence, nullptr);
-		m_WaitFences.clear();
 
 		vkDeviceWaitIdle(device);
 	}
@@ -506,12 +500,12 @@ namespace Hazel {
 		HZ_SCOPE_PERF("VulkanSwapChain::BeginFrame");
 
 		// Resource release queue
-		auto& queue = Renderer::GetRenderResourceReleaseQueue(m_CurrentFrameIndex);
+		auto& queue = Renderer::GetRenderResourceReleaseQueue(m_CurrentBufferIndex);
 		queue.Execute();
 
 		m_CurrentImageIndex = AcquireNextImage();
 
-		VK_CHECK_RESULT(vkResetCommandPool(m_Device->GetVulkanDevice(), m_CommandBuffers[m_CurrentFrameIndex].CommandPool, 0));
+		VK_CHECK_RESULT(vkResetCommandPool(m_Device->GetVulkanDevice(), m_CommandBuffers[m_CurrentBufferIndex].CommandPool, 0));
 	}
 
 	void VulkanSwapChain::Present()
@@ -526,17 +520,15 @@ namespace Hazel {
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.pWaitDstStageMask = &waitStageMask;
-		submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrameIndex];
+		submitInfo.pWaitSemaphores = &m_Semaphores.PresentComplete;
 		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
+		submitInfo.pSignalSemaphores = &m_Semaphores.RenderComplete;
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrameIndex].CommandBuffer;
+		submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentBufferIndex].CommandBuffer;
 		submitInfo.commandBufferCount = 1;
 
-		VK_CHECK_RESULT(vkResetFences(m_Device->GetVulkanDevice(), 1, &m_WaitFences[m_CurrentFrameIndex]));
-
-		m_Device->LockQueue();
-		VK_CHECK_RESULT(vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, m_WaitFences[m_CurrentFrameIndex]));
+		VK_CHECK_RESULT(vkResetFences(m_Device->GetVulkanDevice(), 1, &m_WaitFences[m_CurrentBufferIndex]));
+		VK_CHECK_RESULT(vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, m_WaitFences[m_CurrentBufferIndex]));
 
 		// Present the current buffer to the swap chain
 		// Pass the semaphore signaled by the command buffer submission from the submit info as the wait semaphore for swap chain presentation
@@ -552,12 +544,10 @@ namespace Hazel {
 			presentInfo.pSwapchains = &m_SwapChain;
 			presentInfo.pImageIndices = &m_CurrentImageIndex;
 
-			presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
+			presentInfo.pWaitSemaphores = &m_Semaphores.RenderComplete;
 			presentInfo.waitSemaphoreCount = 1;
 			result = fpQueuePresentKHR(m_Device->GetGraphicsQueue(), &presentInfo);
 		}
-
-		m_Device->UnlockQueue();
 
 		if (result != VK_SUCCESS)
 		{
@@ -570,30 +560,32 @@ namespace Hazel {
 				VK_CHECK_RESULT(result);
 			}
 		}
-	}
 
+		{
+			HZ_PROFILE_SCOPE("VulkanSwapChain::Present - WaitForFences");
+
+			auto& performanceTimers = Application::Get().GetPerformanceTimers();
+			Timer gpuWaitTimer;
+
+			const auto& config = Renderer::GetConfig();
+			m_CurrentBufferIndex = (m_CurrentBufferIndex + 1) % config.FramesInFlight;
+			// Make sure the frame we're requesting has finished rendering
+			VK_CHECK_RESULT(vkWaitForFences(m_Device->GetVulkanDevice(), 1, &m_WaitFences[m_CurrentBufferIndex], VK_TRUE, UINT64_MAX));
+
+			performanceTimers.RenderThreadGPUWaitTime = gpuWaitTimer.ElapsedMillis();
+		}
+	}
 
 	uint32_t VulkanSwapChain::AcquireNextImage()
 	{
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % Renderer::GetConfig().FramesInFlight;
-
-		// Make sure the frame we're requesting has finished rendering (from previous iterations)
-		{
-			HZ_PROFILE_SCOPE("VulkanSwapChain::AcquireNextImage - WaitForFences");
-			auto& performanceTimers = Application::Get().GetPerformanceTimers();
-			Timer gpuWaitTimer;
-			VK_CHECK_RESULT(vkWaitForFences(m_Device->GetVulkanDevice(), 1, &m_WaitFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX));
-			performanceTimers.RenderThreadGPUWaitTime = gpuWaitTimer.ElapsedMillis();
-		}
-
 		uint32_t imageIndex;
-		VkResult result = fpAcquireNextImageKHR(m_Device->GetVulkanDevice(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrameIndex], (VkFence)nullptr, &imageIndex);
+		VkResult result = fpAcquireNextImageKHR(m_Device->GetVulkanDevice(), m_SwapChain, UINT64_MAX, m_Semaphores.PresentComplete, (VkFence)nullptr, &imageIndex);
 		if (result != VK_SUCCESS)
 		{
 			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 			{
 				OnResize(m_Width, m_Height);
-				VK_CHECK_RESULT(fpAcquireNextImageKHR(m_Device->GetVulkanDevice(), m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrameIndex], (VkFence)nullptr, &imageIndex));
+				VK_CHECK_RESULT(fpAcquireNextImageKHR(m_Device->GetVulkanDevice(), m_SwapChain, UINT64_MAX, m_Semaphores.PresentComplete, (VkFence)nullptr, &imageIndex));
 			}
 		}
 

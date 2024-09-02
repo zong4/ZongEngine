@@ -2,21 +2,20 @@
 
 #include "Hazel/Animation/AnimationGraph.h"
 #include "Hazel/Asset/Asset.h"
-#include "Hazel/Asset/MeshColliderAsset.h"
 #include "Hazel/Core/UUID.h"
 #include "Hazel/Math/Math.h"
-#include "Hazel/Physics/PhysicsTypes.h"
 #include "Hazel/Renderer/MaterialAsset.h"
 #include "Hazel/Renderer/Mesh.h"
 #include "Hazel/Renderer/SceneEnvironment.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Scene/SceneCamera.h"
-#include "Hazel/Script/CSharpObject.h"
+#include "Hazel/Script/GCManager.h" // Needed for ScriptComponent::GCHandle
+#include "Hazel/Physics/PhysicsTypes.h"
+#include "Hazel/Asset/MeshColliderAsset.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include <limits>
@@ -135,56 +134,20 @@ namespace Hazel {
 
 		void SetRotation(const glm::quat& quat)
 		{
-			// wrap given euler angles to range [-pi, pi]
-			auto wrapToPi = [](glm::vec3 v)
-			{
-				return glm::mod(v + glm::pi<float>(), 2.0f * glm::pi<float>()) - glm::pi<float>();
-			};
-
 			auto originalEuler = RotationEuler;
 			Rotation = quat;
 			RotationEuler = glm::eulerAngles(Rotation);
 
-			// A given quat can be represented by many Euler angles (technically infinitely many),
-			// and glm::eulerAngles() can only give us one of them which may or may not be the one we want.
-			// Here we have a look at some likely alternatives and pick the one that is closest to the original Euler angles.
-			// This is an attempt to avoid sudden 180deg flips in the Euler angles when we SetRotation(quat).
-
-			glm::vec3 alternate1 = { RotationEuler.x - glm::pi<float>(), glm::pi<float>() - RotationEuler.y, RotationEuler.z - glm::pi<float>() };
-			glm::vec3 alternate2 = { RotationEuler.x + glm::pi<float>(), glm::pi<float>() - RotationEuler.y, RotationEuler.z - glm::pi<float>() };
-			glm::vec3 alternate3 = { RotationEuler.x + glm::pi<float>(), glm::pi<float>() - RotationEuler.y, RotationEuler.z + glm::pi<float>() };
-			glm::vec3 alternate4 = { RotationEuler.x - glm::pi<float>(), glm::pi<float>() - RotationEuler.y, RotationEuler.z + glm::pi<float>() };
-
-			// We pick the alternative that is closest to the original value.
-			float distance0 = glm::length2(wrapToPi(RotationEuler - originalEuler));
-			float distance1 = glm::length2(wrapToPi(alternate1 - originalEuler));
-			float distance2 = glm::length2(wrapToPi(alternate2 - originalEuler));
-			float distance3 = glm::length2(wrapToPi(alternate3 - originalEuler));
-			float distance4 = glm::length2(wrapToPi(alternate4 - originalEuler));
-
-			float best = distance0;
-			if (distance1 < best)
+			// Attempt to avoid 180deg flips in the Euler angles when we SetRotation(quat)
+			if (
+				(fabs(RotationEuler.x - originalEuler.x) == glm::pi<float>()) &&
+				(fabs(RotationEuler.z - originalEuler.z) == glm::pi<float>())
+			)
 			{
-				best = distance1;
-				RotationEuler = alternate1;
+				RotationEuler.x = originalEuler.x;
+				RotationEuler.y = glm::pi<float>() - RotationEuler.y;
+				RotationEuler.z = originalEuler.z;
 			}
-			if (distance2 < best)
-			{
-				best = distance2;
-				RotationEuler = alternate2;
-			}
-			if (distance3 < best)
-			{
-				best = distance3;
-				RotationEuler = alternate3;
-			}
-			if (distance4 < best)
-			{
-				best = distance4;
-				RotationEuler = alternate4;
-			}
-
-			RotationEuler = wrapToPi(RotationEuler);
 		}
 
 		friend class SceneSerializer;
@@ -193,26 +156,16 @@ namespace Hazel {
 	struct MeshComponent
 	{
 		AssetHandle Mesh;
-	};
-
-	struct MeshTagComponent
-	{
-		UUID MeshEntity;
-	};
-
-	struct SubmeshComponent
-	{
-		AssetHandle Mesh;
-		Ref<Hazel::MaterialTable> MaterialTable = Ref<Hazel::MaterialTable>::Create();
-		std::vector<UUID> BoneEntityIds; // TODO: (0x) BoneEntityIds should be a separate component (not all meshes need this).  If mesh is rigged, these are the entities whose transforms will used to "skin" the rig.
 		uint32_t SubmeshIndex = 0;
+		Ref<Hazel::MaterialTable> MaterialTable = Ref<Hazel::MaterialTable>::Create();
+		std::vector<UUID> BoneEntityIds; // If mesh is rigged, these are the entities whose transforms will used to "skin" the rig.
 		bool Visible = true;
 
-		SubmeshComponent() = default;
-		SubmeshComponent(const SubmeshComponent& other)
-			: Mesh(other.Mesh), MaterialTable(Ref<Hazel::MaterialTable>::Create(other.MaterialTable)), BoneEntityIds(other.BoneEntityIds), SubmeshIndex(other.SubmeshIndex), Visible(other.Visible)
+		MeshComponent() = default;
+		MeshComponent(const MeshComponent& other)
+			: Mesh(other.Mesh), SubmeshIndex(other.SubmeshIndex), MaterialTable(Ref<Hazel::MaterialTable>::Create(other.MaterialTable)), BoneEntityIds(other.BoneEntityIds)
 		{}
-		SubmeshComponent(AssetHandle mesh, uint32_t submeshIndex = 0)
+		MeshComponent(AssetHandle mesh, uint32_t submeshIndex = 0)
 			: Mesh(mesh), SubmeshIndex(submeshIndex)
 		{}
 	};
@@ -245,12 +198,17 @@ namespace Hazel {
 
 	struct ScriptComponent
 	{
-		UUID ScriptID = 0;
-		CSharpObject Instance;
+		AssetHandle ScriptClassHandle = 0;
+		GCHandle ManagedInstance = nullptr;
 		std::vector<uint32_t> FieldIDs;
 
-		// NOTE(Peter): Gets set to true when OnCreate has been called for this entity
+		// NOTE(Peter): Get's set to true when OnCreate has been called for this entity
 		bool IsRuntimeInitialized = false;
+
+		ScriptComponent() = default;
+		ScriptComponent(const ScriptComponent& other) = default;
+		ScriptComponent(AssetHandle scriptClassHandle)
+			: ScriptClassHandle(scriptClassHandle) {}
 	};
 
 	struct CameraComponent
@@ -275,7 +233,6 @@ namespace Hazel {
 		float TilingFactor = 1.0f;
 		glm::vec2 UVStart{ 0.0f, 0.0f };
 		glm::vec2 UVEnd{ 1.0f, 1.0f };
-		bool ScreenSpace = false;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent& other) = default;
@@ -284,7 +241,7 @@ namespace Hazel {
 	struct TextComponent
 	{
 		std::string TextString = "";
-		size_t TextHash = 0;
+		size_t TextHash;
 
 		// Font
 		AssetHandle FontHandle;
@@ -384,8 +341,20 @@ namespace Hazel {
 		float StepOffset;
 		uint32_t LayerID = 0;
 		bool DisableGravity = false;
-		bool ControlMovementInAir = false;
-		bool ControlRotationInAir = false;
+	};
+
+	// Fixed Joints restricts an object's movement to be dependent upon another object.
+	// This is somewhat similar to Parenting but is implemented through physics rather than Transform hierarchy
+	struct FixedJointComponent
+	{
+		UUID ConnectedEntity;
+
+		bool IsBreakable = true;
+		float BreakForce = 100.0f;
+		float BreakTorque = 10.0f;
+
+		bool EnableCollision = false;
+		bool EnablePreProcessing = true;
 	};
 
 	struct CompoundColliderComponent

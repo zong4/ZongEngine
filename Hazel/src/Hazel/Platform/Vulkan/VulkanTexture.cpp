@@ -1,14 +1,13 @@
 #include "hzpch.h"
 #include "VulkanTexture.h"
 
-#include "VulkanAPI.h"
 #include "VulkanContext.h"
+
 #include "VulkanImage.h"
 #include "VulkanRenderer.h"
+#include "VulkanAPI.h"
 
 #include "Hazel/Asset/TextureImporter.h"
-
-#include <format>
 
 namespace Hazel {
 
@@ -48,7 +47,6 @@ namespace Hazel {
 				case ImageFormat::RED8UN: return width * height;
 				case ImageFormat::RED8UI: return width * height;
 				case ImageFormat::RGBA: return width * height * 4;
-				case ImageFormat::SRGBA: return width * height * 4;
 				case ImageFormat::RGBA32F: return width * height * 4 * sizeof(float);
 				case ImageFormat::B10R11G11UF: return width * height * sizeof(float);
 			}
@@ -73,60 +71,14 @@ namespace Hazel {
 	//////////////////////////////////////////////////////////////////////////////////
 
 	VulkanTexture2D::VulkanTexture2D(const TextureSpecification& specification, const std::filesystem::path& filepath)
-		: m_Specification(specification), m_Path(filepath)
+		: m_Path(filepath), m_Specification(specification)
 	{ 
-		CreateFromFile(specification, filepath);
-	}
-
-	VulkanTexture2D::VulkanTexture2D(const TextureSpecification& specification, Buffer data)
-		: m_Specification(specification)
-	{
-		CreateFromBuffer(specification, data);
-	}
-
-	VulkanTexture2D::~VulkanTexture2D()
-	{
-	//	if (m_Image)
-	//		m_Image->Release();
-
-		m_ImageData.Release();
-	}
-
-	void VulkanTexture2D::CreateFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath)
-	{
 		Utils::ValidateSpecification(specification);
 
 		m_ImageData = TextureImporter::ToBufferFromFile(filepath, m_Specification.Format, m_Specification.Width, m_Specification.Height);
 		if (!m_ImageData)
 		{
 			// TODO(Yan): move this to asset manager
-			HZ_CORE_ERROR("Failed to load texture from file: {}", filepath);
-			m_ImageData = TextureImporter::ToBufferFromFile("Resources/Textures/ErrorTexture.png", m_Specification.Format, m_Specification.Width, m_Specification.Height);
-		}
-
-		ImageSpecification imageSpec;
-		imageSpec.Format = m_Specification.Format;
-		imageSpec.Width = m_Specification.Width;
-		imageSpec.Height = m_Specification.Height;
-		imageSpec.Mips = specification.GenerateMips ? GetMipLevelCount() : 1;
-		imageSpec.DebugName = specification.DebugName;
-		imageSpec.CreateSampler = false;
-		m_Image = Image2D::Create(imageSpec);
-
-		HZ_CORE_ASSERT(m_Specification.Format != ImageFormat::None);
-
-		Invalidate();
-	}
-
-	void VulkanTexture2D::ReplaceFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath)
-	{
-		Utils::ValidateSpecification(specification);
-
-		m_ImageData = TextureImporter::ToBufferFromFile(filepath, m_Specification.Format, m_Specification.Width, m_Specification.Height);
-		if (!m_ImageData)
-		{
-			// TODO(Yan): move this to asset manager
-			HZ_CORE_ERROR("Failed to load texture from file: {}", filepath);
 			m_ImageData = TextureImporter::ToBufferFromFile("Resources/Textures/ErrorTexture.png", m_Specification.Format, m_Specification.Width, m_Specification.Height);
 		}
 
@@ -148,7 +100,8 @@ namespace Hazel {
 		});
 	}
 
-	void VulkanTexture2D::CreateFromBuffer(const TextureSpecification& specification, Buffer data)
+	VulkanTexture2D::VulkanTexture2D(const TextureSpecification& specification, Buffer data)
+		: m_Specification(specification)
 	{
 		if (m_Specification.Height == 0)
 		{
@@ -186,15 +139,19 @@ namespace Hazel {
 			imageSpec.Usage = ImageUsage::Storage;
 		m_Image = Image2D::Create(imageSpec);
 
-#if INVESTIGATE
 		Ref<VulkanTexture2D> instance = this;
 		Renderer::Submit([instance]() mutable
 		{
 			instance->Invalidate();
 		});
-#endif
+	}
 
-		Invalidate();
+	VulkanTexture2D::~VulkanTexture2D()
+	{
+		if (m_Image)
+			m_Image->Release();
+
+		m_ImageData.Release();
 	}
 
 	void VulkanTexture2D::Resize(const glm::uvec2& size)
@@ -241,7 +198,127 @@ namespace Hazel {
 
 		if (m_ImageData)
 		{
-			SetData(m_ImageData);
+			VkDeviceSize size = m_ImageData.Size;
+
+			VkMemoryAllocateInfo memAllocInfo {};
+			memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+
+			VulkanAllocator allocator("Texture2D");
+
+			// Create staging buffer
+			VkBufferCreateInfo bufferCreateInfo {};
+			bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+			bufferCreateInfo.size = size;
+			bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			VkBuffer stagingBuffer;
+			VmaAllocation stagingBufferAllocation = allocator.AllocateBuffer(bufferCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU, stagingBuffer);
+
+			// Copy data to staging buffer
+			uint8_t* destData = allocator.MapMemory<uint8_t>(stagingBufferAllocation);
+			HZ_CORE_ASSERT(m_ImageData.Data);
+			memcpy(destData, m_ImageData.Data, size);
+			allocator.UnmapMemory(stagingBufferAllocation);
+
+			VkCommandBuffer copyCmd = device->GetCommandBuffer(true);
+
+			// Image memory barriers for the texture image
+
+			// The sub resource range describes the regions of the image that will be transitioned using the memory barriers below
+			VkImageSubresourceRange subresourceRange = {};
+			// Image only contains color data
+			subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			// Start at first mip level
+			subresourceRange.baseMipLevel = 0;
+			subresourceRange.levelCount = 1;
+			subresourceRange.layerCount = 1;
+
+			// Transition the texture image layout to transfer target, so we can safely copy our buffer data to it.
+			VkImageMemoryBarrier imageMemoryBarrier {};
+			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			imageMemoryBarrier.image = info.Image;
+			imageMemoryBarrier.subresourceRange = subresourceRange;
+			imageMemoryBarrier.srcAccessMask = 0;
+			imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+			// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
+			// Source pipeline stage is host write/read exection (VK_PIPELINE_STAGE_HOST_BIT)
+			// Destination pipeline stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
+			vkCmdPipelineBarrier(
+				copyCmd,
+				VK_PIPELINE_STAGE_HOST_BIT,
+				VK_PIPELINE_STAGE_TRANSFER_BIT,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &imageMemoryBarrier);
+
+			VkBufferImageCopy bufferCopyRegion = {};
+			bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			bufferCopyRegion.imageSubresource.mipLevel = 0;
+			bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
+			bufferCopyRegion.imageSubresource.layerCount = 1;
+			bufferCopyRegion.imageExtent.width = m_Specification.Width;
+			bufferCopyRegion.imageExtent.height = m_Specification.Height;
+			bufferCopyRegion.imageExtent.depth = 1;
+			bufferCopyRegion.bufferOffset = 0;
+
+			// Copy mip levels from staging buffer
+			vkCmdCopyBufferToImage(
+				copyCmd,
+				stagingBuffer,
+				info.Image,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				1,
+				&bufferCopyRegion);
+
+			#if 0
+			// Once the data has been uploaded we transfer to the texture image to the shader read layout, so it can be sampled from
+			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
+			// Source pipeline stage stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
+			// Destination pipeline stage fragment shader access (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
+			vkCmdPipelineBarrier(
+				copyCmd,
+				VK_PIPELINE_STAGE_TRANSFER_BIT,
+				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &imageMemoryBarrier);
+
+			#endif
+
+			if (mipCount > 1) // Mips to generate
+			{
+				Utils::InsertImageMemoryBarrier(copyCmd, info.Image,
+					VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT,
+					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+					subresourceRange);
+			}
+			else
+			{
+				Utils::InsertImageMemoryBarrier(copyCmd, info.Image,
+					VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
+					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->GetDescriptorInfoVulkan().imageLayout,
+					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					subresourceRange);
+			}
+			
+
+			device->FlushCommandBuffer(copyCmd);
+
+			// Clean up staging resources
+			allocator.DestroyBuffer(stagingBuffer, stagingBufferAllocation);
 		}
 		else
 		{
@@ -310,149 +387,17 @@ namespace Hazel {
 			view.image = info.Image;
 			VK_CHECK_RESULT(vkCreateImageView(vulkanDevice, &view, nullptr, &info.ImageView));
 
-			VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("Texture view: {}", m_Specification.DebugName), info.ImageView);
+			VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("Texture view: {}", m_Specification.DebugName), info.ImageView);
 
 			image->UpdateDescriptor();
 		}
 
-		//if (m_ImageData && m_Specification.GenerateMips && mipCount > 1)
-		//	GenerateMips();
+		if (m_ImageData && m_Specification.GenerateMips && mipCount > 1)
+			GenerateMips();
 
 		// TODO(Yan): option for local storage
 		m_ImageData.Release();
 		m_ImageData = Buffer();
-	}
-
-	void VulkanTexture2D::SetData(Buffer buffer)
-	{
-		auto device = VulkanContext::GetCurrentDevice();
-		Ref<VulkanImage2D> image = m_Image.As<VulkanImage2D>();
-		auto& info = image->GetImageInfo();
-
-		VkDeviceSize size = m_ImageData.Size;
-
-		VkMemoryAllocateInfo memAllocInfo{};
-		memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-
-		VulkanAllocator allocator("Texture2D");
-
-		// Create staging buffer
-		VkBufferCreateInfo bufferCreateInfo{};
-		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferCreateInfo.size = size;
-		bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		VkBuffer stagingBuffer;
-		VmaAllocation stagingBufferAllocation = allocator.AllocateBuffer(bufferCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU, stagingBuffer);
-
-		// Copy data to staging buffer
-		uint8_t* destData = allocator.MapMemory<uint8_t>(stagingBufferAllocation);
-		HZ_CORE_ASSERT(m_ImageData.Data);
-		memcpy(destData, m_ImageData.Data, size);
-		allocator.UnmapMemory(stagingBufferAllocation);
-
-		VkCommandBuffer copyCmd = device->GetCommandBuffer(true);
-
-		// Image memory barriers for the texture image
-
-		// The sub resource range describes the regions of the image that will be transitioned using the memory barriers below
-		VkImageSubresourceRange subresourceRange = {};
-		// Image only contains color data
-		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		// Start at first mip level
-		subresourceRange.baseMipLevel = 0;
-		subresourceRange.levelCount = 1;
-		subresourceRange.layerCount = 1;
-
-		// Transition the texture image layout to transfer target, so we can safely copy our buffer data to it.
-		VkImageMemoryBarrier imageMemoryBarrier{};
-		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.image = info.Image;
-		imageMemoryBarrier.subresourceRange = subresourceRange;
-		imageMemoryBarrier.srcAccessMask = 0;
-		imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-		// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
-		// Source pipeline stage is host write/read execution (VK_PIPELINE_STAGE_HOST_BIT)
-		// Destination pipeline stage is copy command execution (VK_PIPELINE_STAGE_TRANSFER_BIT)
-		vkCmdPipelineBarrier(
-			copyCmd,
-			VK_PIPELINE_STAGE_HOST_BIT,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &imageMemoryBarrier);
-
-		VkBufferImageCopy bufferCopyRegion = {};
-		bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		bufferCopyRegion.imageSubresource.mipLevel = 0;
-		bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
-		bufferCopyRegion.imageSubresource.layerCount = 1;
-		bufferCopyRegion.imageExtent.width = m_Specification.Width;
-		bufferCopyRegion.imageExtent.height = m_Specification.Height;
-		bufferCopyRegion.imageExtent.depth = 1;
-		bufferCopyRegion.bufferOffset = 0;
-
-		// Copy mip levels from staging buffer
-		vkCmdCopyBufferToImage(
-			copyCmd,
-			stagingBuffer,
-			info.Image,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1,
-			&bufferCopyRegion);
-
-#if 0
-		// Once the data has been uploaded we transfer to the texture image to the shader read layout, so it can be sampled from
-		imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-		// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
-		// Source pipeline stage stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
-		// Destination pipeline stage fragment shader access (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
-		vkCmdPipelineBarrier(
-			copyCmd,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &imageMemoryBarrier);
-
-#endif
-		uint32_t mipCount = m_Specification.GenerateMips ? GetMipLevelCount() : 1;
-		if (mipCount > 1) // Mips to generate
-		{
-			Utils::InsertImageMemoryBarrier(copyCmd, info.Image,
-				VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-				subresourceRange);
-		}
-		else
-		{
-			Utils::InsertImageMemoryBarrier(copyCmd, info.Image,
-				VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->GetDescriptorInfoVulkan().imageLayout,
-				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-				subresourceRange);
-		}
-
-
-		device->FlushCommandBuffer(copyCmd);
-
-		// Clean up staging resources
-		allocator.DestroyBuffer(stagingBuffer, stagingBufferAllocation);
-
-		if (m_Specification.GenerateMips && mipCount > 1)
-			GenerateMips();
 	}
 
 	void VulkanTexture2D::Bind(uint32_t slot) const
@@ -461,16 +406,10 @@ namespace Hazel {
 
 	void VulkanTexture2D::Lock()
 	{
-		if (!m_ImageData)
-		{
-			auto size = (uint32_t)Utils::GetMemorySize(m_Specification.Format, m_Specification.Width, m_Specification.Height);
-			m_ImageData.Allocate(size);
-		}
 	}
 
 	void VulkanTexture2D::Unlock()
 	{
-		SetData(m_ImageData);
 	}
 
 	Buffer VulkanTexture2D::GetWriteableBuffer()
@@ -686,8 +625,6 @@ namespace Hazel {
 	// TextureCube
 	//////////////////////////////////////////////////////////////////////////////////
 
-	static std::map<VkImage, WeakRef<VulkanTextureCube>> s_TextureCubeReferences;
-
 	VulkanTextureCube::VulkanTextureCube(const TextureSpecification& specification, Buffer data)
 		: m_Specification(specification)
 	{
@@ -719,7 +656,6 @@ namespace Hazel {
 
 			VulkanAllocator allocator("TextureCube");
 			allocator.DestroyImage(image, allocation);
-			s_TextureCubeReferences.erase(image);
 		});
 		m_Image = nullptr;
 		m_MemoryAlloc = nullptr;
@@ -761,8 +697,6 @@ namespace Hazel {
 		imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
 		imageCreateInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 		m_MemoryAlloc = allocator.AllocateImage(imageCreateInfo, VMA_MEMORY_USAGE_GPU_ONLY, m_Image, &m_GPUAllocationSize);
-		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE, m_Specification.DebugName, m_Image);
-		s_TextureCubeReferences[m_Image] = this;
 
 		m_DescriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
@@ -809,8 +743,8 @@ namespace Hazel {
 			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
 			// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
-			// Source pipeline stage is host write/read execution (VK_PIPELINE_STAGE_HOST_BIT)
-			// Destination pipeline stage is copy command execution (VK_PIPELINE_STAGE_TRANSFER_BIT)
+			// Source pipeline stage is host write/read exection (VK_PIPELINE_STAGE_HOST_BIT)
+			// Destination pipeline stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
 			vkCmdPipelineBarrier(
 				copyCmd,
 				VK_PIPELINE_STAGE_HOST_BIT,
@@ -911,7 +845,7 @@ namespace Hazel {
 		view.image = m_Image;
 		VK_CHECK_RESULT(vkCreateImageView(vulkanDevice, &view, nullptr, &m_DescriptorImageInfo.imageView));
 
-		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("Texture cube view: {}", m_Specification.DebugName), m_DescriptorImageInfo.imageView);
+		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("Texture cube view: {}", m_Specification.DebugName), m_DescriptorImageInfo.imageView);
 	}
 
 	uint32_t VulkanTextureCube::GetMipLevelCount() const
@@ -956,7 +890,7 @@ namespace Hazel {
 
 		VkImageView result;
 		VK_CHECK_RESULT(vkCreateImageView(vulkanDevice, &view, nullptr, &result));
-		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("Texture cube mip: {}", mip), result);
+		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("Texture cube mip: {}", mip), result);
 
 		return result;
 	}

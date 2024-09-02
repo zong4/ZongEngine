@@ -1,7 +1,5 @@
 project "Hazelnut"
-    kind "ConsoleApp"
-
-    debuggertype "NativeWithManagedCore"
+	kind "ConsoleApp"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
@@ -43,11 +41,13 @@ project "Hazelnut"
 	filter { "system:windows", "configurations:Debug or configurations:Debug-AS" }
 		postbuildcommands {
 			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 		}
 
 	filter { "system:windows", "configurations:Release or configurations:Dist" }
 		postbuildcommands {
 			'{COPY} "../Hazel/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
 		}
 
 	filter "system:linux"
@@ -91,8 +91,14 @@ project "Hazelnut"
             "JPH_EXTERNAL_PROFILE"
 		}
 
+	filter "configurations:Dist"
+        kind "None"
+		optimize "On"
+        vectorextensions "AVX2"
+        isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
+		defines { "HZ_DIST" }
+
+		ProcessDependencies("Dist")
+
 	filter "files:**.hlsl"
 		flags {"ExcludeFromBuild"}
-
-    filter "configurations:Dist"
-        flags { "ExcludeFromBuild" }

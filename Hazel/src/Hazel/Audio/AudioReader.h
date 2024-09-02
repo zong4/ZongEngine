@@ -96,7 +96,7 @@ namespace Hazel::Audio
 					return false;
 				}
 
-				const auto& assetMetadata = Project::GetEditorAssetManager()->GetMetadata(waveAssetHandle);
+				auto& assetMetadata = Project::GetEditorAssetManager()->GetMetadata(waveAssetHandle);
 				HZ_CORE_ASSERT(assetMetadata.Type == AssetType::Audio);
 
 				const std::string filepath = Project::GetEditorAssetManager()->GetFileSystemPathString(assetMetadata);
@@ -132,7 +132,7 @@ namespace Hazel::Audio
 				//? JP. I believe this is here because the filepath 'key' is different in runtime,
 				//?		and the following ..data_source_init call accesses preloaded data by said key
 
-				auto path = std::filesystem::relative(filepath, Project::GetActiveAssetDirectory());
+				auto path = std::filesystem::relative(filepath, Project::GetAssetDirectory());
 				if (MiniAudioEngine::Get().GetResourceManager()->GetSoundBank()->Contains(path.string()))
 					filepath = path.string();
 			}

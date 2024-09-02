@@ -20,7 +20,7 @@ namespace Hazel {
 			Ref<SceneRenderer> m_SceneRenderer;
 			EditorCamera m_Camera { 45.0f, 1280.0f, 720.0f, 0.1f, 1000.0f };
 			std::string m_Name;
-			Ref<MeshSource> m_MeshSource;
+			Ref<MeshSource> m_MeshAsset;
 			Ref<Mesh> m_Mesh;
 			Entity m_MeshEntity;
 			Entity m_DirectionaLight;

@@ -16,16 +16,12 @@ namespace Hazel::AssimpAnimationImporter {
 	Scope<Skeleton> ImportSkeleton(const aiScene* scene) { return nullptr; }
 
 	std::vector<std::string> GetAnimationNames(const aiScene* scene) { return std::vector<std::string>(); }
-	uint32_t GetAnimationIndex(const aiScene* scene, const std::string_view animationName) { return ~0; }
-
 	Scope<Animation> ImportAnimation(const aiScene* scene, const std::string_view animationName, const Skeleton& skeleton, const bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask) { return nullptr; }
 #else
 	Scope<Skeleton> ImportSkeleton(const std::string_view filename);
 	Scope<Skeleton> ImportSkeleton(const aiScene* scene);
 
 	std::vector<std::string> GetAnimationNames(const aiScene* scene);
-	uint32_t GetAnimationIndex(const aiScene* scene, std::string_view animationName);
-
 	Scope<Animation> ImportAnimation(const aiScene* scene, const uint32_t animationIndex, const Skeleton& skeleton, const bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask);
 #endif
 }

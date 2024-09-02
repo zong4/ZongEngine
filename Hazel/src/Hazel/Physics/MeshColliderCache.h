@@ -3,7 +3,7 @@
 #include "Hazel/Asset/Asset.h"
 #include "MeshCookingFactory.h"
 
-#include <unordered_map>
+#include <map>
 
 namespace Hazel {
 
@@ -25,19 +25,15 @@ namespace Hazel {
 		void Clear();
 
 	private:
-		void AddSimpleDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh);
-		void AddSimpleDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh);
-		void AddComplexDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh);
-		void AddComplexDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh);
+		void AddDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh);
+		void AddDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh);
 
 	private:
-		std::unordered_map<AssetHandle, std::map<AssetHandle, CachedColliderData>> m_MeshData;
+		std::map<AssetHandle, std::map<AssetHandle, CachedColliderData>> m_MeshData;
 
 		// Editor-only
-		std::unordered_map<AssetHandle, std::map<AssetHandle, Ref<StaticMesh>>> m_DebugSimpleStaticMeshes;
-		std::unordered_map<AssetHandle, std::map<AssetHandle, Ref<Mesh>>> m_DebugSimpleMeshes;
-		std::unordered_map<AssetHandle, std::map<AssetHandle, Ref<StaticMesh>>> m_DebugComplexStaticMeshes;
-		std::unordered_map<AssetHandle, std::map<AssetHandle, Ref<Mesh>>> m_DebugComplexMeshes;
+		std::map<AssetHandle, std::map<AssetHandle, Ref<StaticMesh>>> m_DebugStaticMeshes;
+		std::map<AssetHandle, std::map<AssetHandle, Ref<Mesh>>> m_DebugMeshes;
 
 		AssetHandle m_BoxMesh = 0, m_SphereMesh = 0, m_CapsuleMesh = 0;
 

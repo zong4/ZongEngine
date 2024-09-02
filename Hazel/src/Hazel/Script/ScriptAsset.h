@@ -4,7 +4,22 @@
 
 namespace Hazel {
 
-	// TODO(Peter): Consider changing this so that it doesn't have to be an asset
+	class ScriptAsset : public Asset
+	{
+	public:
+		ScriptAsset() = default;
+		ScriptAsset(uint32_t classID)
+			: m_ClassID(classID) {}
+
+		uint32_t GetClassID() const { return m_ClassID; }
+
+		static AssetType GetStaticType() { return AssetType::Script; }
+		virtual AssetType GetAssetType() const override { return GetStaticType(); }
+
+	private:
+		uint32_t m_ClassID = 0;
+	};
+	
 	class ScriptFileAsset : public Asset
 	{
 	public:

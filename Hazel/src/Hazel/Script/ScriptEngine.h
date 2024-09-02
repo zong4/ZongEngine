@@ -1,224 +1,225 @@
 #pragma once
 
-#include "CSharpObject.h"
-#include "ScriptEntityStorage.hpp"
+#include "ScriptAsset.h"
+#include "ScriptCache.h"
+#include "ScriptTypes.h"
 
-#include "Hazel/Core/Ref.h"
-#include "Hazel/Renderer/SceneRenderer.h"
+#include "Hazel/Core/Hash.h"
+#include "Hazel/Debug/Profiler.h"
+#include "Hazel/Scene/Components.h"
+#include "Hazel/Scene/Scene.h"
+#include "Hazel/Project/Project.h"
+#include "Hazel/Utilities/FileSystem.h"
 
-#include <Coral/Assembly.hpp>
-#include <Coral/Type.hpp>
-#include <Coral/StableVector.hpp>
-#include <Coral/Attribute.hpp>
-#include <Coral/Array.hpp>
+#include <filewatch/FileWatch.hpp>
+#include <type_traits>
+#include <utility>
 
-namespace Coral {
+#define HAZEL_CORE_ASSEMBLY_INDEX 0
+#define HAZEL_APP_ASSEMBLY_INDEX HAZEL_CORE_ASSEMBLY_INDEX + 1
+#define HAZEL_MAX_ASSEMBLIES (size_t)2
 
-	class HostInstance;
-	class ManagedAssembly;
-	class AssemblyLoadContext;
-
+extern "C" {
+	typedef struct _MonoDomain MonoDomain;
 }
 
 namespace Hazel {
 
-	class Scene;
-	class SceneRenderer;
-	class Project;
+	using ScriptEntityMap = std::unordered_map<UUID, std::vector<UUID>>;
+	using ScriptInstanceMap = std::unordered_map<UUID, GCHandle>;
+	using AssembliesArray = std::array<Ref<AssemblyInfo>, HAZEL_MAX_ASSEMBLIES>;
 
-	struct AssemblyData
+	struct ScriptEngineConfig
 	{
-		Coral::ManagedAssembly* Assembly;
-		std::unordered_map<UUID, Coral::Type*> CachedTypes;
-	};
-
-	struct FieldMetadata
-	{
-		std::string Name;
-		DataType Type;
-		Coral::Type* ManagedType;
-
-		Buffer DefaultValue;
-
-	private:
-		template<typename T>
-		void SetDefaultValue(Coral::ManagedObject& temp)
-		{
-			if (ManagedType->IsSZArray())
-			{
-				auto value = temp.GetFieldValue<Coral::Array<T>>(Name);
-				DefaultValue = Buffer::Copy(value.Data(), value.ByteLength());
-				Coral::Array<T>::Free(value);
-			}
-			else
-			{
-				DefaultValue.Allocate(sizeof(T));
-				auto value = temp.GetFieldValue<T>(Name);
-				DefaultValue.Write(&value, sizeof(T));
-			}
-		}
-
-		friend class ScriptEngine;
-	};
-
-	struct ScriptMetadata
-	{
-		std::string FullName;
-		std::unordered_map<uint32_t, FieldMetadata> Fields;
+		std::filesystem::path CoreAssemblyPath;
+		bool EnableDebugging;
+		bool EnableProfiling;
 	};
 
 	class ScriptEngine
 	{
 	public:
-		Ref<Scene> GetCurrentScene() const { return m_CurrentScene; }
-		void SetCurrentScene(Ref<Scene> scene) { m_CurrentScene = scene; }
+		static void Init(const ScriptEngineConfig& config);
+		static void Shutdown();
 
-		Ref<SceneRenderer> GetSceneRenderer() const { return m_SceneRenderer; }
-		void SetSceneRenderer(Ref<SceneRenderer> sceneRenderer) { m_SceneRenderer = sceneRenderer; }
+		static void InitializeRuntime(bool skipInitializedEntities = true);
+		static void ShutdownRuntime();
+		static void ShutdownRuntimeInstance(Entity entity);
 
-		bool IsValidScript(UUID scriptID) const;
+		static void OnProjectChanged(Ref<Project> inProject);
 
-		const ScriptMetadata& GetScriptMetadata(UUID scriptID) const;
-		const std::unordered_map<UUID, ScriptMetadata>& GetAllScripts() const { return m_ScriptMetadata; }
+		static bool LoadAppAssembly();
+		static bool LoadAppAssemblyRuntime(Buffer appAssemblyData);
+		static bool ReloadAppAssembly(const bool scheduleReload = false);
+		static bool ShouldReloadAppAssembly();
+		static void UnloadAppAssembly();
 
-		const Coral::Type* GetTypeByName(std::string_view name) const;
+		static void SetSceneContext(const Ref<Scene>& scene, const Ref<SceneRenderer>& sceneRenderer);
+		static Ref<Scene> GetSceneContext();
+		static Ref<SceneRenderer> GetSceneRenderer();
 
-	public:
-		static const ScriptEngine& GetInstance();
+		static void InitializeScriptEntity(Entity entity);
+		static void RuntimeInitializeScriptEntity(Entity entity, bool skipInitializedEntities = true);
+		static void DuplicateScriptInstance(Entity entity, Entity targetEntity);
+		static void ShutdownScriptEntity(Entity entity, bool erase = true);
 
-	private:
-		void InitializeHost();
-		void ShutdownHost();
+		static Ref<FieldStorageBase> GetFieldStorage(Entity entity, uint32_t fieldID);
 
-		void Initialize(Ref<Project> project);
-		void Shutdown();
+		static void InitializeRuntimeDuplicatedEntities();
 
-		void LoadProjectAssembly();
-		void LoadProjectAssemblyRuntime(Buffer data);
+		// NOTE(Peter): Pass false as the second parameter if you don't care if OnCreate has been called yet
+		static bool IsEntityInstantiated(Entity entity, bool checkOnCreateCalled = true);
+		static GCHandle GetEntityInstance(UUID entityID);
+		static const std::unordered_map<UUID, GCHandle>& GetEntityInstances();
 
-		void BuildAssemblyCache(AssemblyData* assemblyData);
+		static uint32_t GetScriptClassIDFromComponent(const ScriptComponent& sc);
+		static bool IsModuleValid(AssetHandle scriptAssetHandle);
+
+		static MonoDomain* GetScriptDomain();
+
+		template<typename... TConstructorArgs>
+		static MonoObject* CreateManagedObject(const std::string& className, TConstructorArgs&&... args)
+		{
+			return CreateManagedObject_Internal(ScriptCache::GetManagedClassByID(HZ_SCRIPT_CLASS_ID(className)), std::forward<TConstructorArgs>(args)...);
+		}
+
+		template<typename... TConstructorArgs>
+		static MonoObject* CreateManagedObject(uint32_t classID, TConstructorArgs&&... args)
+		{
+			return CreateManagedObject_Internal(ScriptCache::GetManagedClassByID(classID), std::forward<TConstructorArgs>(args)...);
+		}
+
+		static GCHandle CreateObjectReference(MonoObject* obj, bool weakReference)
+		{
+			return GCManager::CreateObjectReference(obj, weakReference);
+		}
+
+		static void ReleaseObjectReference(GCHandle instanceID)
+		{
+			GCManager::ReleaseObjectReference(instanceID);
+		}
+
+		static Ref<AssemblyInfo> GetCoreAssemblyInfo();
+		static Ref<AssemblyInfo> GetAppAssemblyInfo();
+
+		static const ScriptEngineConfig& GetConfig();
 
 		template<typename... TArgs>
-		CSharpObject Instantiate(UUID entityID, ScriptStorage& storage,  TArgs&&... args)
+		static void CallMethod(MonoObject* managedObject, const std::string& methodName, TArgs&&... args)
 		{
-			HZ_CORE_VERIFY(storage.EntityStorage.contains(entityID));
+			HZ_PROFILE_SCOPE_DYNAMIC(methodName.c_str());
 
-			auto& entityStorage = storage.EntityStorage.at(entityID);
-
-			if (!IsValidScript(entityStorage.ScriptID))
-				return {};
-
-			auto* type = m_AppAssemblyData->CachedTypes[entityStorage.ScriptID];
-			auto instance = type->CreateInstance(std::forward<TArgs>(args)...);
-			auto[index, handle] = m_ManagedObjects.Insert(std::move(instance));
-
-			entityStorage.Instance = &handle;
-
-			for (auto&[fieldID, fieldStorage] : entityStorage.Fields)
+			if (managedObject == nullptr)
 			{
-				const auto& fieldMetadata = m_ScriptMetadata[entityStorage.ScriptID].Fields[fieldID];
-
-				auto& editorAssignableAttribType = m_CoreAssemblyData->Assembly->GetType("Hazel.EditorAssignableAttribute");
-				if (fieldMetadata.ManagedType->HasAttribute(editorAssignableAttribType))
-				{
-					Coral::ManagedObject value = fieldMetadata.ManagedType->CreateInstance(fieldStorage.GetValue<uint64_t>());
-					handle.SetFieldValue(fieldStorage.GetName(), value);
-					value.Destroy();
-				}
-				else if (fieldMetadata.ManagedType->IsSZArray())
-				{
-					if (fieldMetadata.ManagedType->GetElementType().HasAttribute(editorAssignableAttribType))
-					{
-						Coral::Array<Coral::ManagedObject> arr = Coral::Array<Coral::ManagedObject>::New(fieldStorage.GetLength());
-
-						for (int32_t i = 0; i < fieldStorage.GetLength(); i++)
-						{
-							arr[i] = fieldMetadata.ManagedType->GetElementType().CreateInstance(fieldStorage.GetValue<uint64_t>(i));
-						}
-
-						handle.SetFieldValue(fieldStorage.GetName(), arr);
-
-						for (int32_t i = 0; i < fieldStorage.GetLength(); i++)
-							arr[i].Destroy();
-
-						Coral::Array<Coral::ManagedObject>::Free(arr);
-					}
-					else
-					{
-						struct ArrayContainer
-						{
-							void* Data;
-							int32_t Length;
-						} array;
-
-						array.Data = fieldStorage.m_ValueBuffer.Data;
-						array.Length = static_cast<int32_t>(fieldStorage.GetLength());
-
-						handle.SetFieldValueRaw(fieldStorage.GetName(), &array);
-					}
-				}
-				else
-				{
-					handle.SetFieldValueRaw(fieldStorage.GetName(), fieldStorage.m_ValueBuffer.Data);
-				}
-
-				fieldStorage.m_Instance = &handle;
+				HZ_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
+				return;
 			}
 
-			CSharpObject result;
-			result.m_Handle = &handle;
-			return result;
+			constexpr size_t argsCount = sizeof...(args);
+
+			ManagedClass* clazz = ScriptCache::GetMonoObjectClass(managedObject);
+			if (clazz == nullptr)
+			{
+				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to find ManagedClass!");
+				return;
+			}
+
+			ManagedMethod* method = ScriptCache::GetSpecificManagedMethod(clazz, methodName, argsCount);
+			if (method == nullptr)
+			{
+				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to find a C# method called {0} with {1} parameters", methodName, argsCount);
+				return;
+			}
+
+			if constexpr (argsCount > 0)
+			{
+				const void* data[] = { &args... };
+				CallMethod(managedObject, method, data);
+			}
+			else
+			{
+				CallMethod(managedObject, method, nullptr);
+			}
 		}
 
-		void DestroyInstance(UUID entityID, ScriptStorage& storage)
+		template<typename... TArgs>
+		static void CallMethod(GCHandle instance, const std::string& methodName, TArgs&&... args)
 		{
-			HZ_CORE_VERIFY(storage.EntityStorage.contains(entityID));
-			
-			auto& entityStorage = storage.EntityStorage.at(entityID);
+			if (instance == nullptr)
+			{
+				HZ_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
+				return;
+			}
 
-			HZ_CORE_VERIFY(IsValidScript(entityStorage.ScriptID));
+			CallMethod(GCManager::GetReferencedObject(instance), methodName, std::forward<TArgs>(args)...);
+		}
+		
+	private:
+		static void InitMono();
+		static void ShutdownMono();
 
-			for (auto& [fieldID, fieldStorage] : entityStorage.Fields)
-				fieldStorage.m_Instance = nullptr;
+		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath);
+		static MonoAssembly* LoadMonoAssemblyRuntime(Buffer assemblyData);
+		static bool LoadCoreAssembly();
+		static void UnloadAssembly(Ref<AssemblyInfo> assemblyInfo);
 
-			entityStorage.Instance->Destroy();
-			entityStorage.Instance = nullptr;
+		static void LoadReferencedAssemblies(const Ref<AssemblyInfo>& assemblyInfo);
+		static AssemblyMetadata GetMetadataForImage(MonoImage* image);
+		static std::vector<AssemblyMetadata> GetReferencedAssembliesMetadata(MonoImage* image);
 
-			// TODO(Peter): Free-list
+		static MonoObject* CreateManagedObject(ManagedClass* managedClass);
+		static void InitRuntimeObject(MonoObject* monoObject);
+		static void CallMethod(MonoObject* monoObject, ManagedMethod* managedMethod, const void** parameters);
+
+		static void OnAppAssemblyFolderChanged(const std::filesystem::path& filepath, filewatch::Event eventType);
+
+	private:
+		template<typename... TConstructorArgs>
+		static MonoObject* CreateManagedObject_Internal(ManagedClass* managedClass, TConstructorArgs&&... args)
+		{
+			HZ_PROFILE_SCOPE_DYNAMIC(managedClass->FullName.c_str());
+
+			if (managedClass == nullptr)
+			{
+				HZ_CORE_ERROR_TAG("ScriptEngine", "Attempting to create managed object with a null class!");
+				return nullptr;
+			}
+
+			if (managedClass->IsAbstract)
+				return nullptr;
+
+			MonoObject* obj = CreateManagedObject(managedClass);
+
+			if (managedClass->IsStruct)
+				return obj;
+
+			//if (ManagedType::FromClass(managedClass).IsValueType())
+			//	return obj;
+
+			constexpr size_t argsCount = sizeof...(args);
+			ManagedMethod* ctor = ScriptCache::GetSpecificManagedMethod(managedClass, ".ctor", argsCount);
+
+			InitRuntimeObject(obj);
+
+			if constexpr (argsCount > 0)
+			{
+				if (ctor == nullptr)
+				{
+					HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to call constructor with {} parameters for class '{}'.", argsCount, managedClass->FullName);
+					return obj;
+				}
+
+				const void* data[] = { &args... };
+				CallMethod(obj, ctor, data);
+			}
+
+			return obj;
 		}
 
 	private:
-		static ScriptEngine& GetMutable();
-
-	private:
-		ScriptEngine() = default;
-
-		ScriptEngine(const ScriptEngine&) = delete;
-		ScriptEngine(ScriptEngine&&) = delete;
-
-		ScriptEngine& operator=(const ScriptEngine&) = delete;
-		ScriptEngine& operator=(ScriptEngine&&) = delete;
-
-	private:
-		std::unique_ptr<Coral::HostInstance> m_Host;
-		std::unique_ptr<Coral::AssemblyLoadContext> m_LoadContext;
-		Scope<AssemblyData> m_CoreAssemblyData = nullptr;
-		Scope<AssemblyData> m_AppAssemblyData = nullptr;
-
-		std::unordered_map<UUID, ScriptMetadata> m_ScriptMetadata;
-
-		Ref<Scene> m_CurrentScene = nullptr;
-		Ref<SceneRenderer> m_SceneRenderer = nullptr;
-		Coral::StableVector<Coral::ManagedObject> m_ManagedObjects;
-
-	private:
+		friend class ScriptCache;
+		friend class ScriptUtils;
 		friend class Application;
-		friend class Project;
-		friend class Scene;
-		friend class SceneHierarchyPanel;
-		friend class SceneSerializer;
-		friend class EditorLayer;
-		friend class RuntimeLayer;
 	};
 
 }

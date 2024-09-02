@@ -54,38 +54,41 @@ namespace Hazel {
 	Ref<Mesh> MeshColliderCache::GetDebugMesh(const Ref<MeshColliderAsset>& colliderAsset)
 	{
 		AssetHandle collisionMesh = colliderAsset->ColliderMesh;
-		auto& map = colliderAsset->CollisionComplexity == ECollisionComplexity::UseComplexAsSimple ? m_DebugComplexMeshes : m_DebugSimpleMeshes;
-
-		if (auto debugMeshes = map.find(collisionMesh); debugMeshes != map.end())
+		if (m_DebugMeshes.find(collisionMesh) != m_DebugMeshes.end())
 		{
-			if (auto debugMesh = debugMeshes->second.find(colliderAsset->Handle); debugMesh != debugMeshes->second.end())
-				return debugMesh->second;
+			const auto& debugMeshes = m_DebugMeshes.at(collisionMesh);
+			
+			if (debugMeshes.find(colliderAsset->Handle) != debugMeshes.end())
+				return debugMeshes.at(colliderAsset->Handle);
 
-			if (auto debugMesh = debugMeshes->second.find(0); debugMesh != debugMeshes->second.end())
-				return debugMesh->second;
+			if (debugMeshes.find(0) == debugMeshes.end())
+				return nullptr;
+
+			return debugMeshes.at(0);
 		}
 
 		return nullptr;
 	}
-
 
 	Ref<StaticMesh> MeshColliderCache::GetDebugStaticMesh(const Ref<MeshColliderAsset>& colliderAsset)
 	{
 		AssetHandle collisionMesh = colliderAsset->ColliderMesh;
-		auto& map = colliderAsset->CollisionComplexity == ECollisionComplexity::UseComplexAsSimple ? m_DebugComplexStaticMeshes : m_DebugSimpleStaticMeshes;
 		
-		if (auto debugMeshes = map.find(collisionMesh); debugMeshes != map.end())
+		if (m_DebugStaticMeshes.find(collisionMesh) != m_DebugStaticMeshes.end())
 		{
-			if (auto debugMesh = debugMeshes->second.find(colliderAsset->Handle); debugMesh != debugMeshes->second.end())
-				return debugMesh->second;
+			const auto& debugMeshes = m_DebugStaticMeshes.at(collisionMesh);
 
-			if (auto debugMesh = debugMeshes->second.find(0); debugMesh != debugMeshes->second.end())
-				return debugMesh->second;
+			if (debugMeshes.find(colliderAsset->Handle) != debugMeshes.end())
+				return debugMeshes.at(colliderAsset->Handle);
+
+			if (debugMeshes.find(0) == debugMeshes.end())
+				return nullptr;
+
+			return debugMeshes.at(0);
 		}
 
 		return nullptr;
 	}
-
 
 	bool MeshColliderCache::Exists(const Ref<MeshColliderAsset>& colliderAsset) const
 	{
@@ -95,7 +98,7 @@ namespace Hazel {
 			return false;
 
 		const auto& meshDataMap = m_MeshData.at(collisionMesh);
-		if (AssetManager::GetMemoryAsset(colliderAsset->Handle))
+		if (AssetManager::IsMemoryAsset(colliderAsset->Handle))
 			return meshDataMap.find(0) != meshDataMap.end();
 
 		return meshDataMap.find(colliderAsset->Handle) != meshDataMap.end();
@@ -150,46 +153,24 @@ namespace Hazel {
 	void MeshColliderCache::Clear()
 	{
 		m_MeshData.clear();
-		m_DebugSimpleStaticMeshes.clear();
-		m_DebugSimpleMeshes.clear();
-		m_DebugComplexStaticMeshes.clear();
-		m_DebugComplexMeshes.clear();
+		m_DebugStaticMeshes.clear();
+		m_DebugMeshes.clear();
 	}
 
-	void MeshColliderCache::AddSimpleDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh)
+	void MeshColliderCache::AddDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh)
 	{
-		HZ_CORE_ASSERT(debugMesh->GetAssetType() == AssetType::StaticMesh, "Wrong overload of AddSimpleDebugMesh() called.  Expected Ref<StaticMesh>!");
-		if (AssetManager::GetMemoryAsset(colliderAsset->Handle))
-			m_DebugSimpleStaticMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
+		if (AssetManager::IsMemoryAsset(colliderAsset->Handle))
+			m_DebugStaticMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
 		else
-			m_DebugSimpleStaticMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
+			m_DebugStaticMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
 	}
 
-	void MeshColliderCache::AddSimpleDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh)
+	void MeshColliderCache::AddDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh)
 	{
-		HZ_CORE_ASSERT(debugMesh->GetAssetType() == AssetType::Mesh, "Wrong overload of AddSimpleDebugMesh() called.  Expected Ref<Mesh>!");
-		if (AssetManager::GetMemoryAsset(colliderAsset->Handle))
-			m_DebugSimpleMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
+		if (AssetManager::IsMemoryAsset(colliderAsset->Handle))
+			m_DebugMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
 		else
-			m_DebugSimpleMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
-	}
-
-	void MeshColliderCache::AddComplexDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<StaticMesh>& debugMesh)
-	{
-		HZ_CORE_ASSERT(debugMesh->GetAssetType() == AssetType::StaticMesh, "Wrong overload of AddComplexDebugMesh() called.  Expected Ref<StaticMesh>!");
-		if (AssetManager::GetMemoryAsset(colliderAsset->Handle))
-			m_DebugComplexStaticMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
-		else
-			m_DebugComplexStaticMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
-	}
-
-	void MeshColliderCache::AddComplexDebugMesh(const Ref<MeshColliderAsset>& colliderAsset, const Ref<Mesh>& debugMesh)
-	{
-		HZ_CORE_ASSERT(debugMesh->GetAssetType() == AssetType::Mesh, "Wrong overload of AddComplexDebugMesh() called.  Expected Ref<Mesh>!");
-		if (AssetManager::GetMemoryAsset(colliderAsset->Handle))
-			m_DebugComplexMeshes[colliderAsset->ColliderMesh][0] = debugMesh;
-		else
-			m_DebugComplexMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
+			m_DebugMeshes[colliderAsset->ColliderMesh][colliderAsset->Handle] = debugMesh;
 	}
 
 }

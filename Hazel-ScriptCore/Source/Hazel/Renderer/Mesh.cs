@@ -1,30 +1,18 @@
 ﻿namespace Hazel
 {
-	[EditorAssignable]
 	public class Mesh : MeshBase
 	{
-		internal Mesh() : base() { }
-		internal Mesh(ulong handle) : base(handle) { }
+		internal Mesh() : base() {}
+		internal Mesh(AssetHandle handle) : base(handle) {}
 
-		public override Material? GetMaterial(int index)
+		public override Material GetMaterial(int index)
 		{
-			AssetHandle materialHandle;
+			if (!InternalCalls.Mesh_GetMaterialByIndex(ref m_Handle, index, out AssetHandle materialHandle))
+				return null;
 
-			unsafe
-			{
-				if (!InternalCalls.Mesh_GetMaterialByIndex(Handle, index, &materialHandle))
-					return null;
-			}
-
-			return materialHandle.IsValid() ? new Material(Handle, materialHandle, null) : null;
+			return materialHandle.IsValid() ? new Material(m_Handle, materialHandle, null) : null;
 		}
 
-		public override int GetMaterialCount()
-		{
-			unsafe
-			{
-				return InternalCalls.Mesh_GetMaterialCount(Handle);
-			}
-		}
+		public override int GetMaterialCount() => InternalCalls.Mesh_GetMaterialCount(ref m_Handle);
 	}
 }

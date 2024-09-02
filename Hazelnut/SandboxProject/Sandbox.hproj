@@ -8,7 +8,7 @@ Project:
   AnimationPath: Assets/Animation
   ScriptModulePath: Assets/Scripts/Binaries
   DefaultNamespace: Sandbox
-  StartScene: scenes/AnimationTest.hscene
+  StartScene: scenes/PrefabSandbox.hscene
   AutomaticallyReloadAssembly: true
   AutoSave: false
   AutoSaveInterval: 300
@@ -23,15 +23,7 @@ Project:
     CaptureOnPlay: true
     CaptureMethod: 1
     Layers:
-      - Name: Player
-        CollidesWithSelf: true
-        CollidesWith:
-          - Name: Default
-      - Name: Weapons
-        CollidesWithSelf: false
-        CollidesWith:
-          - Name: Default
-      - Name: Triggers
+      - Name: Test
         CollidesWithSelf: true
         CollidesWith:
           []
@@ -39,15 +31,9 @@ Project:
     Animation:
       Enabled: true
       LevelFilter: Error
-    Asset Pack:
-      Enabled: true
-      LevelFilter: Trace
     AssetManager:
       Enabled: true
       LevelFilter: Fatal
-    AssetSystem:
-      Enabled: true
-      LevelFilter: Trace
     Assimp:
       Enabled: true
       LevelFilter: Fatal
@@ -69,22 +55,19 @@ Project:
     Physics:
       Enabled: true
       LevelFilter: Trace
-    Project:
-      Enabled: true
-      LevelFilter: Warn
     Renderer:
       Enabled: true
       LevelFilter: Error
     Scene:
       Enabled: true
       LevelFilter: Trace
-    Scripting:
+    ScriptEngine:
       Enabled: true
-      LevelFilter: Warn
+      LevelFilter: Error
     Sound Spatializer:
       Enabled: true
       LevelFilter: Trace
-    Timer:
+    TIMER:
       Enabled: true
       LevelFilter: Trace
     miniaudio:

@@ -1,24 +1,23 @@
 #include "hzpch.h"
 #include "SceneRenderer.h"
 
-#include "MeshFactory.h"
 #include "Renderer.h"
-#include "Renderer2D.h"
 #include "SceneEnvironment.h"
-#include "UniformBuffer.h"
 
-#include "Hazel/Core/Math/Noise.h"
-#include "Hazel/Debug/Profiler.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Math/Math.h"
-#include "Hazel/Utilities/FileSystem.h"
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/compatibility.hpp>
 #include <imgui.h>
 #include <imgui/imgui_internal.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/compatibility.hpp>
 
-#include <format>
+#include "Renderer2D.h"
+#include "UniformBuffer.h"
+#include "Hazel/Core/Math/Noise.h"
+
+#include "Hazel/Utilities/FileSystem.h"
+
+#include "Hazel/ImGui/ImGui.h"
+#include "Hazel/Debug/Profiler.h"
+#include "Hazel/Math/Math.h"
 
 namespace Hazel {
 
@@ -38,11 +37,6 @@ namespace Hazel {
 	void SceneRenderer::Init()
 	{
 		HZ_SCOPE_TIMER("SceneRenderer::Init");
-
-		m_ViewportWidth = m_Specification.ViewportWidth;
-		m_ViewportHeight = m_Specification.ViewportHeight;
-		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
-			m_NeedsResize = true;
 
 		m_ShadowCascadeSplits[0] = 0.1f;
 		m_ShadowCascadeSplits[1] = 0.2f;
@@ -200,7 +194,7 @@ namespace Hazel {
 			ImageViewSpecification imageViewSpec;
 			for (int i = 0; i < 3; i++)
 			{
-				imageViewSpec.DebugName = std::format("BloomCompute-{}", i);
+				imageViewSpec.DebugName = fmt::format("BloomCompute-{}", i);
 				uint32_t mipCount = m_BloomComputeTextures[i].Texture->GetMipLevelCount();
 				m_BloomComputeTextures[i].ImageViews.resize(mipCount);
 				for (uint32_t mip = 0; mip < mipCount; mip++)
@@ -409,8 +403,6 @@ namespace Hazel {
 			// PreDepth
 			{
 				FramebufferSpecification preDepthFramebufferSpec;
-				preDepthFramebufferSpec.Width = m_Specification.ViewportWidth;
-				preDepthFramebufferSpec.Height = m_Specification.ViewportHeight;
 				preDepthFramebufferSpec.DebugName = "PreDepth-Opaque";
 				//Linear depth, reversed device depth
 				preDepthFramebufferSpec.Attachments = { /*ImageFormat::RED32F, */ ImageFormat::DEPTH32FSTENCIL8UINT };
@@ -487,8 +479,6 @@ namespace Hazel {
 				m_GeometryPassColorAttachmentImage->Invalidate();
 
 				FramebufferSpecification geoFramebufferSpec;
-				geoFramebufferSpec.Width = m_Specification.ViewportWidth;
-				geoFramebufferSpec.Height = m_Specification.ViewportHeight;
 				geoFramebufferSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::RGBA16F, ImageFormat::RGBA, ImageFormat::DEPTH32FSTENCIL8UINT };
 				geoFramebufferSpec.ExistingImages[3] = m_PreDepthPass->GetDepthOutput();
 
@@ -545,8 +535,6 @@ namespace Hazel {
 			// Selected Geometry isolation (for outline pass)
 			{
 				FramebufferSpecification framebufferSpec;
-				framebufferSpec.Width = m_Specification.ViewportWidth;
-				framebufferSpec.Height = m_Specification.ViewportHeight;
 				framebufferSpec.DebugName = "SelectedGeometry";
 				framebufferSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::Depth };
 				framebufferSpec.Samples = 1;
@@ -811,8 +799,6 @@ namespace Hazel {
 			pipelineSpecification.Shader = shader;
 
 			FramebufferSpecification framebufferSpec;
-			framebufferSpec.Width = m_Specification.ViewportWidth;
-			framebufferSpec.Height = m_Specification.ViewportHeight;
 			framebufferSpec.ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 			framebufferSpec.Attachments.Attachments.emplace_back(ImageFormat::RGBA32F);
 			framebufferSpec.ExistingImages[0] = m_GeometryPass->GetOutput(0);
@@ -871,8 +857,6 @@ namespace Hazel {
 		if (m_Specification.EnableEdgeOutlineEffect)
 		{
 			FramebufferSpecification compFramebufferSpec;
-			compFramebufferSpec.Width = m_Specification.ViewportWidth;
-			compFramebufferSpec.Height = m_Specification.ViewportHeight;
 			compFramebufferSpec.DebugName = "POST-EdgeDetection";
 			compFramebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
 			compFramebufferSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::Depth };
@@ -905,8 +889,6 @@ namespace Hazel {
 		// Composite
 		{
 			FramebufferSpecification compFramebufferSpec;
-			compFramebufferSpec.Width = m_Specification.ViewportWidth;
-			compFramebufferSpec.Height = m_Specification.ViewportHeight;
 			compFramebufferSpec.DebugName = "SceneComposite";
 			compFramebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
 			compFramebufferSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::Depth };
@@ -948,8 +930,6 @@ namespace Hazel {
 		// DOF
 		{
 			FramebufferSpecification compFramebufferSpec;
-			compFramebufferSpec.Width = m_Specification.ViewportWidth;
-			compFramebufferSpec.Height = m_Specification.ViewportHeight;
 			compFramebufferSpec.DebugName = "POST-DepthOfField";
 			compFramebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
 			compFramebufferSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::Depth };
@@ -981,8 +961,6 @@ namespace Hazel {
 		}
 
 		FramebufferSpecification fbSpec;
-		fbSpec.Width = m_Specification.ViewportWidth;
-		fbSpec.Height = m_Specification.ViewportHeight;
 		fbSpec.Attachments = { ImageFormat::RGBA32F, ImageFormat::DEPTH32FSTENCIL8UINT };
 		fbSpec.ClearColorOnLoad = false;
 		fbSpec.ClearDepthOnLoad = false;
@@ -1056,8 +1034,6 @@ namespace Hazel {
 		// Temporary framebuffers for re-use
 		{
 			FramebufferSpecification framebufferSpec;
-			framebufferSpec.Width = m_Specification.ViewportWidth;
-			framebufferSpec.Height = m_Specification.ViewportHeight;
 			framebufferSpec.Attachments = { ImageFormat::RGBA32F };
 			framebufferSpec.Samples = 1;
 			framebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
@@ -1095,7 +1071,7 @@ namespace Hazel {
 				pipelineSpecification.TargetFramebuffer = m_TempFramebuffers[(i + 1) % 2];
 				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("JumpFlood_Pass");
 
-				renderPassSpec.DebugName = std::format("JumpFlood-{0}", passName[i]);
+				renderPassSpec.DebugName = fmt::format("JumpFlood-{0}", passName[i]);
 				renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_JumpFloodPass[i] = RenderPass::Create(renderPassSpec);
 				m_JumpFloodPass[i]->SetInput("u_Texture", m_TempFramebuffers[i]->GetImage());
@@ -1109,8 +1085,6 @@ namespace Hazel {
 			if (m_Specification.JumpFloodPass)
 			{
 				FramebufferSpecification fbSpec;
-				fbSpec.Width = m_Specification.ViewportWidth;
-				fbSpec.Height = m_Specification.ViewportHeight;
 				fbSpec.Attachments = { ImageFormat::RGBA32F };
 				fbSpec.ExistingImages[0] = m_CompositePass->GetOutput(0);
 				fbSpec.ClearColorOnLoad = false;
@@ -1156,13 +1130,7 @@ namespace Hazel {
 			m_GridMaterial->Set("u_Settings.Size", gridSize);
 		}
 
-		// Debug render
-		m_SelectedBoneMaterial = Material::Create(Renderer::GetShaderLibrary()->Get("Wireframe"), "SelectedBone");
-		m_SelectedBoneMaterial->Set("u_MaterialUniforms.Color", m_Options.SelectedBoneColor);
-		m_BoneMaterial = Material::Create(Renderer::GetShaderLibrary()->Get("Wireframe"), "Bone");
-		m_BoneMaterial->Set("u_MaterialUniforms.Color", m_Options.BoneColor);
-		m_BoneMesh = AssetManager::GetAsset<StaticMesh>(MeshFactory::CreateSphere(0.1f)); // must hold a Ref<Mesh> here, not an asset handle (so that if project is reloaded (and asset manager destroyed) we still hold a ref to the bone mesh, so bone mesh is not destroyed)
-		m_BoneMeshSource = AssetManager::GetAsset<MeshSource>(m_BoneMesh->GetMeshSource());
+		// Collider
 		m_SimpleColliderMaterial = Material::Create(Renderer::GetShaderLibrary()->Get("Wireframe"), "SimpleCollider");
 		m_SimpleColliderMaterial->Set("u_MaterialUniforms.Color", m_Options.SimplePhysicsCollidersColor);
 		m_ComplexColliderMaterial = Material::Create(Renderer::GetShaderLibrary()->Get("Wireframe"), "ComplexCollider");
@@ -1176,8 +1144,6 @@ namespace Hazel {
 			auto skyboxShader = Renderer::GetShaderLibrary()->Get("Skybox");
 
 			FramebufferSpecification fbSpec;
-			fbSpec.Width = m_Specification.ViewportWidth;
-			fbSpec.Height = m_Specification.ViewportHeight;
 			fbSpec.Attachments = { ImageFormat::RGBA32F };
 			fbSpec.ExistingImages[0] = m_GeometryPass->GetOutput(0);
 			Ref<Framebuffer> skyboxFB = Framebuffer::Create(fbSpec);
@@ -1310,8 +1276,6 @@ namespace Hazel {
 				PipelineSpecification aoCompositePipelineSpec;
 				aoCompositePipelineSpec.DebugName = "AO-Composite";
 				FramebufferSpecification framebufferSpec;
-				framebufferSpec.Width = m_Specification.ViewportWidth;
-				framebufferSpec.Height = m_Specification.ViewportHeight;
 				framebufferSpec.DebugName = "AO-Composite";
 				framebufferSpec.Attachments = { ImageFormat::RGBA32F };
 				framebufferSpec.ExistingImages[0] = m_GeometryPass->GetOutput(0);
@@ -1384,8 +1348,8 @@ namespace Hazel {
 		m_Options.ReflectionOcclusionMethod = ShaderDef::AOMethod::None;
 
 		// Special macros are strictly starting with "__HZ_"
-		Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", std::format("{}", (int)m_Options.ReflectionOcclusionMethod));
-		//Renderer::SetGlobalMacroInShaders("__HZ_GTAO_COMPUTE_BENT_NORMALS", std::format("{}", (int)m_Options.GTAOBentNormals));
+		Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", (int)m_Options.ReflectionOcclusionMethod));
+		//Renderer::SetGlobalMacroInShaders("__HZ_GTAO_COMPUTE_BENT_NORMALS", fmt::format("{}", (int)m_Options.GTAOBentNormals));
 	}
 
 	void SceneRenderer::InsertGPUPerfMarker(Ref<RenderCommandBuffer> renderCommandBuffer, const std::string& label, const glm::vec4& markerColor)
@@ -1534,7 +1498,7 @@ namespace Hazel {
 				m_HierarchicalDepthTexture.ImageViews.resize(mipCount);
 				for (uint32_t mip = 0; mip < mipCount; mip++)
 				{
-					imageViewSpec.DebugName = std::format("HierarchicalDepthTexture-{}", mip);
+					imageViewSpec.DebugName = fmt::format("HierarchicalDepthTexture-{}", mip);
 					imageViewSpec.Image = m_HierarchicalDepthTexture.Texture->GetImage();
 					imageViewSpec.Mip = mip;
 					m_HierarchicalDepthTexture.ImageViews[mip] = ImageView::Create(imageViewSpec);
@@ -1551,7 +1515,7 @@ namespace Hazel {
 				m_PreIntegrationVisibilityTexture.ImageViews.resize(mipCount);
 				for (uint32_t mip = 0; mip < mipCount - 1; mip++)
 				{
-					imageViewSpec.DebugName = std::format("PreIntegrationVisibilityTexture-{}", mip);
+					imageViewSpec.DebugName = fmt::format("PreIntegrationVisibilityTexture-{}", mip);
 					imageViewSpec.Image = m_PreIntegrationVisibilityTexture.Texture->GetImage();
 					imageViewSpec.Mip = mip + 1; // Start from mip 1 not 0
 					m_PreIntegrationVisibilityTexture.ImageViews[mip] = ImageView::Create(imageViewSpec);
@@ -1610,7 +1574,7 @@ namespace Hazel {
 
 				// Image Views (per-mip)
 				ImageViewSpecification imageViewSpec;
-				imageViewSpec.DebugName = std::format("PreConvolutionCompute");
+				imageViewSpec.DebugName = fmt::format("PreConvolutionCompute");
 				uint32_t mipCount = m_PreConvolutedTexture.Texture->GetMipLevelCount();
 				m_PreConvolutedTexture.ImageViews.resize(mipCount);
 				for (uint32_t mip = 0; mip < mipCount; mip++)
@@ -1637,7 +1601,7 @@ namespace Hazel {
 				ImageViewSpecification imageViewSpec;
 				for (int i = 0; i < 3; i++)
 				{
-					imageViewSpec.DebugName = std::format("BloomCompute-{}", i);
+					imageViewSpec.DebugName = fmt::format("BloomCompute-{}", i);
 					uint32_t mipCount = m_BloomComputeTextures[i].Texture->GetMipLevelCount();
 					m_BloomComputeTextures[i].ImageViews.resize(mipCount);
 					for (uint32_t mip = 0; mip < mipCount; mip++)
@@ -1820,12 +1784,13 @@ namespace Hazel {
 		s_ThreadPool.clear();
 	}
 
-	void SceneRenderer::SubmitMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
+	void SceneRenderer::SubmitMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
 	{
 		HZ_PROFILE_FUNC();
 
 		// TODO: Culling, sorting, etc.
 
+		const auto meshSource = mesh->GetMeshSource();
 		const auto& submeshes = meshSource->GetSubmeshes();
 		const auto& submesh = submeshes[submeshIndex];
 		uint32_t materialIndex = submesh.MaterialIndex;
@@ -1851,7 +1816,6 @@ namespace Hazel {
 			auto& destDrawList = !isTransparent ? m_DrawList : m_TransparentDrawList;
 			auto& dc = destDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
 			dc.MaterialTable = materialTable;
 			dc.OverrideMaterial = overrideMaterial;
@@ -1864,7 +1828,6 @@ namespace Hazel {
 		{
 			auto& dc = m_ShadowPassDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
 			dc.MaterialTable = materialTable;
 			dc.OverrideMaterial = overrideMaterial;
@@ -1873,16 +1836,18 @@ namespace Hazel {
 		}
 	}
 
-	void SceneRenderer::SubmitStaticMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
+	void SceneRenderer::SubmitStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
 	{
 		HZ_PROFILE_FUNC();
 
+		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
 		for (uint32_t submeshIndex : staticMesh->GetSubmeshes())
 		{
 			glm::mat4 submeshTransform = transform * submeshData[submeshIndex].Transform;
 
-			uint32_t materialIndex = submeshData[submeshIndex].MaterialIndex;
+			const auto& submeshes = staticMesh->GetMeshSource()->GetSubmeshes();
+			uint32_t materialIndex = submeshes[submeshIndex].MaterialIndex;
 
 			AssetHandle materialHandle = materialTable->HasMaterial(materialIndex) ? materialTable->GetMaterial(materialIndex) : staticMesh->GetMaterials()->GetMaterial(materialIndex);
 			HZ_CORE_VERIFY(materialHandle);
@@ -1902,7 +1867,6 @@ namespace Hazel {
 				auto& destDrawList = !isTransparent ? m_StaticMeshDrawList : m_TransparentStaticMeshDrawList;
 				auto& dc = destDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
 				dc.MaterialTable = materialTable;
 				dc.OverrideMaterial = overrideMaterial;
@@ -1914,7 +1878,6 @@ namespace Hazel {
 			{
 				auto& dc = m_StaticMeshShadowPassDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
 				dc.MaterialTable = materialTable;
 				dc.OverrideMaterial = overrideMaterial;
@@ -1924,12 +1887,13 @@ namespace Hazel {
 
 	}
 
-	void SceneRenderer::SubmitSelectedMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
+	void SceneRenderer::SubmitSelectedMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
 	{
 		HZ_PROFILE_FUNC();
 
 		// TODO: Culling, sorting, etc.
 
+		const auto meshSource = mesh->GetMeshSource();
 		const auto& submeshes = meshSource->GetSubmeshes();
 		const auto& submesh = submeshes[submeshIndex];
 		uint32_t materialIndex = submesh.MaterialIndex;
@@ -1959,7 +1923,6 @@ namespace Hazel {
 			auto& destDrawList = !isTransparent ? m_DrawList : m_TransparentDrawList;
 			auto& dc = destDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
 			dc.MaterialTable = materialTable;
 			dc.OverrideMaterial = overrideMaterial;
@@ -1973,7 +1936,6 @@ namespace Hazel {
 		{
 			auto& dc = m_SelectedMeshDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
 			dc.MaterialTable = materialTable;
 			dc.OverrideMaterial = overrideMaterial;
@@ -1987,7 +1949,6 @@ namespace Hazel {
 		{
 			auto& dc = m_ShadowPassDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
 			dc.MaterialTable = materialTable;
 			dc.OverrideMaterial = overrideMaterial;
@@ -1996,16 +1957,18 @@ namespace Hazel {
 		}
 	}
 
-	void SceneRenderer::SubmitSelectedStaticMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
+	void SceneRenderer::SubmitSelectedStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
 	{
 		HZ_PROFILE_FUNC();
 
+		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
 		for (uint32_t submeshIndex : staticMesh->GetSubmeshes())
 		{
 			glm::mat4 submeshTransform = transform * submeshData[submeshIndex].Transform;
 
-			uint32_t materialIndex = submeshData[submeshIndex].MaterialIndex;
+			const auto& submeshes = staticMesh->GetMeshSource()->GetSubmeshes();
+			uint32_t materialIndex = submeshes[submeshIndex].MaterialIndex;
 
 			AssetHandle materialHandle = materialTable->HasMaterial(materialIndex) ? materialTable->GetMaterial(materialIndex) : staticMesh->GetMaterials()->GetMaterial(materialIndex);
 			HZ_CORE_VERIFY(materialHandle);
@@ -2024,7 +1987,6 @@ namespace Hazel {
 				auto& destDrawList = !isTransparent ? m_StaticMeshDrawList : m_TransparentStaticMeshDrawList;
 				auto& dc = destDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
 				dc.MaterialTable = materialTable;
 				dc.OverrideMaterial = overrideMaterial;
@@ -2035,7 +1997,6 @@ namespace Hazel {
 			{
 				auto& dc = m_SelectedStaticMeshDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
 				dc.MaterialTable = materialTable;
 				dc.OverrideMaterial = overrideMaterial;
@@ -2047,7 +2008,6 @@ namespace Hazel {
 			{
 				auto& dc = m_StaticMeshShadowPassDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
 				dc.MaterialTable = materialTable;
 				dc.OverrideMaterial = overrideMaterial;
@@ -2056,11 +2016,11 @@ namespace Hazel {
 		}
 	}
 
-	void SceneRenderer::SubmitPhysicsDebugMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, const glm::mat4& transform, const bool isSimpleCollider)
+	void SceneRenderer::SubmitPhysicsDebugMesh(Ref<Mesh> mesh, uint32_t submeshIndex, const glm::mat4& transform)
 	{
-		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(meshSource);
+		HZ_CORE_VERIFY(mesh->Handle);
 
+		Ref<MeshSource> meshSource = mesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
 		glm::mat4 submeshTransform = transform * submeshData[submeshIndex].Transform;
 
@@ -2074,45 +2034,21 @@ namespace Hazel {
 		{
 			auto& dc = m_ColliderDrawList[meshKey];
 			dc.Mesh = mesh;
-			dc.MeshSource = meshSource;
 			dc.SubmeshIndex = submeshIndex;
-			dc.OverrideMaterial = isSimpleCollider ? m_SimpleColliderMaterial : m_ComplexColliderMaterial;
 			dc.InstanceCount++;
 		}
 	}
 
-
-	void SceneRenderer::SubmitAnimationDebugMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, const glm::mat4& transform, const bool isSelected)
+	void SceneRenderer::SubmitPhysicsStaticDebugMesh(Ref<StaticMesh> staticMesh, const glm::mat4& transform, const bool isPrimitiveCollider)
 	{
-		SubmitStaticDebugMesh(m_AnimationDebugDrawList, staticMesh, meshSource, transform, isSelected ? m_SelectedBoneMaterial : m_BoneMaterial);
-		GetDebugRenderer()->DrawTransform(transform);
-	}
-
-
-	void SceneRenderer::SubmitPhysicsStaticDebugMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, const glm::mat4& transform, const bool isSimpleCollider)
-	{
-		SubmitStaticDebugMesh(m_StaticColliderDrawList, staticMesh, meshSource, transform, isSimpleCollider ? m_SimpleColliderMaterial : m_ComplexColliderMaterial);
-	}
-
-
-	void SceneRenderer::SubmitStaticDebugMesh(std::map<SceneRenderer::MeshKey, SceneRenderer::StaticDrawCommand>& drawList, Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, const glm::mat4& transform, Ref<Material> material)
-	{
-		HZ_PROFILE_FUNC();
-		HZ_CORE_VERIFY(staticMesh);
-		HZ_CORE_VERIFY(meshSource);
-
+		HZ_CORE_VERIFY(staticMesh->Handle);
+		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
 		for (uint32_t submeshIndex : staticMesh->GetSubmeshes())
 		{
 			glm::mat4 submeshTransform = transform * submeshData[submeshIndex].Transform;
 
-			// HACK: Correct instancing of draw calls relies on a unique material handle
-			//       in the MeshKey.
-			//       We do not have a MaterialAsset here and hence no handle.
-			//       We fake a handle from the Material object's address.
-			AssetHandle fakeHandle = (uint64_t)material.Raw();
-
-			MeshKey meshKey = { staticMesh->Handle, fakeHandle, submeshIndex, false };
+			MeshKey meshKey = { staticMesh->Handle, 5, submeshIndex, false };
 			auto& transformStorage = m_MeshTransformMap[meshKey].Transforms.emplace_back();
 
 			transformStorage.MRow[0] = { submeshTransform[0][0], submeshTransform[1][0], submeshTransform[2][0], submeshTransform[3][0] };
@@ -2120,13 +2056,13 @@ namespace Hazel {
 			transformStorage.MRow[2] = { submeshTransform[0][2], submeshTransform[1][2], submeshTransform[2][2], submeshTransform[3][2] };
 
 			{
-				auto& dc = drawList[meshKey];
+				auto& dc = m_StaticColliderDrawList[meshKey];
 				dc.StaticMesh = staticMesh;
-				dc.MeshSource = meshSource;
 				dc.SubmeshIndex = submeshIndex;
-				dc.OverrideMaterial = material;
+				dc.OverrideMaterial = isPrimitiveCollider ? m_SimpleColliderMaterial : m_ComplexColliderMaterial;
 				dc.InstanceCount++;
 			}
+
 		}
 	}
 
@@ -2164,14 +2100,14 @@ namespace Hazel {
 			{
 				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
-				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_ShadowPassMaterial, cascade);
+				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_ShadowPassMaterial, cascade);
 			}
 			for (auto& [mk, dc] : m_ShadowPassDrawList)
 			{
 				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (!dc.IsRigged)
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_ShadowPassMaterial, cascade);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_ShadowPassMaterial, cascade);
 			}
 
 			Renderer::EndRenderPass(m_CommandBuffer);
@@ -2190,7 +2126,7 @@ namespace Hazel {
 				if (dc.IsRigged)
 				{
 					const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelinesAnim[i], dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_ShadowPassMaterial, cascade);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelinesAnim[i], dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_ShadowPassMaterial, cascade);
 				}
 			}
 
@@ -2217,7 +2153,7 @@ namespace Hazel {
 			{
 				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
-				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassPipeline, dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
+				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassPipeline, dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
 			}
 			for (auto& [mk, dc] : m_ShadowPassDrawList)
 			{
@@ -2226,11 +2162,11 @@ namespace Hazel {
 				if (dc.IsRigged)
 				{
 					const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassAnimPipeline, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset,boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassAnimPipeline, dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset,boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
 				}
 				else
 				{
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassPipeline, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassPipeline, dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
 				}
 			}
 
@@ -2250,13 +2186,13 @@ namespace Hazel {
 		for (auto& [mk, dc] : m_StaticMeshDrawList)
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
-			Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_PreDepthPipeline, dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_PreDepthMaterial);
+			Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_PreDepthPipeline, dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_PreDepthMaterial);
 		}
 		for (auto& [mk, dc] : m_DrawList)
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
 			if (!dc.IsRigged)
-				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_PreDepthPipeline, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_PreDepthMaterial);
+				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_PreDepthPipeline, dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_PreDepthMaterial);
 		}
 		
 		Renderer::EndRenderPass(m_CommandBuffer);
@@ -2268,7 +2204,7 @@ namespace Hazel {
 			if (dc.IsRigged)
 			{
 				const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_PreDepthPipelineAnim, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_PreDepthMaterial);
+				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_PreDepthPipelineAnim, dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_PreDepthMaterial);
 			}
 		}
 
@@ -2375,7 +2311,7 @@ namespace Hazel {
 		// Reduce the next mips
 		for (uint32_t startDestMip = maxMipBatchSize; startDestMip < hzbMipCount; startDestMip += maxMipBatchSize)
 		{
-			Renderer::BeginGPUPerfMarker(m_CommandBuffer, std::format("HZB-Pass-({})", startDestMip));
+			Renderer::BeginGPUPerfMarker(m_CommandBuffer, fmt::format("HZB-Pass-({})", startDestMip));
 			srcSize = Math::DivideAndRoundUp(m_HierarchicalDepthTexture.Texture->GetSize(), 1u << uint32_t(startDestMip - 1));
 			ReduceHZB(startDestMip, startDestMip - 1, { 2.0f / glm::vec2{ srcSize } }, glm::vec2{ 1.0f }, false);
 			Renderer::EndGPUPerfMarker(m_CommandBuffer);
@@ -2416,7 +2352,7 @@ namespace Hazel {
 
 		for (uint32_t mip = 1; mip < visibilityTexture->GetMipLevelCount(); mip++)
 		{
-			Renderer::BeginGPUPerfMarker(m_CommandBuffer, std::format("PreIntegration-Pass({})", mip));
+			Renderer::BeginGPUPerfMarker(m_CommandBuffer, fmt::format("PreIntegration-Pass({})", mip));
 			auto [mipWidth, mipHeight] = visibilityTexture->GetMipSize(mip);
 			glm::uvec3 workGroups = { (uint32_t)glm::ceil((float)mipWidth / 8.0f), (uint32_t)glm::ceil((float)mipHeight / 8.0f), 1 };
 
@@ -2491,13 +2427,13 @@ namespace Hazel {
 		for (auto& [mk, dc] : m_SelectedStaticMeshDrawList)
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
-			Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryPass->GetSpecification().Pipeline, dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_SelectedGeometryMaterial);
+			Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryPass->GetSpecification().Pipeline, dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), dc.InstanceCount, m_SelectedGeometryMaterial);
 		}
 		for (auto& [mk, dc] : m_SelectedMeshDrawList)
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
 			if (!dc.IsRigged)
-				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), 0, dc.InstanceCount, m_SelectedGeometryMaterial);
+				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), 0, dc.InstanceCount, m_SelectedGeometryMaterial);
 		}
 		Renderer::EndRenderPass(m_CommandBuffer);
 
@@ -2508,7 +2444,7 @@ namespace Hazel {
 			if (dc.IsRigged)
 			{
 				const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryAnimPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), boneTransformsData.BoneTransformsBaseIndex + dc.InstanceOffset, dc.InstanceCount, m_SelectedGeometryMaterial);
+				Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_SelectedGeometryAnimPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), boneTransformsData.BoneTransformsBaseIndex + dc.InstanceOffset, dc.InstanceCount, m_SelectedGeometryMaterial);
 			}
 		}
 		Renderer::EndRenderPass(m_CommandBuffer);
@@ -2519,7 +2455,7 @@ namespace Hazel {
 		for (auto& [mk, dc] : m_StaticMeshDrawList)
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
-			Renderer::RenderStaticMesh(m_CommandBuffer, m_GeometryPipeline, dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.StaticMesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount);
+			Renderer::RenderStaticMesh(m_CommandBuffer, m_GeometryPipeline, dc.StaticMesh, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.StaticMesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount);
 		}
 		SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
 
@@ -2529,7 +2465,7 @@ namespace Hazel {
 		{
 			const auto& transformData = m_MeshTransformMap.at(mk);
 			if (!dc.IsRigged)
-				Renderer::RenderSubmeshInstanced(m_CommandBuffer, m_GeometryPipeline, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.Mesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount);
+				Renderer::RenderSubmeshInstanced(m_CommandBuffer, m_GeometryPipeline, dc.Mesh, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.Mesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount);
 		}
 		SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
 
@@ -2564,7 +2500,7 @@ namespace Hazel {
 			if (dc.IsRigged)
 			{
 				const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-				Renderer::RenderSubmeshInstanced(m_CommandBuffer, m_GeometryPipelineAnim, dc.Mesh, dc.MeshSource, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.Mesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount);
+				Renderer::RenderSubmeshInstanced(m_CommandBuffer, m_GeometryPipelineAnim, dc.Mesh, dc.SubmeshIndex, dc.MaterialTable ? dc.MaterialTable : dc.Mesh->GetMaterials(), m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount);
 			}
 		}
 		Renderer::EndRenderPass(m_CommandBuffer);
@@ -2600,7 +2536,7 @@ namespace Hazel {
 		const uint32_t mipCount = m_PreConvolutedTexture.Texture->GetMipLevelCount();
 		for (uint32_t mip = 1; mip < mipCount; mip++)
 		{
-			Renderer::BeginGPUPerfMarker(m_CommandBuffer, std::format("Pre-Convolution-Mip({})", mip));
+			Renderer::BeginGPUPerfMarker(m_CommandBuffer, fmt::format("Pre-Convolution-Mip({})", mip));
 
 			auto [mipWidth, mipHeight] = m_PreConvolutedTexture.Texture->GetMipSize(mip);
 			workGroups = { (uint32_t)glm::ceil((float)mipWidth / 16.0f), (uint32_t)glm::ceil((float)mipHeight / 16.0f), 1 };
@@ -2608,7 +2544,7 @@ namespace Hazel {
 
 			auto blur = [&](const int mip, const int mode)
 			{
-				Renderer::BeginGPUPerfMarker(m_CommandBuffer, std::format("Pre-Convolution-Mode({})", mode));
+				Renderer::BeginGPUPerfMarker(m_CommandBuffer, fmt::format("Pre-Convolution-Mode({})", mode));
 				preConvolutionComputePushConstants.Mode = (int)mode;
 				Renderer::DispatchCompute(m_CommandBuffer, m_PreConvolutionComputePass, m_PreConvolutionMaterials[mip], workGroups, Buffer(&preConvolutionComputePushConstants, sizeof(preConvolutionComputePushConstants)));
 				Renderer::EndGPUPerfMarker(m_CommandBuffer);
@@ -2857,7 +2793,7 @@ namespace Hazel {
 		SceneRenderer::BeginGPUPerfMarker(m_CommandBuffer, "Composite");
 		Renderer::SubmitFullscreenQuad(m_CommandBuffer, m_CompositePass->GetPipeline(), m_CompositeMaterial);
 		SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
-
+		
 		Renderer::EndRenderPass(m_CommandBuffer);
 
 		if (m_DOFSettings.Enabled)
@@ -2936,7 +2872,7 @@ namespace Hazel {
 			for (auto& [mk, dc] : m_SelectedStaticMeshDrawList)
 			{
 				const auto& transformData = m_MeshTransformMap.at(mk);
-				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_GeometryWireframePass->GetPipeline(), dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_WireframeMaterial);
+				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_GeometryWireframePass->GetPipeline(), dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), dc.InstanceCount, m_WireframeMaterial);
 			}
 
 			for (auto& [mk, dc] : m_SelectedMeshDrawList)
@@ -2944,7 +2880,7 @@ namespace Hazel {
 				if (!dc.IsRigged)
 				{
 					const auto& transformData = m_MeshTransformMap.at(mk);
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_GeometryWireframePass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), 0, dc.InstanceCount, m_WireframeMaterial);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_GeometryWireframePass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), 0, dc.InstanceCount, m_WireframeMaterial);
 				}
 			}
 
@@ -2959,7 +2895,7 @@ namespace Hazel {
 				if (dc.IsRigged)
 				{
 					const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_GeometryWireframeAnimPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), boneTransformsData.BoneTransformsBaseIndex + dc.InstanceOffset, dc.InstanceCount, m_WireframeMaterial);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_GeometryWireframeAnimPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset + dc.InstanceOffset * sizeof(TransformVertexData), boneTransformsData.BoneTransformsBaseIndex + dc.InstanceOffset, dc.InstanceCount, m_WireframeMaterial);
 				}
 			}
 			SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
@@ -2978,7 +2914,7 @@ namespace Hazel {
 			{
 				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
-				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, dc.OverrideMaterial? dc.OverrideMaterial : m_SimpleColliderMaterial);
+				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, dc.OverrideMaterial);
 			}
 
 			for (auto& [mk, dc] : m_ColliderDrawList)
@@ -2986,7 +2922,7 @@ namespace Hazel {
 				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (!dc.IsRigged)
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, dc.OverrideMaterial ? dc.OverrideMaterial : m_SimpleColliderMaterial);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_SimpleColliderMaterial);
 			}
 
 			Renderer::EndRenderPass(m_CommandBuffer);
@@ -3001,27 +2937,14 @@ namespace Hazel {
 				if (dc.IsRigged)
 				{
 					const auto& boneTransformsData = m_MeshBoneTransformsMap.at(mk);
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, animPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_SimpleColliderMaterial);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, animPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, boneTransformsData.BoneTransformsBaseIndex, dc.InstanceCount, m_SimpleColliderMaterial);
 				}
 				else
 				{
-					Renderer::RenderMeshWithMaterial(m_CommandBuffer, animPass->GetPipeline(), dc.Mesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, {}, dc.InstanceCount, m_SimpleColliderMaterial);
+					Renderer::RenderMeshWithMaterial(m_CommandBuffer, animPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, {}, dc.InstanceCount, m_SimpleColliderMaterial);
 				}
 			}
 
-			Renderer::EndRenderPass(m_CommandBuffer);
-			SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
-		}
-
-		if (m_Options.ShowAnimationDebug)
-		{
-			SceneRenderer::BeginGPUPerfMarker(m_CommandBuffer, "Animation Debug");
-			Renderer::BeginRenderPass(m_CommandBuffer, m_GeometryWireframeOnTopPass);
-			for (auto& [mk, dc] : m_AnimationDebugDrawList)
-			{
-				const auto& transformData = m_MeshTransformMap.at(mk);
-				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_GeometryWireframeOnTopPass->GetPipeline(), dc.StaticMesh, dc.MeshSource, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, dc.OverrideMaterial);
-			}
 			Renderer::EndRenderPass(m_CommandBuffer);
 			SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
 		}
@@ -3104,7 +3027,6 @@ namespace Hazel {
 		m_SelectedStaticMeshDrawList.clear();
 		m_StaticMeshShadowPassDrawList.clear();
 
-		m_AnimationDebugDrawList.clear();
 		m_ColliderDrawList.clear();
 		m_StaticColliderDrawList.clear();
 		m_SceneData = {};
@@ -3164,7 +3086,10 @@ namespace Hazel {
 		{
 			for (size_t i = 0; i < meshSource->m_BoneInfo.size(); ++i)
 			{
-				boneTransformStorage[i] = meshSource->GetSkeleton()->GetTransform() * boneTransforms[meshSource->m_BoneInfo[i].BoneIndex] * meshSource->m_BoneInfo[i].InverseBindPose;
+				const auto submeshInvTransform = meshSource->m_BoneInfo[i].SubMeshInverseTransform;
+				const auto boneTransform = boneTransforms[meshSource->m_BoneInfo[i].BoneIndex];
+				const auto invBindPose = meshSource->m_BoneInfo[i].InverseBindPose;
+				boneTransformStorage[i] = submeshInvTransform * boneTransform * invBindPose;
 			}
 		}
 	}
@@ -3598,9 +3523,6 @@ namespace Hazel {
 			m_GeometryWireframeAnimPass->GetPipeline()->GetSpecification().LineWidth = width;
 		if (m_GeometryWireframeOnTopAnimPass)
 			m_GeometryWireframeOnTopAnimPass->GetPipeline()->GetSpecification().LineWidth = width;
-
-		if (m_Renderer2D)
-			m_Renderer2D->SetLineWidth(width);
 	}
 
 }

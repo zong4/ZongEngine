@@ -1,9 +1,8 @@
 #include "AssetManagerPanel.h"
 
-#include "Hazel/Asset/AssetManager.h"
 #include "Hazel/ImGui/ImGui.h"
-
-#include <format>
+#include "Hazel/Asset/AssetRegistry.h"
+#include "Hazel/Asset/AssetManager.h"
 
 namespace Hazel {
 
@@ -48,7 +47,7 @@ namespace Hazel {
 					{
 						ImGui::PushID(id++);
 
-						std::string handle = std::format("{0}", metadata.Handle);
+						std::string handle = fmt::format("{0}", metadata.Handle);
 						std::string filepath = metadata.FilePath.string();
 						std::string type = Utils::AssetTypeToString(metadata.Type);
 						if (searchBuffer[0] != 0)
@@ -62,7 +61,7 @@ namespace Hazel {
 								if (s_AllowEditing)
 									UI::PropertyInput("Handle", (uint64_t&)metadata.Handle);
 								else
-									UI::Property("Handle", (const std::string&)std::format("{}", metadata.Handle));
+									UI::Property("Handle", (const std::string&)fmt::format("{}", metadata.Handle));
 								UI::Property("File Path", (const std::string&)filepath);
 								UI::Property("Type", (const std::string&)type);
 								UI::Separator();
@@ -73,7 +72,7 @@ namespace Hazel {
 							if (s_AllowEditing)
 								UI::PropertyInput("Handle", (uint64_t&)metadata.Handle);
 							else
-								UI::Property("Handle", (const std::string&)std::format("{}", metadata.Handle));
+								UI::Property("Handle", (const std::string&)fmt::format("{}", metadata.Handle));
 							UI::Property("File Path", (const std::string&)metadata.FilePath.string());
 							UI::Property("Type", (const std::string&)Utils::AssetTypeToString(metadata.Type));
 							UI::Separator();

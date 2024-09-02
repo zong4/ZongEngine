@@ -1,26 +1,20 @@
-HazelRootDirectory = os.getenv("HAZEL_DIR")
-
-include (path.join(HazelRootDirectory, "Hazel", "vendor", "Coral", "Premake", "CSExtensions.lua"))
-include (path.join(HazelRootDirectory, "Hazel", "vendor", "Coral", "Coral.Managed"))
-
 project "Hazel-ScriptCore"
+
+-- NOTE(Yan): Windows-only until we switch to Coral
+filter "not system:windows"
+    kind "StaticLib"
+filter "system:windows"
 	kind "SharedLib"
 	language "C#"
-	dotnetframework "net8.0"
-	clr "Unsafe"
-	targetdir "%{HazelRootDirectory}/Hazelnut/Resources/Scripts"
-	objdir "%{HazelRootDirectory}/Hazelnut/Resources/Scripts/Intermediates"
+	dotnetframework "4.7.2"
 
-	links {
-		"Coral.Managed"
-	}
+	linkAppReferences(false)
 
-	propertytags {
-		{ "AppendTargetFrameworkToOutputPath", "false" },
-		{ "Nullable", "enable" },
-	}
+	targetdir ("../Hazelnut/Resources/Scripts")
+	objdir ("../Hazelnut/Resources/Scripts/Intermediates")
 
-	files {
-		"%{HazelRootDirectory}/Hazel-ScriptCore/Source/**.cs",
-		"%{HazelRootDirectory}/Hazel-ScriptCore/Properties/**.cs"
+	files 
+	{
+		"Source/**.cs",
+		"Properties/**.cs"
 	}

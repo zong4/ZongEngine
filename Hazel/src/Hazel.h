@@ -10,7 +10,6 @@
 #include "Hazel/Core/TimeStep.h"
 #include "Hazel/Core/Timer.h"
 #include "Hazel/Core/Platform.h"
-#include "Hazel/Core/Version.h"
 
 #include "Hazel/Core/Events/Event.h"
 #include "Hazel/Core/Events/ApplicationEvent.h"

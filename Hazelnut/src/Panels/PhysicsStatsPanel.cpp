@@ -62,7 +62,7 @@ namespace Hazel {
 
 			size_t searchLength = strlen(s_SearchBuffer);
 
-			if (UI::PropertyGridHeader(std::format("Static Actors ({0})", stats.nbStaticBodies), searchLength > 0))
+			if (UI::PropertyGridHeader(fmt::format("Static Actors ({0})", stats.nbStaticBodies), searchLength > 0))
 			{
 				for (const auto& [entityID, actor] : actors)
 				{
@@ -79,7 +79,7 @@ namespace Hazel {
 							continue;
 					}
 
-					std::string label = std::format("{0}##{1}", tag, entityID);
+					std::string label = fmt::format("{0}##{1}", tag, entityID);
 
 					if (UI::PropertyGridHeader(label, false))
 					{
@@ -98,7 +98,7 @@ namespace Hazel {
 						ImGui::Text("Shapes: %d", collisionShapes.size());
 						for (const auto& shape : collisionShapes)
 						{
-							std::string shapeLabel = std::format("{0}##{1}", shape->GetShapeName(), entityID);
+							std::string shapeLabel = fmt::format("{0}##{1}", shape->GetShapeName(), entityID);
 							bool shapeOpen = UI::PropertyGridHeader(shapeLabel, false);
 							if (shapeOpen)
 							{
@@ -133,7 +133,7 @@ namespace Hazel {
 				ImGui::TreePop();
 			}
 			
-			if (UI::PropertyGridHeader(std::format("Dynamic Actors ({0})", stats.nbDynamicBodies), searchLength > 0))
+			if (UI::PropertyGridHeader(fmt::format("Dynamic Actors ({0})", stats.nbDynamicBodies), searchLength > 0))
 			{
 				for (const auto& [entityID, actor] : actors)
 				{
@@ -150,7 +150,7 @@ namespace Hazel {
 							continue;
 					}
 
-					std::string label = std::format("{0}##{1}", tag, entityID);
+					std::string label = fmt::format("{0}##{1}", tag, entityID);
 					if (UI::PropertyGridHeader(label, false))
 					{
 						UI::BeginPropertyGrid();
@@ -199,7 +199,7 @@ namespace Hazel {
 
 						for (const auto& shape : collisionShapes)
 						{
-							std::string shapeLabel = std::format("{0}##{1}", shape->GetShapeName(), entityID);
+							std::string shapeLabel = fmt::format("{0}##{1}", shape->GetShapeName(), entityID);
 							if (UI::PropertyGridHeader(shapeLabel, false))
 							{
 								UI::BeginPropertyGrid();
@@ -235,7 +235,7 @@ namespace Hazel {
 
 			const auto& joints = m_PhysicsScene->GetJoints();
 
-			if (UI::PropertyGridHeader(std::format("Joints ({0})", joints.size()), searchLength > 0))
+			if (UI::PropertyGridHeader(fmt::format("Joints ({0})", joints.size()), searchLength > 0))
 			{
 				for (const auto& [entityID, joint] : joints)
 				{
@@ -252,7 +252,7 @@ namespace Hazel {
 						}
 					}
 
-					std::string label = std::format("{0} ({1})##{1}", joint->GetDebugName(), tag, entityID);
+					std::string label = fmt::format("{0} ({1})##{1}", joint->GetDebugName(), tag, entityID);
 					if (UI::PropertyGridHeader(label, false))
 					{
 						UI::BeginPropertyGrid();

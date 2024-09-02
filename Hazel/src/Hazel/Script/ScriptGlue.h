@@ -6,13 +6,13 @@
 #include "Hazel/Physics/PhysicsTypes.h"
 #include "Hazel/Core/Input.h"
 
-#include <Coral/Assembly.hpp>
-#include <Coral/String.hpp>
-#include <Coral/Array.hpp>
-
 #include <glm/glm.hpp>
 
-#include <concepts>
+extern "C" {
+	typedef struct _MonoString MonoString;
+	typedef struct _MonoArray MonoArray;
+	typedef struct _MonoReflectionType MonoReflectionType;
+}
 
 namespace Hazel::Audio
 {
@@ -28,45 +28,18 @@ namespace Hazel {
 	class ScriptGlue
 	{
 	public:
-		static void RegisterGlue(Coral::ManagedAssembly& coreAssembly);
+		static void RegisterGlue();
 
 	private:
-		static void RegisterComponentTypes(Coral::ManagedAssembly& coreAssembly);
-		static void RegisterInternalCalls(Coral::ManagedAssembly& coreAssembly);
+		static void RegisterComponentTypes();
+		static void RegisterInternalCalls();
 	};
 
 	namespace InternalCalls {
 
-		// NOTE(Peter): "Hack" around C++ taking in types that aren't standard layout, e.g UUID isn't passable because
-		//				it defines proper constructors, this method is slightly risky though, depending on the type
-		template<std::default_initializable T>
-		struct Param
-		{
-			std::byte Data[sizeof(T)];
-
-			operator T() const
-			{
-				T result;
-				std::memcpy(&result, Data, sizeof(T));
-				return result;
-			}
-		};
-
-		template<typename T>
-		struct OutParam
-		{
-			std::byte* Ptr = nullptr;
-
-			T* operator->() noexcept { return reinterpret_cast<T*>(Ptr); }
-			const T* operator->() const noexcept { return reinterpret_cast<const T*>(Ptr); }
-
-			T& operator*() { return *reinterpret_cast<T*>(Ptr); }
-			const T& operator*() const { return *reinterpret_cast<const T*>(Ptr); }
-		};
-
 #pragma region AssetHandle
 
-		bool AssetHandle_IsValid(Param<AssetHandle> assetHandle);
+		bool AssetHandle_IsValid(AssetHandle* assetHandle);
 
 #pragma endregion
 
@@ -75,40 +48,40 @@ namespace Hazel {
 		void Application_Quit();
 		uint32_t Application_GetWidth();
 		uint32_t Application_GetHeight();
-		Coral::String Application_GetDataDirectoryPath();
-		Coral::String Application_GetSetting(Coral::String name, Coral::String defaultValue);
-		int Application_GetSettingInt(Coral::String name, int defaultValue);
-		float Application_GetSettingFloat(Coral::String name, float defaultValue);
+		MonoString* Application_GetDataDirectoryPath();
+		MonoString* Application_GetSetting(MonoString* name, MonoString* defaultValue);
+		int Application_GetSettingInt(MonoString* name, int defaultValue);
+		float Application_GetSettingFloat(MonoString* name, float defaultValue);
 
 #pragma endregion
 
 #pragma region SceneManager
 
-		bool SceneManager_IsSceneValid(Coral::String inScene);
-		bool SceneManager_IsSceneIDValid(Param<AssetHandle> sceneHandle);
-		void SceneManager_LoadScene(Param<AssetHandle> sceneHandle);
-		void SceneManager_LoadSceneByID(Param<AssetHandle> sceneHandle);
+		bool SceneManager_IsSceneValid(MonoString* inScene);
+		bool SceneManager_IsSceneIDValid(uint64_t sceneID);
+		void SceneManager_LoadScene(AssetHandle* sceneHandle);
+		void SceneManager_LoadSceneByID(uint64_t sceneID);
 		uint64_t SceneManager_GetCurrentSceneID();
-		Coral::String SceneManager_GetCurrentSceneName();
+		MonoString* SceneManager_GetCurrentSceneName();
 
 #pragma endregion
 
 #pragma region Scene
 
-		uint64_t Scene_FindEntityByTag(Coral::String tag);
+		uint64_t Scene_FindEntityByTag(MonoString* tag);
 		bool Scene_IsEntityValid(uint64_t entityID);
-		uint64_t Scene_CreateEntity(Coral::String tag);
-		uint64_t Scene_InstantiatePrefab(Param<AssetHandle> prefabHandle);
-		uint64_t Scene_InstantiatePrefabWithTranslation(Param<AssetHandle> prefabHandle, glm::vec3* inTranslation);
-		uint64_t Scene_InstantiatePrefabWithTransform(Param<AssetHandle> prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale);
-		uint64_t Scene_InstantiateChildPrefabWithTranslation(uint64_t parentId, Param<AssetHandle> prefabHandle, glm::vec3* inTranslation);
-		uint64_t Scene_InstantiateChildPrefabWithTransform(uint64_t parentId, Param<AssetHandle> prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale);
+		uint64_t Scene_CreateEntity(MonoString* tag);
+		uint64_t Scene_InstantiatePrefab(AssetHandle* prefabHandle);
+		uint64_t Scene_InstantiatePrefabWithTranslation(AssetHandle* prefabHandle, glm::vec3* inTranslation);
+		uint64_t Scene_InstantiatePrefabWithTransform(AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale);
+		uint64_t Scene_InstantiateChildPrefabWithTranslation(uint64_t parentId, AssetHandle* prefabHandle, glm::vec3* inTranslation);
+		uint64_t Scene_InstantiateChildPrefabWithTransform(uint64_t parentId, AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale);
 		
 		void Scene_DestroyEntity(uint64_t entityID);
 		void Scene_DestroyAllChildren(uint64_t entityID);
 
-		Coral::Array<uint64_t> Scene_GetEntities();
-		Coral::Array<uint64_t> Scene_GetChildrenIDs(uint64_t entityID);
+		MonoArray* Scene_GetEntities();
+		MonoArray* Scene_GetChildrenIDs(uint64_t entityID);
 		
 		void Scene_SetTimeScale(float timeScale);
 
@@ -119,18 +92,18 @@ namespace Hazel {
 		uint64_t Entity_GetParent(uint64_t entityID);
 		void Entity_SetParent(uint64_t entityID, uint64_t parentID);
 
-		Coral::Array<uint64_t> Entity_GetChildren(uint64_t entityID);
+		MonoArray* Entity_GetChildren(uint64_t entityID);
 
-		void Entity_CreateComponent(uint64_t entityID, Coral::ReflectionType componentType);
-		bool Entity_HasComponent(uint64_t entityID, Coral::ReflectionType componentType);
-		bool Entity_RemoveComponent(uint64_t entityID, Coral::ReflectionType componentType);
+		void Entity_CreateComponent(uint64_t entityID, MonoReflectionType* componentType);
+		bool Entity_HasComponent(uint64_t entityID, MonoReflectionType* componentType);
+		bool Entity_RemoveComponent(uint64_t entityID, MonoReflectionType* componentType);
 
 #pragma endregion
 
 #pragma region TagComponent
 
-		Coral::String TagComponent_GetTag(uint64_t entityID);
-		void TagComponent_SetTag(uint64_t entityID, Coral::String inTag);
+		MonoString* TagComponent_GetTag(uint64_t entityID);
+		void TagComponent_SetTag(uint64_t entityID, MonoString* inTag);
 
 #pragma endregion
 
@@ -154,7 +127,6 @@ namespace Hazel {
 		void TransformComponent_GetWorldSpaceTransform(uint64_t entityID, Transform* outTransform);
 		void TransformComponent_GetTransformMatrix(uint64_t entityID, glm::mat4* outTransform);
 		void TransformComponent_SetTransformMatrix(uint64_t entityID, glm::mat4* inTransform);
-		void TransformComponent_GetRotationQuat(uint64_t entityID, glm::quat* outRotation);
 		void TransformComponent_SetRotationQuat(uint64_t entityID, glm::quat* inRotation);
 		void TransformMultiply_Native(Transform* inA, Transform* inB, Transform* outResult);
 
@@ -162,46 +134,41 @@ namespace Hazel {
 
 #pragma region MeshComponent
 
-		bool MeshComponent_GetMesh(uint64_t entityID, OutParam<AssetHandle> outHandle);
-		void MeshComponent_SetMesh(uint64_t entityID, Param<AssetHandle> meshHandle);
-		bool MeshComponent_GetVisible(uint64_t entityID);
-		void MeshComponent_SetVisible(uint64_t entityID, bool isVisible);
+		bool MeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle);
+		void MeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle);
 		bool MeshComponent_HasMaterial(uint64_t entityID, int index);
-		bool MeshComponent_GetMaterial(uint64_t entityID, int index, OutParam<AssetHandle> outHandle);
+		bool MeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle);
 		bool MeshComponent_GetIsRigged(uint64_t entityID);
 
 #pragma endregion
 
 #pragma region StaticMeshComponent
 
-		bool StaticMeshComponent_GetMesh(uint64_t entityID, OutParam<AssetHandle> outHandle);
-		void StaticMeshComponent_SetMesh(uint64_t entityID, Param<AssetHandle> meshHandle);
+		bool StaticMeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle);
+		void StaticMeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle);
 		bool StaticMeshComponent_HasMaterial(uint64_t entityID, int index);
-		bool StaticMeshComponent_GetMaterial(uint64_t entityID, int index, OutParam<AssetHandle> outHandle);
-		void StaticMeshComponent_SetMaterial(uint64_t entityID, int index, Param<AssetHandle> materialHandle);
-		bool StaticMeshComponent_GetVisible(uint64_t entityID);
+		bool StaticMeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle);
+		void StaticMeshComponent_SetMaterial(uint64_t entityID, int index, uint64_t materialHandle);
+		bool StaticMeshComponent_IsVisible(uint64_t entityID);
 		void StaticMeshComponent_SetVisible(uint64_t entityID, bool visible);
 
 #pragma endregion
 
 #pragma region AnimationComponent
-		uint32_t Identifier_Get(Coral::String inName);
+		uint32_t Identifier_Get(MonoString* inName);
 		bool AnimationComponent_GetInputBool(uint64_t entityID, uint32_t inputID);
 		void AnimationComponent_SetInputBool(uint64_t entityID, uint32_t inputId, bool value);
 		int32_t AnimationComponent_GetInputInt(uint64_t entityID, uint32_t inputID);
 		void AnimationComponent_SetInputInt(uint64_t entityID, uint32_t inputId, int32_t value);
 		float AnimationComponent_GetInputFloat(uint64_t entityID, uint32_t inputID);
 		void AnimationComponent_SetInputFloat(uint64_t entityID, uint32_t inputId, float value);
-		void AnimationComponent_GetInputVector3(uint64_t entityID, uint32_t inputID, glm::vec3* value);
-		void AnimationComponent_SetInputVector3(uint64_t entityID, uint32_t inputId, const glm::vec3* value);
-		void AnimationComponent_SetInputTrigger(uint64_t entityID, uint32_t inputId);
 		void AnimationComponent_GetRootMotion(uint64_t entityID, Transform* outTransform);
 
 #pragma endregion
 
 #pragma region ScriptComponent
 
-		Coral::ManagedObject ScriptComponent_GetInstance(uint64_t entityID);
+		MonoObject* ScriptComponent_GetInstance(uint64_t entityID);
 
 #pragma endregion
 
@@ -225,7 +192,6 @@ namespace Hazel {
 		void CameraComponent_SetProjectionType(uint64_t entityID, CameraComponent::Type inType);
 		bool CameraComponent_GetPrimary(uint64_t entityID);
 		void CameraComponent_SetPrimary(uint64_t entityID, bool inValue);
-		void CameraComponent_ToScreenSpace(uint64_t entityID, glm::vec3* inWorldTranslation, glm::vec2* outResult);
 
 #pragma endregion
 
@@ -292,14 +258,14 @@ namespace Hazel {
 
 #pragma region SpriteRendererComponent
 
-		void SpriteRendererComponent_GetColor(uint64_t entityID, glm::vec4* outColor);
-		void SpriteRendererComponent_SetColor(uint64_t entityID, glm::vec4* inColor);
+		void SpriteRendererComponent_GetColor(uint64_t entityID, glm::vec4 * outColor);
+		void SpriteRendererComponent_SetColor(uint64_t entityID, glm::vec4 * inColor);
 		float SpriteRendererComponent_GetTilingFactor(uint64_t entityID);
 		void SpriteRendererComponent_SetTilingFactor(uint64_t entityID, float tilingFactor);
-		void SpriteRendererComponent_GetUVStart(uint64_t entityID, glm::vec2* outUVStart);
-		void SpriteRendererComponent_SetUVStart(uint64_t entityID, glm::vec2* inUVStart);
-		void SpriteRendererComponent_GetUVEnd(uint64_t entityID, glm::vec2* outUVEnd);
-		void SpriteRendererComponent_SetUVEnd(uint64_t entityID, glm::vec2* inUVEnd);
+		void SpriteRendererComponent_GetUVStart(uint64_t entityID, glm::vec2 * outUVStart);
+		void SpriteRendererComponent_SetUVStart(uint64_t entityID, glm::vec2 * inUVStart);
+		void SpriteRendererComponent_GetUVEnd(uint64_t entityID, glm::vec2 * outUVEnd);
+		void SpriteRendererComponent_SetUVEnd(uint64_t entityID, glm::vec2 * inUVEnd);
 		
 #pragma endregion
 
@@ -346,8 +312,8 @@ namespace Hazel {
 		void RigidBodyComponent_Rotate(uint64_t entityID, glm::vec3* inRotation);
 		uint32_t RigidBodyComponent_GetLayer(uint64_t entityID);
 		void RigidBodyComponent_SetLayer(uint64_t entityID, uint32_t layerID);
-		Coral::String RigidBodyComponent_GetLayerName(uint64_t entityID);
-		void RigidBodyComponent_SetLayerByName(uint64_t entityID, Coral::String inName);
+		MonoString* RigidBodyComponent_GetLayerName(uint64_t entityID);
+		void RigidBodyComponent_SetLayerByName(uint64_t entityID, MonoString* inName);
 		float RigidBodyComponent_GetMass(uint64_t entityID);
 		void RigidBodyComponent_SetMass(uint64_t entityID, float mass);
 		EBodyType RigidBodyComponent_GetBodyType(uint64_t entityID);
@@ -361,6 +327,7 @@ namespace Hazel {
 		bool RigidBodyComponent_IsSleeping(uint64_t entityID);
 		void RigidBodyComponent_SetIsSleeping(uint64_t entityID, bool isSleeping);
 		void RigidBodyComponent_AddRadialImpulse(uint64_t entityID, glm::vec3* inOrigin, float radius, float strength, EFalloffMode falloff, bool velocityChange);
+		void RigidBodyComponent_Teleport(uint64_t entityID, glm::vec3* inTargetPosition, glm::vec3* inTargetRotation, bool inForce);
 
 #pragma endregion
 
@@ -375,12 +342,30 @@ namespace Hazel {
 		void CharacterControllerComponent_SetTranslation(uint64_t entityID, glm::vec3* inPosition);
 		void CharacterControllerComponent_SetRotation(uint64_t entityID, glm::quat* inRotation);
 		void CharacterControllerComponent_Move(uint64_t entityID, glm::vec3* inDisplacement);
-		void CharacterControllerComponent_Rotate(uint64_t entityID, glm::quat* inRotation);
 		void CharacterControllerComponent_Jump(uint64_t entityID, float jumpPower);
 		void CharacterControllerComponent_GetLinearVelocity(uint64_t entityID, glm::vec3* outVelocity);
-		void CharacterControllerComponent_SetLinearVelocity(uint64_t entityID, glm::vec3* inVelocity);
+		void CharacterControllerComponent_SetLinearVelocity(uint64_t entityID, const glm::vec3& inVelocity);
 		bool CharacterControllerComponent_IsGrounded(uint64_t entityID);
 		ECollisionFlags CharacterControllerComponent_GetCollisionFlags(uint64_t entityID);
+
+#pragma endregion
+
+#pragma region FixedJointComponent
+
+		uint64_t FixedJointComponent_GetConnectedEntity(uint64_t entityID);
+		void FixedJointComponent_SetConnectedEntity(uint64_t entityID, uint64_t connectedEntityID);
+		bool FixedJointComponent_IsBreakable(uint64_t entityID);
+		void FixedJointComponent_SetIsBreakable(uint64_t entityID, bool isBreakable);
+		bool FixedJointComponent_IsBroken(uint64_t entityID);
+		void FixedJointComponent_Break(uint64_t entityID);
+		float FixedJointComponent_GetBreakForce(uint64_t entityID);
+		void FixedJointComponent_SetBreakForce(uint64_t entityID, float breakForce);
+		float FixedJointComponent_GetBreakTorque(uint64_t entityID);
+		void FixedJointComponent_SetBreakTorque(uint64_t entityID, float breakForce);
+		bool FixedJointComponent_IsCollisionEnabled(uint64_t entityID);
+		void FixedJointComponent_SetCollisionEnabled(uint64_t entityID, bool isCollisionEnabled);
+		bool FixedJointComponent_IsPreProcessingEnabled(uint64_t entityID);
+		void FixedJointComponent_SetPreProcessingEnabled(uint64_t entityID, bool isPreProcessingEnabled);
 
 #pragma endregion
 
@@ -415,8 +400,8 @@ namespace Hazel {
 #pragma region MeshColliderComponent
 
 		bool MeshColliderComponent_IsMeshStatic(uint64_t entityID);
-		bool MeshColliderComponent_IsColliderMeshValid(uint64_t entityID, Param<AssetHandle> meshHandle);
-		bool MeshColliderComponent_GetColliderMesh(uint64_t entityID, OutParam<AssetHandle> outHandle);
+		bool MeshColliderComponent_IsColliderMeshValid(uint64_t entityID, AssetHandle* meshHandle);
+		bool MeshColliderComponent_GetColliderMesh(uint64_t entityID, AssetHandle* outHandle);
 		bool MeshColliderComponent_GetMaterial(uint64_t entityID, ColliderMaterial* outMaterial);
 		void MeshColliderComponent_SetMaterial(uint64_t entityID, ColliderMaterial* inMaterial);
 
@@ -424,7 +409,7 @@ namespace Hazel {
 
 #pragma region MeshCollider
 
-		bool MeshCollider_IsStaticMesh(Param<AssetHandle> meshHandle);
+		bool MeshCollider_IsStaticMesh(AssetHandle* meshHandle);
 
 #pragma endregion
 
@@ -446,8 +431,8 @@ namespace Hazel {
 #pragma region TextComponent
 
 		size_t TextComponent_GetHash(uint64_t entityID);
-		Coral::String TextComponent_GetText(uint64_t entityID);
-		void TextComponent_SetText(uint64_t entityID, Coral::String text);
+		MonoString* TextComponent_GetText(uint64_t entityID);
+		void TextComponent_SetText(uint64_t entityID, MonoString* text);
 		void TextComponent_GetColor(uint64_t entityID, glm::vec4* outColor);
 		void TextComponent_SetColor(uint64_t entityID, glm::vec4* inColor);
 
@@ -476,7 +461,7 @@ namespace Hazel {
 
 #pragma region AudioCommandID
 		
-		uint32_t AudioCommandID_Constructor(Coral::String inCommandName);
+		uint32_t AudioCommandID_Constructor(MonoString* inCommandName);
 
 #pragma endregion
 
@@ -499,42 +484,42 @@ namespace Hazel {
 
 #pragma region Texture2D
 
-		bool Texture2D_Create(uint32_t width, uint32_t height, TextureWrap wrapMode, TextureFilter filterMode, OutParam<AssetHandle> outHandle);
-		void Texture2D_GetSize(Param<AssetHandle> inHandle, uint32_t* outWidth, uint32_t* outHeight);
-		void Texture2D_SetData(Param<AssetHandle> inHandle, Coral::Array<glm::vec4> inData);
-		//Coral::Array Texture2D_GetData(Param<AssetHandle> inHandle);
+		bool Texture2D_Create(uint32_t width, uint32_t height, TextureWrap wrapMode, TextureFilter filterMode, AssetHandle* outHandle);
+		void Texture2D_GetSize(AssetHandle* inHandle, uint32_t* outWidth, uint32_t* outHeight);
+		void Texture2D_SetData(AssetHandle* inHandle, MonoArray* inData);
+		//MonoArray* Texture2D_GetData(AssetHandle* inHandle);
 
 #pragma endregion
 
 #pragma region Mesh
 
-		bool Mesh_GetMaterialByIndex(Param<AssetHandle> meshHandle, int index, OutParam<AssetHandle> outHandle);
-		int Mesh_GetMaterialCount(Param<AssetHandle> meshHandle);
+		bool Mesh_GetMaterialByIndex(AssetHandle* meshHandle, int index, AssetHandle* outHandle);
+		int Mesh_GetMaterialCount(AssetHandle* meshHandle);
 
 #pragma endregion
 
 #pragma region StaticMesh
 
-		bool StaticMesh_GetMaterialByIndex(Param<AssetHandle> meshHandle, int index, OutParam<AssetHandle> outHandle);
-		int StaticMesh_GetMaterialCount(Param<AssetHandle> meshHandle);
+		bool StaticMesh_GetMaterialByIndex(AssetHandle* meshHandle, int index, AssetHandle* outHandle);
+		int StaticMesh_GetMaterialCount(AssetHandle* meshHandle);
 
 #pragma endregion
 
 #pragma region Material
 
-		void Material_GetAlbedoColor(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, glm::vec3* outAlbedoColor);
-		void Material_SetAlbedoColor(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, glm::vec3* inAlbedoColor);
-		float Material_GetMetalness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle);
-		void Material_SetMetalness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inMetalness);
-		float Material_GetRoughness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle);
-		void Material_SetRoughness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inRoughness);
-		float Material_GetEmission(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle);
-		void Material_SetEmission(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inEmission);
+		void Material_GetAlbedoColor(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, glm::vec3* outAlbedoColor);
+		void Material_SetAlbedoColor(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, glm::vec3* inAlbedoColor);
+		float Material_GetMetalness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle);
+		void Material_SetMetalness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inMetalness);
+		float Material_GetRoughness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle);
+		void Material_SetRoughness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inRoughness);
+		float Material_GetEmission(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle);
+		void Material_SetEmission(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inEmission);
 
-		void Material_SetFloat(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, float value);
-		void Material_SetVector3(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, glm::vec3* inValue);
-		void Material_SetVector4(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, glm::vec3* inValue);
-		void Material_SetTexture(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, Param<AssetHandle> inTexture);
+		void Material_SetFloat(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, float value);
+		void Material_SetVector3(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, glm::vec3* inValue);
+		void Material_SetVector4(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, glm::vec3* inValue);
+		void Material_SetTexture(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, AssetHandle* inTexture);
 
 #pragma endregion
 
@@ -551,8 +536,8 @@ namespace Hazel {
 			glm::vec3 Origin;
 			glm::vec3 Direction;
 			float MaxDistance;
-			Coral::Array<Coral::ReflectionType> RequiredComponentTypes;
-			Coral::Array<uint64_t> ExcludeEntities;
+			MonoArray* RequiredComponentTypes;
+			MonoArray* ExcludeEntities;
 		};
 
 		struct ShapeQueryData
@@ -560,9 +545,9 @@ namespace Hazel {
 			glm::vec3 Origin;
 			glm::vec3 Direction;
 			float MaxDistance;
-			Coral::ManagedObject ShapeDataInstance;
-			Coral::Array<Coral::ReflectionType> RequiredComponentTypes;
-			Coral::Array<uint64_t> ExcludeEntities;
+			MonoObject* ShapeDataInstance;
+			MonoArray* RequiredComponentTypes;
+			MonoArray* ExcludeEntities;
 		};
 
 		struct RaycastData2D
@@ -570,7 +555,7 @@ namespace Hazel {
 			glm::vec2 Origin;
 			glm::vec2 Direction;
 			float MaxDistance;
-			Coral::Array<Coral::ReflectionType> RequiredComponentTypes;
+			MonoArray* RequiredComponentTypes;
 		};
 
 		struct ScriptRaycastHit
@@ -579,22 +564,14 @@ namespace Hazel {
 			glm::vec3 Position = glm::vec3(0.0f);
 			glm::vec3 Normal = glm::vec3(0.0f);
 			float Distance = 0.0f;
-			Coral::ManagedObject HitCollider;
+			MonoObject* HitCollider = nullptr;
 		};
 
 		bool Physics_CastRay(RaycastData* inRaycastData, ScriptRaycastHit* outHit);
 		bool Physics_CastShape(ShapeQueryData* inShapeQueryData, ScriptRaycastHit* outHit);
-		int32_t Physics_OverlapShape(ShapeQueryData* inOverlapData, Coral::Array<ScriptRaycastHit>* outHits);
+		int32_t Physics_OverlapShape(ShapeQueryData* inOverlapData, MonoArray** outHits);
 
-		struct ScriptRaycastHit2D
-		{
-			uint64_t EntityID;
-			glm::vec2 Position;
-			glm::vec2 Normal;
-			float Distance;
-		};
-
-		Coral::Array<ScriptRaycastHit2D> Physics_Raycast2D(RaycastData2D* inRaycastData);
+		MonoArray* Physics_Raycast2D(RaycastData2D* inRaycastData);
 
 		void Physics_GetGravity(glm::vec3* outGravity);
 		void Physics_SetGravity(glm::vec3* inGravity);
@@ -644,35 +621,49 @@ namespace Hazel {
 		};
 
 
-		void Log_LogMessage(LogLevel level, Coral::String inFormattedMessage);
+		void Log_LogMessage(LogLevel level, MonoString* inFormattedMessage);
 
 #pragma endregion
 
 #pragma region Input
 
-		Coral::Bool32 Input_IsKeyPressed(KeyCode keycode);
-		Coral::Bool32 Input_IsKeyHeld(KeyCode keycode);
-		Coral::Bool32 Input_IsKeyDown(KeyCode keycode);
-		Coral::Bool32 Input_IsKeyReleased(KeyCode keycode);
-		Coral::Bool32 Input_IsMouseButtonPressed(MouseButton button);
-		Coral::Bool32 Input_IsMouseButtonHeld(MouseButton button);
-		Coral::Bool32 Input_IsMouseButtonDown(MouseButton button);
-		Coral::Bool32 Input_IsMouseButtonReleased(MouseButton button);
+		bool Input_IsKeyPressed(KeyCode keycode);
+		bool Input_IsKeyHeld(KeyCode keycode);
+		bool Input_IsKeyDown(KeyCode keycode);
+		bool Input_IsKeyReleased(KeyCode keycode);
+		bool Input_IsMouseButtonPressed(MouseButton button);
+		bool Input_IsMouseButtonHeld(MouseButton button);
+		bool Input_IsMouseButtonDown(MouseButton button);
+		bool Input_IsMouseButtonReleased(MouseButton button);
 		void Input_GetMousePosition(glm::vec2* outPosition);
 		void Input_SetCursorMode(CursorMode mode);
 		CursorMode Input_GetCursorMode();
-		Coral::Bool32 Input_IsControllerPresent(int id);
-		Coral::Array<int32_t> Input_GetConnectedControllerIDs();
-		Coral::String Input_GetControllerName(int id);
-		Coral::Bool32 Input_IsControllerButtonPressed(int id, int button);
-		Coral::Bool32 Input_IsControllerButtonHeld(int id, int button);
-		Coral::Bool32 Input_IsControllerButtonDown(int id, int button);
-		Coral::Bool32 Input_IsControllerButtonReleased(int id, int button);
+		bool Input_IsControllerPresent(int id);
+		MonoArray* Input_GetConnectedControllerIDs();
+		MonoString* Input_GetControllerName(int id);
+		bool Input_IsControllerButtonPressed(int id, int button);
+		bool Input_IsControllerButtonHeld(int id, int button);
+		bool Input_IsControllerButtonDown(int id, int button);
+		bool Input_IsControllerButtonReleased(int id, int button);
 		float Input_GetControllerAxis(int id, int axis);
 		uint8_t Input_GetControllerHat(int id, int hat);
 		float Input_GetControllerDeadzone(int id, int axis);
 		void Input_SetControllerDeadzone(int id, int axis, float deadzone);
 
+
+#pragma endregion
+
+#pragma region EditorUI
+
+		void EditorUI_Text(MonoString* inText);
+		bool EditorUI_Button(MonoString* inLabel, glm::vec2* inSize);
+		bool EditorUI_BeginPropertyHeader(MonoString* label, bool openByDefault);
+		void EditorUI_EndPropertyHeader();
+		void EditorUI_PropertyGrid(bool inBegin);
+		bool EditorUI_PropertyFloat(MonoString* inLabel, float* outValue);
+		bool EditorUI_PropertyVec2(MonoString* inLabel, glm::vec2* outValue);
+		bool EditorUI_PropertyVec3(MonoString* inLabel, glm::vec3* outValue);
+		bool EditorUI_PropertyVec4(MonoString* inLabel, glm::vec4* outValue);
 
 #pragma endregion
 

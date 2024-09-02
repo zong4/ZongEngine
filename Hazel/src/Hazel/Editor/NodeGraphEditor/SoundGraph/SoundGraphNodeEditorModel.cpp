@@ -33,12 +33,12 @@ namespace Hazel {
 		{
 			HZ_CORE_WARN("======================");
 			HZ_CORE_WARN("NODE DUMP");
-			HZ_CORE_WARN("{}", dumpIdentifier);
+			HZ_CORE_WARN(dumpIdentifier);
 			HZ_CORE_TRACE("----------------------");
 			HZ_CORE_TRACE("{}", node->dbgName);
 			for (const auto& [id, value] : node->Ins)
 			{
-				HZ_CORE_TRACE("[{0}] {1}", (uint32_t)id, choc::json::toString(value));
+				HZ_CORE_TRACE("[{0}] {1}", id, choc::json::toString(value));
 			}
 			HZ_CORE_TRACE("----------------------");
 		}
@@ -85,7 +85,7 @@ namespace Hazel {
 				return false;
 
 			auto graph = graphAsset.As<SoundGraphAsset>();
-			const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(graph->Handle);
+			const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(graph);
 			const std::string name = md.FilePath.stem().string();
 
 			SG::GraphGeneratorOptions options
@@ -477,7 +477,7 @@ namespace Hazel {
 		{
 			// TODO: check if m_GraphAsset is newer than cached prototype, if yes, potentially invalidate cache
 
-			const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(m_GraphAsset->Handle);
+			const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(m_GraphAsset);
 			const std::string name = md.FilePath.stem().string();
 
 			if (Ref<SG::Prototype> prototype = m_Cache->ReadPtototype(name.c_str()))

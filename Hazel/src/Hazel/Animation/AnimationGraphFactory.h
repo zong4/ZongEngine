@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeProcessor.h"
+#include "AnimationNodeProcessor.h"
 
 #include "Hazel/Core/Base.h"
 #include "Hazel/Core/Identifier.h"

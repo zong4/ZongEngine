@@ -18,6 +18,7 @@ namespace Hazel {
 		TextureFilter SamplerFilter = TextureFilter::Linear;
 		
 		bool GenerateMips = true;
+		bool SRGB = false;
 		bool Storage = false;
 		bool StoreLocally = false;
 
@@ -50,11 +51,6 @@ namespace Hazel {
 		static Ref<Texture2D> Create(const TextureSpecification& specification);
 		static Ref<Texture2D> Create(const TextureSpecification& specification, const std::filesystem::path& filepath);
 		static Ref<Texture2D> Create(const TextureSpecification& specification, Buffer imageData);
-
-		virtual void CreateFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath) = 0;
-		virtual void CreateFromBuffer(const TextureSpecification& specification, Buffer data = Buffer()) = 0;
-		
-		virtual void ReplaceFromFile(const TextureSpecification& specification, const std::filesystem::path& filepath) = 0;
 
 		virtual void Resize(const glm::uvec2& size) = 0;
 		virtual void Resize(const uint32_t width, const uint32_t height) = 0;

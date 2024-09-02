@@ -10,8 +10,7 @@ namespace Sandbox
 		{
 			if (Input.IsKeyPressed(KeyCode.T))
 			{
-				// To "Teleport" an entity, we can simply change its position
-				Translation += Vector3.Forward * 5.0f;
+				GetComponent<RigidBodyComponent>().Teleport(Translation + Vector3.Forward * 5.0f);
 			}
 		}
 

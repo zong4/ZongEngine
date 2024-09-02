@@ -1,22 +1,30 @@
 #include <hzpch.h>
 #include "AudioEventsEditor.h"
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
-#include "Hazel/Audio/AudioEvents/CommandID.h"
-#include "Hazel/Core/Input.h"
+#include "imgui.h"
+#include "imgui_internal.h"
+
+#include "Hazel/ImGui/ImGui.h"
 #include "Hazel/ImGui/Colors.h"
 #include "Hazel/ImGui/CustomTreeNode.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/ImGui/ImGui.h"
+
+#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
+#include "Hazel/Audio/AudioEvents/CommandID.h"
+
+#include "Hazel/Asset/AssetManager.h"
+#include "Hazel/Core/Input.h"
 #include "Hazel/Renderer/Texture.h"
+
+#include "yaml-cpp/yaml.h"
+
 #include "Hazel/Utilities/SerializationMacros.h"
+
+#include "Hazel/ImGui/ImGui.h"
 
 #include "choc/text/choc_UTF8.h"
 #include "choc/text/choc_Files.h"
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
-#include <yaml-cpp/yaml.h>
+
+#include <iomanip>
 
 
 namespace Hazel {

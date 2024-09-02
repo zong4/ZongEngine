@@ -36,8 +36,8 @@ namespace Hazel {
 	{
 	public:
 
-		static void SerializeNodes(YAML::Emitter& out, const std::vector<Node*>& nodes, std::function<void(YAML::Emitter&, const Node*)> nodeCallBack = {});
-		static void SerializeLinks(YAML::Emitter& out, const std::vector<Link>& links, std::function<void(YAML::Emitter&, const Link&)> linkCallBack = {});
+		static void SerializeNodes(YAML::Emitter& out, const std::vector<Node*>& nodes);
+		static void SerializeLinks(YAML::Emitter& out, const std::vector<Link>& links);
 
 		//==================================================================================
 		/*	Implementation must provide this factory to deserialize nodes with static
@@ -81,11 +81,6 @@ namespace Hazel {
 			std::function<bool(const PinCandidate& candidate,
 								Pin* factoryPin,
 								const NodeCandidate& nodeCandidate)> DeserializePin;
-
-			/*	This factory function should perform any extra post node-construction work
-				For example, deserializing derived type data memebers
-			*/
-			std::function<void(YAML::Node& node, Node* newNode)> PostConstructNode;
 		};
 
 		/*	Try to load graph Nodes from YAML. This function parses YAML into NodeCandidates and PinCandidates,
@@ -94,7 +89,7 @@ namespace Hazel {
 			This function throws an exception if deserialization fails, the caller must handle it!
 		*/
 		static void TryLoadNodes(YAML::Node& in, std::vector<Node*>& nodes, const DeserializationFactory& factory);
-		static void TryLoadLinks(YAML::Node& in, std::vector<Link>& links, std::function<void(YAML::Node&, Link&)> linkCallback = {});
+		static void TryLoadLinks(YAML::Node& in, std::vector<Link>& links);
 	};
 
 } // namespace Hazel

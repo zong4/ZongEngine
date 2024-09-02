@@ -73,7 +73,7 @@ void GpuCrashTracker::Initialize()
         CrashDumpDescriptionCallback,                                     // Register callback for GPU crash dump description.
         this));                                                           // Set the GpuCrashTracker object as user data for the above callbacks.
 
-    HZ_CORE_INFO_TAG("Renderer", "GpuCrashTracker::Initialize");
+    HZ_CORE_TRACE_TAG("Renderer", "GpuCrashTracker::Initialize");
 
     m_initialized = true;
 }

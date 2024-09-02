@@ -1,26 +1,27 @@
 #include "hzpch.h"
 #include "AudioEngine.h"
 
-#include "AudioEvents/AudioCommandRegistry.h"
-#include "AudioEventsManager.h"
-#include "ResourceManager.h"
 #include "SourceManager.h"
 #include "VFS.h"
+#include "ResourceManager.h"
+#include "AudioEvents/AudioCommandRegistry.h"
+#include "AudioEventsManager.h"
+
+#include "Hazel/Debug/Profiler.h"
+#include "Hazel/Core/Timer.h"
+
+#include "Hazel/Core/Application.h"
 
 #include "DSP/Reverb/Reverb.h"
 #include "DSP/Spatializer/Spatializer.h"
 
-#include "Hazel/Core/Application.h"
-#include "Hazel/Core/Timer.h"
-#include "Hazel/Debug/Profiler.h"
+#include "choc/containers/choc_Span.h"
+#include "choc/containers/choc_SmallVector.h"
 
-#include <choc/containers/choc_Span.h>
-#include <choc/containers/choc_SmallVector.h>
-#include <yaml-cpp/yaml.h>
+#include "yaml-cpp/yaml.h"
 
 #include <algorithm>
 #include <execution>
-#include <format>
 
 //#define LOG_MEMORY
 
@@ -149,16 +150,16 @@ namespace Hazel {
 
 	void MALogCallback(void* pUserData, ma_uint32 level, const char* pMessage)
 	{
-		std::string message = std::format("{0}: {1}", std::string(ma_log_level_to_string(level)), pMessage);
+		std::string message = fmt::format("{0}: {1}", std::string(ma_log_level_to_string(level)), pMessage);
 		message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
 
 		switch (level)
 		{
 			case MA_LOG_LEVEL_INFO:
-				HZ_CORE_INFO_TAG("miniaudio", message);
+				HZ_CORE_TRACE_TAG("miniaudio", message);
 				break;
 			case MA_LOG_LEVEL_WARNING:
-				HZ_CORE_WARN_TAG("miniaudio", message);
+				HZ_CORE_INFO_TAG("miniaudio", message);
 				break;
 			case MA_LOG_LEVEL_ERROR:
 				HZ_CORE_ERROR_TAG("miniaudio", message);
@@ -391,7 +392,7 @@ namespace Hazel {
 
 		if (!m_ResourceManager->GetSoundBank())
 		{
-			HZ_CORE_WARN_TAG("Audio", "Could not load SoundBank (this is not an error if you have no audio)");
+			HZ_CORE_ERROR("Could not load SoundBank OnProjectLoaded!");
 		}
 
 		// TODO: maybe reinitialize the whole engine?
@@ -1013,13 +1014,7 @@ namespace Hazel {
 		{
 			HZ_PROFILE_SCOPE_DYNAMIC("MiniAudioEngine::UpdateSources - USP Loop");
 
-			// NOTE: LLVM libc++ does not support execution policies without a
-			// manually applied patch.
-			std::for_each(
-#ifndef _LIBCPP_VERSION
-				std::execution::par,
-#endif
-				m_VoiceHandles.begin(), m_VoiceHandles.end(), [&](const VoiceHandle& voice)
+			std::for_each(std::execution::par, m_VoiceHandles.begin(), m_VoiceHandles.end(), [&](const VoiceHandle& voice)
 			{
 				// It is valid to not yet have any data from Game Thread when the voice is already initialized
 				const auto dIt = m_ObjectData.find(voice.OwningEntity);
@@ -1317,7 +1312,7 @@ namespace Hazel {
 
 		if (!AudioCommandRegistry::DoesCommandExist<TriggerCommand>(triggerCommandID))
 		{
-			HZ_CONSOLE_LOG_ERROR("[Audio] PostTrigger. Audio command with ID {0} does not exist!", (uint32_t)triggerCommandID);
+			HZ_CONSOLE_LOG_ERROR("[Audio] PostTrigger. Audio command with ID {0} does not exist!", triggerCommandID);
 			return EventID::INVALID;
 		}
 
@@ -1758,7 +1753,7 @@ namespace Hazel {
 	}
 	
 	//==================================================================================
-	bool MiniAudioEngine::BuildSoundBank(const std::filesystem::path& path)
+	bool MiniAudioEngine::BuildSoundBank()
 	{
 		if (Get().GetCurrentSceneContext()->IsPlaying())
 		{
@@ -1772,7 +1767,7 @@ namespace Hazel {
 		
 		// This will add this request to the end of the queue,
 		// and it should hopefuly be processed after the 'StopAll'
-		ExecuteOnAudioThread([path] { Get().m_ResourceManager->BuildSoundBank(path); }, "Build SoundBank");
+		ExecuteOnAudioThread([] { Get().m_ResourceManager->BuildSoundBank(); }, "Build SoundBank");
 		return true;
 	}
 	bool MiniAudioEngine::UnloadCurrentSoundBank()

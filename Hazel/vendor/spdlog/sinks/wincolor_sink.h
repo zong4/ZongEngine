@@ -8,11 +8,11 @@
 #include <spdlog/details/null_mutex.h>
 #include <spdlog/sinks/sink.h>
 
-#include <array>
-#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <array>
+#include <cstdint>
 
 namespace spdlog {
 namespace sinks {
@@ -20,9 +20,10 @@ namespace sinks {
  * Windows color console sink. Uses WriteConsoleA to write to the console with
  * colors
  */
-template <typename ConsoleMutex>
-class wincolor_sink : public sink {
-public:
+template<typename ConsoleMutex>
+class wincolor_sink : public sink
+{
+public:   
     wincolor_sink(void *out_handle, color_mode mode);
     ~wincolor_sink() override;
 
@@ -40,7 +41,7 @@ public:
 protected:
     using mutex_t = typename ConsoleMutex::mutex_t;
     void *out_handle_;
-    mutex_t &mutex_;
+    mutex_t &mutex_;    
     bool should_do_colors_;
     std::unique_ptr<spdlog::formatter> formatter_;
     std::array<std::uint16_t, level::n_levels> colors_;
@@ -57,14 +58,16 @@ protected:
     void set_color_mode_impl(color_mode mode);
 };
 
-template <typename ConsoleMutex>
-class wincolor_stdout_sink : public wincolor_sink<ConsoleMutex> {
+template<typename ConsoleMutex>
+class wincolor_stdout_sink : public wincolor_sink<ConsoleMutex>
+{
 public:
     explicit wincolor_stdout_sink(color_mode mode = color_mode::automatic);
 };
 
-template <typename ConsoleMutex>
-class wincolor_stderr_sink : public wincolor_sink<ConsoleMutex> {
+template<typename ConsoleMutex>
+class wincolor_stderr_sink : public wincolor_sink<ConsoleMutex>
+{
 public:
     explicit wincolor_stderr_sink(color_mode mode = color_mode::automatic);
 };
@@ -74,9 +77,9 @@ using wincolor_stdout_sink_st = wincolor_stdout_sink<details::console_nullmutex>
 
 using wincolor_stderr_sink_mt = wincolor_stderr_sink<details::console_mutex>;
 using wincolor_stderr_sink_st = wincolor_stderr_sink<details::console_nullmutex>;
-}  // namespace sinks
-}  // namespace spdlog
+} // namespace sinks
+} // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-    #include "wincolor_sink-inl.h"
+#include "wincolor_sink-inl.h"
 #endif

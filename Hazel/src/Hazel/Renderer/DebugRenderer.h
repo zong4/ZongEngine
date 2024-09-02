@@ -19,7 +19,6 @@ namespace Hazel {
 		~DebugRenderer() = default;
 
 		void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color = glm::vec4(1.0f));
-		void DrawTransform(const glm::mat4& transform, float scale = 1.0f);
 		void DrawQuadBillboard(const glm::vec3& translation, const glm::vec2& size, const glm::vec4& color = glm::vec4(1.0f));
 		
 		void SetLineWidth(float thickness);

@@ -25,7 +25,9 @@ namespace Hazel {
 		int hour = localTime->tm_hour;
 		int minute = localTime->tm_min;
 
-		return std::format("{}{:02}{:02}{:02}{:02}", year, month, day, hour, minute);
-		//return std::format("{:%Y%m%d%H%M}", *localTime);
+		//return fmt::format("{}{00}{00}{00}{00}", year, month, day, hour, minute);
+		return fmt::format("{:%Y%m%d%H%M}", *localTime);
 	}
+
+
 }

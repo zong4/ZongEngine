@@ -55,62 +55,20 @@ namespace Hazel {
 	bool JoltBody::IsDynamic() const { return JoltScene::GetBodyInterface().GetMotionType(m_BodyID) == JPH::EMotionType::Dynamic; }
 	bool JoltBody::IsKinematic() const { return JoltScene::GetBodyInterface().GetMotionType(m_BodyID) == JPH::EMotionType::Kinematic; }
 
-
-	void JoltBody::MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds)
-	{
-		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
-
-		JPH::Body& body = bodyLock.GetBody();
-
-		if (body.GetMotionType() != JPH::EMotionType::Kinematic)
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot call MoveKinematic() on a non-kinematic body!");
-			return;
-		}
-
-		body.MoveKinematic(JoltUtils::ToJoltVector(targetPosition), JoltUtils::ToJoltQuat(targetRotation), deltaSeconds);
-	}
-
-
-	void JoltBody::Rotate(const glm::vec3& inRotationTimesDeltaTime)
-	{
-		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
-
-		JPH::Body& body = bodyLock.GetBody();
-
-		if (body.GetMotionType() != JPH::EMotionType::Kinematic)
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot call Rotate() on a non-kinematic body!");
-			return;
-		}
-
-		body.AddRotationStep(JoltUtils::ToJoltVector(inRotationTimesDeltaTime));
-	}
-
-
 	void JoltBody::SetGravityEnabled(bool isEnabled)
 	{
 		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set gravity on a non-dynamic body!");
 			return;
-		}
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
 		HZ_CORE_VERIFY(lock.Succeeded());
 		lock.GetBody().GetMotionProperties()->SetGravityFactor(isEnabled ? 1.0f : 0.0f);
 	}
 
-
 	void JoltBody::AddForce(const glm::vec3& force, EForceMode forceMode, bool forceWake /*= true*/)
 	{
 		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot apply force to a non-dynamic body!");
 			return;
-		}
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
 		HZ_CORE_VERIFY(lock.Succeeded());
@@ -148,14 +106,10 @@ namespace Hazel {
 			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
 	}
 
-
 	void JoltBody::AddForce(const glm::vec3& force, const glm::vec3& location, EForceMode forceMode, bool forceWake /*= true*/)
 	{
 		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot apply force to a non-dynamic body!");
 			return;
-		}
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
 		HZ_CORE_VERIFY(lock.Succeeded());
@@ -194,32 +148,188 @@ namespace Hazel {
 			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
 	}
 
-
 	void JoltBody::AddTorque(const glm::vec3& torque, bool forceWake /*= true*/)
 	{
 		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot apply torque to a non-dynamic body!");
 			return;
-		}
 
 		JoltScene::GetBodyInterface().AddTorque(m_BodyID, JoltUtils::ToJoltVector(torque));
 	}
 
+	void JoltBody::ChangeTriggerState(bool isTrigger)
+	{
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		lock.GetBody().SetIsSensor(isTrigger);
+	}
+
+	bool JoltBody::IsTrigger() const
+	{
+		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		return lock.GetBody().IsSensor();
+	}
+
+	float JoltBody::GetMass() const
+	{
+		if (!IsDynamic())
+			return 0.0f;
+
+		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		const JPH::Body& body = lock.GetBody();
+		return 1.0f / body.GetMotionProperties()->GetInverseMass();
+	}
+
+	void JoltBody::SetMass(float mass)
+	{
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+
+		JPH::Body& body = lock.GetBody();
+		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
+		massProperties.ScaleToMass(mass);
+		massProperties.mInertia(3, 3) = 1.0f;
+		body.GetMotionProperties()->SetMassProperties(massProperties);
+	}
+
+	void JoltBody::SetLinearDrag(float inLinearDrag)
+	{
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		JPH::Body& body = lock.GetBody();
+		body.GetMotionProperties()->SetLinearDamping(inLinearDrag);
+	}
+
+	void JoltBody::SetAngularDrag(float inAngularDrag)
+	{
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		JPH::Body& body = lock.GetBody();
+		body.GetMotionProperties()->SetAngularDamping(inAngularDrag);
+	}
+
+	glm::vec3 JoltBody::GetLinearVelocity() const
+	{
+		if (!IsDynamic())
+			return glm::vec3(0.0f);
+
+		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetLinearVelocity(m_BodyID));
+	}
+
+	void JoltBody::SetLinearVelocity(const glm::vec3& inVelocity)
+	{
+		if (!IsDynamic())
+			return;
+
+		JoltScene::GetBodyInterface().SetLinearVelocity(m_BodyID, JoltUtils::ToJoltVector(inVelocity));
+	}
+
+	glm::vec3 JoltBody::GetAngularVelocity() const
+	{
+		if (!IsDynamic())
+			return glm::vec3(0.0f);
+
+		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetAngularVelocity(m_BodyID));
+	}
+
+	void JoltBody::SetAngularVelocity(const glm::vec3& inVelocity)
+	{
+		if (!IsDynamic())
+			return;
+
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		auto& body = lock.GetBody();
+		auto velocity = JoltUtils::ToJoltVector(inVelocity);
+		body.SetAngularVelocityClamped(velocity);
+
+		if (!body.IsActive() && !velocity.IsNearZero() && body.IsInBroadPhase())
+			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
+	}
+
+	float JoltBody::GetMaxLinearVelocity() const
+	{
+		if (!IsDynamic())
+			return 0.0f;
+
+		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		return lock.GetBody().GetMotionProperties()->GetMaxLinearVelocity();
+	}
+
+	void JoltBody::SetMaxLinearVelocity(float inMaxVelocity)
+	{
+		if (!IsDynamic())
+			return;
+
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		lock.GetBody().GetMotionProperties()->SetMaxLinearVelocity(inMaxVelocity);
+	}
+
+	float JoltBody::GetMaxAngularVelocity() const
+	{
+		if (!IsDynamic())
+			return 0.0f;
+
+		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		return lock.GetBody().GetMotionProperties()->GetMaxAngularVelocity();
+	}
+
+	void JoltBody::SetMaxAngularVelocity(float inMaxVelocity)
+	{
+		if (!IsDynamic())
+			return;
+
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		lock.GetBody().GetMotionProperties()->SetMaxAngularVelocity(inMaxVelocity);
+	}
+
+	bool JoltBody::IsSleeping() const
+	{
+		if (!IsDynamic())
+			return false;
+
+		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(lock.Succeeded());
+		return !lock.GetBody().IsActive();
+	}
+
+	void JoltBody::SetSleepState(bool inSleep)
+	{
+		if (!IsDynamic())
+			return;
+
+		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
+
+		if (!lock.Succeeded())
+			return;
+
+		auto& body = lock.GetBody();
+
+		if (inSleep)
+		{
+			JoltScene::GetBodyInterface(false).DeactivateBody(m_BodyID);
+		}
+		else if (body.IsInBroadPhase())
+		{
+			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
+		}
+	}
 
 	void JoltBody::AddRadialImpulse(const glm::vec3& origin, float radius, float strength, EFalloffMode falloff, bool velocityChange)
 	{
 		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot apply radial impulse to a non-dynamic body!");
 			return;
-		}
 
 		JPH::BodyLockRead readLock(JoltScene::GetBodyLockInterface(), m_BodyID);
 		HZ_CORE_VERIFY(readLock.Succeeded());
 
 		const JPH::Body& bodyRead = readLock.GetBody();
-
+		
 		glm::vec3 centerOfMassPosition = JoltUtils::FromJoltVector(bodyRead.GetCenterOfMassPosition());
 
 		readLock.ReleaseLock();
@@ -239,7 +349,7 @@ namespace Hazel {
 			impulseMagnitude *= (1.0f - (distance / radius));
 
 		glm::vec3 impulse = direction * impulseMagnitude;
-
+		
 		JPH::BodyLockWrite writeLock(JoltScene::GetBodyLockInterface(), m_BodyID);
 		HZ_CORE_VERIFY(writeLock.Succeeded());
 		JPH::Body& bodyWrite = writeLock.GetBody();
@@ -261,237 +371,23 @@ namespace Hazel {
 			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
 	}
 
-
-	void JoltBody::ChangeTriggerState(bool isTrigger)
-	{
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		lock.GetBody().SetIsSensor(isTrigger);
-	}
-
-	bool JoltBody::IsTrigger() const
-	{
-		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		return lock.GetBody().IsSensor();
-	}
-
-	float JoltBody::GetMass() const
-	{
-		if (IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Static body does not have mass!");
-			return 0.0f;
-		}
-
-		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		const JPH::Body& body = lock.GetBody();
-		return 1.0f / body.GetMotionProperties()->GetInverseMass();
-	}
-
-	void JoltBody::SetMass(float mass)
-	{
-		if (IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set mass on a static body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-
-		JPH::Body& body = lock.GetBody();
-		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
-		massProperties.ScaleToMass(mass);
-		massProperties.mInertia(3, 3) = 1.0f;
-		body.GetMotionProperties()->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
-	}
-
-	void JoltBody::SetLinearDrag(float inLinearDrag)
-	{
-		if (IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set linear drag on a static body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		JPH::Body& body = lock.GetBody();
-		body.GetMotionProperties()->SetLinearDamping(inLinearDrag);
-	}
-
-	void JoltBody::SetAngularDrag(float inAngularDrag)
-	{
-		if (IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set angular drag on a static body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		JPH::Body& body = lock.GetBody();
-		body.GetMotionProperties()->SetAngularDamping(inAngularDrag);
-	}
-
-	glm::vec3 JoltBody::GetLinearVelocity() const
-	{
-		if (IsStatic())
-		{
-			return glm::vec3(0.0f);
-		}
-
-		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetLinearVelocity(m_BodyID));
-	}
-
-	void JoltBody::SetLinearVelocity(const glm::vec3& inVelocity)
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set linear velocity on a non-dynamic body!  Move this body via the entity's transform component.");
-			return;
-		}
-
-		JoltScene::GetBodyInterface().SetLinearVelocity(m_BodyID, JoltUtils::ToJoltVector(inVelocity));
-	}
-
-	glm::vec3 JoltBody::GetAngularVelocity() const
-	{
-		if (IsStatic())
-		{
-			return glm::vec3(0.0f);
-		}
-
-		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetAngularVelocity(m_BodyID));
-	}
-
-	void JoltBody::SetAngularVelocity(const glm::vec3& inVelocity)
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set angular velocity on a non-dynamic body!  Rotate this body via the entity's transform component.");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		auto& body = lock.GetBody();
-		auto velocity = JoltUtils::ToJoltVector(inVelocity);
-		body.SetAngularVelocityClamped(velocity);
-
-		if (!body.IsActive() && !velocity.IsNearZero() && body.IsInBroadPhase())
-			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
-	}
-
-	float JoltBody::GetMaxLinearVelocity() const
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot get max linear velocity on a non-dynamic body!");
-			return 0.0f;
-		}
-
-		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		return lock.GetBody().GetMotionProperties()->GetMaxLinearVelocity();
-	}
-
-	void JoltBody::SetMaxLinearVelocity(float inMaxVelocity)
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set max linear velocity on a non-dynamic body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		lock.GetBody().GetMotionProperties()->SetMaxLinearVelocity(inMaxVelocity);
-	}
-
-	float JoltBody::GetMaxAngularVelocity() const
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot get max angular velocity on a non-dynamic body!");
-			return 0.0f;
-		}
-
-		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		return lock.GetBody().GetMotionProperties()->GetMaxAngularVelocity();
-	}
-
-	void JoltBody::SetMaxAngularVelocity(float inMaxVelocity)
-	{
-		if (!IsDynamic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set max angular velocity on a non-dynamic body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		lock.GetBody().GetMotionProperties()->SetMaxAngularVelocity(inMaxVelocity);
-	}
-
-	bool JoltBody::IsSleeping() const
-	{
-		if (IsStatic())
-		{
-			return false;
-		}
-
-		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
-		return !lock.GetBody().IsActive();
-	}
-
-	void JoltBody::SetSleepState(bool inSleep)
-	{
-		if (IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot change sleep state of a static body!");
-			return;
-		}
-
-		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-
-		if (!lock.Succeeded())
-			return;
-
-		auto& body = lock.GetBody();
-
-		if (inSleep)
-		{
-			JoltScene::GetBodyInterface(false).DeactivateBody(m_BodyID);
-		}
-		else if (body.IsInBroadPhase())
-		{
-			JoltScene::GetBodyInterface(false).ActivateBody(m_BodyID);
-		}
-	}
-
-
 	void JoltBody::SetCollisionDetectionMode(ECollisionDetectionType collisionDetectionMode)
 	{
 		JoltScene::GetBodyInterface().SetMotionQuality(m_BodyID, JoltUtils::ToJoltMotionQuality(collisionDetectionMode));
 	}
 
-
-	glm::vec3 JoltBody::GetTranslation() const
+	void JoltBody::MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds)
 	{
-		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetPosition(m_BodyID));
+		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(bodyLock.Succeeded());
+
+		JPH::Body& body = bodyLock.GetBody();
+
+		if (body.GetMotionType() != JPH::EMotionType::Kinematic)
+			return;
+
+		body.MoveKinematic(JoltUtils::ToJoltVector(targetPosition), JoltUtils::ToJoltQuat(targetRotation), deltaSeconds);
 	}
-
-
-	glm::quat JoltBody::GetRotation() const
-	{
-		return JoltUtils::FromJoltQuat(JoltScene::GetBodyInterface().GetRotation(m_BodyID));
-	}
-
 
 	void JoltBody::SetTranslation(const glm::vec3& translation)
 	{
@@ -500,10 +396,7 @@ namespace Hazel {
 		JPH::Body& body = bodyLock.GetBody();
 
 		if (!body.IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set translation on a non-static body!");
 			return;
-		}
 
 		JoltScene::GetBodyInterface(false).SetPosition(m_BodyID, JoltUtils::ToJoltVector(translation), JPH::EActivation::DontActivate);
 
@@ -512,6 +405,10 @@ namespace Hazel {
 		entityScene->GetPhysicsScene()->MarkForSynchronization(this);
 	}
 
+	glm::vec3 JoltBody::GetTranslation() const
+	{
+		return JoltUtils::FromJoltVector(JoltScene::GetBodyInterface().GetPosition(m_BodyID));
+	}
 
 	void JoltBody::SetRotation(const glm::quat& rotation)
 	{
@@ -520,10 +417,7 @@ namespace Hazel {
 		JPH::Body& body = bodyLock.GetBody();
 
 		if (!body.IsStatic())
-		{
-			HZ_CONSOLE_LOG_ERROR("Cannot set rotation on a non-static body!");
 			return;
-		}
 
 		JoltScene::GetBodyInterface(false).SetRotation(m_BodyID, JoltUtils::ToJoltQuat(rotation), JPH::EActivation::DontActivate);
 
@@ -532,6 +426,17 @@ namespace Hazel {
 		entityScene->GetPhysicsScene()->MarkForSynchronization(this);
 	}
 
+	glm::quat JoltBody::GetRotation() const
+	{
+		return JoltUtils::FromJoltQuat(JoltScene::GetBodyInterface().GetRotation(m_BodyID));
+	}
+
+	void JoltBody::Rotate(const glm::vec3& inRotationTimesDeltaTime)
+	{
+		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
+		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		bodyLock.GetBody().AddRotationStep(JoltUtils::ToJoltVector(inRotationTimesDeltaTime));
+	}
 
 	void JoltBody::OnAxisLockUpdated(bool forceWake)
 	{
@@ -591,7 +496,7 @@ namespace Hazel {
 		JPH::BodyCreationSettings bodySettings(
 			firstShape,
 			JoltUtils::ToJoltVector(worldTransform.Translation),
-			JoltUtils::ToJoltQuat(glm::normalize(worldTransform.GetRotation())),
+			JoltUtils::ToJoltQuat(worldTransform.GetRotation()),
 			JPH::EMotionType::Static,
 			JPH::ObjectLayer(rigidBodyComponent.LayerID)
 		);
@@ -659,7 +564,7 @@ namespace Hazel {
 		JPH::BodyCreationSettings bodySettings(
 			firstShape,
 			JoltUtils::ToJoltVector(worldTransform.Translation),
-			JoltUtils::ToJoltQuat(glm::normalize(worldTransform.GetRotation())),
+			JoltUtils::ToJoltQuat(worldTransform.GetRotation()),
 			JoltUtils::ToJoltMotionType(rigidBodyComponent.BodyType),
 			JPH::ObjectLayer(rigidBodyComponent.LayerID)
 		);

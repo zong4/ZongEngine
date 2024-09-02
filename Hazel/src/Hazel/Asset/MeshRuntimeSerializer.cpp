@@ -7,14 +7,7 @@
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Asset/AssimpMeshImporter.h"
 
-#include <acl/core/compressed_tracks.h>
-#include <acl/core/iallocator.h>
-
 namespace Hazel {
-
-	namespace Utils {
-		acl::iallocator& GetAnimationAllocator();
-	};
 
 	struct MeshMaterial
 	{
@@ -69,7 +62,6 @@ namespace Hazel {
 
 	static void Serialize(StreamWriter* serializer, const Skeleton& skeleton)
 	{
-		serializer->WriteRaw(skeleton.GetTransform());
 		serializer->WriteArray(skeleton.GetBoneNames());
 		serializer->WriteArray(skeleton.GetParentBoneIndices());
 		serializer->WriteArray(skeleton.GetBoneTranslations());
@@ -84,52 +76,41 @@ namespace Hazel {
 		std::vector<glm::vec3> boneTranslations;
 		std::vector<glm::quat> boneRotations;
 		std::vector<glm::vec3> boneScales;
-		glm::mat4 transform;
-		deserializer->ReadRaw(transform);
+
 		deserializer->ReadArray(boneNames);
 		deserializer->ReadArray(parentBoneIndices);
 		deserializer->ReadArray(boneTranslations);
 		deserializer->ReadArray(boneRotations);
 		deserializer->ReadArray(boneScales);
 
-		skeleton.SetTransform(transform);
-		skeleton.SetBones(std::move(boneNames), std::move(parentBoneIndices), std::move(boneTranslations), std::move(boneRotations), std::move(boneScales));
+		skeleton.SetBones(boneNames, parentBoneIndices, boneTranslations, boneRotations, boneScales);
 	}
 
 	static void Serialize(StreamWriter* serializer, const Animation& animation)
 	{
 		serializer->WriteRaw(animation.GetDuration());
 		serializer->WriteRaw(animation.GetNumTracks());
-
-		auto compressedTracks = static_cast<const acl::compressed_tracks*>(animation.GetData());
-		serializer->WriteRaw(compressedTracks->get_size());
-		serializer->WriteData(static_cast<const char*>(animation.GetData()), compressedTracks->get_size());
+		serializer->WriteArray(animation.GetTranslationKeys());
+		serializer->WriteArray(animation.GetRotationKeys());
+		serializer->WriteArray(animation.GetScaleKeys());
 	}
 
 	static void Deserialize(StreamReader* deserializer, Animation& animation)
 	{
 		uint32_t numTracks;
 		float duration;
-		uint32_t compressedTracksSize;
+		std::vector<TranslationKey> translationKeys;
+		std::vector<RotationKey> rotationKeys;
+		std::vector<ScaleKey> scaleKeys;
 
 		deserializer->ReadRaw(duration);
 		deserializer->ReadRaw(numTracks);
+		deserializer->ReadArray(translationKeys);
+		deserializer->ReadArray(rotationKeys);
+		deserializer->ReadArray(scaleKeys);
 
-		deserializer->ReadRaw(compressedTracksSize);
-		void* buffer = Utils::GetAnimationAllocator().allocate(compressedTracksSize);
-		deserializer->ReadData(static_cast<char*>(buffer), compressedTracksSize);
-
-		acl::error_result result;
-		acl::compressed_tracks* compressedTracks = acl::make_compressed_tracks(buffer, &result);
-
-		if (!compressedTracks)
-		{
-			HZ_CORE_ERROR("Failed to deserialize animation: {0}", result.c_str());
-			Utils::GetAnimationAllocator().deallocate(buffer, compressedTracksSize);
-			return;
-		}
-
-		animation = std::move(Animation(duration, numTracks, compressedTracks));
+		animation = Animation(duration, numTracks);
+		animation.SetKeys(std::move(translationKeys), std::move(rotationKeys), std::move(scaleKeys));
 	}
 
 	bool MeshRuntimeSerializer::SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo)
@@ -184,9 +165,7 @@ namespace Hazel {
 			for (size_t i = 0; i < meshMaterials.size(); i++)
 			{
 				MeshMaterial& material = meshMaterials[i];
-				AssetHandle meshSourceMaterialHandle = meshSourceMaterials[i];
-				Ref<MaterialAsset> ma = AssetManager::GetAsset<MaterialAsset>(meshSourceMaterialHandle);
-				Ref<Material> meshSourceMaterial = ma->GetMaterial();
+				Ref<Material> meshSourceMaterial = meshSourceMaterials[i];
 
 				material.MaterialName = meshSourceMaterial->GetName();
 				material.ShaderName = meshSourceMaterial->GetShader()->GetName();
@@ -242,17 +221,10 @@ namespace Hazel {
 				Serialize(&stream, *meshSource->m_Skeleton);
 			}
 
-			// note: not all animations in the mesh source are actually in use
-			//       only serialize the ones that are.
 			stream.WriteRaw((uint32_t)animationCount);
-			for (uint32_t i = 0; i < meshSource->m_AnimationNames.size(); ++i)
-			{
-				if (meshSource->m_Animations[i])
-				{
-					stream.WriteString(meshSource->m_AnimationNames[i]);
-					Serialize(&stream, *meshSource->m_Animations[i]);
-				}
-			}
+			for (Scope<Animation>& animation : meshSource->m_Animations)
+				if (animation)
+					Serialize(&stream, *animation);
 
 			file.Data.AnimationDataSize = (stream.GetStreamPosition() - streamOffset) - file.Data.AnimationDataOffset;
 		}
@@ -310,23 +282,36 @@ namespace Hazel {
 			{
 				const auto& meshMaterial = meshMaterials[i];
 				Ref<Material> material = Material::Create(Renderer::GetShaderLibrary()->Get(meshMaterial.ShaderName), meshMaterial.MaterialName);
-				auto ma = Ref<MaterialAsset>::Create(material);
 
-				ma->SetAlbedoColor(meshMaterial.AlbedoColor);
-				ma->SetEmission(meshMaterial.Emission);
-				ma->SetMetalness(meshMaterial.Metalness);
-				ma->SetRoughness(meshMaterial.Roughness);
-				ma->SetUseNormalMap(meshMaterial.UseNormalMap);
+				material->Set("u_MaterialUniforms.AlbedoColor", meshMaterial.AlbedoColor);
+				material->Set("u_MaterialUniforms.Emission", meshMaterial.Emission);
+				material->Set("u_MaterialUniforms.Metalness", meshMaterial.Metalness);
+				material->Set("u_MaterialUniforms.Roughness", meshMaterial.Roughness);
+				material->Set("u_MaterialUniforms.UseNormalMap", meshMaterial.UseNormalMap);
 
 				// Get textures from AssetManager (note: this will potentially trigger additional loads)
 				// TODO(Yan): set maybe to runtime error texture if no asset is present
-				ma->SetAlbedoMap(meshMaterial.AlbedoTexture);
-				ma->SetNormalMap(meshMaterial.NormalTexture);
-				ma->SetMetalnessMap(meshMaterial.MetalnessTexture);
-				ma->SetRoughnessMap(meshMaterial.RoughnessTexture);
+				Ref<Texture2D> albedoTexture = AssetManager::GetAsset<Texture2D>(meshMaterial.AlbedoTexture);
+				if (!albedoTexture)
+					albedoTexture = Renderer::GetWhiteTexture();
+				material->Set("u_AlbedoTexture", albedoTexture);
 
-				AssetHandle maHandle = AssetManager::AddMemoryOnlyAsset(ma);
-				meshSource->m_Materials[i] = maHandle;
+				Ref<Texture2D> normalTexture = AssetManager::GetAsset<Texture2D>(meshMaterial.NormalTexture);
+				if (!normalTexture)
+					normalTexture = Renderer::GetWhiteTexture();
+				material->Set("u_NormalTexture", normalTexture);
+
+				Ref<Texture2D> metalnessTexture = AssetManager::GetAsset<Texture2D>(meshMaterial.MetalnessTexture);
+				if (!metalnessTexture)
+					metalnessTexture = Renderer::GetWhiteTexture();
+				material->Set("u_MetalnessTexture", metalnessTexture);
+
+				Ref<Texture2D> roughnessTexture = AssetManager::GetAsset<Texture2D>(meshMaterial.NormalTexture);
+				if (!roughnessTexture)
+					roughnessTexture = Renderer::GetWhiteTexture();
+				material->Set("u_RoughnessTexture", roughnessTexture);
+
+				meshSource->m_Materials[i] = material;
 			}
 		}
 
@@ -350,11 +335,9 @@ namespace Hazel {
 
 			uint32_t animationCount;
 			stream.ReadRaw(animationCount);
-			meshSource->m_AnimationNames.resize(animationCount);
 			meshSource->m_Animations.resize(animationCount);
 			for (uint32_t i = 0; i < animationCount; i++)
 			{
-				stream.ReadString(meshSource->m_AnimationNames[i]);
 				meshSource->m_Animations[i] = CreateScope<Animation>();
 				Deserialize(&stream, *meshSource->m_Animations[i]);
 			}

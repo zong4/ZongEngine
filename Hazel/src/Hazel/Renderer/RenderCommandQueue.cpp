@@ -1,8 +1,6 @@
 #include "hzpch.h"
 #include "RenderCommandQueue.h"
 
-#include "Hazel/Core/RenderThread.h"
-
 #define HZ_RENDER_TRACE(...) HZ_CORE_TRACE(__VA_ARGS__)
 
 namespace Hazel {
@@ -21,9 +19,6 @@ namespace Hazel {
 
 	void* RenderCommandQueue::Allocate(RenderCommandFn fn, uint32_t size)
 	{
-		// NOTE(Yan): for debugging
-		// HZ_CORE_VERIFY(!RenderThread::IsCurrentThreadRT());
-
 		// TODO: alignment
 		*(RenderCommandFn*)m_CommandBufferPtr = fn;
 		m_CommandBufferPtr += sizeof(RenderCommandFn);

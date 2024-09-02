@@ -45,8 +45,9 @@ namespace Hazel {
 		indices[10] = { 3, 2, 6 };
 		indices[11] = { 6, 7, 3 };
 
-		AssetHandle meshSource = AssetManager::AddMemoryOnlyAsset(Ref<MeshSource>::Create(vertices, indices, glm::mat4(1.0f)));
-		return AssetManager::AddMemoryOnlyAsset(Ref<StaticMesh>::Create(meshSource, /*generateColliders=*/false));
+		AssetHandle meshSourceHandle = AssetManager::CreateMemoryOnlyAsset<MeshSource>(vertices, indices, glm::mat4(1.0f));
+		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(meshSourceHandle);
+		return AssetManager::CreateMemoryOnlyAsset<StaticMesh>(meshSource);
 	}
 
 	AssetHandle MeshFactory::CreateSphere(float radius)
@@ -88,8 +89,9 @@ namespace Hazel {
 			}
 		}
 
-		AssetHandle meshSource = AssetManager::AddMemoryOnlyAsset(Ref<MeshSource>::Create(vertices, indices, glm::mat4(1.0f)));
-		return AssetManager::AddMemoryOnlyAsset(Ref<StaticMesh>::Create(meshSource, /*generateColliders=*/false));
+		AssetHandle meshSourceHandle = AssetManager::CreateMemoryOnlyAsset<MeshSource>(vertices, indices, glm::mat4(1.0f));
+		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(meshSourceHandle);
+		return AssetManager::CreateMemoryOnlyAsset<StaticMesh>(meshSource);
 	}
 
 	static void CalculateRing(size_t segments, float radius, float y, float dy, float height, float actualRadius, std::vector<Vertex>& vertices)
@@ -147,7 +149,8 @@ namespace Hazel {
 			}
 		}
 
-		AssetHandle meshSource = AssetManager::AddMemoryOnlyAsset(Ref<MeshSource>::Create(vertices, indices, glm::mat4(1.0f)));
-		return AssetManager::AddMemoryOnlyAsset(Ref<StaticMesh>::Create(meshSource, /*generateColliders=*/false));
+		AssetHandle meshSourceHandle = AssetManager::CreateMemoryOnlyAsset<MeshSource>(vertices, indices, glm::mat4(1.0f));
+		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(meshSourceHandle);
+		return AssetManager::CreateMemoryOnlyAsset<StaticMesh>(meshSource);
 	}
 }

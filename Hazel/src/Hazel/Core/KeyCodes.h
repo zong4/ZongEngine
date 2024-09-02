@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ostream>
-#include <cstdint>
 
 namespace Hazel
 {

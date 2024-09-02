@@ -158,6 +158,22 @@ namespace Hazel::SoundGraph
 			}
 		}
 
+		template<>
+		void AddGraphInputStream(Identifier id, choc::value::Value&& externalObjectOrDefaultValue)
+		{
+			// TODO: might want to support doubles in the future, for time type of inputs
+			const bool isFloat = externalObjectOrDefaultValue.isFloat32();
+
+			// TODO: consider replacing this vector with NodeProcessor with dynamic topology?
+			EndpointInputStreams.emplace_back(new StreamWriter(AddInStream(id), std::forward<choc::value::Value>(externalObjectOrDefaultValue), id));
+
+			if (isFloat)
+			{
+				// TODO: we don't want this interpolation for nested graphs!
+				InterpInputs.try_emplace(id, InterpolatedValue{ 0.0f, 0.0f, 0.0f, 0, EndpointInputStreams.back().get() });
+			}
+		}
+
 		std::vector<float> out_Channels;
 		void AddGraphOutputStream(Identifier id)
 		{
@@ -496,23 +512,6 @@ namespace Hazel::SoundGraph
 		choc::fifo::SingleReaderSingleWriterFIFO<OutgoingMessage> OutgoingMessages;
 
 	};
-
-	template<>
-	inline void SoundGraph::AddGraphInputStream(Identifier id, choc::value::Value&& externalObjectOrDefaultValue)
-	{
-		// TODO: might want to support doubles in the future, for time type of inputs
-		const bool isFloat = externalObjectOrDefaultValue.isFloat32();
-
-		// TODO: consider replacing this vector with NodeProcessor with dynamic topology?
-		EndpointInputStreams.emplace_back(new StreamWriter(AddInStream(id), std::forward<choc::value::Value>(externalObjectOrDefaultValue), id));
-
-		if (isFloat)
-		{
-			// TODO: we don't want this interpolation for nested graphs!
-			InterpInputs.try_emplace(id, InterpolatedValue{ 0.0f, 0.0f, 0.0f, 0, EndpointInputStreams.back().get() });
-		}
-	}
-
 
 } // namespace Hazel::SoundGraph
 

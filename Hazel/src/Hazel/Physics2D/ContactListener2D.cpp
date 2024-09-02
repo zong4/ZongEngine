@@ -6,7 +6,7 @@ namespace Hazel {
 
 	void ContactListener2D::BeginContact(b2Contact* contact)
 	{
-		/*Ref<Scene> scene = ScriptEngine::GetSceneContext();
+		Ref<Scene> scene = ScriptEngine::GetSceneContext();
 
 		if (!scene->IsPlaying())
 			return;
@@ -30,12 +30,12 @@ namespace Hazel {
 		};
 
 		callOnCollision2DBegin(a, b);
-		callOnCollision2DBegin(b, a);*/
+		callOnCollision2DBegin(b, a);
 	}
 
 	void ContactListener2D::EndContact(b2Contact* contact)
 	{
-		/*Ref<Scene> scene = ScriptEngine::GetSceneContext();
+		Ref<Scene> scene = ScriptEngine::GetSceneContext();
 
 		if (!scene->IsPlaying())
 			return;
@@ -59,7 +59,7 @@ namespace Hazel {
 		};
 
 		callOnCollision2DEnd(a, b);
-		callOnCollision2DEnd(b, a);*/
+		callOnCollision2DEnd(b, a);
 	}
 
 }

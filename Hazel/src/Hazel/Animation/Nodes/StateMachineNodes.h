@@ -2,66 +2,18 @@
 
 #include "Hazel/Animation/Animation.h"
 #include "Hazel/Animation/AnimationGraph.h"
-#include "Hazel/Animation/NodeDescriptor.h"
-#include "Hazel/Animation/PoseTrackWriter.h"
+#include "Hazel/Animation/AnimationGraphPrototype.h"
+#include "Hazel/Animation/AnimationNodeProcessor.h"
 
-#include <acl/decompression/decompress.h>
 #include <glm/glm.hpp>
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
 namespace Hazel::AnimationGraph {
 
-	struct Prototype;
-
-	// Sometimes we need to reuse NodeProcessor types for different nodes,
-	// so that they have different names and other editor UI properties
-	// but the same NodeProcessor type in the backend.
-	// In such case we declare alias ID here and define it in the AnimationGraphNodes.cpp,
-	// adding and extra entry to the registry of the same NodeProcessor type,
-	// but with a different name.
-	// Actual NodeProcessor type for the alias is assigned in AnimationGraphFactory.cpp
-	//! Aliases must already be "User Friendly Type Name" in format: "Get Random (Float)" instead of "GetRandom<float>"
-	namespace Alias {
-		static constexpr auto Transition = "Transition";
-	}
-
-
 	struct StateBase;
-	struct StateMachine;
 
-	// A node processor that produces an animation pose, and can be nested inside a state machine.
-	// This is common functionality that is shared between StateMachine, State, and Transition nodes.
-	struct StateMachineNodeProcessor : public NodeProcessor
-	{
-		using NodeProcessor::NodeProcessor;
-
-		choc::value::Value out_Pose = choc::value::Value(PoseType);
-
-		choc::value::ValueView GetPose() const { return out_Pose; }
-
-#if 0
-		bool SendInputEvent(Identifier endpointID, float value)
-		{
-			auto endpoint = InGraphEvs.find(endpointID);
-
-			if (endpoint == InGraphEvs.end())
-				return false;
-
-			endpoint->second(value);
-			return true;
-		}
-#endif
-
-	protected:
-#if 0	
-		std::unordered_map<Identifier, OutputEvent&> InGraphEvs = { {IDs::Update, in_Update} };
-#endif
-		StateMachine* m_Parent = nullptr;
-	};
-
-
-	struct TransitionNode : public StateMachineNodeProcessor
+	struct TransitionNode final : public AnimationNodeProcessor 
 	{
 		struct IDs
 		{
@@ -74,7 +26,7 @@ namespace Hazel::AnimationGraph {
 
 		TransitionNode(std::string_view dbgName, UUID id);
 
-		void Init(const Skeleton*) override;
+		void Init() override;
 		float Process(float timestep) override;
 
 		float GetAnimationDuration() const override;
@@ -100,9 +52,9 @@ namespace Hazel::AnimationGraph {
 	};
 
 
-	struct StateBase : public StateMachineNodeProcessor
+	struct StateBase : public AnimationNodeProcessor
 	{
-		using StateMachineNodeProcessor::StateMachineNodeProcessor;
+		using AnimationNodeProcessor::AnimationNodeProcessor;
 
 		virtual float ProcessGraph(float timestep) = 0;
 
@@ -115,11 +67,11 @@ namespace Hazel::AnimationGraph {
 	};
 
 
-	struct StateMachine : public StateBase
+	struct StateMachine final : public StateBase
 	{
 		StateMachine(std::string_view dbgName, UUID id);
 
-		void Init(const Skeleton*) override;
+		void Init() final;
 		float Process(float timestep) override;
 		float ProcessGraph(float timestep) override;
 
@@ -127,24 +79,25 @@ namespace Hazel::AnimationGraph {
 		float GetAnimationTimePos() const override;
 		void SetAnimationTimePos(float time) override;
 
-		void SetCurrentState(StateMachineNodeProcessor* node);
+		void SetCurrentState(AnimationNodeProcessor* node);
 
 	private:
 		// this state machine's states
 		std::vector<Scope<StateBase>> m_States;
 
 		// the currently active state or transition
-		StateMachineNodeProcessor* m_CurrentState = nullptr;
+		AnimationNodeProcessor* m_CurrentState = nullptr;
 
 		friend bool InitStateMachine(Ref<AnimationGraph>, StateMachine*, const Prototype&);
+
 	};
 
 
-	struct State : public StateBase
+	struct State final : public StateBase
 	{
 		State(std::string_view dbgName, UUID id);
 
-		void Init(const Skeleton*) override;
+		void Init() override;
 		float Process(float timestep) override;
 		float ProcessGraph(float timestep) override;
 
@@ -161,11 +114,11 @@ namespace Hazel::AnimationGraph {
 	};
 
 
-	struct QuickState : public StateBase
+	struct QuickState final : public StateBase
 	{
 		QuickState(std::string_view dbgName, UUID id);
 
-		void Init(const Skeleton*) override;
+		void Init() override;
 		float Process(float timestep) override;
 		float ProcessGraph(float timestep) override;
 
@@ -179,8 +132,13 @@ namespace Hazel::AnimationGraph {
 		inline static int64_t DefaultAnimation = 0;
 
 	private:
-		PoseTrackWriter m_TrackWriter;
-		acl::decompression_context<acl::default_transform_decompression_settings> context;
+		TranslationCache m_TranslationCache;
+		RotationCache m_RotationCache;
+		ScaleCache m_ScaleCache;
+
+		std::vector<glm::vec3> m_LocalTranslations;
+		std::vector<glm::quat> m_LocalRotations;
+		std::vector<glm::vec3> m_LocalScales;
 
 		glm::vec3 m_RootTranslationStart;
 		glm::vec3 m_RootTranslationEnd;
@@ -195,31 +153,5 @@ namespace Hazel::AnimationGraph {
 	};
 
 } // namespace Hazel::AnimationGraph
-
-
-DESCRIBE_NODE(Hazel::AnimationGraph::StateMachine,
-	NODE_INPUTS(),
-	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::StateMachine::out_Pose)
-);
-
-DESCRIBE_NODE(Hazel::AnimationGraph::State,
-	NODE_INPUTS(),
-	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::State::out_Pose)
-);
-
-DESCRIBE_NODE(Hazel::AnimationGraph::QuickState,
-	NODE_INPUTS(
-		&Hazel::AnimationGraph::QuickState::in_Animation),
-	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::QuickState::out_Pose)
-);
-
-DESCRIBE_NODE(Hazel::AnimationGraph::TransitionNode,
-	NODE_INPUTS(),
-	NODE_OUTPUTS()
-);
-
 
 #undef DECLARE_ID

@@ -1,9 +1,7 @@
 #pragma once
 
+#include <memory>
 #include "Ref.h"
-
-#include <functional>
-#include  <memory>
 
 namespace Hazel {
 
@@ -18,12 +16,8 @@ namespace Hazel {
 
 #define BIT(x) (1u << x)
 
-#if defined(__GNUC__)
-	#if defined(__clang__)
-		#define HZ_COMPILER_CLANG
-	#else
-		#define HZ_COMPILER_GCC
-	#endif
+#if defined(__clang__)
+	#define HZ_COMPILER_CLANG
 #elif defined(_MSC_VER)
 	#define HZ_COMPILER_MSVC
 #endif
@@ -32,14 +26,13 @@ namespace Hazel {
 
 #ifdef HZ_COMPILER_MSVC
 	#define HZ_FORCE_INLINE __forceinline
-	#define HZ_EXPLICIT_STATIC static
-#elif defined(__GNUC__)
+#elif defined(HZ_COMPILER_CLANG)
 	#define HZ_FORCE_INLINE __attribute__((always_inline)) inline
-	#define HZ_EXPLICIT_STATIC
 #else
 	#define HZ_FORCE_INLINE inline
-	#define HZ_EXPLICIT_STATIC
 #endif
+
+#include "Assert.h"
 
 namespace Hazel {
 

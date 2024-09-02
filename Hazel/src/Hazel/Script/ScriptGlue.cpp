@@ -1,80 +1,88 @@
 #include "hzpch.h"
 #include "ScriptGlue.h"
+#include "ScriptEngine.h"
+#include "ScriptUtils.h"
+#include "ScriptCache.h"
+#include "CSharpInstanceInspector.h"
+#include "CSharpInstance.h"
 
 #include "Hazel/Animation/AnimationGraph.h"
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Audio/AudioComponent.h"
-#include "Hazel/Audio/AudioEngine.h"
-#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
-#include "Hazel/Audio/AudioPlayback.h"
-#include "Hazel/Core/Application.h"
+
+#include "Hazel/ImGui/ImGui.h"
 #include "Hazel/Core/Events/EditorEvents.h"
+
+#include "Hazel/Asset/AssetManager.h"
+
+#include "Hazel/Audio/AudioEngine.h"
+#include "Hazel/Audio/AudioComponent.h"
+#include "Hazel/Audio/AudioPlayback.h"
+#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
+
+#include "Hazel/Core/Application.h"
 #include "Hazel/Core/Hash.h"
 #include "Hazel/Core/Math/Noise.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Physics/PhysicsLayer.h"
-#include "Hazel/Physics2D/Physics2D.h"
 
-#include "Hazel/Script/ScriptEngine.h"
+#include "Hazel/Physics2D/Physics2D.h"
+#include "Hazel/Renderer/SceneRenderer.h"
+#include "Hazel/Physics/PhysicsScene.h"
+#include "Hazel/Physics/PhysicsLayer.h"
 
 #include "Hazel/Renderer/MeshFactory.h"
-#include "Hazel/Renderer/SceneRenderer.h"
+
 #include "Hazel/Scene/Prefab.h"
+
 #include "Hazel/Utilities/TypeInfo.h"
-#include "Hazel/Reflection/TypeName.h"
 
 #include <box2d/box2d.h>
-#include <glm/gtc/quaternion.hpp>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
-#include <glm/glm.hpp>
+
+#include <mono/metadata/class.h>
+#include <mono/metadata/object.h>
+#include <mono/metadata/reflection.h>
+#include <mono/metadata/loader.h>
+#include <mono/metadata/exception.h>
+#include <mono/jit/jit.h>
 
 #include <functional>
-
-#include <Coral/HostInstance.hpp>
 
 namespace Hazel {
 
 #ifdef HZ_PLATFORM_WINDOWS
-	#define HZ_FUNCTION_NAME __func__
+#define HZ_FUNCTION_NAME __func__
 #else
-	#define HZ_FUNCTION_NAME __FUNCTION__
+#define HZ_FUNCTION_NAME __FUNCTION__
 #endif
 
-#define HZ_ADD_INTERNAL_CALL(icall) coreAssembly.AddInternalCall("Hazel.InternalCalls", #icall, (void*)InternalCalls::icall)
+#define HZ_ADD_INTERNAL_CALL(icall) mono_add_internal_call("Hazel.InternalCalls::"#icall, (void*)InternalCalls::icall)
 
 #ifdef HZ_DIST
-	#define HZ_ICALL_VALIDATE_PARAM(param)
-	#define HZ_ICALL_VALIDATE_PARAM_V(param, value)
+#define HZ_ICALL_VALIDATE_PARAM(param) HZ_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'", HZ_FUNCTION_NAME, param, #param)
+#define HZ_ICALL_VALIDATE_PARAM_V(param, value) HZ_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", HZ_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace())
 #else
-	#define HZ_ICALL_VALIDATE_PARAM(param) { if (!(param)) { HZ_CORE_ERROR("{} called with an invalid value ({}) for parameter '{}'", HZ_FUNCTION_NAME, param, #param); } }
-	#define HZ_ICALL_VALIDATE_PARAM_V(param, value) { if (!(param)) { HZ_CORE_ERROR("{} called with an invalid value ({}) for parameter '{}'.", HZ_FUNCTION_NAME, value, #param); } }
+#define HZ_ICALL_VALIDATE_PARAM(param) { if (!(param)) { HZ_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'", HZ_FUNCTION_NAME, param, #param); } }
+#define HZ_ICALL_VALIDATE_PARAM_V(param, value) { if (!(param)) { HZ_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", HZ_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace()); } }
 #endif
 
-	std::unordered_map<Coral::TypeId, std::function<void(Entity&)>> s_CreateComponentFuncs;
-	std::unordered_map<Coral::TypeId, std::function<bool(Entity&)>> s_HasComponentFuncs;
-	std::unordered_map<Coral::TypeId, std::function<void(Entity&)>> s_RemoveComponentFuncs;
+	std::unordered_map<MonoType*, std::function<void(Entity&)>> s_CreateComponentFuncs;
+	std::unordered_map<MonoType*, std::function<bool(Entity&)>> s_HasComponentFuncs;
+	std::unordered_map<MonoType*, std::function<void(Entity&)>> s_RemoveComponentFuncs;
 
 	template<typename TComponent>
-	static void RegisterManagedComponent(Coral::ManagedAssembly& coreAssembly)
+	static void RegisterManagedComponent()
 	{
 		// NOTE(Peter): Get the demangled type name of TComponent
 		const TypeNameString& componentTypeName = TypeInfo<TComponent, true>().Name();
-		std::string componentName = std::format("Hazel.{}", componentTypeName);
+		std::string componentName = fmt::format("Hazel.{}", componentTypeName);
 
-		// Backwards compatibility: Submesh component is "Hazel.Mesh" for scripting.
-		if constexpr (std::is_same_v<TComponent, SubmeshComponent>)
+		MonoType* managedType = mono_reflection_type_from_name(componentName.data(), ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage);
+
+		if (managedType)
 		{
-			componentName = "Hazel.MeshComponent";
-		}
-
-		auto& type = coreAssembly.GetType(componentName);
-
-		if (type)
-		{
-			s_CreateComponentFuncs[type.GetTypeId()] = [](Entity& entity) { entity.AddComponent<TComponent>(); };
-			s_HasComponentFuncs[type.GetTypeId()] = [](Entity& entity) { return entity.HasComponent<TComponent>(); };
-			s_RemoveComponentFuncs[type.GetTypeId()] = [](Entity& entity) { entity.RemoveComponent<TComponent>(); };
+			s_CreateComponentFuncs[managedType] = [](Entity& entity) { entity.AddComponent<TComponent>(); };
+			s_HasComponentFuncs[managedType] = [](Entity& entity) { return entity.HasComponent<TComponent>(); };
+			s_RemoveComponentFuncs[managedType] = [](Entity& entity) { entity.RemoveComponent<TComponent>(); };
 		}
 		else
 		{
@@ -83,19 +91,19 @@ namespace Hazel {
 	}
 
 	template<typename TComponent>
-	static void RegisterManagedComponent(std::function<void(Entity&)>&& addFunction, Coral::ManagedAssembly& coreAssembly)
+	static void RegisterManagedComponent(std::function<void(Entity&)>&& addFunction)
 	{
 		// NOTE(Peter): Get the demangled type name of TComponent
 		const TypeNameString& componentTypeName = TypeInfo<TComponent, true>().Name();
-		std::string componentName = std::format("Hazel.{}", componentTypeName);
+		std::string componentName = fmt::format("Hazel.{}", componentTypeName);
 
-		auto& type = coreAssembly.GetType(componentName);
+		MonoType* managedType = mono_reflection_type_from_name(componentName.data(), ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage);
 
-		if (type)
+		if (managedType)
 		{
-			s_CreateComponentFuncs[type.GetTypeId()] = std::move(addFunction);
-			s_HasComponentFuncs[type.GetTypeId()] = [](Entity& entity) { return entity.HasComponent<TComponent>(); };
-			s_RemoveComponentFuncs[type.GetTypeId()] = [](Entity& entity) { entity.RemoveComponent<TComponent>(); };
+			s_CreateComponentFuncs[managedType] = std::move(addFunction);
+			s_HasComponentFuncs[managedType] = [](Entity& entity) { return entity.HasComponent<TComponent>(); };
+			s_RemoveComponentFuncs[managedType] = [](Entity& entity) { entity.RemoveComponent<TComponent>(); };
 		}
 		else
 		{
@@ -103,70 +111,79 @@ namespace Hazel {
 		}
 	}
 
-	template<typename... Args>
-	static void WarnWithTrace(std::format_string<Args...> format, Args&&... args)
+	template<typename... TArgs>
+	static void WarnWithTrace(const std::string& inFormat, TArgs&&... inArgs)
 	{
-		/*auto stackTrace = ScriptUtils::GetCurrentStackTrace();
-		std::string formattedMessage = std::format(inFormat, std::forward<TArgs>(inArgs)...);
-		Log::GetEditorConsoleLogger()->warn("{}\nStack Trace: {}", formattedMessage, stackTrace);*/
+		auto stackTrace = ScriptUtils::GetCurrentStackTrace();
+		std::string formattedMessage = fmt::format(inFormat, std::forward<TArgs>(inArgs)...);
+		Log::GetEditorConsoleLogger()->warn("{}\nStack Trace: {}", formattedMessage, stackTrace);
 	}
 
-	template<typename... Args>
-	static void ErrorWithTrace(const std::format_string<Args...> format, Args&&... args)
+	template<typename... TArgs>
+	static void ErrorWithTrace(const std::string& inFormat, TArgs&&... inArgs)
 	{
-		/*auto stackTrace = ScriptUtils::GetCurrentStackTrace();
-		std::string formattedMessage = std::format(inFormat, std::forward<TArgs>(inArgs)...);
-		Log::GetEditorConsoleLogger()->error("{}\nStack Trace: {}", formattedMessage, stackTrace);*/
+		auto stackTrace = ScriptUtils::GetCurrentStackTrace();
+		std::string formattedMessage = fmt::format(inFormat, std::forward<TArgs>(inArgs)...);
+		Log::GetEditorConsoleLogger()->error("{}\nStack Trace: {}", formattedMessage, stackTrace);
 	}
 
-	void ScriptGlue::RegisterGlue(Coral::ManagedAssembly& coreAssembly)
+	void ScriptGlue::RegisterGlue()
 	{
-		if (!s_CreateComponentFuncs.empty())
+		if (s_CreateComponentFuncs.size() > 0)
 		{
 			s_CreateComponentFuncs.clear();
 			s_HasComponentFuncs.clear();
 			s_RemoveComponentFuncs.clear();
 		}
 
-		RegisterComponentTypes(coreAssembly);
-		RegisterInternalCalls(coreAssembly);
-
-		coreAssembly.UploadInternalCalls();
+		RegisterComponentTypes();
+		RegisterInternalCalls();
 	}
 
-	void ScriptGlue::RegisterComponentTypes(Coral::ManagedAssembly& coreAssembly)
+	Ref<PhysicsScene> GetPhysicsScene()
 	{
-		RegisterManagedComponent<TransformComponent>(coreAssembly);
-		RegisterManagedComponent<TagComponent>(coreAssembly);
-		RegisterManagedComponent<SubmeshComponent>(coreAssembly); // Note: C++ SubmeshComponent is mapped to C# MeshComponent (so as to not break old scripts)
-		RegisterManagedComponent<StaticMeshComponent>(coreAssembly);
-		RegisterManagedComponent<AnimationComponent>(coreAssembly);
-		RegisterManagedComponent<ScriptComponent>(coreAssembly);
-		RegisterManagedComponent<CameraComponent>(coreAssembly);
-		RegisterManagedComponent<DirectionalLightComponent>(coreAssembly);
-		RegisterManagedComponent<PointLightComponent>(coreAssembly);
-		RegisterManagedComponent<SpotLightComponent>(coreAssembly);
-		RegisterManagedComponent<SkyLightComponent>(coreAssembly);
-		RegisterManagedComponent<SpriteRendererComponent>(coreAssembly);
-		RegisterManagedComponent<RigidBody2DComponent>(coreAssembly);
-		RegisterManagedComponent<BoxCollider2DComponent>(coreAssembly);
+		Ref<Scene> entityScene = ScriptEngine::GetSceneContext();
+
+		if (!entityScene->IsPlaying())
+			return nullptr;
+
+		return entityScene->GetPhysicsScene();
+	}
+
+	void ScriptGlue::RegisterComponentTypes()
+	{
+		RegisterManagedComponent<TransformComponent>();
+		RegisterManagedComponent<TagComponent>();
+		RegisterManagedComponent<MeshComponent>();
+		RegisterManagedComponent<StaticMeshComponent>();
+		RegisterManagedComponent<AnimationComponent>();
+		RegisterManagedComponent<ScriptComponent>();
+		RegisterManagedComponent<CameraComponent>();
+		RegisterManagedComponent<DirectionalLightComponent>();
+		RegisterManagedComponent<PointLightComponent>();
+		RegisterManagedComponent<SpotLightComponent>();
+		RegisterManagedComponent<SkyLightComponent>();
+		RegisterManagedComponent<SpriteRendererComponent>();
+		RegisterManagedComponent<RigidBody2DComponent>();
+		RegisterManagedComponent<BoxCollider2DComponent>();
 		RegisterManagedComponent<RigidBodyComponent>([](Entity& entity)
 		{
 			RigidBodyComponent component;
 			component.EnableDynamicTypeChange = true;
 			entity.AddComponent<RigidBodyComponent>(component);
-		}, coreAssembly);
-		RegisterManagedComponent<BoxColliderComponent>(coreAssembly);
-		RegisterManagedComponent<SphereColliderComponent>(coreAssembly);
-		RegisterManagedComponent<CapsuleColliderComponent>(coreAssembly);
-		RegisterManagedComponent<MeshColliderComponent>(coreAssembly);
-		RegisterManagedComponent<CharacterControllerComponent>(coreAssembly);
-		RegisterManagedComponent<TextComponent>(coreAssembly);
-		RegisterManagedComponent<AudioListenerComponent>(coreAssembly);
-		RegisterManagedComponent<AudioComponent>(coreAssembly);
+		});
+		RegisterManagedComponent<BoxColliderComponent>();
+		RegisterManagedComponent<SphereColliderComponent>();
+		RegisterManagedComponent<CapsuleColliderComponent>();
+		RegisterManagedComponent<MeshColliderComponent>();
+		RegisterManagedComponent<CharacterControllerComponent>();
+		RegisterManagedComponent<FixedJointComponent>();
+		RegisterManagedComponent<TextComponent>();
+		RegisterManagedComponent<AudioListenerComponent>();
+		RegisterManagedComponent<AudioComponent>();
 	}
 
-	void ScriptGlue::RegisterInternalCalls(Coral::ManagedAssembly& coreAssembly)
+	void ScriptGlue::RegisterInternalCalls()
 	{
 		HZ_ADD_INTERNAL_CALL(AssetHandle_IsValid);
 
@@ -220,14 +237,11 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(TransformComponent_GetWorldSpaceTransform);
 		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTransformMatrix);
 		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTransformMatrix);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetRotationQuat);
 		HZ_ADD_INTERNAL_CALL(TransformComponent_SetRotationQuat);
 		HZ_ADD_INTERNAL_CALL(TransformMultiply_Native);
 
 		HZ_ADD_INTERNAL_CALL(MeshComponent_GetMesh);
 		HZ_ADD_INTERNAL_CALL(MeshComponent_SetMesh);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_GetVisible);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_SetVisible);
 		HZ_ADD_INTERNAL_CALL(MeshComponent_HasMaterial);
 		HZ_ADD_INTERNAL_CALL(MeshComponent_GetMaterial);
 		HZ_ADD_INTERNAL_CALL(MeshComponent_GetIsRigged);
@@ -237,7 +251,7 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_HasMaterial);
 		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_GetMaterial);
 		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_SetMaterial);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_GetVisible);
+		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_IsVisible);
 		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_SetVisible);
 
 		HZ_ADD_INTERNAL_CALL(Identifier_Get);
@@ -247,9 +261,6 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputInt);
 		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetInputFloat);
 		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputFloat);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetInputVector3);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputVector3);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputTrigger);
 		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetRootMotion);
 
 		HZ_ADD_INTERNAL_CALL(ScriptComponent_GetInstance);
@@ -272,7 +283,6 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(CameraComponent_SetProjectionType);
 		HZ_ADD_INTERNAL_CALL(CameraComponent_GetPrimary);
 		HZ_ADD_INTERNAL_CALL(CameraComponent_SetPrimary);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_ToScreenSpace);
 
 		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetRadiance);
 		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetRadiance);
@@ -376,6 +386,7 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLockedAxes);
 		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_IsSleeping);
 		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetIsSleeping);
+		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_Teleport);
 
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetIsGravityEnabled);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetIsGravityEnabled);
@@ -386,12 +397,26 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetTranslation);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetRotation);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_Move);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_Rotate);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_Jump);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetLinearVelocity);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetLinearVelocity);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_IsGrounded);
 		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetCollisionFlags);
+
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetConnectedEntity);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetConnectedEntity);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsBreakable);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetIsBreakable);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsBroken);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_Break);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakForce);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakForce);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakTorque);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakTorque);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsCollisionEnabled);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetCollisionEnabled);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsPreProcessingEnabled);
+		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetPreProcessingEnabled);
 
 		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_GetHalfSize);
 		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_GetOffset);
@@ -570,22 +595,35 @@ namespace Hazel {
 		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetFramesPerSecond);
 		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetEntityCount);
 		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetScriptEntityCount);
+
+#ifndef HZ_DIST
+		// Editor Only
+		HZ_ADD_INTERNAL_CALL(EditorUI_Text);
+		HZ_ADD_INTERNAL_CALL(EditorUI_Button);
+		HZ_ADD_INTERNAL_CALL(EditorUI_BeginPropertyHeader);
+		HZ_ADD_INTERNAL_CALL(EditorUI_EndPropertyHeader);
+		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyGrid);
+		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyFloat);
+		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec2);
+		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec3);
+		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec4);
+#endif
 	}
 
 	namespace InternalCalls {
 
 		static inline Entity GetEntity(uint64_t entityID)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			return scene->TryGetEntityWithUUID(entityID);
 		};
 
 #pragma region AssetHandle
 
-		bool AssetHandle_IsValid(Param<AssetHandle> assetHandle)
+		bool AssetHandle_IsValid(AssetHandle* assetHandle)
 		{
-			return AssetManager::IsAssetHandleValid(assetHandle);
+			return AssetManager::IsAssetHandleValid(*assetHandle);
 		}
 
 #pragma endregion
@@ -601,96 +639,100 @@ namespace Hazel {
 #endif
 		}
 
-		uint32_t Application_GetWidth() { return ScriptEngine::GetInstance().GetCurrentScene()->GetViewportWidth(); }
-		uint32_t Application_GetHeight() { return ScriptEngine::GetInstance().GetCurrentScene()->GetViewportHeight(); }
+		uint32_t Application_GetWidth() { return ScriptEngine::GetSceneContext()->GetViewportWidth(); }
+		uint32_t Application_GetHeight() { return ScriptEngine::GetSceneContext()->GetViewportHeight(); }
 
-		Coral::String Application_GetSetting(Coral::String name, Coral::String defaultValue)
+		MonoString* Application_GetSetting(MonoString* name, MonoString* defaultValue)
 		{
-			std::string key = name;
-			return Coral::String::New(Application::Get().GetSettings().Get(key, defaultValue));
+			std::string key = ScriptUtils::MonoStringToUTF8(name);
+			std::string defaultValueString = ScriptUtils::MonoStringToUTF8(defaultValue);
+			std::string value = Application::Get().GetSettings().Get(key, defaultValueString);
+			return ScriptUtils::UTF8StringToMono(value);
 		}
 
-		int Application_GetSettingInt(Coral::String name, int defaultValue)
+		int Application_GetSettingInt(MonoString* name, int defaultValue)
 		{
-			std::string key = name;
+			std::string key = ScriptUtils::MonoStringToUTF8(name);
 			return Application::Get().GetSettings().GetInt(key, defaultValue);
 		}
 		
-		float Application_GetSettingFloat(Coral::String name, float defaultValue)
+		float Application_GetSettingFloat(MonoString* name, float defaultValue)
 		{
-			std::string key = name;
+			std::string key = ScriptUtils::MonoStringToUTF8(name);
 			return Application::Get().GetSettings().GetFloat(key, defaultValue);
 		}
 
-		Coral::String Application_GetDataDirectoryPath()
+		MonoString* Application_GetDataDirectoryPath()
 		{
 			auto filepath = Project::GetProjectDirectory() / "Data";
 			if (!std::filesystem::exists(filepath))
 				std::filesystem::create_directory(filepath);
 
-			return Coral::String::New(filepath.string());
+			return ScriptUtils::UTF8StringToMono(filepath.string());
 		}
 
 #pragma endregion
 
 #pragma region SceneManager
 
-		bool SceneManager_IsSceneValid(Coral::String inScene)
+		bool SceneManager_IsSceneValid(MonoString* inScene)
 		{
-			return FileSystem::Exists(Project::GetActiveAssetDirectory() / std::string(inScene));
+			std::string sceneFilePath = ScriptUtils::MonoStringToUTF8(inScene);
+			return FileSystem::Exists(Project::GetAssetDirectory() / sceneFilePath);
 		}
 
-		bool SceneManager_IsSceneIDValid(Param<AssetHandle> sceneHandle)
+		bool SceneManager_IsSceneIDValid(uint64_t sceneID)
 		{
-			return AssetManager::GetAsset<Scene>(sceneHandle) != nullptr;
+			return AssetManager::GetAsset<Scene>(sceneID) != nullptr;
 		}
 
-		void SceneManager_LoadScene(Param<AssetHandle> sceneHandle)
+		void SceneManager_LoadScene(AssetHandle* sceneHandle)
 		{
-			Ref<Scene> activeScene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(activeScene, "No active scene!");
-			HZ_ICALL_VALIDATE_PARAM(AssetManager::IsAssetHandleValid(sceneHandle));
+			HZ_ICALL_VALIDATE_PARAM_V(sceneHandle, "nullptr");
+			HZ_ICALL_VALIDATE_PARAM(AssetManager::IsAssetHandleValid(*sceneHandle));
 
-			activeScene->OnSceneTransition(sceneHandle);
+			activeScene->OnSceneTransition(*sceneHandle);
 		}
 
-		void SceneManager_LoadSceneByID(Param<AssetHandle> sceneHandle)
+		void SceneManager_LoadSceneByID(uint64_t sceneID)
 		{
-			Ref<Scene> activeScene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(activeScene, "No active scene!");
 
 			// TODO(Yan): OnSceneTransition should take scene by AssetHandle, NOT filepath (because this won't work in runtime)
-			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(sceneHandle);
+			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(sceneID);
 
 			if (metadata.Type != AssetType::Scene || !metadata.IsValid())
 			{
-				ErrorWithTrace("Tried to load a scene with an invalid ID ('{}')", (AssetHandle)sceneHandle);
+				ErrorWithTrace("Tried to load a scene with an invalid ID ('{}')", sceneID);
 				return;
 			}
 
-			activeScene->OnSceneTransition(sceneHandle);
+			activeScene->OnSceneTransition(sceneID);
 		}
 
-		uint64_t SceneManager_GetCurrentSceneID() { return ScriptEngine::GetInstance().GetCurrentScene()->GetUUID(); }
+		uint64_t SceneManager_GetCurrentSceneID() { return ScriptEngine::GetSceneContext()->GetUUID(); }
 
-		Coral::String SceneManager_GetCurrentSceneName()
+		MonoString* SceneManager_GetCurrentSceneName()
 		{ 
 			//TODO: It would be good if this could take an AssetHandle and return the name of the specified scene
 			//return activeScene = AssetManager::GetAsset<Scene>(assetHandle)->GetName();
 
-			Ref<Scene> activeScene = ScriptEngine::GetInstance().GetCurrentScene();
-			return Coral::String::New(activeScene->GetName());
+			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
+			return ScriptUtils::UTF8StringToMono(activeScene->GetName());
 		}
 
 #pragma endregion
 
 #pragma region Scene
 
-		uint64_t Scene_FindEntityByTag(Coral::String tag)
+		uint64_t Scene_FindEntityByTag(MonoString* tag)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
-			Entity entity = scene->TryGetEntityWithTag(tag);
+			Entity entity = scene->TryGetEntityWithTag(ScriptUtils::MonoStringToUTF8(tag));
 			return entity ? entity.GetUUID() : UUID(0);
 		}
 
@@ -699,79 +741,82 @@ namespace Hazel {
 			if (entityID == 0)
 				return false;
 
-			return (bool)(ScriptEngine::GetInstance().GetCurrentScene()->TryGetEntityWithUUID(entityID));
+			return (bool)(ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(entityID));
 		}
 
-		uint64_t Scene_CreateEntity(Coral::String tag)
+		uint64_t Scene_CreateEntity(MonoString* tag)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
-			return scene->CreateEntity(tag).GetUUID();
+			return scene->CreateEntity(ScriptUtils::MonoStringToUTF8(tag)).GetUUID();
 		}
 
-		uint64_t Scene_InstantiatePrefab(Param<AssetHandle> prefabHandle)
+		uint64_t Scene_InstantiatePrefab(AssetHandle* prefabHandle)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 
-			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(prefabHandle);
+			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
 			{
-				WarnWithTrace("Cannot instantiate prefab. No prefab with handle {} found.", AssetHandle(prefabHandle));
+				WarnWithTrace("Cannot instantiate prefab. No prefab with handle {} found.", *prefabHandle);
 				return 0;
 			}
 
 			return scene->Instantiate(prefab).GetUUID();
 		}
 
-		uint64_t Scene_InstantiatePrefabWithTranslation(Param<AssetHandle> prefabHandle, glm::vec3* inTranslation)
+		uint64_t Scene_InstantiatePrefabWithTranslation(AssetHandle* prefabHandle, glm::vec3* inTranslation)
 		{
 			return Scene_InstantiatePrefabWithTransform(prefabHandle, inTranslation, nullptr, nullptr);
 		}
 
-		uint64_t Scene_InstantiatePrefabWithTransform(Param<AssetHandle> prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
+		uint64_t Scene_InstantiatePrefabWithTransform(AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
+			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
-			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(prefabHandle);
+			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
 			{
-				WarnWithTrace<AssetHandle>("Cannot instantiate prefab. No prefab with handle {} found.", AssetHandle(prefabHandle));
+				WarnWithTrace("Cannot instantiate prefab. No prefab with handle {} found.", *prefabHandle);
 				return 0;
 			}
 
 			return scene->Instantiate(prefab, inTranslation, inRotation, inScale).GetUUID();
 		}
 
-		uint64_t Scene_InstantiateChildPrefabWithTranslation(uint64_t parentID, Param<AssetHandle> prefabHandle, glm::vec3* inTranslation)
+		uint64_t Scene_InstantiateChildPrefabWithTranslation(uint64_t parentID, AssetHandle* prefabHandle, glm::vec3* inTranslation)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			Entity parent = scene->TryGetEntityWithUUID(parentID);
 			HZ_ICALL_VALIDATE_PARAM_V(parent, parentID);
+			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
-			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(prefabHandle);
+			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
 			{
-				ErrorWithTrace<AssetHandle>("Cannot instantiate prefab. No prefab with handle {} found.", AssetHandle(prefabHandle));
+				ErrorWithTrace("Cannot instantiate prefab. No prefab with handle {} found.", *prefabHandle);
 				return 0;
 			}
 
 			return scene->InstantiateChild(prefab, parent, inTranslation, nullptr, nullptr).GetUUID();
 		}
 
-		uint64_t Scene_InstantiateChildPrefabWithTransform(uint64_t parentID, Param<AssetHandle> prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
+		uint64_t Scene_InstantiateChildPrefabWithTransform(uint64_t parentID, AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			Entity parent = scene->TryGetEntityWithUUID(parentID);
 			HZ_ICALL_VALIDATE_PARAM_V(parent, parentID);
+			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
-			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(prefabHandle);
+			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
 			{
-				ErrorWithTrace<AssetHandle>("Cannot instantiate prefab. No prefab with handle {} found.", AssetHandle(prefabHandle));
+				ErrorWithTrace("Cannot instantiate prefab. No prefab with handle {} found.", *prefabHandle);
 				return 0;
 			}
 
@@ -780,7 +825,7 @@ namespace Hazel {
 
 		void Scene_DestroyEntity(uint64_t entityID)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -789,7 +834,7 @@ namespace Hazel {
 
 		void Scene_DestroyAllChildren(uint64_t entityID)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -799,39 +844,39 @@ namespace Hazel {
 				scene->DestroyEntity(id);
 		}
 
-		Coral::Array<uint64_t> Scene_GetEntities()
+		MonoArray* Scene_GetEntities()
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 
 			auto entities = scene->GetAllEntitiesWith<IDComponent>();
-			auto result = Coral::Array<uint64_t>::New(int32_t(entities.size()));
+			MonoArray* result = ManagedArrayUtils::Create<Entity>(entities.size());
 			uint32_t i = 0;
 			for (auto entity : entities)
-				result[i++]= entities.get<IDComponent>(entity).ID;
+				ManagedArrayUtils::SetValue(result, i++, entities.get<IDComponent>(entity).ID);
 
 			return result;
 		}
 
-		Coral::Array<uint64_t> Scene_GetChildrenIDs(uint64_t entityID)
+		MonoArray* Scene_GetChildrenIDs(uint64_t entityID)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& children = entity.Children();
-			auto result = Coral::Array<uint64_t>::New(int32_t(children.size()));
+			MonoArray* result = ManagedArrayUtils::Create<uint64_t>(children.size());
 
 			for (size_t i = 0; i < children.size(); i++)
-				result[i] = children[i];
+				ManagedArrayUtils::SetValue(result, i, children[i]);
 
 			return result;
 		}
 
 		void Scene_SetTimeScale(float timeScale)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene!");
 			scene->SetTimeScale(timeScale);
 		}
@@ -854,7 +899,7 @@ namespace Hazel {
 
 			if (parentID == 0)
 			{
-				ScriptEngine::GetInstance().GetCurrentScene()->UnparentEntity(child);
+				ScriptEngine::GetSceneContext()->UnparentEntity(child);
 			}
 			else
 			{
@@ -864,143 +909,138 @@ namespace Hazel {
 			}
 		}
 
-		Coral::Array<uint64_t> Entity_GetChildren(uint64_t entityID)
+		MonoArray* Entity_GetChildren(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& children = entity.Children();
-			auto result = Coral::Array<uint64_t>::New(int32_t(children.size()));
+			MonoArray* result = ManagedArrayUtils::Create<Entity>(children.size());
 			for (uint32_t i = 0; i < children.size(); i++)
-				result[i] = children[i];
+				ManagedArrayUtils::SetValue(result, i, children[i]);
 
 			return result;
 		}
 
-		void Entity_CreateComponent(uint64_t entityID, Coral::ReflectionType componentType)
+		void Entity_CreateComponent(uint64_t entityID, MonoReflectionType* componentType)
 		{
+			if (componentType == nullptr)
+			{
+				ErrorWithTrace("Cannot add a null component to an entity.");
+				return;
+			}
+
+			MonoType* managedComponentType = mono_reflection_type_get_type(componentType);
+			char* componentTypeName = mono_type_get_name(managedComponentType);
+
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
-			if (!entity)
-				return;
-
-			Coral::Type& type = componentType;
-
-			if (!type)
-				return;
-
-			//Coral::ScopedString typeName = type.GetFullName();
-
-			if (auto it = s_HasComponentFuncs.find(type.GetTypeId()); it != s_HasComponentFuncs.end() && it->second(entity))
+			if (s_CreateComponentFuncs.find(managedComponentType) == s_CreateComponentFuncs.end())
 			{
-				//WarnWithTrace("Attempting to add duplicate component '{}' to entity '{}', ignoring.", std::string(typeName), entity.Name());
+				ErrorWithTrace("Cannot add component of type '{}' to entity '{}'. That component hasn't been registered with the engine.", componentTypeName, entity.Name());
+				mono_free(componentTypeName);
 				return;
 			}
 
-			if (auto it = s_CreateComponentFuncs.find(type.GetTypeId()); it != s_CreateComponentFuncs.end())
+			if (s_HasComponentFuncs.at(managedComponentType)(entity))
 			{
-				return it->second(entity);
+				WarnWithTrace("Attempting to add duplicate component '{}' to entity '{}', ignoring.", componentTypeName, entity.Name());
+				mono_free(componentTypeName);
+				return;
 			}
 
-			//ErrorWithTrace("Cannot create component of type '{}' for entity '{}'. That component hasn't been registered with the engine.", std::string(typeName), entity.Name());
+			s_CreateComponentFuncs.at(managedComponentType)(entity);
+			mono_free(componentTypeName);
 		}
 
-		bool Entity_HasComponent(uint64_t entityID, Coral::ReflectionType componentType)
+		bool Entity_HasComponent(uint64_t entityID, MonoReflectionType* componentType)
 		{
+			HZ_PROFILE_FUNC();
+
+			if (componentType == nullptr)
+			{
+				ErrorWithTrace("Attempting to check if entity has a component of a null type.");
+				return false;
+			}
+
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (!entity)
 				return false;
 
-			Coral::Type& type = componentType;
+			MonoType* managedType = mono_reflection_type_get_type(componentType);
 
-			if (!type)
-				return false;
-
-			//Coral::ScopedString typeName = type.GetFullName();
-
-			if (auto it = s_HasComponentFuncs.find(type.GetTypeId()); it != s_HasComponentFuncs.end())
+			if (s_HasComponentFuncs.find(managedType) == s_HasComponentFuncs.end())
 			{
-				// Note (0x): compiler bug?  if you return it->second(entity) directly, it does not return the correct result
-				// e.g. evaluating the function returns false, but then the caller receives true ??!!
-				// Copying the function first, then calling it works as expected.
-				auto func = it->second;
-				return func(entity);
+				char* componentTypeName = mono_type_get_name(managedType);
+				ErrorWithTrace("Cannot check if entity '{}' has a component of type '{}'. That component hasn't been registered with the engine.", entity.Name(), componentTypeName);
+				mono_free(componentTypeName);
+				return false;
 			}
 
-			//ErrorWithTrace("Cannot check if entity '{}' has a component of type '{}'. That component hasn't been registered with the engine.", entity.Name(), std::string(typeName));
-			return false;
+			return s_HasComponentFuncs.at(managedType)(entity);
 		}
 
-		bool Entity_RemoveComponent(uint64_t entityID, Coral::ReflectionType componentType)
+		bool Entity_RemoveComponent(uint64_t entityID, MonoReflectionType* componentType)
 		{
+			HZ_PROFILE_FUNC();
+
+			if (componentType == nullptr)
+			{
+				ErrorWithTrace("Attempting to remove a component of a null type from an entity.");
+				return false;
+			}
+
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
-			if (!entity)
-				return false;
-
-			Coral::Type& type = componentType;
-
-			if (!type)
-				return false;
-
-			//Coral::ScopedString typeName = type.GetFullName();
-
-			if (auto it = s_HasComponentFuncs.find(type.GetTypeId()); it == s_HasComponentFuncs.end() || !it->second(entity))
+			MonoType* managedType = mono_reflection_type_get_type(componentType);
+			char* componentTypeName = mono_type_get_name(managedType);
+			if (s_RemoveComponentFuncs.find(managedType) == s_RemoveComponentFuncs.end())
 			{
-				//WarnWithTrace("Tried to remove component '{}' from entity '{}' even though it doesn't have that component.", std::string(typeName), entity.Name());
+				ErrorWithTrace("Cannot remove a component of type '{}' from entity '{}'. That component hasn't been registered with the engine.", componentTypeName, entity.Name());
 				return false;
 			}
 
-			if (auto it = s_RemoveComponentFuncs.find(type.GetTypeId()); it != s_RemoveComponentFuncs.end())
+			if (!s_HasComponentFuncs.at(managedType)(entity))
 			{
-				it->second(entity);
-				return true;
+				WarnWithTrace("Tried to remove component '{}' from entity '{}' even though it doesn't have that component.", componentTypeName, entity.Name());
+				return false;
 			}
 
-			//ErrorWithTrace("Cannot remove component of type '{}' from entity '{}'. That component hasn't been registered with the engine.", std::string(typeName), entity.Name());
-			return false;
+			mono_free(componentTypeName);
+			s_RemoveComponentFuncs.at(managedType)(entity);
+			return true;
 		}
 
 #pragma endregion
 
 #pragma region TagComponent
 
-		Coral::String TagComponent_GetTag(uint64_t entityID)
+		MonoString* TagComponent_GetTag(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& tagComponent = entity.GetComponent<TagComponent>();
-			return Coral::String::New(tagComponent.Tag);
+			return ScriptUtils::UTF8StringToMono(tagComponent.Tag);
 		}
 
-		void TagComponent_SetTag(uint64_t entityID, Coral::String inTag)
+		void TagComponent_SetTag(uint64_t entityID, MonoString* inTag)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			auto& tagComponent = entity.GetComponent<TagComponent>();
-			tagComponent.Tag = inTag;
+			tagComponent.Tag = ScriptUtils::MonoStringToUTF8(inTag);
 		}
 
 #pragma endregion
 
-		Ref<PhysicsScene> GetPhysicsScene()
-		{
-			Ref<Scene> entityScene = ScriptEngine::GetInstance().GetCurrentScene();
-
-			if (!entityScene->IsPlaying())
-				return nullptr;
-
-			return entityScene->GetPhysicsScene();
-		}
-
 		Ref<PhysicsBody> GetRigidBody(uint64_t entityID)
 		{
-			Ref<Scene> entityScene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> entityScene = ScriptEngine::GetSceneContext();
 
 			if (!entityScene->IsPlaying())
 				return nullptr;
@@ -1018,7 +1058,7 @@ namespace Hazel {
 
 		Ref<CharacterController> GetCharacterController(uint64_t entityID)
 		{
-			Ref<Scene> entityScene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> entityScene = ScriptEngine::GetSceneContext();
 
 			if (!entityScene->IsPlaying())
 				return nullptr;
@@ -1060,10 +1100,8 @@ namespace Hazel {
 			}
 
 			auto& tc = entity.GetComponent<TransformComponent>();
-			// call TransformComponent_Set... methods so that SetTransform(transform) behaves the same way as
-			// setting individual components.
-			TransformComponent_SetTranslation(entityID, &inTransform->Translation);
-			TransformComponent_SetRotation(entityID, &inTransform->Rotation);
+			tc.Translation = inTransform->Translation;
+			tc.SetRotationEuler(inTransform->Rotation);
 			tc.Scale = inTransform->Scale;
 		}
 
@@ -1073,60 +1111,6 @@ namespace Hazel {
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outTranslation = entity.GetComponent<TransformComponent>().Translation;
 		}
-
-
-		static void TeleportPhysicsBody(Entity& entity)
-		{
-			if (entity.HasComponent<RigidBodyComponent>())
-			{
-				const auto& rigidBodyComponent = entity.GetComponent<RigidBodyComponent>();
-				auto rigidBody = GetRigidBody(entity.GetUUID());
-
-				if (rigidBody)
-				{
-					Ref<Scene> scene = Scene::GetScene(entity.GetSceneUUID());
-					HZ_CORE_VERIFY(scene, "No scene active?");
-
-					const TransformComponent worldTransform = scene->GetWorldSpaceTransform(entity);
-
-					switch (rigidBodyComponent.BodyType)
-					{
-						case EBodyType::Dynamic:
-							WarnWithTrace("Setting the transform on a dynamic RigidBody. This will 'teleport' the body!");
-							// intentional drop through to next case
-						case EBodyType::Kinematic:
-							GetPhysicsScene()->Teleport(entity, worldTransform.Translation, worldTransform.GetRotation(), true);
-							break;
-						case EBodyType::Static:
-							rigidBody->SetTranslation(worldTransform.Translation);
-							break;
-					}
-				}
-				else
-				{
-					ErrorWithTrace("No rigid body found for entity '{}'!", entity.Name());
-				}
-			}
-			else if (entity.HasComponent<CharacterControllerComponent>())
-			{
-				auto characterController = GetCharacterController(entity.GetUUID());
-
-				if (characterController)
-				{
-					WarnWithTrace("Setting the translation on a character controller. This will 'teleport' the character!");
-
-					Ref<Scene> scene = Scene::GetScene(entity.GetSceneUUID());
-					HZ_CORE_VERIFY(scene, "No scene active?");
-					const TransformComponent worldTransform = scene->GetWorldSpaceTransform(entity);
-					characterController->SetTranslation(worldTransform.Translation);
-				}
-				else
-				{
-					ErrorWithTrace("No character controller found for entity '{}'!", entity.Name());
-				}
-			}
-		}
-
 
 		void TransformComponent_SetTranslation(uint64_t entityID, glm::vec3* inTranslation)
 		{
@@ -1139,13 +1123,36 @@ namespace Hazel {
 				return;
 			}
 
-			// Setting translation always "teleports" the entity to the new location.
-			// If you want to move it via physics, then use the appropriate method on the physics component.
-			// For example:  RigidBodyComponent_AddForce(), CharacterControllerComponent_Move() etc.
-			entity.GetComponent<TransformComponent>().Translation = *inTranslation;
-			TeleportPhysicsBody(entity);
-		}
+			if (entity.HasComponent<RigidBodyComponent>())
+			{
+				const auto& rigidBodyComponent = entity.GetComponent<RigidBodyComponent>();
 
+				if (rigidBodyComponent.BodyType != EBodyType::Static)
+				{
+					WarnWithTrace("Trying to set translation for non-static RigidBody. This isn't allowed, and would result in unstable physics behavior.");
+					return;
+				}
+
+				GetRigidBody(entityID)->SetTranslation(*inTranslation);
+			}
+			else if (entity.HasComponent<CharacterControllerComponent>())
+			{
+				auto characterController = GetCharacterController(entity.GetUUID());
+
+				if (!characterController)
+				{
+					ErrorWithTrace("No character controller found for entity '{}'!", entity.Name());
+					return;
+				}
+
+				WarnWithTrace("Setting the position of a character controller, this could lead to unstable behavior. Prefer using the CharacterControllerComponent.Move method instead");
+				characterController->SetTranslation(*inTranslation);
+			}
+			else
+			{
+				entity.GetComponent<TransformComponent>().Translation = *inTranslation;
+			}
+		}
 
 		void TransformComponent_GetRotation(uint64_t entityID, glm::vec3* outRotation)
 		{
@@ -1153,7 +1160,6 @@ namespace Hazel {
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outRotation = entity.GetComponent<TransformComponent>().GetRotationEuler();
 		}
-
 
 		void TransformComponent_SetRotation(uint64_t entityID, glm::vec3* inRotation)
 		{
@@ -1166,21 +1172,35 @@ namespace Hazel {
 				return;
 			}
 
-			// Setting translation always "teleports" the entity to the orientation.
-			// If you want to move it via physics, then use the appropriate method on the physics component.
-			// For example:  RigidBodyComponent_AddTorque(), CharacterControllerComponent_Move() etc.
-			entity.GetComponent<TransformComponent>().SetRotationEuler(*inRotation);
-			TeleportPhysicsBody(entity);
+			if (entity.HasComponent<RigidBodyComponent>())
+			{
+				const auto& rigidBodyComponent = entity.GetComponent<RigidBodyComponent>();
+
+				if (rigidBodyComponent.BodyType != EBodyType::Static)
+				{
+					WarnWithTrace("Trying to set translation for non-static RigidBody. This isn't allowed, and would result in unstable physics behavior.");
+					return;
+				}
+
+				GetRigidBody(entityID)->SetRotation(glm::quat(*inRotation));
+			}
+			else if (entity.HasComponent<CharacterControllerComponent>())
+			{
+				auto characterController = GetCharacterController(entity.GetUUID());
+
+				if (!characterController)
+				{
+					ErrorWithTrace("No character controller found for entity '{}'!", entity.Name());
+					return;
+				}
+
+				characterController->SetRotation(glm::quat(*inRotation));
+			}
+			else
+			{
+				entity.GetComponent<TransformComponent>().SetRotationEuler(*inRotation);
+			}
 		}
-
-
-		void TransformComponent_GetRotationQuat(uint64_t entityID, glm::quat* outRotation)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			*outRotation = entity.GetComponent<TransformComponent>().GetRotation();
-		}
-
 
 		void TransformComponent_SetRotationQuat(uint64_t entityID, glm::quat* inRotation)
 		{
@@ -1193,13 +1213,35 @@ namespace Hazel {
 				return;
 			}
 
-			// Setting translation always "teleports" the entity to the orientation.
-			// If you want to move it via physics, then use the appropriate method on the physics component.
-			// For example:  RigidBodyComponent_AddTorque(), CharacterControllerComponent_Move() etc.
-			entity.GetComponent<TransformComponent>().SetRotation(*inRotation);
-			TeleportPhysicsBody(entity);
-		}
+			if (entity.HasComponent<RigidBodyComponent>())
+			{
+				const auto& rigidBodyComponent = entity.GetComponent<RigidBodyComponent>();
 
+				if (rigidBodyComponent.BodyType != EBodyType::Static)
+				{
+					WarnWithTrace("Trying to set rotation for non-static RigidBody. This isn't allowed, and would result in unstable physics behavior.");
+					return;
+				}
+
+				GetRigidBody(entityID)->SetRotation(*inRotation);
+			}
+			else if (entity.HasComponent<CharacterControllerComponent>())
+			{
+				auto characterController = GetCharacterController(entity.GetUUID());
+
+				if (!characterController)
+				{
+					ErrorWithTrace("No character controller found for entity '{}'!", entity.Name());
+					return;
+				}
+
+				characterController->SetRotation(*inRotation);
+			}
+			else
+			{
+				entity.GetComponent<TransformComponent>().SetRotation(*inRotation);
+			}
+		}
 
 		void TransformComponent_GetScale(uint64_t entityID, glm::vec3* outScale)
 		{
@@ -1207,7 +1249,6 @@ namespace Hazel {
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outScale = entity.GetComponent<TransformComponent>().Scale;
 		}
-
 
 		void TransformComponent_SetScale(uint64_t entityID, glm::vec3* inScale)
 		{
@@ -1228,7 +1269,7 @@ namespace Hazel {
 
 		void TransformComponent_GetWorldSpaceTransform(uint64_t entityID, Transform* outTransform)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -1276,14 +1317,14 @@ namespace Hazel {
 
 #pragma region MeshComponent
 
-		bool MeshComponent_GetMesh(uint64_t entityID, OutParam<AssetHandle> outHandle)
+		bool MeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
-			if (entity.HasComponent<SubmeshComponent>())
+			if (entity.HasComponent<MeshComponent>())
 			{
-				const auto& meshComponent = entity.GetComponent<SubmeshComponent>();
+				const auto& meshComponent = entity.GetComponent<MeshComponent>();
 				auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
 
 				if (!mesh)
@@ -1303,51 +1344,33 @@ namespace Hazel {
 			return false;
 		}
 
-		void MeshComponent_SetMesh(uint64_t entityID, Param<AssetHandle> meshHandle)
+		void MeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
-			auto& meshComponent = entity.GetComponent<SubmeshComponent>();
-			meshComponent.Mesh = meshHandle;
-		}
-
-		bool MeshComponent_GetVisible(uint64_t entityID)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
-			const auto& meshComponent = entity.GetComponent<SubmeshComponent>();
-			return meshComponent.Visible;
-		}
-
-		void MeshComponent_SetVisible(uint64_t entityID, bool visible)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
-			auto& meshComponent = entity.GetComponent<SubmeshComponent>();
-			meshComponent.Visible = visible;
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			auto& meshComponent = entity.GetComponent<MeshComponent>();
+			meshComponent.Mesh = *meshHandle;
 		}
 
 		bool MeshComponent_HasMaterial(uint64_t entityID, int index)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
-			const auto& meshComponent = entity.GetComponent<SubmeshComponent>();
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			const auto& meshComponent = entity.GetComponent<MeshComponent>();
 			auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
 			Ref<MaterialTable> materialTable = meshComponent.MaterialTable;
 			return (materialTable && materialTable->HasMaterial(index)) || mesh->GetMaterials()->HasMaterial(index);
 		}
 
-		bool MeshComponent_GetMaterial(uint64_t entityID, int index, OutParam<AssetHandle> outHandle)
+		bool MeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 
-			const auto& meshComponent = entity.GetComponent<SubmeshComponent>();
+			const auto& meshComponent = entity.GetComponent<MeshComponent>();
 
 			Ref<MaterialTable> materialTable = meshComponent.MaterialTable;
 
@@ -1375,15 +1398,14 @@ namespace Hazel {
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SubmeshComponent>());
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 
-			auto& meshComponent = entity.GetComponent<SubmeshComponent>();
-			if(auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh); mesh)
+			auto& meshComponent = entity.GetComponent<MeshComponent>();
+			auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
+			if (mesh)
 			{
-				if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-				{
-					return meshSource->IsSubmeshRigged(meshComponent.SubmeshIndex);
-				}
+				auto meshSource = mesh->GetMeshSource();
+				return meshSource ? meshSource->IsSubmeshRigged(meshComponent.SubmeshIndex) : false;
 			}
 			return false;
 		}
@@ -1392,7 +1414,7 @@ namespace Hazel {
 
 #pragma region StaticMeshComponent
 
-		bool StaticMeshComponent_GetMesh(uint64_t entityID, OutParam<AssetHandle> outHandle)
+		bool StaticMeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -1412,13 +1434,13 @@ namespace Hazel {
 			return true;
 		}
 
-		void StaticMeshComponent_SetMesh(uint64_t entityID, Param<AssetHandle> meshHandle)
+		void StaticMeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 			auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
-			meshComponent.StaticMesh = meshHandle;
+			meshComponent.StaticMesh = *meshHandle;
 		}
 
 		bool StaticMeshComponent_HasMaterial(uint64_t entityID, int index)
@@ -1432,7 +1454,7 @@ namespace Hazel {
 			return (materialTable && materialTable->HasMaterial(index)) || mesh->GetMaterials()->HasMaterial(index);
 		}
 
-		bool StaticMeshComponent_GetMaterial(uint64_t entityID, int index, OutParam<AssetHandle> outHandle)
+		bool StaticMeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -1462,7 +1484,7 @@ namespace Hazel {
 			return true;
 		}
 
-		void StaticMeshComponent_SetMaterial(uint64_t entityID, int index, Param<AssetHandle> materialHandle)
+		void StaticMeshComponent_SetMaterial(uint64_t entityID, int index, uint64_t materialHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -1479,7 +1501,7 @@ namespace Hazel {
 			materialTable->SetMaterial(index, materialHandle);
 		}
 
-		bool StaticMeshComponent_GetVisible(uint64_t entityID)
+		bool StaticMeshComponent_IsVisible(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -1501,12 +1523,11 @@ namespace Hazel {
 
 #pragma region AnimationComponent
 
-		uint32_t Identifier_Get(Coral::String inName)
+		uint32_t Identifier_Get(MonoString* inName)
 		{
-			return Identifier(std::string(inName));
+			return Identifier(ScriptUtils::MonoStringToUTF8(inName));
 		}
-
-
+		
 		bool AnimationComponent_GetInputBool(uint64_t entityID, uint32_t inputID)
 		{
 			auto entity = GetEntity(entityID);
@@ -1522,11 +1543,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {0} is not of boolean type!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} is not of boolean type!");
 				}
 			}
 			return false;
@@ -1547,11 +1568,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {0} is not of boolean type!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} is not of boolean type!");
 				}
 			}
 		}
@@ -1572,11 +1593,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {0} is not of integer type!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} is not of integer type!");
 				}
 			}
 			return false;
@@ -1597,11 +1618,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {0} is not of integer type!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} is not of integer type!");
 				}
 			}
 		}
@@ -1622,11 +1643,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {0} is not of float type!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} is not of float type!");
 				}
 			}
 			return false;
@@ -1647,89 +1668,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {0} is not of float type!", inputID);
-				}
-			}
-		}
-
-
-		void AnimationComponent_GetInputVector3(uint64_t entityID, uint32_t inputID, glm::vec3* value)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
-
-			auto& animationComponent = entity.GetComponent<AnimationComponent>();
-			if (animationComponent.AnimationGraph)
-			{
-				try
-				{
-					auto& input = animationComponent.AnimationGraph->Ins.at(inputID);
-					if (input.isObjectWithClassName(type::type_name<glm::vec3>()))
-					{
-						memcpy(value, input.getRawData(), sizeof(glm::vec3));
-					}
-					else
-					{
-						HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputVector3() - input with id {0} is not of Vector3 type!", inputID);
-					}
-				}
-				catch (const std::out_of_range&)
-				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputVector3() - input with id {0} does not exist!", inputID);
-				}
-			}
-		}
-
-		void AnimationComponent_SetInputVector3(uint64_t entityID, uint32_t inputId, const glm::vec3* value)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
-
-			auto& animationComponent = entity.GetComponent<AnimationComponent>();
-			if (animationComponent.AnimationGraph)
-			{
-				try
-				{
-					auto& input = animationComponent.AnimationGraph->Ins.at(inputId);
-					if (input.isObjectWithClassName(type::type_name<glm::vec3>()))
-					{
-						memcpy(input.getRawData(), value, sizeof(glm::vec3));
-					}
-					else
-					{
-						HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputVector3() - input with id {0} is not of Vector3 type!", inputId);
-					}
-				}
-				catch (const std::out_of_range&)
-				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputVector3() - input with id {0} does not exist!", inputId);
-				}
-			}
-		}
-
-
-		void AnimationComponent_SetInputTrigger(uint64_t entityID, uint32_t inputID)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
-
-			auto& animationComponent = entity.GetComponent<AnimationComponent>();
-			if (animationComponent.AnimationGraph)
-			{
-				try
-				{
-					animationComponent.AnimationGraph->InEvs.at(inputID).Event(inputID);
-				}
-				catch (const std::out_of_range&)
-				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputTrigger() - input with id {0} does not exist!", inputID);
+					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} is not of float type!");
 				}
 			}
 		}
@@ -1888,19 +1831,14 @@ namespace Hazel {
 
 #pragma region ScriptComponent
 
-		Coral::ManagedObject ScriptComponent_GetInstance(uint64_t entityID)
+		MonoObject* ScriptComponent_GetInstance(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			//HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<ScriptComponent>());
-			if (!entity.HasComponent<ScriptComponent>())
-			{
-				HZ_CORE_ERROR("ScriptComponent_GetInstance no ScriptComponent apparently, returning null");
-				return Coral::ManagedObject();
-			}
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<ScriptComponent>());
 
 			const auto& component = entity.GetComponent<ScriptComponent>();
-#if 0
+
 			if (!ScriptEngine::IsModuleValid(component.ScriptClassHandle))
 			{
 				ErrorWithTrace("Entity is referencing an invalid C# class!");
@@ -1931,16 +1869,8 @@ namespace Hazel {
 				ErrorWithTrace("Entity '{0}' isn't instantiated?", entity.Name());
 				return nullptr;
 			}
-#endif
 
-			if (!component.Instance.IsValid())
-			{
-				HZ_CORE_ERROR("ScriptComponent_GetInstance returning null managed object");
-				return Coral::ManagedObject();
-			}
-
-			HZ_CORE_VERIFY(component.Instance.IsValid());
-			return *component.Instance.GetHandle();
+			return GCManager::GetReferencedObject(component.ManagedInstance);
 		}
 
 #pragma endregion
@@ -2108,27 +2038,6 @@ namespace Hazel {
 			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			auto& component = entity.GetComponent<CameraComponent>();
 			component.Primary = inValue;
-		}
-
-		void CameraComponent_ToScreenSpace(uint64_t entityID, glm::vec3* inWorldTranslation, glm::vec2* outResult)
-		{
-			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
-			auto& component = entity.GetComponent<CameraComponent>();
-			
-			uint32_t viewportWidth = Application_GetWidth();
-			uint32_t viewportHeight = Application_GetHeight();
-
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
-			glm::mat4 cameraViewMatrix = glm::inverse(scene->GetWorldSpaceTransformMatrix(entity));
-
-			glm::vec4 clipSpace = component.Camera.GetProjectionMatrix() * cameraViewMatrix * glm::vec4(*inWorldTranslation, 1.0f);
-			clipSpace /= clipSpace.w;
-			glm::vec2 screenSpace(clipSpace);
-			screenSpace = screenSpace * 0.5f + 0.5f;
-			screenSpace *= glm::vec2((float)viewportWidth, (float)viewportHeight);
-			*outResult = screenSpace;
 		}
 
 #pragma endregion
@@ -3011,7 +2920,7 @@ namespace Hazel {
 			component.LayerID = layerID;
 		}
 
-		Coral::String RigidBodyComponent_GetLayerName(uint64_t entityID)
+		MonoString* RigidBodyComponent_GetLayerName(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -3022,14 +2931,14 @@ namespace Hazel {
 			if (!PhysicsLayerManager::IsLayerValid(component.LayerID))
 			{
 				ErrorWithTrace("Can't find a layer with ID '{0}'!", component.LayerID);
-				return Coral::String();
+				return nullptr;
 			}
 
 			const auto& layer = PhysicsLayerManager::GetLayer(component.LayerID);
-			return Coral::String::New(layer.Name);
+			return ScriptUtils::UTF8StringToMono(layer.Name);
 		}
 
-		void RigidBodyComponent_SetLayerByName(uint64_t entityID, Coral::String inName)
+		void RigidBodyComponent_SetLayerByName(uint64_t entityID, MonoString* inName)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -3043,19 +2952,21 @@ namespace Hazel {
 				return;
 			}
 
-			if (inName == Coral::String())
+			if (inName == nullptr)
 			{
 				ErrorWithTrace("Name is null!");
 				return;
 			}
 
-			if (!PhysicsLayerManager::IsLayerValid(inName))
+			std::string layerName = ScriptUtils::MonoStringToUTF8(inName);
+
+			if (!PhysicsLayerManager::IsLayerValid(layerName))
 			{
-				ErrorWithTrace("Invalid layer name '{0}'!", std::string(inName));
+				ErrorWithTrace("Invalid layer name '{0}'!", layerName);
 				return;
 			}
 
-			const auto& layer = PhysicsLayerManager::GetLayer(inName);
+			const auto& layer = PhysicsLayerManager::GetLayer(layerName);
 
 			rigidBody->SetCollisionLayer(layer.LayerID);
 
@@ -3277,13 +3188,21 @@ namespace Hazel {
 			rigidBody->AddRadialImpulse(*inOrigin, radius, strength, falloff, velocityChange);
 		}
 
+		void RigidBodyComponent_Teleport(uint64_t entityID, glm::vec3* inTargetPosition, glm::vec3* inTargetRotation, bool inForce)
+		{
+			auto entity = GetEntity(entityID);
+			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			GetPhysicsScene()->Teleport(entity, *inTargetPosition, glm::quat(*inTargetRotation), inForce);
+		}
+
 #pragma endregion
 
 #pragma region CharacterControllerComponent
 
 		static inline Ref<CharacterController> GetPhysicsController(Entity entity)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No scene active!");
 			Ref<PhysicsScene> physicsScene = scene->GetPhysicsScene();
 			HZ_CORE_ASSERT(physicsScene, "No physics scene active!");
@@ -3439,28 +3358,6 @@ namespace Hazel {
 			controller->Move(*inDisplacement);
 		}
 
-		void CharacterControllerComponent_Rotate(uint64_t entityID, glm::quat* inRotation)
-		{
-			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
-
-			auto controller = GetPhysicsController(entity);
-			if (!controller)
-			{
-				ErrorWithTrace("Could not find CharacterController for entity '{}'!", entity.Name());
-				return;
-			}
-
-			if (inRotation == nullptr)
-			{
-				ErrorWithTrace("Cannot rotate CharacterControllerComponent by a null rotation!");
-				return;
-			}
-
-			controller->Rotate(*inRotation);
-		}
-
 		void CharacterControllerComponent_Jump(uint64_t entityID, float jumpPower)
 		{
 			auto entity = GetEntity(entityID);
@@ -3493,7 +3390,7 @@ namespace Hazel {
 			*outVelocity = controller->GetLinearVelocity();
 		}
 
-		void CharacterControllerComponent_SetLinearVelocity(uint64_t entityID, glm::vec3* inVelocity)
+		void CharacterControllerComponent_SetLinearVelocity(uint64_t entityID, const glm::vec3& inVelocity)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -3506,7 +3403,7 @@ namespace Hazel {
 				return;
 			}
 
-			controller->SetLinearVelocity(*inVelocity);
+			controller->SetLinearVelocity(inVelocity);
 		}
 
 		bool CharacterControllerComponent_IsGrounded(uint64_t entityID)
@@ -3539,6 +3436,296 @@ namespace Hazel {
 			}
 
 			return controller->GetCollisionFlags();
+		}
+
+#pragma endregion
+
+#pragma region FixedJointComponent
+
+		/*static inline Ref<JointBase> GetJoint(Entity entity)
+		{
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
+			HZ_CORE_ASSERT(scene, "No scene active!");
+			Ref<PhysicsScene> physicsScene = scene->GetPhysicsScene();
+			HZ_CORE_ASSERT(physicsScene, "No physics scene active!");
+			return physicsScene->GetJoint(entity);
+		}*/
+
+		uint64_t FixedJointComponent_GetConnectedEntity(uint64_t entityID)
+		{
+			auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.GetConnectedEntity - Invalid entity!");
+				return 0;
+			}
+
+			return entity.GetComponent<FixedJointComponent>().ConnectedEntity;
+		}
+
+		void FixedJointComponent_SetConnectedEntity(uint64_t entityID, uint64_t connectedEntityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetConnectedEntity - Invalid entity!");
+				return;
+			}
+
+			auto connectedEntity = GetEntity(connectedEntityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetConnectedEntity - Invalid connectedEntity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetConnectedEntity - No Joint found!");
+				return;
+			}
+
+			joint->SetConnectedEntity(connectedEntity);*/
+		}
+
+		bool FixedJointComponent_IsBreakable(uint64_t entityID)
+		{
+			auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.IsBreakable - Invalid entity!");
+				return false;
+			}
+
+			return entity.GetComponent<FixedJointComponent>().IsBreakable;
+		}
+
+		void FixedJointComponent_SetIsBreakable(uint64_t entityID, bool isBreakable)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetIsBreakable - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetIsBreakable - No Joint found!");
+				return;
+			}
+
+			const auto& component = entity.GetComponent<FixedJointComponent>();
+
+			if (isBreakable)
+				joint->SetBreakForceAndTorque(component.BreakForce, component.BreakTorque);
+			else
+				joint->SetBreakForceAndTorque(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());*/
+		}
+
+		bool FixedJointComponent_IsBroken(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.IsBroken - Invalid entity!");
+				return false;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.IsBroken - No Joint found!");
+				return false;
+			}
+
+			return joint->IsBroken();*/
+			return false;
+		}
+
+		void FixedJointComponent_Break(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.Break - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.Break - No Joint found!");
+				return;
+			}
+
+			joint->Break();*/
+		}
+
+		float FixedJointComponent_GetBreakForce(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.GetBreakForce - Invalid entity!");
+				return 0.0f;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.GetBreakForce - No Joint found!");
+				return 0.0f;
+			}
+
+			float breakForce, breakTorque;
+			joint->GetBreakForceAndTorque(breakForce, breakTorque);
+			return breakForce;*/
+			return 0.0f;
+		}
+
+		void FixedJointComponent_SetBreakForce(uint64_t entityID, float breakForce)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetBreakForce - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetBreakForce - No Joint found!");
+				return;
+			}
+
+			float prevBreakForce, breakTorque;
+			joint->GetBreakForceAndTorque(prevBreakForce, breakTorque);
+			joint->SetBreakForceAndTorque(breakForce, breakTorque);*/
+		}
+
+		float FixedJointComponent_GetBreakTorque(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.GetBreakTorque - Invalid entity!");
+				return 0.0f;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.GetBreakTorque - No Joint found!");
+				return 0.0f;
+			}
+
+			float breakForce, breakTorque;
+			joint->GetBreakForceAndTorque(breakForce, breakTorque);
+			return breakTorque;*/
+			return 0.0f;
+		}
+
+		void FixedJointComponent_SetBreakTorque(uint64_t entityID, float breakTorque)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetBreakTorque - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetBreakTorque - No Joint found!");
+				return;
+			}
+
+			float breakForce, prevBreakTorque;
+			joint->GetBreakForceAndTorque(breakForce, prevBreakTorque);
+			joint->SetBreakForceAndTorque(breakForce, breakTorque);*/
+		}
+
+		bool FixedJointComponent_IsCollisionEnabled(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.IsCollisionEnabled - Invalid entity!");
+				return false;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.IsCollisionEnabled - No Joint found!");
+				return false;
+			}
+
+			return joint->IsCollisionEnabled();*/
+			return false;
+		}
+
+		void FixedJointComponent_SetCollisionEnabled(uint64_t entityID, bool isCollisionEnabled)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetCollisionEnabled - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetCollisionEnabled - No Joint found!");
+				return;
+			}
+
+			joint->SetCollisionEnabled(isCollisionEnabled);*/
+		}
+
+		bool FixedJointComponent_IsPreProcessingEnabled(uint64_t entityID)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.IsPreProcessingEnabled - Invalid entity!");
+				return false;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.IsPreProcessingEnabled - No Joint found!");
+				return false;
+			}
+
+			return joint->IsPreProcessingEnabled();*/
+			return false;
+		}
+
+		void FixedJointComponent_SetPreProcessingEnabled(uint64_t entityID, bool isPreProcessingEnabled)
+		{
+			/*auto entity = GetEntity(entityID);
+			if (!entity)
+			{
+				ErrorWithTrace("FixedJointComponent.SetPreProcessingEnabled - Invalid entity!");
+				return;
+			}
+
+			auto joint = GetJoint(entity);
+			if (!joint)
+			{
+				ErrorWithTrace("FixedJointComponent.SetPreProcessingEnabled - No Joint found!");
+				return;
+			}
+
+			joint->SetPreProcessingEnabled(isPreProcessingEnabled);*/
 		}
 
 #pragma endregion
@@ -3718,7 +3905,7 @@ namespace Hazel {
 			return AssetManager::GetAssetType(colliderAsset->ColliderMesh) == AssetType::StaticMesh;
 		}
 
-		bool MeshColliderComponent_IsColliderMeshValid(uint64_t entityID, Param<AssetHandle> meshHandle)
+		bool MeshColliderComponent_IsColliderMeshValid(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -3733,10 +3920,10 @@ namespace Hazel {
 				return false;
 			}
 
-			return static_cast<AssetHandle>(meshHandle) == colliderAsset->ColliderMesh;
+			return *meshHandle == colliderAsset->ColliderMesh;
 		}
 
-		bool MeshColliderComponent_GetColliderMesh(uint64_t entityID, OutParam<AssetHandle> outHandle)
+		bool MeshColliderComponent_GetColliderMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
@@ -3794,18 +3981,18 @@ namespace Hazel {
 
 #pragma region MeshCollider
 
-		bool MeshCollider_IsStaticMesh(Param<AssetHandle> meshHandle)
+		bool MeshCollider_IsStaticMesh(AssetHandle* meshHandle)
 		{
-			if (!AssetManager::IsAssetHandleValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 				return false;
 
-			if (AssetManager::GetAssetType(meshHandle) != AssetType::StaticMesh && AssetManager::GetAssetType(meshHandle) != AssetType::Mesh)
+			if (AssetManager::GetAssetType(*meshHandle) != AssetType::StaticMesh && AssetManager::GetAssetType(*meshHandle) != AssetType::Mesh)
 			{
 				WarnWithTrace("MeshCollider recieved AssetHandle to a non-mesh asset?");
 				return false;
 			}
 
-			return AssetManager::GetAssetType(meshHandle) == AssetType::StaticMesh;
+			return AssetManager::GetAssetType(*meshHandle) == AssetType::StaticMesh;
 		}
 
 #pragma endregion
@@ -3901,7 +4088,7 @@ namespace Hazel {
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
 			{
-				ErrorWithTrace("TriggerCommand with ID {0} does not exist!", (uint32_t)eventID);
+				ErrorWithTrace("TriggerCommand with ID {0} does not exist!", eventID);
 				return;
 			}
 
@@ -3923,24 +4110,24 @@ namespace Hazel {
 			return entity.GetComponent<TextComponent>().TextHash;
 		}
 
-		Coral::String TextComponent_GetText(uint64_t entityID)
+		MonoString* TextComponent_GetText(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			const auto& component = entity.GetComponent<TextComponent>();
-			return Coral::String::New(component.TextString);
+			return ScriptUtils::UTF8StringToMono(component.TextString);
 		}
 
-		void TextComponent_SetText(uint64_t entityID, Coral::String text)
+		void TextComponent_SetText(uint64_t entityID, MonoString* text)
 		{
 			auto entity = GetEntity(entityID);
 			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			auto& component = entity.GetComponent<TextComponent>();
-			component.TextString = text;
+			component.TextString = ScriptUtils::MonoStringToUTF8(text);
 			component.TextHash = std::hash<std::string>()(component.TextString);
 		}
 
@@ -3984,7 +4171,7 @@ namespace Hazel {
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
 			{
-				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", (uint32_t)eventID);
+				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", eventID);
 				return 0;
 			}
 
@@ -3995,7 +4182,7 @@ namespace Hazel {
 		{
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
 			{
-				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", (uint32_t)eventID);
+				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", eventID);
 				return 0;
 			}
 
@@ -4025,13 +4212,13 @@ namespace Hazel {
 
 		uint64_t Audio_CreateAudioEntity(Audio::CommandID eventID, Transform* inLocation, float volume, float pitch)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_VERIFY(scene, "No active scene");
 			Entity entity = scene->CreateEntity("AudioEntity");
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
 			{
-				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", (uint32_t)eventID);
+				ErrorWithTrace("Unable to find TriggerCommand with ID {0}", eventID);
 				return 0;
 			}
 
@@ -4048,9 +4235,9 @@ namespace Hazel {
 
 #pragma region AudioCommandID
 
-		uint32_t AudioCommandID_Constructor(Coral::String inCommandName)
+		uint32_t AudioCommandID_Constructor(MonoString* inCommandName)
 		{
-			std::string commandName = inCommandName;
+			std::string commandName = ScriptUtils::MonoStringToUTF8(inCommandName);
 			return Audio::CommandID(commandName.c_str());
 		}
 
@@ -4150,7 +4337,7 @@ namespace Hazel {
 
 #pragma region Texture2D
 
-		bool Texture2D_Create(uint32_t width, uint32_t height, TextureWrap wrapMode, TextureFilter filterMode, OutParam<AssetHandle> outHandle)
+		bool Texture2D_Create(uint32_t width, uint32_t height, TextureWrap wrapMode, TextureFilter filterMode, AssetHandle* outHandle)
 		{
 			TextureSpecification spec;
 			spec.Width = width;
@@ -4163,9 +4350,9 @@ namespace Hazel {
 			return true;
 		}
 
-		void Texture2D_GetSize(Param<AssetHandle> inHandle, uint32_t* outWidth, uint32_t* outHeight)
+		void Texture2D_GetSize(AssetHandle* inHandle, uint32_t* outWidth, uint32_t* outHeight)
 		{
-			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(inHandle);
+			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(*inHandle);
 			if (!instance)
 			{
 				ErrorWithTrace("Tried to get texture size using an invalid handle!");
@@ -4176,9 +4363,9 @@ namespace Hazel {
 			*outHeight = instance->GetHeight();
 		}
 
-		void Texture2D_SetData(Param<AssetHandle> inHandle, Coral::Array<glm::vec4> inData)
+		void Texture2D_SetData(AssetHandle* inHandle, MonoArray* inData)
 		{
-			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(inHandle);
+			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(*inHandle);
 
 			if (!instance)
 			{
@@ -4186,19 +4373,18 @@ namespace Hazel {
 				return;
 			}
 
-			size_t length = inData.Length();
-			uint32_t dataSize = (uint32_t)(length * sizeof(glm::vec4) / 4);
+			uintptr_t count = mono_array_length(inData);
+			uint32_t dataSize = (uint32_t)(count * sizeof(glm::vec4) / 4);
 
 			instance->Lock();
 			Buffer buffer = instance->GetWriteableBuffer();
-			HZ_CORE_VERIFY(dataSize <= buffer.Size);
+			HZ_CORE_ASSERT(dataSize <= buffer.Size);
 			// Convert RGBA32F color to RGBA8
 			uint8_t* pixels = (uint8_t*)buffer.Data;
 			uint32_t index = 0;
-
 			for (uint32_t i = 0; i < instance->GetWidth() * instance->GetHeight(); i++)
 			{
-				const auto& value = inData[i];
+				glm::vec4& value = mono_array_get(inData, glm::vec4, i);
 				*pixels++ = (uint32_t)(value.x * 255.0f);
 				*pixels++ = (uint32_t)(value.y * 255.0f);
 				*pixels++ = (uint32_t)(value.z * 255.0f);
@@ -4209,7 +4395,7 @@ namespace Hazel {
 		}
 
 		// TODO(Peter): Uncomment when Hazel can actually read texture data from the CPU or when image data is persistently stored in RAM
-		/*MonoArray* Texture2D_GetData(OutParam<AssetHandle> inHandle)
+		/*MonoArray* Texture2D_GetData(AssetHandle* inHandle)
 		{
 			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(*inHandle);
 
@@ -4246,16 +4432,22 @@ namespace Hazel {
 
 #pragma region Mesh
 
-		bool Mesh_GetMaterialByIndex(Param<AssetHandle> meshHandle, int index, OutParam<AssetHandle> outHandle)
+		bool Mesh_GetMaterialByIndex(AssetHandle* meshHandle, int index, AssetHandle* outHandle)
 		{
-			if (!AssetManager::IsAssetValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 			{
 				ErrorWithTrace("Invalid Mesh instance!");
 				*outHandle = AssetHandle(0);
 				return false;
 			}
 
-			Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(meshHandle);
+			Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(*meshHandle);
+			if (!mesh || !mesh->IsValid())
+			{
+				ErrorWithTrace("Invalid Mesh instance!");
+				*outHandle = AssetHandle(0);
+				return false;
+			}
 
 			Ref<MaterialTable> materialTable = mesh->GetMaterials();
 			if (materialTable == nullptr)
@@ -4282,15 +4474,21 @@ namespace Hazel {
 			return true;
 		}
 
-		int Mesh_GetMaterialCount(Param<AssetHandle> meshHandle)
+		int Mesh_GetMaterialCount(AssetHandle* meshHandle)
 		{
-			if (!AssetManager::IsAssetValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 			{
-				ErrorWithTrace("Invalid Mesh instance!");
+				ErrorWithTrace("called on an invalid Mesh instance!");
 				return 0;
 			}
 
-			Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(meshHandle);
+			Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(*meshHandle);
+			if (!mesh || !mesh->IsValid())
+			{
+				ErrorWithTrace("called on an invalid Mesh instance!");
+				return 0;
+			}
+
 			Ref<MaterialTable> materialTable = mesh->GetMaterials();
 			if (materialTable == nullptr)
 				return 0;
@@ -4302,16 +4500,22 @@ namespace Hazel {
 
 #pragma region StaticMesh
 
-		bool StaticMesh_GetMaterialByIndex(Param<AssetHandle> meshHandle, int index, OutParam<AssetHandle> outHandle)
+		bool StaticMesh_GetMaterialByIndex(AssetHandle* meshHandle, int index, AssetHandle* outHandle)
 		{
-			if (!AssetManager::IsAssetValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 			{
-				ErrorWithTrace("Invalid Mesh instance!");
+				ErrorWithTrace("called on an invalid Mesh instance!");
 				*outHandle = AssetHandle(0);
 				return false;
 			}
 
-			Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(meshHandle);
+			Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(*meshHandle);
+			if (!mesh || !mesh->IsValid())
+			{
+				ErrorWithTrace("called on an invalid Mesh instance!");
+				*outHandle = AssetHandle(0);
+				return false;
+			}
 
 			Ref<MaterialTable> materialTable = mesh->GetMaterials();
 			if (materialTable == nullptr)
@@ -4338,15 +4542,21 @@ namespace Hazel {
 			return true;
 		}
 
-		int StaticMesh_GetMaterialCount(Param<AssetHandle> meshHandle)
+		int StaticMesh_GetMaterialCount(AssetHandle* meshHandle)
 		{
-			if (!AssetManager::IsAssetValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 			{
 				ErrorWithTrace("Invalid Mesh instance!");
 				return 0;
 			}
 
-			Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(meshHandle);
+			Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(*meshHandle);
+			if (!mesh || !mesh->IsValid())
+			{
+				ErrorWithTrace("Invalid Mesh instance!");
+				return 0;
+			}
+
 			Ref<MaterialTable> materialTable = mesh->GetMaterials();
 			if (materialTable == nullptr)
 				return 0;
@@ -4358,16 +4568,16 @@ namespace Hazel {
 
 #pragma region Material
 
-		static Ref<MaterialAsset> Material_GetMaterialAsset(const char* functionName, uint64_t entityID, AssetHandle meshHandle, AssetHandle materialHandle)
+		static Ref<MaterialAsset> Material_GetMaterialAsset(const char* functionName, uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle)
 		{
-			if (!AssetManager::IsAssetHandleValid(meshHandle))
+			if (!AssetManager::IsAssetHandleValid(*meshHandle))
 			{
 				// NOTE(Peter): This means the material is expected to be an actual asset, referenced directly
-				Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(materialHandle);
+				Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(*materialHandle);
 
 				if (!material)
 				{
-					ErrorWithTrace("Failed to get a material asset with handle {}, no such asset exists!", materialHandle);
+					ErrorWithTrace("Failed to get a material asset with handle {}, no such asset exists!", *materialHandle);
 					return nullptr;
 				}
 
@@ -4378,11 +4588,11 @@ namespace Hazel {
 			if (entityID == 0)
 			{
 
-				if (AssetManager::GetAssetType(meshHandle) == AssetType::Mesh)
+				if (AssetManager::GetAssetType(*meshHandle) == AssetType::Mesh)
 				{
-					auto mesh = AssetManager::GetAsset<Mesh>(meshHandle);
+					auto mesh = AssetManager::GetAsset<Mesh>(*meshHandle);
 
-					if (!mesh)
+					if (!mesh || !mesh->IsValid())
 					{
 						ErrorWithTrace("Invalid mesh instance!");
 						return nullptr;
@@ -4390,11 +4600,11 @@ namespace Hazel {
 
 					materialTable = mesh->GetMaterials();
 				}
-				else if (AssetManager::GetAssetType(meshHandle) == AssetType::StaticMesh)
+				else if (AssetManager::GetAssetType(*meshHandle) == AssetType::StaticMesh)
 				{
-					auto staticMesh = AssetManager::GetAsset<StaticMesh>(meshHandle);
+					auto staticMesh = AssetManager::GetAsset<StaticMesh>(*meshHandle);
 
-					if (!staticMesh)
+					if (!staticMesh || !staticMesh->IsValid())
 					{
 						ErrorWithTrace("Invalid mesh instance!");
 						return nullptr;
@@ -4404,7 +4614,7 @@ namespace Hazel {
 				}
 				else
 				{
-					ErrorWithTrace("meshHandle doesn't correspond with a Mesh? AssetType: {}", Hazel::Utils::AssetTypeToString(AssetManager::GetAssetType(meshHandle)));
+					ErrorWithTrace("meshHandle doesn't correspond with a Mesh? AssetType: {1}", Hazel::Utils::AssetTypeToString(AssetManager::GetAssetType(*meshHandle)));
 					return nullptr;
 				}
 			}
@@ -4414,9 +4624,9 @@ namespace Hazel {
 				auto entity = GetEntity(entityID);
 				HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
-				if (entity.HasComponent<SubmeshComponent>())
+				if (entity.HasComponent<MeshComponent>())
 				{
-					materialTable = entity.GetComponent<SubmeshComponent>().MaterialTable;
+					materialTable = entity.GetComponent<MeshComponent>().MaterialTable;
 				}
 				else if (entity.HasComponent<StaticMeshComponent>())
 				{
@@ -4439,7 +4649,7 @@ namespace Hazel {
 
 			for (const auto& [materialIndex, material] : materialTable->GetMaterials())
 			{
-				if (material == materialHandle)
+				if (material == *materialHandle)
 				{
 					materialInstance = AssetManager::GetAsset<MaterialAsset>(material);
 					break;
@@ -4452,7 +4662,7 @@ namespace Hazel {
 			return materialInstance;
 		}
 
-		void Material_GetAlbedoColor(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, glm::vec3* outAlbedoColor)
+		void Material_GetAlbedoColor(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, glm::vec3* outAlbedoColor)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.GetAlbedoColor", entityID, meshHandle, materialHandle);
 
@@ -4465,7 +4675,7 @@ namespace Hazel {
 			*outAlbedoColor = materialInstance->GetAlbedoColor();
 		}
 
-		void Material_SetAlbedoColor(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, glm::vec3* inAlbedoColor)
+		void Material_SetAlbedoColor(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, glm::vec3* inAlbedoColor)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.SetAlbedoColor", entityID, meshHandle, materialHandle);
 
@@ -4475,7 +4685,7 @@ namespace Hazel {
 			materialInstance->SetAlbedoColor(*inAlbedoColor);
 		}
 
-		float Material_GetMetalness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle)
+		float Material_GetMetalness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.GetMetalness", entityID, meshHandle, materialHandle);
 
@@ -4485,7 +4695,7 @@ namespace Hazel {
 			return materialInstance->GetMetalness();
 		}
 
-		void Material_SetMetalness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inMetalness)
+		void Material_SetMetalness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inMetalness)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.SetMetalness", entityID, meshHandle, materialHandle);
 
@@ -4495,7 +4705,7 @@ namespace Hazel {
 			materialInstance->SetMetalness(inMetalness);
 		}
 
-		float Material_GetRoughness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle)
+		float Material_GetRoughness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.GetRoughness", entityID, meshHandle, materialHandle);
 
@@ -4505,7 +4715,7 @@ namespace Hazel {
 			return materialInstance->GetRoughness();
 		}
 
-		void Material_SetRoughness(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inRoughness)
+		void Material_SetRoughness(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inRoughness)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.SetRoughness", entityID, meshHandle, materialHandle);
 
@@ -4515,7 +4725,7 @@ namespace Hazel {
 			materialInstance->SetRoughness(inRoughness);
 		}
 
-		float Material_GetEmission(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle)
+		float Material_GetEmission(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.GetEmission", entityID, meshHandle, materialHandle);
 
@@ -4525,7 +4735,7 @@ namespace Hazel {
 			return materialInstance->GetEmission();
 		}
 
-		void Material_SetEmission(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, float inEmission)
+		void Material_SetEmission(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, float inEmission)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.SetEmission", entityID, meshHandle, materialHandle);
 
@@ -4535,14 +4745,14 @@ namespace Hazel {
 			materialInstance->SetEmission(inEmission);
 		}
 
-		void Material_SetFloat(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, float value)
+		void Material_SetFloat(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, float value)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.Set", entityID, meshHandle, materialHandle);
 
 			if (materialInstance == nullptr)
 				return;
 
-			std::string uniformName = inUniform;
+			std::string uniformName = ScriptUtils::MonoStringToUTF8(inUniform);
 			if (uniformName.empty())
 			{
 				WarnWithTrace("Cannot set uniform with empty name!");
@@ -4552,14 +4762,14 @@ namespace Hazel {
 			materialInstance->GetMaterial()->Set(uniformName, value);
 		}
 
-		void Material_SetVector3(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, glm::vec3* inValue)
+		void Material_SetVector3(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, glm::vec3* inValue)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.Set", entityID, meshHandle, materialHandle);
 
 			if (materialInstance == nullptr)
 				return;
 
-			std::string uniformName = inUniform;
+			std::string uniformName = ScriptUtils::MonoStringToUTF8(inUniform);
 			if (uniformName.empty())
 			{
 				WarnWithTrace("Cannot set uniform with empty name!");
@@ -4569,14 +4779,14 @@ namespace Hazel {
 			materialInstance->GetMaterial()->Set(uniformName, *inValue);
 		}
 
-		void Material_SetVector4(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, glm::vec3* inValue)
+		void Material_SetVector4(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, glm::vec3* inValue)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.Set", entityID, meshHandle, materialHandle);
 
 			if (materialInstance == nullptr)
 				return;
 
-			std::string uniformName = inUniform;
+			std::string uniformName = ScriptUtils::MonoStringToUTF8(inUniform);
 			if (uniformName.empty())
 			{
 				WarnWithTrace("Cannot set uniform with empty name!");
@@ -4586,21 +4796,21 @@ namespace Hazel {
 			materialInstance->GetMaterial()->Set(uniformName, *inValue);
 		}
 
-		void Material_SetTexture(uint64_t entityID, Param<AssetHandle> meshHandle, Param<AssetHandle> materialHandle, Coral::String inUniform, Param<AssetHandle> inTexture)
+		void Material_SetTexture(uint64_t entityID, AssetHandle* meshHandle, AssetHandle* materialHandle, MonoString* inUniform, AssetHandle* inTexture)
 		{
 			Ref<MaterialAsset> materialInstance = Material_GetMaterialAsset("Material.Set", entityID, meshHandle, materialHandle);
 
 			if (materialInstance == nullptr)
 				return;
 
-			std::string uniformName = inUniform;
+			std::string uniformName = ScriptUtils::MonoStringToUTF8(inUniform);
 			if (uniformName.empty())
 			{
 				WarnWithTrace("Cannot set uniform with empty name!");
 				return;
 			}
 
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(inTexture);
+			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(*inTexture);
 
 			if (!texture)
 			{
@@ -4627,297 +4837,71 @@ namespace Hazel {
 
 		bool Physics_CastRay(RaycastData* inRaycastData, ScriptRaycastHit* outHit)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 
 			if (scene->IsEditorScene())
 			{
+				HZ_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
 				return false;
 			}
+
+			//HZ_CORE_ASSERT(scene->GetPhysicsScene()->IsValid());
 
 			RayCastInfo rayCastInfo;
 			rayCastInfo.Origin = inRaycastData->Origin;
 			rayCastInfo.Direction = inRaycastData->Direction;
 			rayCastInfo.MaxDistance = inRaycastData->MaxDistance;
 
-			if (!inRaycastData->ExcludeEntities.IsEmpty())
+			if (inRaycastData->ExcludeEntities)
 			{
-				size_t excludeEntitiesCount = inRaycastData->ExcludeEntities.Length();
+				size_t excludeEntitiesCount = mono_array_length(inRaycastData->ExcludeEntities);
 
 				// NOTE(Peter): Same as calling the constructor with excludeEntitiesCount as the only argument
 				rayCastInfo.ExcludedEntities.rehash(excludeEntitiesCount);
 				
 				for (size_t i = 0; i < excludeEntitiesCount; i++)
-					rayCastInfo.ExcludedEntities.insert(inRaycastData->ExcludeEntities[i]);
+				{
+					uint64_t entityID = mono_array_get(inRaycastData->ExcludeEntities, uint64_t, i);
+					rayCastInfo.ExcludedEntities.insert(entityID);
+				}
 			}
 
 			SceneQueryHit tempHit;
 			bool success = scene->GetPhysicsScene()->CastRay(&rayCastInfo, tempHit);
 
-			if (success && !inRaycastData->RequiredComponentTypes.IsEmpty())
+			if (success && inRaycastData->RequiredComponentTypes != nullptr)
 			{
 				Entity entity = scene->GetEntityWithUUID(tempHit.HitEntity);
-				size_t requiredComponentsCount = inRaycastData->RequiredComponentTypes.Length();
+				size_t requiredComponentsCount = mono_array_length(inRaycastData->RequiredComponentTypes);
 
-				bool foundRequiredComponent = false;
 				for (size_t i = 0; i < requiredComponentsCount; i++)
 				{
-					Coral::Type& reflectionType = inRaycastData->RequiredComponentTypes[i];
-					if (!reflectionType)
+					void* reflectionType = mono_array_get(inRaycastData->RequiredComponentTypes, void*, i);
+					if (reflectionType == nullptr)
 					{
 						ErrorWithTrace("Physics.Raycast - Why did you feel the need to pass a \"null\" as a required component?");
 						success = false;
 						break;
 					}
 
+					MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
+
 #ifdef HZ_DEBUG
-					auto& baseType = reflectionType.GetBaseType();
+					MonoClass* typeClass = mono_type_get_class(componentType);
+					MonoClass* parentClass = mono_class_get_parent(typeClass);
 
-					bool validComponentFilter = false;
-
-					if (baseType)
+					bool validComponentFilter = parentClass != nullptr;
+					if (validComponentFilter)
 					{
-						Coral::ScopedString parentNameStr = baseType.GetFullName();
-						std::string parentName = parentNameStr;
-						validComponentFilter = parentName.find("Hazel.") != std::string::npos && parentName.find("Component") != std::string::npos;
+						const char* parentClassName = mono_class_get_name(parentClass);
+						const char* parentNameSpace = mono_class_get_namespace(parentClass);
+						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
 					}
 
 					if (!validComponentFilter)
 					{
-						Coral::ScopedString typeName = reflectionType.GetFullName();
-						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", std::string(typeName));
-						success = false;
-						break;
-					}
-#endif
-
-					if (s_HasComponentFuncs[reflectionType.GetTypeId()](entity))
-					{
-						foundRequiredComponent = true;
-						break;
-					}
-				}
-
-				success = foundRequiredComponent;
-			}
-
-			if (success)
-			{
-				outHit->HitEntity = tempHit.HitEntity;
-				outHit->Position = tempHit.Position;
-				outHit->Normal = tempHit.Normal;
-				outHit->Distance = tempHit.Distance;
-
-				if (tempHit.HitCollider)
-				{
-					const auto& scriptEngine = ScriptEngine::GetInstance();
-
-					Coral::ManagedObject shapeInstance;
-					glm::vec3 offset(0.0f);
-
-					auto createMeshShape = [&scriptEngine](std::string_view meshShapeClass, const MeshColliderComponent& colliderComp) -> Coral::ManagedObject
-					{
-						const auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(colliderComp.ColliderAsset);
-						const auto colliderMesh = AssetManager::GetAsset<Asset>(colliderAsset->ColliderMesh);
-
-						if (colliderMesh->GetAssetType() == AssetType::StaticMesh)
-						{
-							const auto* staticMeshType = scriptEngine.GetTypeByName("Hazel.StaticMesh");
-							auto staticMeshInstance = staticMeshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-							const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-							return convexMeshShapeType->CreateInstance(staticMeshInstance);
-						}
-						else if (colliderMesh->GetAssetType() == AssetType::Mesh)
-						{
-							const auto* meshType = scriptEngine.GetTypeByName("Hazel.Mesh");
-							auto meshInstance = meshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-							const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-							return convexMeshShapeType->CreateInstance(meshInstance);
-						}
-
-						return {};
-					};
-
-					switch (tempHit.HitCollider->GetType())
-					{
-						case ShapeType::Box:
-						{
-							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<BoxColliderComponent>();
-							offset = colliderComp.Offset;
-
-							glm::vec3 halfSize = tempHit.HitCollider.As<BoxShape>()->GetHalfSize();
-
-							const auto* boxShape = scriptEngine.GetTypeByName("Hazel.BoxShape");
-							shapeInstance = boxShape->CreateInstance(halfSize);
-							break;
-						}
-						case ShapeType::Sphere:
-						{
-							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<SphereColliderComponent>();
-							offset = colliderComp.Offset;
-
-							float radius = tempHit.HitCollider.As<SphereShape>()->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.SphereShape");
-							shapeInstance = sphereShape->CreateInstance(radius);
-							break;
-						}
-						case ShapeType::Capsule:
-						{
-							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<CapsuleColliderComponent>();
-							offset = colliderComp.Offset;
-
-							Ref<CapsuleShape> capsuleShape = tempHit.HitCollider.As<CapsuleShape>();
-							float height = capsuleShape->GetHeight();
-							float radius = capsuleShape->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.CapsuleShape");
-							shapeInstance = sphereShape->CreateInstance(height, radius);
-							break;
-						}
-						case ShapeType::ConvexMesh:
-						{
-							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.ConvexMeshShape", colliderComp);
-							break;
-						}
-						case ShapeType::TriangleMesh:
-						{
-							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.TriangleMeshShape", colliderComp);
-							break;
-						}
-					}
-
-					if (shapeInstance.IsValid())
-					{
-						const auto* colliderType = scriptEngine.GetTypeByName("Hazel.Collider");
-						outHit->HitCollider = colliderType->CreateInstance(tempHit.HitEntity, shapeInstance, offset);
-					}
-				}
-			}
-			else
-			{
-				*outHit = ScriptRaycastHit();
-			}
-
-			return success;
-		}
-
-		bool Physics_CastShape(ShapeQueryData* inShapeCastData, ScriptRaycastHit* outHit)
-		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
-			HZ_CORE_ASSERT(scene, "No active scene!");
-
-			if (scene->IsEditorScene())
-			{
-				return false;
-			}
-
-			const auto& shapeInstanceType = inShapeCastData->ShapeDataInstance.GetType();
-
-			HZ_CORE_VERIFY(shapeInstanceType);
-
-			const auto* shapeBaseType = ScriptEngine::GetInstance().GetTypeByName("Hazel.Shape");
-
-			if (!shapeInstanceType.IsSubclassOf(*shapeBaseType))
-			{
-				HZ_CORE_VERIFY(false);
-				return false;
-			}
-
-			ShapeCastInfo* shapeCastInfo = nullptr;
-			ShapeType shapeType = inShapeCastData->ShapeDataInstance.GetPropertyValue<ShapeType>("ShapeType");
-
-			switch (shapeType)
-			{
-				case ShapeType::Box:
-				{
-					BoxCastInfo* boxCastInfo = hnew BoxCastInfo();
-					boxCastInfo->HalfExtent = inShapeCastData->ShapeDataInstance.GetPropertyValue<glm::vec3>("HalfExtent");
-					shapeCastInfo = boxCastInfo;
-					break;
-				}
-				case ShapeType::Sphere:
-				{
-					SphereCastInfo* sphereCastInfo = hnew SphereCastInfo();
-					sphereCastInfo->Radius = inShapeCastData->ShapeDataInstance.GetPropertyValue<float>("Radius");
-					shapeCastInfo = sphereCastInfo;
-					break;
-				}
-				case ShapeType::Capsule:
-				{
-					CapsuleCastInfo* capsuleCastInfo = hnew CapsuleCastInfo();
-					capsuleCastInfo->HalfHeight = inShapeCastData->ShapeDataInstance.GetPropertyValue<float>("HalfHeight");
-					capsuleCastInfo->Radius = inShapeCastData->ShapeDataInstance.GetPropertyValue<float>("Radius");
-					shapeCastInfo = capsuleCastInfo;
-					break;
-				}
-				case ShapeType::ConvexMesh:
-				case ShapeType::TriangleMesh:
-				case ShapeType::CompoundShape:
-				case ShapeType::MutableCompoundShape:
-				{
-					WarnWithTrace("Can't do a shape cast with Convex, Triangle or Compound shapes!");
-					return false;
-				}
-			}
-
-			if (shapeCastInfo == nullptr)
-				return false;
-
-			shapeCastInfo->Origin = inShapeCastData->Origin;
-			shapeCastInfo->Direction = inShapeCastData->Direction;
-			shapeCastInfo->MaxDistance = inShapeCastData->MaxDistance;
-
-			if (!inShapeCastData->ExcludeEntities.IsEmpty())
-			{
-				// NOTE(Peter): Same as calling the constructor with excludeEntitiesCount as the only argument
-				shapeCastInfo->ExcludedEntities.rehash(inShapeCastData->ExcludeEntities.Length());
-
-				for (uint64_t entityID : inShapeCastData->ExcludeEntities)
-					shapeCastInfo->ExcludedEntities.insert(entityID);
-			}
-
-			SceneQueryHit tempHit;
-			bool success = scene->GetPhysicsScene()->CastShape(shapeCastInfo, tempHit);
-
-			if (success && !inShapeCastData->RequiredComponentTypes.IsEmpty())
-			{
-				Entity entity = scene->GetEntityWithUUID(tempHit.HitEntity);
-
-				for (auto reflectionType : inShapeCastData->RequiredComponentTypes)
-				{
-					Coral::Type& componentType = reflectionType;
-
-					if (!componentType)
-					{
-						ErrorWithTrace("Why did you feel the need to pass a \"null\" as a required component?");
-						success = false;
-						break;
-					}
-
-#ifdef HZ_DEBUG
-					auto& baseType = componentType.GetBaseType();
-
-					bool validComponentFilter = false;
-
-					if (baseType)
-					{
-						Coral::ScopedString parentNameStr = baseType.GetFullName();
-						std::string parentName = parentNameStr;
-						validComponentFilter = parentName.find("Hazel.") != std::string::npos && parentName.find("Component") != std::string::npos;
-					}
-
-					if (!validComponentFilter)
-					{
-						Coral::ScopedString typeName = componentType.GetFullName();
-						ErrorWithTrace("Physics.CastShape - {0} does not inherit from Hazel.Component!", std::string(typeName));
+						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
 						success = false;
 						break;
 					}
@@ -4940,35 +4924,8 @@ namespace Hazel {
 
 				if (tempHit.HitCollider)
 				{
-					const auto& scriptEngine = ScriptEngine::GetInstance();
-
-					Coral::ManagedObject shapeInstance;
+					MonoObject* shapeInstance = nullptr;
 					glm::vec3 offset(0.0f);
-
-					auto createMeshShape = [&scriptEngine](std::string_view meshShapeClass, const MeshColliderComponent& colliderComp) -> Coral::ManagedObject
-					{
-						const auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(colliderComp.ColliderAsset);
-						const auto colliderMesh = AssetManager::GetAsset<Asset>(colliderAsset->ColliderMesh);
-
-						if (colliderMesh->GetAssetType() == AssetType::StaticMesh)
-						{
-							const auto* staticMeshType = scriptEngine.GetTypeByName("Hazel.StaticMesh");
-							auto staticMeshInstance = staticMeshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-							const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-							return convexMeshShapeType->CreateInstance(staticMeshInstance);
-						}
-						else if (colliderMesh->GetAssetType() == AssetType::Mesh)
-						{
-							const auto* meshType = scriptEngine.GetTypeByName("Hazel.Mesh");
-							auto meshInstance = meshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-							const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-							return convexMeshShapeType->CreateInstance(meshInstance);
-						}
-
-						return {};
-					};
 
 					switch (tempHit.HitCollider->GetType())
 					{
@@ -4979,9 +4936,8 @@ namespace Hazel {
 							offset = colliderComp.Offset;
 
 							glm::vec3 halfSize = tempHit.HitCollider.As<BoxShape>()->GetHalfSize();
-
-							const auto* boxShape = scriptEngine.GetTypeByName("Hazel.BoxShape");
-							shapeInstance = boxShape->CreateInstance(halfSize);
+							CSharpInstance boxInstance("Hazel.BoxShape");
+							shapeInstance = boxInstance.Instantiate(halfSize);
 							break;
 						}
 						case ShapeType::Sphere:
@@ -4991,8 +4947,8 @@ namespace Hazel {
 							offset = colliderComp.Offset;
 
 							float radius = tempHit.HitCollider.As<SphereShape>()->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.SphereShape");
-							shapeInstance = sphereShape->CreateInstance(radius);
+							CSharpInstance sphereInstance("Hazel.SphereShape");
+							shapeInstance = sphereInstance.Instantiate(radius);
 							break;
 						}
 						case ShapeType::Capsule:
@@ -5004,30 +4960,259 @@ namespace Hazel {
 							Ref<CapsuleShape> capsuleShape = tempHit.HitCollider.As<CapsuleShape>();
 							float height = capsuleShape->GetHeight();
 							float radius = capsuleShape->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.CapsuleShape");
-							shapeInstance = sphereShape->CreateInstance(height, radius);
+							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							shapeInstance = capsuleInstance.Instantiate(height, radius);
 							break;
 						}
 						case ShapeType::ConvexMesh:
 						{
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.ConvexMeshShape", colliderComp);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							Ref<ConvexMeshShape> convexMeshShape = tempHit.HitCollider.As<ConvexMeshShape>();
+							CSharpInstance meshInstance;
+							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
 						case ShapeType::TriangleMesh:
 						{
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.TriangleMeshShape", colliderComp);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
 					}
 
-					if (shapeInstance.IsValid())
+					if (shapeInstance != nullptr)
 					{
-						const auto* colliderType = scriptEngine.GetTypeByName("Hazel.Collider");
-						outHit->HitCollider = colliderType->CreateInstance(tempHit.HitEntity, shapeInstance, offset);
+						CSharpInstance colliderInstance("Hazel.Collider");
+						outHit->HitCollider = colliderInstance.Instantiate(tempHit.HitEntity, shapeInstance, offset);
+					}
+				}
+			}
+			else
+			{
+				*outHit = ScriptRaycastHit();
+			}
+
+			return success;
+		}
+
+		bool Physics_CastShape(ShapeQueryData* inShapeCastData, ScriptRaycastHit* outHit)
+		{
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
+			HZ_CORE_ASSERT(scene, "No active scene!");
+
+			if (scene->IsEditorScene())
+			{
+				HZ_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
+				return false;
+			}
+
+			CSharpInstanceInspector inspector(inShapeCastData->ShapeDataInstance);
+			if (!inspector.InheritsFrom("Hazel.Shape"))
+			{
+				HZ_CORE_VERIFY(false);
+				return false;
+			}
+
+			ShapeCastInfo* shapeCastInfo = nullptr;
+
+			ShapeType shapeType = inspector.GetFieldValue<ShapeType>("ShapeType");
+
+			switch (shapeType)
+			{
+				case ShapeType::Box:
+				{
+					BoxCastInfo* boxCastInfo = hnew BoxCastInfo();
+					boxCastInfo->HalfExtent = inspector.GetFieldValue<glm::vec3>("HalfExtent");
+					shapeCastInfo = boxCastInfo;
+					break;
+				}
+				case ShapeType::Sphere:
+				{
+					SphereCastInfo* sphereCastInfo = hnew SphereCastInfo();
+					sphereCastInfo->Radius = inspector.GetFieldValue<float>("Radius");
+					shapeCastInfo = sphereCastInfo;
+					break;
+				}
+				case ShapeType::Capsule:
+				{
+					CapsuleCastInfo* capsuleCastInfo = hnew CapsuleCastInfo();
+					capsuleCastInfo->HalfHeight = inspector.GetFieldValue<float>("HalfHeight");
+					capsuleCastInfo->Radius = inspector.GetFieldValue<float>("Radius");
+					shapeCastInfo = capsuleCastInfo;
+					break;
+				}
+				case ShapeType::ConvexMesh:
+				case ShapeType::TriangleMesh:
+				case ShapeType::CompoundShape:
+				case ShapeType::MutableCompoundShape:
+				{
+					WarnWithTrace("Can't do a shape cast with Convex, Triangle or Compound shapes!");
+					return false;
+				}
+			}
+
+			if (shapeCastInfo == nullptr)
+				return false;
+
+			shapeCastInfo->Origin = inShapeCastData->Origin;
+			shapeCastInfo->Direction = inShapeCastData->Direction;
+			shapeCastInfo->MaxDistance = inShapeCastData->MaxDistance;
+
+			if (inShapeCastData->ExcludeEntities)
+			{
+				size_t excludeEntitiesCount = mono_array_length(inShapeCastData->ExcludeEntities);
+				
+				// NOTE(Peter): Same as calling the constructor with excludeEntitiesCount as the only argument
+				shapeCastInfo->ExcludedEntities.rehash(excludeEntitiesCount);
+
+				for (size_t i = 0; i < excludeEntitiesCount; i++)
+				{
+					uint64_t entityID = mono_array_get(inShapeCastData->ExcludeEntities, uint64_t, i);
+					shapeCastInfo->ExcludedEntities.insert(entityID);
+				}
+			}
+
+			SceneQueryHit tempHit;
+			bool success = scene->GetPhysicsScene()->CastShape(shapeCastInfo, tempHit);
+
+			if (success && inShapeCastData->RequiredComponentTypes != nullptr)
+			{
+				Entity entity = scene->GetEntityWithUUID(tempHit.HitEntity);
+				size_t requiredComponentsCount = mono_array_length(inShapeCastData->RequiredComponentTypes);
+
+				for (size_t i = 0; i < requiredComponentsCount; i++)
+				{
+					void* reflectionType = mono_array_get(inShapeCastData->RequiredComponentTypes, void*, i);
+					if (reflectionType == nullptr)
+					{
+						ErrorWithTrace("Physics.Raycast - Why did you feel the need to pass a \"null\" as a required component?");
+						success = false;
+						break;
+					}
+
+					MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
+
+#ifdef HZ_DEBUG
+					MonoClass* typeClass = mono_type_get_class(componentType);
+					MonoClass* parentClass = mono_class_get_parent(typeClass);
+
+					bool validComponentFilter = parentClass != nullptr;
+					if (validComponentFilter)
+					{
+						const char* parentClassName = mono_class_get_name(parentClass);
+						const char* parentNameSpace = mono_class_get_namespace(parentClass);
+						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
+					}
+
+					if (!validComponentFilter)
+					{
+						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
+						success = false;
+						break;
+					}
+#endif
+
+					if (!s_HasComponentFuncs[componentType](entity))
+					{
+						success = false;
+						break;
+					}
+				}
+			}
+
+			if (success)
+			{
+				outHit->HitEntity = tempHit.HitEntity;
+				outHit->Position = tempHit.Position;
+				outHit->Normal = tempHit.Normal;
+				outHit->Distance = tempHit.Distance;
+
+				if (tempHit.HitCollider)
+				{
+					MonoObject* shapeInstance = nullptr;
+					glm::vec3 offset(0.0f);
+					
+					switch (tempHit.HitCollider->GetType())
+					{
+						case ShapeType::Box:
+						{
+							Entity hitEntity = GetEntity(tempHit.HitEntity);
+							const auto& colliderComp = hitEntity.GetComponent<BoxColliderComponent>();
+							offset = colliderComp.Offset;
+
+							glm::vec3 halfSize = tempHit.HitCollider.As<BoxShape>()->GetHalfSize();
+							CSharpInstance boxInstance("Hazel.BoxShape");
+							shapeInstance = boxInstance.Instantiate(halfSize);
+							break;
+						}
+						case ShapeType::Sphere:
+						{
+							Entity hitEntity = GetEntity(tempHit.HitEntity);
+							const auto& colliderComp = hitEntity.GetComponent<SphereColliderComponent>();
+							offset = colliderComp.Offset;
+
+							float radius = tempHit.HitCollider.As<SphereShape>()->GetRadius();
+							CSharpInstance sphereInstance("Hazel.SphereShape");
+							shapeInstance = sphereInstance.Instantiate(radius);
+							break;
+						}
+						case ShapeType::Capsule:
+						{
+							Entity hitEntity = GetEntity(tempHit.HitEntity);
+							const auto& colliderComp = hitEntity.GetComponent<CapsuleColliderComponent>();
+							offset = colliderComp.Offset;
+
+							Ref<CapsuleShape> capsuleShape = tempHit.HitCollider.As<CapsuleShape>();
+							float height = capsuleShape->GetHeight();
+							float radius = capsuleShape->GetRadius();
+							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							shapeInstance = capsuleInstance.Instantiate(height, radius);
+							break;
+						}
+						case ShapeType::ConvexMesh:
+						{
+							Entity hitEntity = GetEntity(tempHit.HitEntity);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							Ref<ConvexMeshShape> convexMeshShape = tempHit.HitCollider.As<ConvexMeshShape>();
+							CSharpInstance meshInstance;
+							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
+							break;
+						}
+						case ShapeType::TriangleMesh:
+						{
+							Entity hitEntity = GetEntity(tempHit.HitEntity);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
+							break;
+						}
+					}
+
+					if (shapeInstance != nullptr)
+					{
+						CSharpInstance colliderInstance("Hazel.Collider");
+						outHit->HitCollider = colliderInstance.Instantiate(tempHit.HitEntity, shapeInstance, offset);
 					}
 				}
 			}
@@ -5040,75 +5225,74 @@ namespace Hazel {
 			return success;
 		}
 
-		Coral::Array<ScriptRaycastHit2D> Physics_Raycast2D(RaycastData2D* inRaycastData)
+		MonoArray* Physics_Raycast2D(RaycastData2D* inRaycastData)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 
 			if (scene->IsEditorScene())
 			{
-				return {};
+				HZ_THROW_INVALID_OPERATION("Physics.Raycast2D can only be called in Play mode!");
+				return nullptr;
 			}
 
 			std::vector<Raycast2DResult> raycastResults = Physics2D::Raycast(scene, inRaycastData->Origin, inRaycastData->Origin + inRaycastData->Direction * inRaycastData->MaxDistance);
 
-			auto result = Coral::Array<ScriptRaycastHit2D>::New(raycastResults.size());
-
+			MonoArray* result = ManagedArrayUtils::Create("Hazel.RaycastHit2D", raycastResults.size());
 			for (size_t i = 0; i < raycastResults.size(); i++)
 			{
-				result[i] = {
-					.EntityID = raycastResults[i].HitEntity.GetUUID(),
-					.Position = raycastResults[i].Point,
-					.Normal = raycastResults[i].Normal,
-					.Distance = raycastResults[i].Distance,
-				};
+				UUID entityID = raycastResults[i].HitEntity.GetUUID();
+				MonoObject* entityObject = nullptr;
+
+				GCHandle entityInstance = ScriptEngine::GetEntityInstance(entityID);
+				if (entityInstance != nullptr)
+					entityObject = GCManager::GetReferencedObject(entityInstance);
+				else
+					entityObject = ScriptEngine::CreateManagedObject("Hazel.Entity", entityID);
+
+				MonoObject* raycastHit2D = ScriptEngine::CreateManagedObject("Hazel.RaycastHit2D", entityObject, raycastResults[i].Point, raycastResults[i].Normal, raycastResults[i].Distance);
+				ManagedArrayUtils::SetValue(result, i, raycastHit2D);
 			}
 
 			return result;
 		}
 
-		int32_t Physics_OverlapShape(ShapeQueryData* inOverlapData, Coral::Array<ScriptRaycastHit>* outHits)
+		int32_t Physics_OverlapShape(ShapeQueryData* inOverlapData, MonoArray** outHits)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 
-			const auto& shapeInstanceType = inOverlapData->ShapeDataInstance.GetType();
+			if (inOverlapData->ShapeDataInstance == nullptr)
+				return 0;
 
-			HZ_CORE_VERIFY(shapeInstanceType);
-
-			const auto* shapeBaseType = ScriptEngine::GetInstance().GetTypeByName("Hazel.Shape");
-
-			if (!shapeInstanceType.IsSubclassOf(*shapeBaseType))
-			{
-				HZ_CORE_VERIFY(false);
-				return false;
-			}
+			CSharpInstanceInspector inspector(inOverlapData->ShapeDataInstance);
+			HZ_CORE_VERIFY(inspector.InheritsFrom("Hazel.Shape"));
 
 			ShapeOverlapInfo* shapeOverlapInfo = nullptr;
 
-			ShapeType shapeType = inOverlapData->ShapeDataInstance.GetPropertyValue<ShapeType>("ShapeType");
+			ShapeType shapeType = inspector.GetFieldValue<ShapeType>("ShapeType");
 
 			switch (shapeType)
 			{
 				case ShapeType::Box:
 				{
 					BoxOverlapInfo* boxOverlapInfo = hnew BoxOverlapInfo();
-					boxOverlapInfo->HalfExtent = inOverlapData->ShapeDataInstance.GetPropertyValue<glm::vec3>("HalfExtent");
+					boxOverlapInfo->HalfExtent = inspector.GetFieldValue<glm::vec3>("HalfExtent");
 					shapeOverlapInfo = boxOverlapInfo;
 					break;
 				}
 				case ShapeType::Sphere:
 				{
 					SphereOverlapInfo* sphereOverlapInfo = hnew SphereOverlapInfo();
-					sphereOverlapInfo->Radius = inOverlapData->ShapeDataInstance.GetPropertyValue<float>("Radius");
+					sphereOverlapInfo->Radius = inspector.GetFieldValue<float>("Radius");
 					shapeOverlapInfo = sphereOverlapInfo;
 					break;
 				}
 				case ShapeType::Capsule:
 				{
 					CapsuleOverlapInfo* capsuleOverlapInfo = hnew CapsuleOverlapInfo();
-					capsuleOverlapInfo->HalfHeight = inOverlapData->ShapeDataInstance.GetPropertyValue<float>("HalfHeight");
-					capsuleOverlapInfo->Radius = inOverlapData->ShapeDataInstance.GetPropertyValue<float>("Radius");
+					capsuleOverlapInfo->HalfHeight = inspector.GetFieldValue<float>("HalfHeight");
+					capsuleOverlapInfo->Radius = inspector.GetFieldValue<float>("Radius");
 					shapeOverlapInfo = capsuleOverlapInfo;
 					break;
 				}
@@ -5127,13 +5311,18 @@ namespace Hazel {
 
 			shapeOverlapInfo->Origin = inOverlapData->Origin;
 
-			if (!inOverlapData->ExcludeEntities.IsEmpty())
+			if (inOverlapData->ExcludeEntities)
 			{
-				// NOTE(Peter): Same as calling the constructor with excludeEntitiesCount as the only argument
-				shapeOverlapInfo->ExcludedEntities.rehash(inOverlapData->ExcludeEntities.Length());
+				size_t excludeEntitiesCount = mono_array_length(inOverlapData->ExcludeEntities);
 
-				for (uint64_t entityID : inOverlapData->ExcludeEntities)
+				// NOTE(Peter): Same as calling the constructor with excludeEntitiesCount as the only argument
+				shapeOverlapInfo->ExcludedEntities.rehash(excludeEntitiesCount);
+
+				for (size_t i = 0; i < excludeEntitiesCount; i++)
+				{
+					uint64_t entityID = mono_array_get(inOverlapData->ExcludeEntities, uint64_t, i);
 					shapeOverlapInfo->ExcludedEntities.insert(entityID);
+				}
 			}
 
 			SceneQueryHit* hitArray;
@@ -5142,39 +5331,46 @@ namespace Hazel {
 			if (overlapCount == 0)
 				return 0;
 
-			if (overlapCount > 0 && !inOverlapData->RequiredComponentTypes.IsEmpty())
+			if (*outHits == nullptr)
+				*outHits = ManagedArrayUtils::Create("Hazel.SceneQueryHit", uintptr_t(overlapCount));
+
+			if (mono_array_length(*outHits) < overlapCount)
+				ManagedArrayUtils::Resize(outHits, uintptr_t(overlapCount));
+
+			if (overlapCount > 0 && inOverlapData->RequiredComponentTypes != nullptr)
 			{
 				for (size_t i = 0; i < size_t(overlapCount); i++)
 				{
 					Entity entity = scene->GetEntityWithUUID(hitArray[i].HitEntity);
+					size_t requiredComponentsCount = mono_array_length(inOverlapData->RequiredComponentTypes);
 
-					for (auto reflectionType : inOverlapData->RequiredComponentTypes)
+					for (size_t i = 0; i < requiredComponentsCount; i++)
 					{
-						Coral::Type& componentType = reflectionType;
-
-						if (!componentType)
+						void* reflectionType = mono_array_get(inOverlapData->RequiredComponentTypes, void*, i);
+						if (reflectionType == nullptr)
 						{
-							ErrorWithTrace("Why did you feel the need to pass a \"null\" as a required component?");
+							ErrorWithTrace("Physics.Raycast - Why did you feel the need to pass a \"null\" as a required component?");
 							overlapCount = 0;
 							break;
 						}
 
+						MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
+
 #ifdef HZ_DEBUG
-						auto& baseType = componentType.GetBaseType();
+						MonoClass* typeClass = mono_type_get_class(componentType);
+						MonoClass* parentClass = mono_class_get_parent(typeClass);
 
-						bool validComponentFilter = false;
-
-						if (baseType)
+						bool validComponentFilter = parentClass != nullptr;
+						if (validComponentFilter)
 						{
-							Coral::ScopedString parentNameStr = baseType.GetFullName();
-							std::string parentName = parentNameStr;
-							validComponentFilter = parentName.find("Hazel.") != std::string::npos && parentName.find("Component") != std::string::npos;
+							const char* parentClassName = mono_class_get_name(parentClass);
+							const char* parentNameSpace = mono_class_get_namespace(parentClass);
+							validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
 						}
 
 						if (!validComponentFilter)
 						{
-							Coral::ScopedString typeName = componentType.GetFullName();
-							ErrorWithTrace("Physics.OverlapShape - {0} does not inherit from Hazel.Component!", std::string(typeName));
+							ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
 							overlapCount = 0;
 							break;
 						}
@@ -5189,9 +5385,6 @@ namespace Hazel {
 				}
 			}
 
-			if (overlapCount != 0 && (outHits->IsEmpty() || outHits->Length() < overlapCount))
-				*outHits = Coral::Array<ScriptRaycastHit>::New(overlapCount);
-
 			for (size_t i = 0; i < overlapCount; i++)
 			{
 				ScriptRaycastHit hitData;
@@ -5200,36 +5393,9 @@ namespace Hazel {
 				hitData.Normal = hitArray[i].Normal;
 				hitData.Distance = hitArray[i].Distance;
 
-				const auto& scriptEngine = ScriptEngine::GetInstance();
-
-				auto createMeshShape = [&scriptEngine](std::string_view meshShapeClass, const MeshColliderComponent& colliderComp) -> Coral::ManagedObject
-				{
-					const auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(colliderComp.ColliderAsset);
-					const auto colliderMesh = AssetManager::GetAsset<Asset>(colliderAsset->ColliderMesh);
-
-					if (colliderMesh->GetAssetType() == AssetType::StaticMesh)
-					{
-						const auto* staticMeshType = scriptEngine.GetTypeByName("Hazel.StaticMesh");
-						auto staticMeshInstance = staticMeshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-						const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-						return convexMeshShapeType->CreateInstance(staticMeshInstance);
-					}
-					else if (colliderMesh->GetAssetType() == AssetType::Mesh)
-					{
-						const auto* meshType = scriptEngine.GetTypeByName("Hazel.Mesh");
-						auto meshInstance = meshType->CreateInstance(uint64_t(colliderComp.ColliderAsset));
-
-						const auto* convexMeshShapeType = scriptEngine.GetTypeByName(meshShapeClass);
-						return convexMeshShapeType->CreateInstance(meshInstance);
-					}
-
-					return {};
-				};
-				
 				if (hitArray[i].HitCollider)
 				{
-					Coral::ManagedObject shapeInstance;
+					MonoObject* shapeInstance = nullptr;
 					glm::vec3 offset(0.0f);
 
 					switch (hitArray[i].HitCollider->GetType())
@@ -5241,8 +5407,8 @@ namespace Hazel {
 							offset = colliderComp.Offset;
 
 							glm::vec3 halfSize = hitArray[i].HitCollider.As<BoxShape>()->GetHalfSize();
-							const auto* boxShape = scriptEngine.GetTypeByName("Hazel.BoxShape");
-							shapeInstance = boxShape->CreateInstance(halfSize);
+							CSharpInstance boxInstance("Hazel.BoxShape");
+							shapeInstance = boxInstance.Instantiate(halfSize);
 							break;
 						}
 						case ShapeType::Sphere:
@@ -5252,8 +5418,8 @@ namespace Hazel {
 							offset = colliderComp.Offset;
 
 							float radius = hitArray[i].HitCollider.As<SphereShape>()->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.SphereShape");
-							shapeInstance = sphereShape->CreateInstance(radius);
+							CSharpInstance sphereInstance("Hazel.SphereShape");
+							shapeInstance = sphereInstance.Instantiate(radius);
 							break;
 						}
 						case ShapeType::Capsule:
@@ -5265,33 +5431,45 @@ namespace Hazel {
 							Ref<CapsuleShape> capsuleShape = hitArray[i].HitCollider.As<CapsuleShape>();
 							float height = capsuleShape->GetHeight();
 							float radius = capsuleShape->GetRadius();
-							const auto* sphereShape = scriptEngine.GetTypeByName("Hazel.CapsuleShape");
-							shapeInstance = sphereShape->CreateInstance(height, radius);
+							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							shapeInstance = capsuleInstance.Instantiate(height, radius);
 							break;
 						}
 						case ShapeType::ConvexMesh:
 						{
 							Entity hitEntity = GetEntity(hitArray[i].HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.ConvexMeshShape", colliderComp);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							Ref<ConvexMeshShape> convexMeshShape = hitArray[i].HitCollider.As<ConvexMeshShape>();
+							CSharpInstance meshInstance;
+							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
 						case ShapeType::TriangleMesh:
 						{
 							Entity hitEntity = GetEntity(hitArray[i].HitEntity);
-							const auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
-							shapeInstance = createMeshShape("Hazel.TriangleMeshShape", colliderComp);
+							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
+
+							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
+
+							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
 					}
 
-					if (shapeInstance.IsValid())
+					if (shapeInstance != nullptr)
 					{
-						const auto* colliderType = scriptEngine.GetTypeByName("Hazel.Collider");
-						hitData.HitCollider = colliderType->CreateInstance(hitArray[i].HitEntity, shapeInstance, offset);
+						CSharpInstance colliderInstance("Hazel.Collider");
+						hitData.HitCollider = colliderInstance.Instantiate(hitArray[i].HitEntity, shapeInstance, offset);
 					}
 
-					(*outHits)[i] = hitData;
+					ManagedArrayUtils::SetValue(*outHits, uintptr_t(i), hitData);
 				}
 			}
 
@@ -5301,21 +5479,21 @@ namespace Hazel {
 
 		void Physics_GetGravity(glm::vec3* outGravity)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 			*outGravity = scene->GetPhysicsScene()->GetGravity();
 		}
 
 		void Physics_SetGravity(glm::vec3* inGravity)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 			scene->GetPhysicsScene()->SetGravity(*inGravity);
 		}
 
 		void Physics_AddRadialImpulse(glm::vec3* inOrigin, float radius, float strength, EFalloffMode falloff, bool velocityChange)
 		{
-			Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(scene, "No active scene!");
 			scene->GetPhysicsScene()->AddRadialImpulse(*inOrigin, radius, strength, falloff, velocityChange);
 		}
@@ -5363,9 +5541,11 @@ namespace Hazel {
 
 #pragma region Log
 
-		void Log_LogMessage(LogLevel level, Coral::String inFormattedMessage)
+		void Log_LogMessage(LogLevel level, MonoString* inFormattedMessage)
 		{
-			std::string message = inFormattedMessage;
+			HZ_PROFILE_FUNC();
+
+			std::string message = ScriptUtils::MonoStringToUTF8(inFormattedMessage);
 			switch (level)
 			{
 				case LogLevel::Trace:
@@ -5387,19 +5567,18 @@ namespace Hazel {
 					HZ_CONSOLE_LOG_FATAL(message);
 					break;
 			}
-			Coral::String::Free(inFormattedMessage);
 		}
 
 #pragma endregion
 
 #pragma region Input
 
-		Coral::Bool32 Input_IsKeyPressed(KeyCode keycode) { return Input::IsKeyPressed(keycode); }
-		Coral::Bool32 Input_IsKeyHeld(KeyCode keycode) { return Input::IsKeyHeld(keycode); }
-		Coral::Bool32 Input_IsKeyDown(KeyCode keycode) { return Input::IsKeyDown(keycode); }
-		Coral::Bool32 Input_IsKeyReleased(KeyCode keycode) { return Input::IsKeyReleased(keycode); }
+		bool Input_IsKeyPressed(KeyCode keycode) { return Input::IsKeyPressed(keycode); }
+		bool Input_IsKeyHeld(KeyCode keycode) { return Input::IsKeyHeld(keycode); }
+		bool Input_IsKeyDown(KeyCode keycode) { return Input::IsKeyDown(keycode); }
+		bool Input_IsKeyReleased(KeyCode keycode) { return Input::IsKeyReleased(keycode); }
 
-		Coral::Bool32 Input_IsMouseButtonPressed(MouseButton button)
+		bool Input_IsMouseButtonPressed(MouseButton button)
 		{
 			bool isPressed = Input::IsMouseButtonPressed(button);
 
@@ -5414,7 +5593,7 @@ namespace Hazel {
 
 			return isPressed;
 		}
-		Coral::Bool32 Input_IsMouseButtonHeld(MouseButton button)
+		bool Input_IsMouseButtonHeld(MouseButton button)
 		{
 			bool isHeld = Input::IsMouseButtonHeld(button);
 
@@ -5429,7 +5608,7 @@ namespace Hazel {
 
 			return isHeld;
 		}
-		Coral::Bool32 Input_IsMouseButtonDown(MouseButton button)
+		bool Input_IsMouseButtonDown(MouseButton button)
 		{
 			bool isDown = Input::IsMouseButtonDown(button);
 
@@ -5444,7 +5623,7 @@ namespace Hazel {
 
 			return isDown;
 		}
-		Coral::Bool32 Input_IsMouseButtonReleased(MouseButton button)
+		bool Input_IsMouseButtonReleased(MouseButton button)
 		{
 			bool released = Input::IsMouseButtonReleased(button);
 
@@ -5468,25 +5647,25 @@ namespace Hazel {
 
 		void Input_SetCursorMode(CursorMode mode) { Input::SetCursorMode(mode); }
 		CursorMode Input_GetCursorMode() { return Input::GetCursorMode(); }
-		Coral::Bool32 Input_IsControllerPresent(int id) { return Input::IsControllerPresent(id); }
+		bool Input_IsControllerPresent(int id) { return Input::IsControllerPresent(id); }
 
-		Coral::Array<int32_t> Input_GetConnectedControllerIDs()
+		MonoArray* Input_GetConnectedControllerIDs()
 		{
-			return Coral::Array<int32_t>::New(Input::GetConnectedControllerIDs());
+			return ManagedArrayUtils::FromVector<int32_t>(Input::GetConnectedControllerIDs());
 		}
 
-		Coral::String Input_GetControllerName(int id)
+		MonoString* Input_GetControllerName(int id)
 		{
 			auto name = Input::GetControllerName(id);
 			if (name.empty())
-				return {};
-			return Coral::String::New(name);
+				return ScriptUtils::EmptyMonoString();
+			return ScriptUtils::UTF8StringToMono(&name.front());
 		}
 
-		Coral::Bool32 Input_IsControllerButtonPressed(int id, int button) { return Input::IsControllerButtonPressed(id, button); }
-		Coral::Bool32 Input_IsControllerButtonHeld(int id, int button) { return Input::IsControllerButtonHeld(id, button); }
-		Coral::Bool32 Input_IsControllerButtonDown(int id, int button) { return Input::IsControllerButtonDown(id, button); }
-		Coral::Bool32 Input_IsControllerButtonReleased(int id, int button) { return Input::IsControllerButtonReleased(id, button); }
+		bool Input_IsControllerButtonPressed(int id, int button) { return Input::IsControllerButtonPressed(id, button); }
+		bool Input_IsControllerButtonHeld(int id, int button) { return Input::IsControllerButtonHeld(id, button); }
+		bool Input_IsControllerButtonDown(int id, int button) { return Input::IsControllerButtonDown(id, button); }
+		bool Input_IsControllerButtonReleased(int id, int button) { return Input::IsControllerButtonReleased(id, button); }
 
 
 		float Input_GetControllerAxis(int id, int axis) { return Input::GetControllerAxis(id, axis); }
@@ -5497,60 +5676,162 @@ namespace Hazel {
 
 #pragma endregion
 
+#pragma region EditorUI
+
+#ifndef HZ_DIST
+
+		void EditorUI_Text(MonoString* inText)
+		{
+			std::string text = ScriptUtils::MonoStringToUTF8(inText);
+			ImGui::TextUnformatted(text.c_str());
+		}
+
+		bool EditorUI_Button(MonoString* inLabel, glm::vec2* inSize)
+		{
+			std::string label = ScriptUtils::MonoStringToUTF8(inLabel);
+			return ImGui::Button(label.c_str(), *((const ImVec2*)inSize));
+		}
+
+		bool EditorUI_BeginPropertyHeader(MonoString* label, bool openByDefault)
+		{
+			return UI::PropertyGridHeader(ScriptUtils::MonoStringToUTF8(label), openByDefault);
+		}
+
+		void EditorUI_EndPropertyHeader()
+		{
+			UI::EndTreeNode();
+		}
+
+		void EditorUI_PropertyGrid(bool inBegin)
+		{
+			if (inBegin)
+				UI::BeginPropertyGrid();
+			else
+				UI::EndPropertyGrid();
+		}
+
+		bool EditorUI_PropertyFloat(MonoString* inLabel, float* outValue)
+		{
+			std::string label = ScriptUtils::MonoStringToUTF8(inLabel);
+			return UI::Property(label.c_str(), *outValue);
+		}
+
+		bool EditorUI_PropertyVec2(MonoString* inLabel, glm::vec2* outValue)
+		{
+			std::string label = ScriptUtils::MonoStringToUTF8(inLabel);
+			return UI::Property(label.c_str(), *outValue);
+		}
+
+		bool EditorUI_PropertyVec3(MonoString* inLabel, glm::vec3* outValue)
+		{
+			std::string label = ScriptUtils::MonoStringToUTF8(inLabel);
+			return UI::Property(label.c_str(), *outValue);
+		}
+
+		bool EditorUI_PropertyVec4(MonoString* inLabel, glm::vec4* outValue)
+		{
+			std::string label = ScriptUtils::MonoStringToUTF8(inLabel);
+			return UI::Property(label.c_str(), *outValue);
+		}
+
+#else
+		void EditorUI_Text(MonoString* inText)
+		{
+		}
+
+		bool EditorUI_Button(MonoString* inLabel, glm::vec2* inSize)
+		{
+			return false;
+		}
+
+		void EditorUI_PropertyGrid(bool inBegin)
+		{
+		}
+
+		bool EditorUI_PropertyFloat(MonoString* inLabel, float* outValue)
+		{
+			return false;
+		}
+
+		bool EditorUI_PropertyVec2(MonoString* inLabel, glm::vec2* outValue)
+		{
+			return false;
+		}
+
+		bool EditorUI_PropertyVec3(MonoString* inLabel, glm::vec3* outValue)
+		{
+			return false;
+		}
+
+		bool EditorUI_PropertyVec4(MonoString* inLabel, glm::vec4* outValue)
+		{
+			return false;
+		}
+
+		bool EditorUI_BeginPropertyHeader(MonoString* label, bool openByDefault)
+		{
+			return false;
+		}
+
+		void EditorUI_EndPropertyHeader() {}
+
+#endif
+#pragma endregion
+
 #pragma region SceneRenderer
 
 		float SceneRenderer_GetOpacity()
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetOpacity();
 		}
 
 		void SceneRenderer_SetOpacity(float opacity)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->SetOpacity(opacity);
 		}
 
 		bool SceneRenderer_DepthOfField_IsEnabled()
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().Enabled;
 		}
 
 		void SceneRenderer_DepthOfField_SetEnabled(bool enabled)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().Enabled = enabled;
 		}
 
 		float SceneRenderer_DepthOfField_GetFocusDistance()
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().FocusDistance;
 		}
 
 		void SceneRenderer_DepthOfField_SetFocusDistance(float focusDistance)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().FocusDistance = focusDistance;
 		}
 
 		float SceneRenderer_DepthOfField_GetBlurSize()
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().BlurSize;
 		}
 
 		void SceneRenderer_DepthOfField_SetBlurSize(float blurSize)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			HZ_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().BlurSize = blurSize;
 		}
@@ -5561,7 +5842,7 @@ namespace Hazel {
 
 		void DebugRenderer_DrawLine(glm::vec3* p0, glm::vec3* p1, glm::vec4* color)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			Ref<DebugRenderer> debugRenderer = sceneRenderer->GetDebugRenderer();
 			
 			debugRenderer->DrawLine(*p0, *p1, *color);
@@ -5569,7 +5850,7 @@ namespace Hazel {
 
 		void DebugRenderer_DrawQuadBillboard(glm::vec3* translation, glm::vec2* size, glm::vec4* color)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			Ref<DebugRenderer> debugRenderer = sceneRenderer->GetDebugRenderer();
 
 			debugRenderer->DrawQuadBillboard(*translation, *size, *color);
@@ -5577,7 +5858,7 @@ namespace Hazel {
 
 		void DebugRenderer_SetLineWidth(float width)
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			Ref<DebugRenderer> debugRenderer = sceneRenderer->GetDebugRenderer();
 
 			debugRenderer->SetLineWidth(width);
@@ -5595,7 +5876,7 @@ namespace Hazel {
 
 		float PerformanceTimers_GetGPUTime()
 		{
-			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetInstance().GetSceneRenderer();
+			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
 			return (float)sceneRenderer->GetStatistics().TotalGPUTime;
 		}
 
@@ -5626,7 +5907,7 @@ namespace Hazel {
 
 		uint32_t PerformanceTimers_GetEntityCount()
 		{
-			Ref<Scene> activeScene = ScriptEngine::GetInstance().GetCurrentScene();
+			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
 			HZ_CORE_ASSERT(activeScene, "No active scene!");
 
 			return (uint32_t) activeScene->GetEntityMap().size();
@@ -5634,11 +5915,11 @@ namespace Hazel {
 
 		uint32_t PerformanceTimers_GetScriptEntityCount()
 		{
-			//return (uint32_t)ScriptEngine::GetEntityInstances().size();
-			return 0;
+			return (uint32_t)ScriptEngine::GetEntityInstances().size();
 		}
 
 #pragma endregion
 
 	}
+
 }

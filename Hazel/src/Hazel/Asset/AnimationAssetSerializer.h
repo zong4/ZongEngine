@@ -24,8 +24,8 @@ namespace Hazel {
 		virtual void Serialize(const AssetMetadata& metadata, const Ref<Asset>& asset) const override;
 		virtual bool TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const override;
 
-		virtual bool SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const override;
-		virtual Ref<Asset> DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const override;
+		virtual bool SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const;
+		virtual Ref<Asset> DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const;
 	};
 
 	class AnimationGraphAssetSerializer : public AssetSerializer
@@ -34,8 +34,8 @@ namespace Hazel {
 		virtual void Serialize(const AssetMetadata& metadata, const Ref<Asset>& asset) const override;
 		virtual bool TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const override;
 
-		virtual bool SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const override;
-		virtual Ref<Asset> DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const override;
+		virtual bool SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const;
+		virtual Ref<Asset> DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const;
 
 		static bool TryLoadData(const std::filesystem::path& path, Ref<AnimationGraphAsset>& asset);
 	};

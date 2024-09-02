@@ -36,14 +36,6 @@ namespace Hazel {
 			return false;
 		};
 
-		auto appendAnimationAsset = [&animationHandles](const choc::value::ValueView& value)
-		{
-			AssetHandle assetHandle = Utils::GetAssetHandleFromValue(value);
-			if (assetHandle != 0)
-			{
-				Utils::AppendIfNotPresent(animationHandles, assetHandle);
-			}
-		};
 
 		for (const auto& [subGraphId, nodes] : m_Nodes)
 		{
@@ -54,7 +46,14 @@ namespace Hazel {
 					if (input->GetType() != AG::Types::EPinType::AnimationAsset || isPinLinked(input->ID))
 						continue;
 
-					appendAnimationAsset(input->Value);
+					if (input->Value.isInt64())
+					{
+						AssetHandle assetHandle = input->Value.getInt64();
+						if (assetHandle != 0)
+						{
+							Utils::AppendIfNotPresent(animationHandles, assetHandle);
+						}
+					}
 				}
 			}
 		}
@@ -67,14 +66,10 @@ namespace Hazel {
 			if (isArray && Utils::IsAssetHandle<AssetType::Animation>(value[0]))
 			{
 				for (const auto& animation : value)
-				{
-					appendAnimationAsset(animation);
-				}
+					Utils::AppendIfNotPresent(animationHandles, (AssetHandle)animation.getObjectMemberAt(0).value.getInt64());
 			}
 			else if (Utils::IsAssetHandle<AssetType::Animation>(value))
-			{
-				appendAnimationAsset(value);
-			}
+				Utils::AppendIfNotPresent(animationHandles, (AssetHandle)value.getObjectMemberAt(0).value.getInt64());
 		}
 
 		for (const auto& localVariableName : LocalVariables.GetNames())
@@ -85,14 +80,10 @@ namespace Hazel {
 			if (isArray && Utils::IsAssetHandle<AssetType::Animation>(value[0]))
 			{
 				for (const auto& animation : value)
-				{
-					appendAnimationAsset(animation);
-				}
+					Utils::AppendIfNotPresent(animationHandles, (AssetHandle)animation.getObjectMemberAt(0).value.getInt64());
 			}
 			else if (Utils::IsAssetHandle<AssetType::Animation>(value))
-			{
-				appendAnimationAsset(value);
-			}
+				Utils::AppendIfNotPresent(animationHandles, (AssetHandle)value.getObjectMemberAt(0).value.getInt64());
 		}
 
 		return animationHandles;

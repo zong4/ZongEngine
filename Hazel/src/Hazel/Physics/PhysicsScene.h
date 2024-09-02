@@ -74,7 +74,7 @@ namespace Hazel {
 		void CreateCharacterControllers();
 		void SynchronizePendingBodyTransforms();
 
-		void OnContactEvent(ContactType type, UUID entityA, UUID entityB);
+		void OnContactEvent(ContactType type, Entity entityA, Entity entityB);
 
 		virtual void SynchronizeBodyTransform(WeakRef<PhysicsBody> body) = 0;
 

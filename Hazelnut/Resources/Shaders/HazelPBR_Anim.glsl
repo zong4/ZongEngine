@@ -98,6 +98,7 @@ void main()
 }
 
 
+
 #version 450 core 
 
 #pragma stage : frag 
@@ -144,6 +145,7 @@ layout(push_constant) uniform Material
 	bool UseNormalMap;
 } u_MaterialUniforms;
 
+
 vec3 IBL(vec3 F0, vec3 Lr)
 {
 	vec3 irradiance = texture(u_EnvIrradianceTex, m_Params.Normal).rgb;
@@ -152,9 +154,13 @@ vec3 IBL(vec3 F0, vec3 Lr)
 	vec3 diffuseIBL = m_Params.Albedo * irradiance;
 
 	int envRadianceTexLevels = textureQueryLevels(u_EnvRadianceTex);
-	vec3 specularIrradiance = textureLod(u_EnvRadianceTex, RotateVectorAboutY(u_MaterialUniforms.EnvMapRotation, Lr), m_Params.Roughness * envRadianceTexLevels).rgb;
+	float NoV = clamp(m_Params.NdotV, 0.0, 1.0);
+	vec3 R = 2.0 * dot(m_Params.View, m_Params.Normal) * m_Params.Normal - m_Params.View;
+	vec3 specularIrradiance = textureLod(u_EnvRadianceTex, RotateVectorAboutY(u_MaterialUniforms.EnvMapRotation, Lr), (m_Params.Roughness) * envRadianceTexLevels).rgb;
+	//specularIrradiance = vec3(Convert_sRGB_FromLinear(specularIrradiance.r), Convert_sRGB_FromLinear(specularIrradiance.g), Convert_sRGB_FromLinear(specularIrradiance.b));
 
-	vec2 specularBRDF = texture(u_BRDFLUTTexture, vec2(m_Params.NdotV, m_Params.Roughness)).rg;
+	// Sample BRDF Lut, 1.0 - roughness for y-coord because texture was generated (in Sparky) for gloss model
+	vec2 specularBRDF = texture(u_BRDFLUTTexture, vec2(m_Params.NdotV, 1.0 - m_Params.Roughness)).rg;
 	vec3 specularIBL = specularIrradiance * (F0 * specularBRDF.x + specularBRDF.y);
 
 	return kd * diffuseIBL + specularIBL;
@@ -186,21 +192,17 @@ vec3 GetGradient(float value)
 	return color;
 }
 
-
 void main()
 {
 	// Standard PBR inputs
 	vec4 albedoTexColor = texture(u_AlbedoTexture, Input.TexCoord);
-	m_Params.Albedo = albedoTexColor.rgb * ToLinear(vec4(u_MaterialUniforms.AlbedoColor, 1.0)).rgb;   // MaterialUniforms.AlbedoColor is perceptual, must be converted to linear.
+	m_Params.Albedo = albedoTexColor.rgb * u_MaterialUniforms.AlbedoColor;
 	float alpha = albedoTexColor.a;
-	// note: Metalness and roughness could be in the same texture.
-	//       Per GLTF spec, we read metalness from the B channel and roughness from the G channel
-	//       This will still work if metalness and roughness are independent greyscale textures,
-	//       but it will not work if metalness and roughness are independent textures containing only R channel.
-	m_Params.Metalness = texture(u_MetalnessTexture, Input.TexCoord).b * u_MaterialUniforms.Metalness;
-	m_Params.Roughness = texture(u_RoughnessTexture, Input.TexCoord).g * u_MaterialUniforms.Roughness;
+	m_Params.Metalness = texture(u_MetalnessTexture, Input.TexCoord).r * u_MaterialUniforms.Metalness;
+	m_Params.Roughness = texture(u_RoughnessTexture, Input.TexCoord).r * u_MaterialUniforms.Roughness;
 	o_MetalnessRoughness = vec4(m_Params.Metalness, m_Params.Roughness, 0.f, 1.f);
 	m_Params.Roughness = max(m_Params.Roughness, 0.05); // Minimum roughness of 0.05 to keep specular highlight
+
 
 	// Normals (either from vertex or map)
 	m_Params.Normal = normalize(Input.Normal);
@@ -309,16 +311,13 @@ void main()
 
 	// Shadow mask with respect to bright surfaces.
 	o_ViewNormalsLuminance.a = clamp(shadowScale + dot(color.rgb, vec3(0.2125f, 0.7154f, 0.0721f)), 0.0f, 1.0f);
-
+	 
 	if (u_RendererData.ShowLightComplexity)
 	{
 		int pointLightCount = GetPointLightCount();
-		int spotLightCount = GetSpotLightCount();
-
-		float value = float(pointLightCount + spotLightCount);
+		float value = float(pointLightCount);
 		color.rgb = (color.rgb * 0.2) + GetGradient(value);
 	}
-
 	// TODO(Karim): Have a separate render pass for translucent and transparent objects.
 	// Because we use the pre-depth image for depth test.
 	// color.a = alpha; 

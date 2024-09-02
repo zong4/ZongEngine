@@ -9,11 +9,7 @@ namespace Hazel::Math {
 
 	glm::vec3 Scale(const glm::vec3& v, float desiredLength)
 	{
-		float mag = glm::length(v);
-		if (glm::epsilonEqual(mag, 0.0f, glm::epsilon<float>()))
-			return glm::vec3(0.0f);
-
-		return v * desiredLength / mag;
+		return v * desiredLength / length(v);
 	}
 
 	bool DecomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::quat& rotation, glm::vec3& scale)

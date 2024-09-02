@@ -7,8 +7,6 @@
 
 #include "Hazel/Physics/PhysicsSystem.h"
 
-#include "Hazel/Script/ScriptEngine.h"
-
 namespace Hazel {
 
 	Project::Project()
@@ -20,21 +18,11 @@ namespace Hazel {
 	{
 	}
 
-	void Project::ReloadScriptEngine()
-	{
-		auto& scriptEngine = ScriptEngine::GetMutable();
-		scriptEngine.Shutdown();
-		scriptEngine.Initialize(this);
-		scriptEngine.LoadProjectAssembly();
-	}
-
 	void Project::SetActive(Ref<Project> project)
 	{
 		if (s_ActiveProject)
 		{
-			s_AssetManager->Shutdown();
 			s_AssetManager = nullptr;
-			ScriptEngine::GetMutable().Shutdown();
 			PhysicsSystem::Shutdown();
 			AudioCommandRegistry::Shutdown();
 		}
@@ -43,7 +31,6 @@ namespace Hazel {
 		if (s_ActiveProject)
 		{
 			PhysicsAPI::SetCurrentAPI(s_ActiveProject->GetConfig().CurrentPhysicsAPI);
-
 			s_AssetManager = Ref<EditorAssetManager>::Create();
 			PhysicsSystem::Init();
 
@@ -52,9 +39,8 @@ namespace Hazel {
 			// AudioCommandsRegistry must be deserialized after AssetManager,
 			// otheriwse all of the command action targets are going to be invalid and cleared!
 			WeakRef<AudioCommandRegistry> audioCommands = s_ActiveProject->m_AudioCommands;
-			AudioCommandRegistry::Init(audioCommands);
-
-			ScriptEngine::GetMutable().Initialize(project);
+			//if (!runtime)
+				AudioCommandRegistry::Init(audioCommands);
 		}
 	}
 
@@ -63,7 +49,6 @@ namespace Hazel {
 		if (s_ActiveProject)
 		{
 			s_AssetManager = nullptr;
-			ScriptEngine::GetMutable().Shutdown();
 			PhysicsSystem::Shutdown();
 			AudioCommandRegistry::Shutdown();
 		}
@@ -82,7 +67,6 @@ namespace Hazel {
 			//if (!runtime)
 			MiniAudioEngine::Get().OnProjectLoaded();
 			AudioCommandRegistry::Init(audioCommands);
-			ScriptEngine::GetMutable().Initialize(project);
 		}
 	}
 

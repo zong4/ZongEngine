@@ -19,8 +19,6 @@ namespace Hazel {
 		inline static Ref<Texture2D> ClearIcon = nullptr;
 		inline static Ref<Texture2D> SaveIcon = nullptr;
 		inline static Ref<Texture2D> ReticuleIcon = nullptr;
-		inline static Ref<Texture2D> LinkedIcon = nullptr;
-		inline static Ref<Texture2D> UnlinkedIcon = nullptr;
 
 		// Icons
 		inline static Ref<Texture2D> AnimationIcon = nullptr;
@@ -41,7 +39,6 @@ namespace Hazel {
 		inline static Ref<Texture2D> RigidBodyIcon = nullptr;
 		inline static Ref<Texture2D> RigidBody2DIcon = nullptr;
 		inline static Ref<Texture2D> ScriptIcon = nullptr;
-		inline static Ref<Texture2D> SkeletonIcon = nullptr;
 		inline static Ref<Texture2D> SpriteIcon = nullptr;
 		inline static Ref<Texture2D> SkyLightIcon = nullptr;
 		inline static Ref<Texture2D> CompoundColliderIcon = nullptr;
@@ -126,8 +123,6 @@ namespace Hazel {
 			ClearIcon = LoadTexture("Generic/Clear.png", "ClearIcon", spec);
 			SaveIcon = LoadTexture("Generic/Save.png", "ClearIcon", spec);
 			ReticuleIcon = LoadTexture("Generic/Reticule.png", "Reticule", spec);
-			LinkedIcon = LoadTexture("Generic/Linked.png", "LinkedIcon", spec);
-			UnlinkedIcon = LoadTexture("Generic/Unlinked.png", "UnlinkedIcon", spec);
 
 			// Icons (dont forget to .Reset() these in EditorResources::Shutdown())
 			AnimationIcon = LoadTexture("Icons/Animation.png", "AnimationIcon", spec);
@@ -148,7 +143,6 @@ namespace Hazel {
 			RigidBodyIcon = LoadTexture("Icons/RigidBody.png", "RigidBodyIcon", spec);
 			RigidBody2DIcon = LoadTexture("Icons/RigidBody2D.png", "RigidBody2DIcon", spec);
 			ScriptIcon = LoadTexture("Icons/Script.png", "ScriptIcon", spec);
-			SkeletonIcon = LoadTexture("Icons/Skeleton.png", "SkeletonIcon", spec);
 			SpriteIcon = LoadTexture("Icons/SpriteRenderer.png", "SpriteIcon", spec);
 			SkyLightIcon = LoadTexture("Icons/SkyLight.png", "SkyLightIcon", spec);
 			CompoundColliderIcon = LoadTexture("Icons/CompoundCollider.png", "CompoundColliderIcon", spec);
@@ -188,7 +182,7 @@ namespace Hazel {
 			PNGFileIcon = LoadTexture("ContentBrowser/PNG.png", "PNGFileIcon", spec);
 			JPGFileIcon = LoadTexture("ContentBrowser/JPG.png", "JPGFileIcon", spec);
 			MaterialFileIcon = LoadTexture("ContentBrowser/Material.png", "MaterialFileIcon", spec);
-			SceneFileIcon = LoadTexture("Hazel-IconLogo-2023.png", "SceneFileIcon", spec);
+			SceneFileIcon = LoadTexture("hazel.png", "SceneFileIcon", spec);
 			PrefabFileIcon = LoadTexture("ContentBrowser/Prefab.png", "PrefabFileIcon", spec);
 			FontFileIcon = LoadTexture("ContentBrowser/Font.png", "FontFileIcon", spec);
 			AnimationFileIcon = LoadTexture("ContentBrowser/Animation.png", "AnimationFileIcon", spec);
@@ -231,8 +225,6 @@ namespace Hazel {
 			ClearIcon.Reset();
 			SaveIcon.Reset();
 			ReticuleIcon.Reset();
-			LinkedIcon.Reset();
-			UnlinkedIcon.Reset();
 
 			// Icons
 			AnimationIcon.Reset();
@@ -253,7 +245,6 @@ namespace Hazel {
 			RigidBodyIcon.Reset();
 			RigidBody2DIcon.Reset();
 			ScriptIcon.Reset();
-			SkeletonIcon.Reset();
 			SpriteIcon.Reset();
 			SkyLightIcon.Reset();
 			CompoundColliderIcon.Reset();

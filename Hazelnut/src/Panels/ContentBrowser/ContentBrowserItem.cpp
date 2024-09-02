@@ -1,22 +1,21 @@
-#include "ContentBrowserItem.h"
 
+#include <cstdint>
+#include "ContentBrowserItem.h"
 #include "Panels/ContentBrowserPanel.h"
 
 #include "Hazel/Asset/AssetManager.h"
+#include "Hazel/Utilities/FileSystem.h"
+#include "Hazel/ImGui/ImGui.h"
 #include "Hazel/Editor/AssetEditorPanel.h"
+#include "Hazel/Editor/SelectionManager.h"
+
 #include "Hazel/Editor/EditorApplicationSettings.h"
 #include "Hazel/Editor/EditorResources.h"
-#include "Hazel/Editor/SelectionManager.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Utilities/FileSystem.h"
 
 // TEMP
 #include "Hazel/Asset/MeshRuntimeSerializer.h"
 
-#include <imgui_internal.h>
-
-#include <cstdint>
-#include <format>
+#include "imgui_internal.h"
 
 namespace Hazel {
 
@@ -36,7 +35,7 @@ namespace Hazel {
 		ImGui::BeginGroup();
 	}
 
-	CBItemActionResult ContentBrowserItem::OnRender(Ref<ContentBrowserPanel> context)
+	CBItemActionResult ContentBrowserItem::OnRender()
 	{
 		CBItemActionResult result;
 
@@ -99,58 +98,11 @@ namespace Hazel {
 		//==========
 		// TODO: replace with actual Asset Thumbnail interface
 
-		Ref<ThumbnailCache> thumbnailCache = context->GetThumbnailCache();
 		ImGui::InvisibleButton("##thumbnailButton", ImVec2{ thumbnailSize, thumbnailSize });
-		if (thumbnailCache->HasThumbnail(m_ID))
-		{
-			ImVec2 uv0{ 0, 1 }, uv1{ 1, 0 };
-			if (AssetManager::GetAssetType(m_ID) == AssetType::Texture)
-			{
-				uv0 = { 0, 0 };
-				uv1 = { 1, 1 };
-			}
-
-			Ref<Image2D> thumbnailImage = thumbnailCache->GetThumbnailImage(m_ID);
-			uint32_t textureWidth = thumbnailImage->GetWidth();
-			uint32_t textureHeight = thumbnailImage->GetHeight();
-
-			float widthDiff = 0.0f, heightDiff = 0.0f;
-			if (textureWidth > textureHeight)
-			{
-				float verticalAspectRatio = (float)thumbnailImage->GetHeight() / (float)thumbnailImage->GetWidth();
-				heightDiff = (thumbnailSize - thumbnailSize * verticalAspectRatio);
-			}
-			else
-			{
-				float horizontalAspectRatio = (float)thumbnailImage->GetWidth() / (float)thumbnailImage->GetHeight();
-				widthDiff = (thumbnailSize - thumbnailSize * horizontalAspectRatio);
-			}
-			
-			ImRect thumbnailRect = UI::RectExpanded(UI::GetItemRect(), -widthDiff * 0.5f, -heightDiff * 0.5f);
-
-			UI::DrawButtonImage(thumbnailImage,
-				IM_COL32(255, 255, 255, 225),
-				IM_COL32(255, 255, 255, 255),
-				IM_COL32(255, 255, 255, 255),
-				UI::RectExpanded(thumbnailRect, -6.0f, -6.0f), uv0, uv1);
-
-#if 0
-			std::string memoryUsage = Utils::BytesToString(thumbnailImage->GetGPUMemoryUsage());
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltip();
-				ImGui::Text("Thumbnail mem: %s", memoryUsage.c_str());
-				ImGui::EndTooltip();
-			}
-#endif
-		}
-		else
-		{
-			UI::DrawButtonImage(m_Icon, IM_COL32(255, 255, 255, 225),
-				IM_COL32(255, 255, 255, 255),
-				IM_COL32(255, 255, 255, 255),
-				UI::RectExpanded(UI::GetItemRect(), -6.0f, -6.0f));
-		}
+		UI::DrawButtonImage(m_Icon, IM_COL32(255, 255, 255, 225),
+			IM_COL32(255, 255, 255, 255),
+			IM_COL32(255, 255, 255, 255),
+			UI::RectExpanded(UI::GetItemRect(), -6.0f, -6.0f));
 
 		// Info Panel
 		//-----------
@@ -577,13 +529,13 @@ namespace Hazel {
 	{
 		auto filepath = Project::GetEditorAssetManager()->GetFileSystemPath(m_AssetInfo);
 		const std::string extension = filepath.extension().string();
-		std::filesystem::path newFilepath = std::format("{0}\\{1}{2}", filepath.parent_path().string(), newName, extension);
+		std::filesystem::path newFilepath = fmt::format("{0}\\{1}{2}", filepath.parent_path().string(), newName, extension);
 
-		std::string targetName = std::format("{0}{1}", newName, extension);
+		std::string targetName = fmt::format("{0}{1}", newName, extension);
 		if (Utils::ToLower(targetName) == Utils::ToLower(filepath.filename().string()))
 		{
 			FileSystem::RenameFilename(filepath, "temp-rename");
-			filepath = std::format("{0}\\temp-rename{1}", filepath.parent_path().string(), extension);
+			filepath = fmt::format("{0}\\temp-rename{1}", filepath.parent_path().string(), extension);
 		}
 
 		if (FileSystem::RenameFilename(filepath, newName))

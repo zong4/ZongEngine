@@ -31,8 +31,6 @@ namespace Hazel {
 		Buffer ReadAppBinary();
 		uint64_t GetBuildVersion();
 
-		AssetType GetAssetType(AssetHandle sceneHandle, AssetHandle assetHandle) const;
-
 		// This will create a complete asset pack from ALL referenced assets
 		// in currently active project. This should change in the future to
 		// take in a Ref<Project> or something when the AssetManager becomes

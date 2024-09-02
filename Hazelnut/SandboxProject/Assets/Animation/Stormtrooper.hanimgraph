@@ -1,0 +1,227 @@
+Skeleton: 12584854050304052755
+0:
+  Nodes:
+    - ID: 7331672271261247223
+      Category: Local Variable
+      Name: Animations
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+      Type: Simple
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":190,\"y\":348}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 14782118640116033689
+          Name: Animations
+          Type: AnimationAsset
+          Storage: Array
+          Value:
+            Type: Array
+            Value:
+              - Type: Object
+                Value:
+                  ClassName: AnimationAsset
+                  Value: 11985587246298327863
+              - Type: Object
+                Value:
+                  ClassName: AnimationAsset
+                  Value: 16265968945290472075
+              - Type: Object
+                Value:
+                  ClassName: AnimationAsset
+                  Value: 3397946840728288338
+              - Type: Object
+                Value:
+                  ClassName: AnimationAsset
+                  Value: 352125316479895569
+              - Type: Object
+                Value:
+                  ClassName: AnimationAsset
+                  Value: 5224940803560988930
+    - ID: 17234011670002181332
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":936,\"y\":358}}"
+      Inputs:
+        - ID: 5928440281298659758
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 162547636611238970
+      Category: Input
+      Name: Input
+      Color: [0.266666681, 0.788235366, 0.611764729, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":82,\"y\":382}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 8633488485357573156
+          Name: State
+          Type: Int
+          Storage: Value
+          Value: {Type: int, Value: 0}
+    - ID: 18206761382719348436
+      Category: Array
+      Name: Get (Animation)
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":355,\"y\":358}}"
+      Inputs:
+        - ID: 16925211897693981200
+          Name: Array
+          Type: AnimationAsset
+          Storage: Array
+          Value: {Type: void, Value: "null"}
+        - ID: 6913750985958565698
+          Name: Index
+          Type: Int
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        - ID: 2755196680036495545
+          Name: Element
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: UUID
+              Value: 0
+    - ID: 6125362009637930276
+      Category: Input
+      Name: Input
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":76,\"y\":470}}"
+      Inputs:
+        []
+      Outputs:
+        - ID: 10229885751548589283
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+    - ID: 9266136646720402208
+      Category: Animation
+      Name: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":576,\"y\":358}}"
+      Inputs:
+        - ID: 3935402955655709410
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 14106393103789294139
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 17424434966325133420
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+        - ID: 5760590812402450696
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 11788037752445071784
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 6585191793748556562
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 1605738532812682422
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+  Links:
+    - ID: 10403708411746740303
+      StartPinID: 14782118640116033689
+      EndPinID: 16925211897693981200
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+    - ID: 2800509870398090047
+      StartPinID: 8633488485357573156
+      EndPinID: 6913750985958565698
+      Color: [0.266666681, 0.788235366, 0.611764729, 1]
+    - ID: 3930632736003196211
+      StartPinID: 2755196680036495545
+      EndPinID: 3935402955655709410
+      Color: [0.200000018, 0.588235319, 0.843137324, 1]
+    - ID: 3592360419329396296
+      StartPinID: 10229885751548589283
+      EndPinID: 17424434966325133420
+      Color: [0.576470613, 0.886274576, 0.290196091, 1]
+    - ID: 3922983741081643953
+      StartPinID: 11788037752445071784
+      EndPinID: 5928440281298659758
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:162547636611238970\":{\"location\":{\"x\":82,\"y\":382}},\"node:17234011670002181332\":{\"location\":{\"x\":936,\"y\":358}},\"node:18206761382719348436\":{\"location\":{\"x\":355,\"y\":358}},\"node:6125362009637930276\":{\"location\":{\"x\":76,\"y\":470}},\"node:7331672271261247223\":{\"location\":{\"x\":190,\"y\":348}},\"node:9266136646720402208\":{\"location\":{\"x\":576,\"y\":358}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":48.2707290649414062,\"y\":-5.35597515106201172},\"visible_rect\":{\"max\":{\"x\":1141.43310546875,\"y\":861.1396484375},\"min\":{\"x\":31.7883453369140625,\"y\":-3.52713918685913086}},\"zoom\":1.51850402355194092}}"
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members:
+      State: {Type: int, Value: 0}
+      Offset: {Type: float, Value: 0}
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members:
+      Animations:
+        Type: Array
+        Value:
+          - Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 11985587246298327863
+          - Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 16265968945290472075
+          - Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 3397946840728288338
+          - Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 352125316479895569
+          - Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 5224940803560988930

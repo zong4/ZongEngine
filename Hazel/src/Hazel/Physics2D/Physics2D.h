@@ -23,10 +23,10 @@ namespace Hazel {
 		ContactListener2D ContactListener;
 	};
 
-	class Physics2D
-	{
-	public:
-		static std::vector<Raycast2DResult> Raycast(Ref<Scene> scene, const glm::vec2& point0, const glm::vec2& point1);
-	};
+    class Physics2D
+    {
+    public:
+        static std::vector<Raycast2DResult> Raycast(Ref<Scene> scene, const glm::vec2& point0, const glm::vec2& point1);
+    };
 
 }

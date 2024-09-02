@@ -64,9 +64,6 @@ namespace Hazel {
 			//		m_RuntimeScene->SetPhysics2DGravity(physics2DGravity);
 			//	}
 			//}
-
-			if (!isOpen)
-				OnClose();
 		}
 
 		ImGui::End();
@@ -83,15 +80,6 @@ namespace Hazel {
 	{
 		m_Project = project;
 		m_DefaultScene = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath(project->GetConfig().StartScene);
-	}
-
-	void ProjectSettingsWindow::OnClose()
-	{
-		// Serialize on close
-
-		ProjectSerializer serializer(m_Project);
-		serializer.Serialize(m_Project->m_Config.ProjectDirectory + "/" + m_Project->m_Config.ProjectFileName);
-		s_SerializeProject = false;
 	}
 
 	void ProjectSettingsWindow::RenderGeneralSettings()
@@ -509,9 +497,6 @@ namespace Hazel {
 		ImGui::PushID("LogSettings");
 		if (UI::PropertyGridHeader("Log", false))
 		{
-			if (UI::Button("Reset to Default", ImVec2(0, 28)))
-				Log::SetDefaultTagSettings(); 
-
 			UI::BeginPropertyGrid(3);
 			auto& tags = Log::EnabledTags();
 			for (auto& [name, details] : tags)

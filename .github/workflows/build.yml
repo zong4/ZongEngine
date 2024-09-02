@@ -66,4 +66,4 @@ jobs:
         premake5 --cc=clang gmake2
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: make -j$(($(nproc) - 1)) config=${{matrix.build-configuration}}
+      run: make config=${{matrix.build-configuration}}

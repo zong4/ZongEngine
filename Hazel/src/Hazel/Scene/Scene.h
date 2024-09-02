@@ -10,8 +10,6 @@
 #include "Hazel/Renderer/Mesh.h"
 #include "Hazel/Renderer/SceneEnvironment.h"
 
-#include "Hazel/Script/ScriptEntityStorage.hpp"
-
 namespace Hazel {
 
 	namespace AnimationGraph {
@@ -105,6 +103,8 @@ namespace Hazel {
 		Scene(const std::string& name = "UntitledScene", bool isEditorScene = false, bool initalize = true);
 		~Scene();
 		
+		void Init();
+
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateEditor(Timestep ts);
 
@@ -112,12 +112,8 @@ namespace Hazel {
 		void OnRenderEditor(Ref<SceneRenderer> renderer, Timestep ts, const EditorCamera& editorCamera);
 		void OnRenderSimulation(Ref<SceneRenderer> renderer, Timestep ts, const EditorCamera& editorCamera);
 
-		void OnAssetReloaded(AssetHandle assetHandle);
-		void OnAnimationGraphReloaded(AssetHandle animationGraphHandle);
-		void OnMeshSourceReloaded(AssetHandle meshSourceHandle);
-		void OnMeshReloaded(AssetHandle meshHandle);
-
-		void RenderAnimationDebug(Ref<SceneRenderer> renderer, bool runtime);
+		void OnAnimationGraphCompiled(AssetHandle AnimationGraphHandle);
+		
 		void RenderPhysicsDebug(Ref<SceneRenderer> renderer, bool runtime);
 		void Render2DPhysicsDebug(Ref<SceneRenderer> renderer, Ref<Renderer2D> renderer2D, bool runtime);
 
@@ -158,11 +154,10 @@ namespace Hazel {
 		
 		Entity Instantiate(Ref<Prefab> prefab, const glm::vec3* translation = nullptr, const glm::vec3* rotation = nullptr, const glm::vec3* scale = nullptr);
 		Entity InstantiateChild(Ref<Prefab> prefab, Entity parent, const glm::vec3* translation = nullptr, const glm::vec3* rotation = nullptr, const glm::vec3* scale = nullptr);
-		Entity InstantiateMesh(Ref<Mesh> mesh);
-		void RebuildMeshEntityHierarchy(Entity parent);
-		Entity InstantiateStaticMesh(Ref<StaticMesh> mesh);
+		Entity InstantiateMesh(Ref<Mesh> mesh, bool generateColliders);
 
-		std::vector<UUID> FindBoneEntityIds(Entity entity, Entity rootEntity, const Skeleton* skeleton);
+		std::vector<UUID> FindBoneEntityIds(Entity entity, Entity rootEntity, Ref<Mesh> mesh);
+		std::vector<UUID> FindBoneEntityIds(Entity entity, Entity rootEntity, Ref<AnimationGraph::AnimationGraph> anim);
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
@@ -245,9 +240,6 @@ namespace Hazel {
 
 		void DuplicateAnimationInstance(Entity dst, Entity src);
 
-		ScriptStorage& GetScriptStorage() { return m_ScriptStorage; }
-		const ScriptStorage& GetScriptStorage() const { return m_ScriptStorage; }
-
 	public:
 		static Ref<Scene> CreateEmpty();
 
@@ -255,15 +247,19 @@ namespace Hazel {
 		void OnAudioComponentConstruct(entt::registry& registry, entt::entity entity);
 		void OnAudioComponentDestroy(entt::registry& registry, entt::entity entity);	
 		void OnMeshColliderComponentConstruct(entt::registry& registry, entt::entity entity);
+		void OnMeshColliderComponentDestroy(entt::registry& registry, entt::entity entity);
 		void OnRigidBody2DComponentConstruct(entt::registry& registry, entt::entity entity);
 		void OnRigidBody2DComponentDestroy(entt::registry& registry, entt::entity entity);
 		void OnBoxCollider2DComponentConstruct(entt::registry& registry, entt::entity entity);
+		void OnBoxCollider2DComponentDestroy(entt::registry& registry, entt::entity entity);
 		void OnCircleCollider2DComponentConstruct(entt::registry& registry, entt::entity entity);
-		void OnScriptComponentDestroy(entt::registry& registry, entt::entity entity);
+		void OnCircleCollider2DComponentDestroy(entt::registry& registry, entt::entity entity);
+
 		void OnRigidBodyComponentConstruct(entt::registry& registry, entt::entity entity);
 		void OnRigidBodyComponentDestroy(entt::registry& registry, entt::entity entity);
+		void OnRigidBodyComponentDestroy_ProEdition(Entity entity);
 
-		void BuildMeshEntityHierarchy(Entity parent, Ref<Mesh> mesh, const MeshNode& node);
+		void BuildMeshEntityHierarchy(Entity parent, Ref<Mesh> mesh, const MeshNode& node, bool generateColliders);
 		void BuildBoneEntityIds(Entity entity);
 		void BuildMeshBoneEntityIds(Entity entity, Entity rootEntity);
 		void BuildAnimationBoneEntityIds(Entity entity, Entity rootEntity);
@@ -276,14 +272,11 @@ namespace Hazel {
 			m_PostUpdateQueue.emplace_back(func);
 		}
 
-		std::vector<glm::mat4> GetModelSpaceBoneTransforms(const std::vector<UUID>& boneEntityIds, Ref<MeshSource> meshSource);
-		void UpdateAnimation(Timestep ts, bool isRuntime, AnimationGraph::AnimationGraph::HandleOutgoingEventFn* animationEventHandler);
-
-		bool RenderSkeletonDebug(Ref<SceneRenderer> renderer, Entity entity, Ref<StaticMesh> boneDebugMesh, Ref<MeshSource> boneDebugMeshSource, std::unordered_set<UUID> renderedEntities, UUID selectedEntityId);
+		std::vector<glm::mat4> GetModelSpaceBoneTransforms(const std::vector<UUID>& boneEntityIds, Ref<Mesh> mesh);
+		void UpdateAnimation(Timestep ts, bool isRuntime);
 
 	private:
 		UUID m_SceneID;
-		std::size_t m_LastSerializeHash = 0; // used by auto-save to determine if scene has changed
 		entt::entity m_SceneEntity = entt::null;
 		entt::registry m_Registry;
 
@@ -313,8 +306,6 @@ namespace Hazel {
 		float m_TimeScale = 1.0f;
 
 		PerformanceTimers m_PerformanceTimers;
-
-		ScriptStorage m_ScriptStorage;
 
 		friend class Entity;
 		friend class Prefab;

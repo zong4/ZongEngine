@@ -1,6 +1,5 @@
 #include "hzpch.h"
 #include "EditorConsolePanel.h"
-
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/Events/SceneEvents.h"
 #include "Hazel/Editor/EditorResources.h"
@@ -8,9 +7,7 @@
 #include "Hazel/ImGui/Colors.h"
 #include "Hazel/ImGui/ImGui.h"
 
-#include <imgui/imgui_internal.h>
-
-#include <format>
+#include "imgui/imgui_internal.h"
 
 namespace Hazel {
 
@@ -49,7 +46,7 @@ namespace Hazel {
 
 	void EditorConsolePanel::OnImGuiRender(bool& isOpen)
 	{
-		if (ImGui::Begin(m_PanelName, &isOpen))
+		if (ImGui::Begin("Log", &isOpen))
 		{
 			ImVec2 consoleSize = ImGui::GetContentRegionAvail();
 			consoleSize.y -= 32.0f;
@@ -66,34 +63,12 @@ namespace Hazel {
 		m_MessageBuffer.clear();
 	}
 
-	void EditorConsolePanel::Focus()
-	{
-		ImGui::SetWindowFocus(m_PanelName);
-	}
-
-	void EditorConsolePanel::SetProgress(const std::string& label, float progress)
-	{
-		m_ProgressLabel = label;
-		m_Progress = progress;
-
-		if (m_Progress >= 1.0f)
-			ClearProgress();
-	}
-
-	void EditorConsolePanel::ClearProgress()
-	{
-		m_ProgressLabel = std::string();
-		m_Progress = 0.0f;
-	}
-
 	void EditorConsolePanel::RenderMenu(const ImVec2& size)
 	{
 		UI::ScopedStyleStack frame(ImGuiStyleVar_FrameBorderSize, 0.0f, ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::BeginChild("Toolbar", size);
 
-		const float ToolbarHeight = 28.0f;
-
-		if (ImGui::Button("Clear", { 75.0f, ToolbarHeight }))
+		if (ImGui::Button("Clear", { 75.0f, 28.0f }))
 		{
 			std::scoped_lock<std::mutex> lock(m_MessageBufferMutex);
 			m_MessageBuffer.clear();
@@ -102,20 +77,13 @@ namespace Hazel {
 		ImGui::SameLine();
 
 		const auto& style = ImGui::GetStyle();
-		const std::string clearOnPlayText = std::format("{} Clear on Play", m_ClearOnPlay ? HZ_ICON_CHECK : HZ_ICON_TIMES);
+		const std::string clearOnPlayText = fmt::format("{} Clear on Play", m_ClearOnPlay ? HZ_ICON_CHECK : HZ_ICON_TIMES);
 		ImVec4 textColor = m_ClearOnPlay ? style.Colors[ImGuiCol_Text] : style.Colors[ImGuiCol_TextDisabled];
-		if (UI::ColoredButton(clearOnPlayText.c_str(), GetToolbarButtonColor(m_ClearOnPlay), textColor, ImVec2(110.0f, ToolbarHeight)))
+		if (UI::ColoredButton(clearOnPlayText.c_str(), GetToolbarButtonColor(m_ClearOnPlay), textColor, ImVec2(110.0f, 28.0f)))
 			m_ClearOnPlay = !m_ClearOnPlay;
 
-		if (!m_ProgressLabel.empty())
 		{
-			ImGui::SameLine();
-			std::string progressBarText = std::format("{} ({}%)", m_ProgressLabel, (int)(m_Progress * 100 + 0.01f));
-			ImGui::ProgressBar(m_Progress, ImVec2(ImGui::GetContentRegionAvail().x / 2.0f, ToolbarHeight), progressBarText.c_str());
-		}
-
-		{
-			const ImVec2 buttonSize(ToolbarHeight, ToolbarHeight);
+			const ImVec2 buttonSize(28.0f, 28.0f);
 
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 100.0f, 0.0f);
 			textColor = (m_MessageFilters & (int16_t)ConsoleMessageFlags::Info) ? s_InfoTint : style.Colors[ImGuiCol_TextDisabled];
@@ -130,7 +98,7 @@ namespace Hazel {
 			ImGui::SameLine();
 			textColor = (m_MessageFilters & (int16_t)ConsoleMessageFlags::Error) ? s_ErrorTint : style.Colors[ImGuiCol_TextDisabled];
 			if (UI::ColoredButton(HZ_ICON_EXCLAMATION_CIRCLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Error), textColor, buttonSize))
-				m_MessageFilters ^= (int16_t)ConsoleMessageFlags::Error;		
+				m_MessageFilters ^= (int16_t)ConsoleMessageFlags::Error;
 		}
 
 		ImGui::EndChild();

@@ -30,7 +30,7 @@ namespace Hazel {
 			size_t bufferLength = 0;
 			int status = 0;
 			char* buffer = abi::__cxa_demangle(typeName.c_str(), NULL, &bufferLength, &status);
-			TypeNameString result = TypeNameString(buffer);
+			TypeNameString result = TypeNameString(buffer, bufferLength);
 			free(buffer);
 
 			if constexpr (ExcludeNamespace)

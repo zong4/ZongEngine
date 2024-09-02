@@ -1,7 +1,6 @@
 #include "hzpch.h"
 #include "Renderer2D.h"
 
-#include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Renderer/Pipeline.h"
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Renderer.h"
@@ -148,25 +147,29 @@ namespace Hazel {
 				m_LinePass->Bake();
 			}
 
+			{
+				RenderPassSpecification lineOnTopSpec;
+				lineOnTopSpec.DebugName = "Renderer2D-Line(OnTop)";
+				pipelineSpecification.DepthTest = false;
+				lineOnTopSpec.Pipeline = Pipeline::Create(pipelineSpecification);
+				m_LineOnTopPass = RenderPass::Create(lineOnTopSpec);
+				m_LineOnTopPass->SetInput("Camera", m_UBSCamera);
+				HZ_CORE_VERIFY(m_LineOnTopPass->Validate());
+				m_LineOnTopPass->Bake();
+			}
+
 			m_LineVertexBuffers.resize(1);
-			m_LineOnTopVertexBuffers.resize(1);
 			m_LineVertexBufferBases.resize(1);
-			m_LineOnTopVertexBufferBases.resize(1);
 			m_LineVertexBufferPtr.resize(1);
-			m_LineOnTopVertexBufferPtr.resize(1);
 
 			m_LineVertexBuffers[0].resize(framesInFlight);
-			m_LineOnTopVertexBuffers[0].resize(framesInFlight);
 			m_LineVertexBufferBases[0].resize(framesInFlight);
-			m_LineOnTopVertexBufferBases[0].resize(framesInFlight);
 			for (uint32_t i = 0; i < framesInFlight; i++)
 			{
 				uint64_t allocationSize = c_MaxLineVertices * sizeof(LineVertex);
 				m_LineVertexBuffers[0][i] = VertexBuffer::Create(allocationSize);
-				m_LineOnTopVertexBuffers[0][i] = VertexBuffer::Create(allocationSize);
-				m_MemoryStats.TotalAllocated += allocationSize + allocationSize;
+				m_MemoryStats.TotalAllocated += allocationSize;
 				m_LineVertexBufferBases[0][i] = hnew LineVertex[c_MaxLineVertices];
-				m_LineOnTopVertexBufferBases[0][i] = hnew LineVertex[c_MaxLineVertices];
 			}
 
 			uint32_t* lineIndices = hnew uint32_t[c_MaxLineIndices];
@@ -176,8 +179,7 @@ namespace Hazel {
 			{
 				uint64_t allocationSize = c_MaxLineIndices * sizeof(uint32_t);
 				m_LineIndexBuffer = IndexBuffer::Create(lineIndices, allocationSize);
-				m_LineOnTopIndexBuffer = IndexBuffer::Create(lineIndices, allocationSize);
-				m_MemoryStats.TotalAllocated += allocationSize + allocationSize;
+				m_MemoryStats.TotalAllocated += allocationSize;
 			}
 			hdelete[] lineIndices;
 		}
@@ -339,10 +341,6 @@ namespace Hazel {
 		for (uint32_t i = 0; i < m_LineVertexBufferPtr.size(); i++)
 			m_LineVertexBufferPtr[i] = m_LineVertexBufferBases[i][frameIndex];
 
-		m_LineOnTopIndexCount = 0;
-		for (uint32_t i = 0; i < m_LineOnTopVertexBufferPtr.size(); i++)
-			m_LineOnTopVertexBufferPtr[i] = m_LineOnTopVertexBufferBases[i][frameIndex];
-
 		m_CircleIndexCount = 0;
 		for (uint32_t i = 0; i < m_CircleVertexBufferPtr.size(); i++)
 			m_CircleVertexBufferPtr[i] = m_CircleVertexBufferBases[i][frameIndex];
@@ -423,7 +421,13 @@ namespace Hazel {
 		}
 
 		// Lines
-		m_LinePass->GetPipeline()->GetSpecification().DepthTest = true;
+		Renderer::Submit([lineWidth = m_LineWidth, renderCommandBuffer = m_RenderCommandBuffer]()
+		{
+			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
+			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetCommandBuffer(frameIndex);
+			vkCmdSetLineWidth(commandBuffer, lineWidth);
+		});
+
 		for (uint32_t i = 0; i <= m_LineBufferWriteIndex; i++)
 		{
 			dataSize = (uint32_t)((uint8_t*)m_LineVertexBufferPtr[i] - (uint8_t*)m_LineVertexBufferBases[i][frameIndex]);
@@ -440,24 +444,6 @@ namespace Hazel {
 				m_MemoryStats.Used += dataSize;
 			}
 
-		}
-
-		m_LinePass->GetPipeline()->GetSpecification().DepthTest = false;
-		for (uint32_t i = 0; i <= m_LineOnTopBufferWriteIndex; i++)
-		{
-			dataSize = (uint32_t)((uint8_t*)m_LineOnTopVertexBufferPtr[i] - (uint8_t*)m_LineOnTopVertexBufferBases[i][frameIndex]);
-			if (dataSize)
-			{
-				uint32_t indexCount = i == m_LineOnTopBufferWriteIndex ? m_LineOnTopIndexCount - (c_MaxLineIndices * i) : c_MaxLineIndices;
-				m_LineOnTopVertexBuffers[i][frameIndex]->SetData(m_LineOnTopVertexBufferBases[i][frameIndex], dataSize);
-
-				Renderer::BeginRenderPass(m_RenderCommandBuffer, m_LinePass);
-				Renderer::RenderGeometry(m_RenderCommandBuffer, m_LinePass->GetSpecification().Pipeline, m_LineMaterial, m_LineOnTopVertexBuffers[i][frameIndex], m_LineOnTopIndexBuffer, glm::mat4(1.0f), indexCount);
-				Renderer::EndRenderPass(m_RenderCommandBuffer);
-
-				m_DrawStats.DrawCalls++;
-				m_MemoryStats.Used += dataSize;
-			}
 		}
 
 #if TODO
@@ -524,7 +510,6 @@ namespace Hazel {
 				RenderPassSpecification& renderpassSpec = m_LinePass->GetSpecification();
 				renderpassSpec.Pipeline = Pipeline::Create(pipelineSpec);
 			}
-
 			{
 				PipelineSpecification pipelineSpec = m_TextPass->GetSpecification().Pipeline->GetSpecification();
 				pipelineSpec.TargetFramebuffer = framebuffer;
@@ -558,12 +543,12 @@ namespace Hazel {
 		}
 	}
 	
-	void Renderer2D::AddLineBuffer(const bool onTop)
+	void Renderer2D::AddLineBuffer()
 	{
 		uint32_t framesInFlight = Renderer::GetConfig().FramesInFlight;
 
-		VertexBufferPerFrame& newVertexBuffer = onTop? m_LineOnTopVertexBuffers.emplace_back() : m_LineVertexBuffers.emplace_back();
-		LineVertexBasePerFrame& newVertexBufferBase = onTop? m_LineOnTopVertexBufferBases.emplace_back() : m_LineVertexBufferBases.emplace_back();
+		VertexBufferPerFrame& newVertexBuffer = m_LineVertexBuffers.emplace_back();
+		LineVertexBasePerFrame& newVertexBufferBase = m_LineVertexBufferBases.emplace_back();
 
 		newVertexBuffer.resize(framesInFlight);
 		newVertexBufferBase.resize(framesInFlight);
@@ -593,6 +578,7 @@ namespace Hazel {
 			newVertexBufferBase[i] = hnew TextVertex[c_MaxVertices];
 		}
 	}
+
 
 	void Renderer2D::AddCircleBuffer()
 	{
@@ -627,34 +613,19 @@ namespace Hazel {
 		return m_QuadVertexBufferPtr[m_QuadBufferWriteIndex];
 	}
 
-	Renderer2D::LineVertex*& Renderer2D::GetWriteableLineBuffer(const bool onTop)
+	Renderer2D::LineVertex*& Renderer2D::GetWriteableLineBuffer()
 	{
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 
-		if (onTop)
+		m_LineBufferWriteIndex = m_LineIndexCount / c_MaxIndices;
+		if (m_LineBufferWriteIndex >= m_LineVertexBufferBases.size())
 		{
-			m_LineOnTopBufferWriteIndex = m_LineOnTopIndexCount / c_MaxIndices;
-			if (m_LineOnTopBufferWriteIndex >= m_LineOnTopVertexBufferBases.size())
-			{
-				AddLineBuffer(onTop);
-				m_LineOnTopVertexBufferPtr.emplace_back(); // TODO(Yan): check
-				m_LineOnTopVertexBufferPtr[m_LineOnTopBufferWriteIndex] = m_LineOnTopVertexBufferBases[m_LineOnTopBufferWriteIndex][frameIndex];
-			}
-
-			return m_LineOnTopVertexBufferPtr[m_LineOnTopBufferWriteIndex];
+			AddLineBuffer();
+			m_LineVertexBufferPtr.emplace_back(); // TODO(Yan): check
+			m_LineVertexBufferPtr[m_LineBufferWriteIndex] = m_LineVertexBufferBases[m_LineBufferWriteIndex][frameIndex];
 		}
-		else
-		{
-			m_LineBufferWriteIndex = m_LineIndexCount / c_MaxIndices;
-			if (m_LineBufferWriteIndex >= m_LineVertexBufferBases.size())
-			{
-				AddLineBuffer(onTop);
-				m_LineVertexBufferPtr.emplace_back(); // TODO(Yan): check
-				m_LineVertexBufferPtr[m_LineBufferWriteIndex] = m_LineVertexBufferBases[m_LineBufferWriteIndex][frameIndex];
-			}
 
-			return m_LineVertexBufferPtr[m_LineBufferWriteIndex];
-		}
+		return m_LineVertexBufferPtr[m_LineBufferWriteIndex];
 	}
 
 	Renderer2D::TextVertex*& Renderer2D::GetWriteableTextBuffer()
@@ -675,7 +646,7 @@ namespace Hazel {
 	Renderer2D::CircleVertex*& Renderer2D::GetWriteableCircleBuffer()
 	{
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
-		
+
 		m_CircleBufferWriteIndex = m_CircleIndexCount / c_MaxIndices;
 		if (m_CircleBufferWriteIndex >= m_CircleVertexBufferBases.size())
 		{
@@ -1079,12 +1050,12 @@ namespace Hazel {
 		m_DrawStats.QuadCount++;
 	}
 
-	void Renderer2D::DrawRotatedRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color, const bool onTop)
+	void Renderer2D::DrawRotatedRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		DrawRotatedRect({ position.x, position.y, 0.0f }, size, rotation, color, onTop);
+		DrawRotatedRect({ position.x, position.y, 0.0f }, size, rotation, color);
 	}
 
-	void Renderer2D::DrawRotatedRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color, const bool onTop)
+	void Renderer2D::DrawRotatedRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
@@ -1103,7 +1074,7 @@ namespace Hazel {
 			auto& v0 = positions[i];
 			auto& v1 = positions[(i + 1) % 4];
 
-			auto& bufferPtr = GetWriteableLineBuffer(onTop);
+			auto& bufferPtr = GetWriteableLineBuffer();
 			bufferPtr->Position = v0;
 			bufferPtr->Color = color;
 			bufferPtr++;
@@ -1117,12 +1088,12 @@ namespace Hazel {
 		}
 	}
 
-	void Renderer2D::FillCircle(const glm::vec2& position, float radius, const glm::vec4& color, const float thickness)
+	void Renderer2D::FillCircle(const glm::vec2& position, float radius, const glm::vec4& color, float thickness)
 	{
 		FillCircle({ position.x, position.y, 0.0f }, radius, color, thickness);
 	}
 
-	void Renderer2D::FillCircle(const glm::vec3& position, float radius, const glm::vec4& color, const float thickness)
+	void Renderer2D::FillCircle(const glm::vec3& position, float radius, const glm::vec4& color, float thickness)
 	{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { radius * 2.0f, radius * 2.0f, 1.0f });
@@ -1141,9 +1112,9 @@ namespace Hazel {
 		}
 	}
 
-	void Renderer2D::DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color, const bool onTop)
+	void Renderer2D::DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color)
 	{
-		auto& bufferPtr = GetWriteableLineBuffer(onTop);
+		auto& bufferPtr = GetWriteableLineBuffer();
 		bufferPtr->Position = p0;
 		bufferPtr->Color = color;
 		bufferPtr++;
@@ -1152,28 +1123,12 @@ namespace Hazel {
 		bufferPtr->Color = color;
 		bufferPtr++;
 
-		if(onTop)
-			m_LineOnTopIndexCount += 2;
-		else
-			m_LineIndexCount += 2;
+		m_LineIndexCount += 2;
 
 		m_DrawStats.LineCount++;
 	}
 
-	void Renderer2D::DrawTransform(const glm::mat4& transform, float scale /*= 1.0f*/, const bool onTop)
-	{
-		glm::vec3 p0 = transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		glm::vec3 p1 = transform * glm::vec4(scale, 0.0f, 0.0f, 1.0f);
-		DrawLine(p0, p1, { 1.0f, 0.0f, 0.0f, 1.0f }, onTop);
-
-		p1 = transform * glm::vec4(0.0f, scale, 0.0f, 1.0f);
-		DrawLine(p0, p1, { 0.0f, 1.0f, 0.0f, 1.0f }, onTop);
-
-		p1 = transform * glm::vec4(0.0f, 0.0f, scale, 1.0f);
-		DrawLine(p0, p1, { 0.0f, 0.0f, 1.0f, 1.0f }, onTop);
-	}
-
-	void Renderer2D::DrawCircle(const glm::vec3& position, const glm::vec3& rotation, float radius, const glm::vec4& color, const bool onTop)
+	void Renderer2D::DrawCircle(const glm::vec3& position, const glm::vec3& rotation, float radius, const glm::vec4& color)
 	{
 		const glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation.x, { 1.0f, 0.0f, 0.0f })
@@ -1181,10 +1136,10 @@ namespace Hazel {
 			* glm::rotate(glm::mat4(1.0f), rotation.z, { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), glm::vec3(radius));
 
-		DrawCircle(transform, color, onTop);
+		DrawCircle(transform, color);
 	}
 
-	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, const bool onTop)
+	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color)
 	{
 		int segments = 32;
 		for (int i = 0; i < segments; i++)
@@ -1196,11 +1151,24 @@ namespace Hazel {
 
 			glm::vec3 p0 = transform * startPosition;
 			glm::vec3 p1 = transform * endPosition;
-			DrawLine(p0, p1, color, onTop);
+			DrawLine(p0, p1, color);
 		}
 	}
 
-	void Renderer2D::DrawAABB(const AABB& aabb, const glm::mat4& transform, const glm::vec4& color /*= glm::vec4(1.0f)*/, const bool onTop)
+	void Renderer2D::DrawAABB(Ref<Mesh> mesh, const glm::mat4& transform, const glm::vec4& color)
+	{
+		const auto& meshAssetSubmeshes = mesh->GetMeshSource()->GetSubmeshes();
+		auto& submeshes = mesh->GetSubmeshes();
+		for (uint32_t submeshIndex : submeshes)
+		{
+			const Submesh& submesh = meshAssetSubmeshes[submeshIndex];
+			auto& aabb = submesh.BoundingBox;
+			auto aabbTransform = transform * submesh.Transform;
+			DrawAABB(aabb, aabbTransform);
+		}
+	}
+
+	void Renderer2D::DrawAABB(const AABB& aabb, const glm::mat4& transform, const glm::vec4& color /*= glm::vec4(1.0f)*/)
 	{
 		glm::vec4 min = { aabb.Min.x, aabb.Min.y, aabb.Min.z, 1.0f };
 		glm::vec4 max = { aabb.Max.x, aabb.Max.y, aabb.Max.z, 1.0f };
@@ -1219,13 +1187,13 @@ namespace Hazel {
 		};
 
 		for (uint32_t i = 0; i < 4; i++)
-			DrawLine(corners[i], corners[(i + 1) % 4], color, onTop);
+			DrawLine(corners[i], corners[(i + 1) % 4], color);
 
 		for (uint32_t i = 0; i < 4; i++)
-			DrawLine(corners[i + 4], corners[((i + 1) % 4) + 4], color, onTop);
+			DrawLine(corners[i + 4], corners[((i + 1) % 4) + 4], color);
 
 		for (uint32_t i = 0; i < 4; i++)
-			DrawLine(corners[i], corners[i + 4], color, onTop);
+			DrawLine(corners[i], corners[i + 4], color);
 	}
 
 	static bool NextLine(int index, const std::vector<int>& lines)
@@ -1438,9 +1406,6 @@ namespace Hazel {
 	void Renderer2D::SetLineWidth(float lineWidth)
 	{
 		m_LineWidth = lineWidth;
-
-		if (m_LinePass)
-			m_LinePass->GetPipeline()->GetSpecification().LineWidth = lineWidth;
 	}
 
 	void Renderer2D::ResetStats()

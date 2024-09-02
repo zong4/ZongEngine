@@ -1,6 +1,6 @@
 project "Hazel-Runtime"
 	kind "ConsoleApp"
-	targetname "Hazel-Runtime"
+	targetname "SavingCaptainCino"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
@@ -26,29 +26,30 @@ project "Hazel-Runtime"
 		systemversion "latest"
 		defines { "HZ_PLATFORM_WINDOWS" }
 
-		-- Visual Studio build metadata
-		files {
-			"Hazel-Runtime.aps",
-			"Hazel-Runtime.rc",
-			"resource.h"
-		}
-
 	filter { "system:windows", "configurations:Debug" }
 		postbuildcommands {
 			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 			'{COPY} "../Hazel/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"'
 		}
 
 	filter { "system:windows", "configurations:Debug-AS" }
 		postbuildcommands {
 			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 			'{COPY} "../Hazel/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"'
 		}
 
 	filter { "system:windows", "configurations:Release" }
 		postbuildcommands {
 			'{COPY} "../Hazel/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 			'{COPY} "../Hazel/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"'
+		}
+
+	filter { "system:windows", "configurations:Dist" }
+		postbuildcommands {
+			'{COPY} "../Hazel/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 		}
 
 	filter "system:linux"

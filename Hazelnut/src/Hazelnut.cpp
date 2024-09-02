@@ -1,6 +1,5 @@
 #include "EditorLayer.h"
 #include "Hazel/Utilities/FileSystem.h"
-#include "Hazel/Utilities/CommandLineParser.h"
 
 #include "Hazel/EntryPoint.h"
 
@@ -24,14 +23,14 @@ public:
 		{
 			m_PersistentStoragePath = Hazel::FileSystem::GetPersistentStoragePath() / "Hazelnut";
 
-			if (!Hazel::FileSystem::Exists(m_PersistentStoragePath))
-				Hazel::FileSystem::CreateDirectory(m_PersistentStoragePath);
+			if (!std::filesystem::exists(m_PersistentStoragePath))
+				std::filesystem::create_directory(m_PersistentStoragePath);
 		}
 
 		// User Preferences
 		{
 			Hazel::UserPreferencesSerializer serializer(m_UserPreferences);
-			if (!Hazel::FileSystem::Exists(m_PersistentStoragePath / "UserPreferences.yaml"))
+			if (!std::filesystem::exists(m_PersistentStoragePath / "UserPreferences.yaml"))
 				serializer.Serialize(m_PersistentStoragePath / "UserPreferences.yaml");
 			else
 				serializer.Deserialize(m_PersistentStoragePath / "UserPreferences.yaml");
@@ -44,7 +43,7 @@ public:
 
 		// Update the HAZEL_DIR environment variable every time we launch
 		{
-			auto workingDirectory = Hazel::FileSystem::GetWorkingDirectory();
+			std::filesystem::path workingDirectory = std::filesystem::current_path();
 
 			if (workingDirectory.stem().string() == "Hazelnut")
 				workingDirectory = workingDirectory.parent_path();
@@ -63,20 +62,9 @@ private:
 
 Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 {
-	Hazel::CommandLineParser cli(argc, argv);
-
-	auto raw = cli.GetRawArgs();
-	if(raw.size() > 1) {
-		HZ_CORE_WARN("More than one project path specified, using `{}'", raw[0]);
-	}
-
-	auto cd = cli.GetOpt("C");
-	if(!cd.empty()) {
-		Hazel::FileSystem::SetWorkingDirectory(cd);
-	}
-
 	std::string_view projectPath;
-	if(!raw.empty()) projectPath = raw[0];
+	if (argc > 1)
+		projectPath = argv[1];
 
 	Hazel::ApplicationSpecification specification;
 	specification.Name = "Hazelnut";
@@ -86,9 +74,15 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	specification.VSync = true;
 	//specification.RenderConfig.ShaderPackPath = "Resources/ShaderPack.hsp";
 
-	/*specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Hazel-ScriptCore.dll";
+	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Hazel-ScriptCore.dll";
+
+#ifdef HZ_PLATFORM_WINDOWS
 	specification.ScriptConfig.EnableDebugging = true;
-	specification.ScriptConfig.EnableProfiling = true;*/
+	specification.ScriptConfig.EnableProfiling = true;
+#else
+	specification.ScriptConfig.EnableDebugging = false;
+	specification.ScriptConfig.EnableProfiling = false;
+#endif
 
 	specification.CoreThreadingPolicy = ThreadingPolicy::SingleThreaded;
 

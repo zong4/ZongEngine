@@ -18,10 +18,10 @@
 			RigidBody = Entity.GetComponent<RigidBodyComponent>();
 		}
 
-		public Entity? Entity { get; private set; }
-		public Shape? CollisionShape { get; protected set; }
+		public Entity Entity { get; private set; }
+		public Shape CollisionShape { get; protected set; }
 		public Vector3 Offset { get; protected set; }
-		public RigidBodyComponent? RigidBody { get; private set; }
+		public RigidBodyComponent RigidBody { get; private set; }
 
 		public override string ToString()
 		{

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Assert.h"
+#include "Hazel/Core/Base.h"
 #include "Layer.h"
 
 #include <vector>

@@ -4,27 +4,28 @@
 #include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Audio/AudioComponent.h"
 #include "Hazel/Audio/AudioEngine.h"
+
 #include "Hazel/Core/Events/SceneEvents.h"
 #include "Hazel/Core/Input.h"
 
-#include "Hazel/Debug/Profiler.h"
-
 #include "Hazel/Editor/EditorApplicationSettings.h"
 #include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphEditor.h"
+
 #include "Hazel/ImGui/CustomTreeNode.h"
 #include "Hazel/ImGui/ImGui.h"
 #include "Hazel/ImGui/ImGuiWidgets.h"
+
 #include "Hazel/Physics/PhysicsLayer.h"
 #include "Hazel/Physics/PhysicsScene.h"
 #include "Hazel/Physics/PhysicsSystem.h"
-#include "Hazel/Script/ScriptEngine.h"
-#include "Hazel/Script/ScriptAsset.h"
+
 #include "Hazel/Renderer/MeshFactory.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/UI/Font.h"
-#include "Hazel/Scene/Prefab.h"
 
-#include <format>
+#include "Hazel/Scene/Prefab.h"
+#include "Hazel/Script/ScriptEngine.h"
+
 #include <imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -154,11 +155,6 @@ namespace Hazel {
 						}
 					}
 
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Spacing();
-					ImGui::Dummy(ImVec2(0, 50.0f));
-
 					if (ImGui::BeginPopupContextWindow(nullptr, ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
 					{
 						DrawEntityCreateMenu({});
@@ -181,26 +177,11 @@ namespace Hazel {
 			{
 				size_t count = payload->DataSize / sizeof(UUID);
 
-				bool canDrop = true;
 				for (size_t i = 0; i < count; i++)
 				{
 					UUID entityID = *(((UUID*)payload->Data) + i);
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					if (entity.HasComponent<MeshTagComponent>())
-					{
-						canDrop = false;
-						break;
-					}
-				}
-
-				if (canDrop)
-				{
-					for (size_t i = 0; i < count; i++)
-					{
-						UUID entityID = *(((UUID*)payload->Data) + i);
-						Entity entity = m_Context->GetEntityWithUUID(entityID);
-						m_Context->UnparentEntity(entity);
-					}
+					m_Context->UnparentEntity(entity);
 				}
 			}
 
@@ -309,85 +290,227 @@ namespace Hazel {
 
 		if (ImGui::BeginMenu("3D"))
 		{
-			auto create3DEntity = [this](const char* entityName, const char* targetAssetName, const char* sourceAssetName)
+			if (ImGui::MenuItem("Cube"))
 			{
-				Entity entity = m_Context->CreateEntity(entityName);
-				std::filesystem::path sourcePath = "Meshes/Default/Source";
-				std::filesystem::path targetPath = "Meshes/Default";
-				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath(targetPath / targetAssetName);
+				newEntity = m_Context->CreateEntity("Cube");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Cube.hsmesh");
 				if (mesh != 0)
 				{
-					entity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<BoxColliderComponent>();
 				}
 				else
 				{
-					if (std::filesystem::exists(Project::GetActiveAssetDirectory() / sourcePath / sourceAssetName))
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Cube.gltf")))
 					{
-						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath(sourcePath / sourceAssetName);
-						if (AssetManager::GetAsset<Asset>(assetHandle))
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Cube.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
 						{
-							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>(targetAssetName, (Project::GetActiveAssetDirectory() / targetPath).string(), assetHandle, /*generateColliders=*/false);
-							entity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Cube.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<BoxColliderComponent>();
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", Project::GetActiveAssetDirectory() / sourcePath);
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
-				return entity;
-			};
-
-			if (ImGui::MenuItem("Cube"))
-			{
-				newEntity = create3DEntity("Cube", "Cube.hsmesh", "Cube.gltf");
-				newEntity.AddComponent<BoxColliderComponent>();
 			}
 
 			if (ImGui::MenuItem("Sphere"))
 			{
-				newEntity = create3DEntity("Sphere", "Sphere.hsmesh", "Sphere.gltf");
-				newEntity.AddComponent<SphereColliderComponent>();
+				newEntity = m_Context->CreateEntity("Sphere");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Sphere.hsmesh");
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<SphereColliderComponent>();
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Sphere.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Sphere.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Sphere.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<SphereColliderComponent>();
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Capsule"))
 			{
-				newEntity = create3DEntity("Capsule", "Capsule.hsmesh", "Capsule.gltf");
-				newEntity.AddComponent<CapsuleColliderComponent>();
+				newEntity = m_Context->CreateEntity("Capsule");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Capsule.hsmesh");
+
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<CapsuleColliderComponent>();
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Capsule.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Capsule.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Capsule.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<CapsuleColliderComponent>();
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Cylinder"))
 			{
-				newEntity = create3DEntity("Cylinder", "Cylinder.hsmesh", "Cylinder.gltf");
-				newEntity.AddComponent<MeshColliderComponent>();
-				PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				newEntity = m_Context->CreateEntity("Cylinder");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Cylinder.hsmesh");
+				
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<MeshColliderComponent>();
+					PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Cylinder.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Cylinder.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Cylinder.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<MeshColliderComponent>();
+							PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Torus"))
 			{
-				newEntity = create3DEntity("Torus", "Torus.hsmesh", "Torus.gltf");
-				newEntity.AddComponent<MeshColliderComponent>();
-				PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				newEntity = m_Context->CreateEntity("Torus");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Torus.hsmesh");
+
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<MeshColliderComponent>();
+					PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Torus.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Torus.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Torus.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<MeshColliderComponent>();
+							PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Plane"))
 			{
-				newEntity = create3DEntity("Plane", "Plane.hsmesh", "Plane.gltf");
-				
-				// A mesh collider won't work for a plane since it has zero height.
-				// This leads to crashes in the Physics system.
-				// We have two choices. Either:
-				// * Don't create any collider at all
-				// * Create a box collider with a small, non-zero height
-				// I've chosen the latter.
-				auto& boxCollider = newEntity.AddComponent<BoxColliderComponent>();
-				boxCollider.HalfSize = glm::vec3(0.5f, 0.02f, 0.5f); // 0.02 is smallest the height can be before Jolt Physics gives up.
-				boxCollider.Offset = glm::vec3(0.0f, -0.02f, 0.0f);
+				newEntity = m_Context->CreateEntity("Plane");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Plane.hsmesh");
+
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<MeshColliderComponent>();
+					PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Plane.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Plane.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Plane.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<MeshColliderComponent>();
+							PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			if (ImGui::MenuItem("Cone"))
 			{
-				newEntity = create3DEntity("Cone", "Cone.hsmesh", "Cone.gltf");
-				newEntity.AddComponent<MeshColliderComponent>();
-				PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				newEntity = m_Context->CreateEntity("Cone");
+				auto mesh = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Cone.hsmesh");
+
+				if (mesh != 0)
+				{
+					newEntity.AddComponent<StaticMeshComponent>(mesh);
+					newEntity.AddComponent<MeshColliderComponent>();
+					PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+				}
+				else
+				{
+					std::string filePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/Source";
+					std::string targetFilePath = Project::GetProjectDirectory().string() + "/Assets/Meshes/Default/";
+					if (std::filesystem::exists(filePath / std::filesystem::path("Cone.gltf")))
+					{
+						AssetHandle assetHandle = Project::GetEditorAssetManager()->GetAssetHandleFromFilePath("Meshes/Default/Source/Cone.gltf");
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (asset)
+						{
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>("Cone.hsmesh", targetFilePath, asset.As<MeshSource>());
+
+							newEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
+							newEntity.AddComponent<MeshColliderComponent>();
+							PhysicsSystem::GetOrCreateColliderAsset(newEntity, newEntity.GetComponent<MeshColliderComponent>());
+						}
+					}
+					else
+						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+				}
 			}
 
 			ImGui::EndMenu();
@@ -466,6 +589,30 @@ namespace Hazel {
 		return false;
 	}
 
+	// NOTE(Tim) : These probably need to be generic to support every type.
+	bool SceneHierarchyPanel::IsMeshSet(AssetHandle& outHandle)
+	{
+		bool set = false;
+		if (AssetManager::IsAssetHandleValid(outHandle))
+		{
+			auto object = AssetManager::GetAsset<Mesh>(outHandle);
+			set = object && !object->IsFlagSet(AssetFlag::Invalid) && !object->IsFlagSet(AssetFlag::Missing);
+		}
+		
+		return set;
+	}
+
+	bool SceneHierarchyPanel::IsStaticMeshSet(AssetHandle& outHandle)
+	{
+		bool set = false;
+		if (AssetManager::IsAssetHandleValid(outHandle))
+		{
+			auto object = AssetManager::GetAsset<StaticMesh>(outHandle);
+			set = object && !object->IsFlagSet(AssetFlag::Invalid) && !object->IsFlagSet(AssetFlag::Missing);
+		}
+
+		return set;
+	}
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity, const std::string& searchFilter)
 	{
@@ -511,7 +658,7 @@ namespace Hazel {
 			flags |= ImGuiTreeNodeFlags_Leaf;
 
 
-		const std::string strID = std::format("{0}{1}", name, (uint64_t)entity.GetUUID());
+		const std::string strID = fmt::format("{0}{1}", name, (uint64_t)entity.GetUUID());
 
 		ImGui::PushClipRect(rowAreaMin, rowAreaMax, false);
 		bool isRowHovered, held;
@@ -579,29 +726,30 @@ namespace Hazel {
 		if (isSelected)
 			ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::backgroundDark);
 
+		const bool missingMesh = entity.HasComponent<MeshComponent>() && (AssetManager::IsAssetHandleValid(entity.GetComponent<MeshComponent>().Mesh) && AssetManager::GetAsset<Mesh>(entity.GetComponent<MeshComponent>().Mesh) 
+																	   && AssetManager::GetAsset<Mesh>(entity.GetComponent<MeshComponent>().Mesh)->IsFlagSet(AssetFlag::Missing));
+
+		const bool missingStaticMesh = entity.HasComponent<StaticMeshComponent>() && (AssetManager::IsAssetHandleValid(entity.GetComponent<StaticMeshComponent>().StaticMesh) && AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh) 
+																				   && AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh)->IsFlagSet(AssetFlag::Missing));
+
+		const bool meshNotSet = entity.HasComponent<MeshComponent>() && !IsMeshSet(entity.GetComponent<MeshComponent>().Mesh);
+		const bool staticMeshNotSet = entity.HasComponent<StaticMeshComponent>() && !IsStaticMeshSet(entity.GetComponent<StaticMeshComponent>().StaticMesh);
+		
 		bool isPrefab = entity.HasComponent<PrefabComponent>();
-		bool isMeshChild = entity.HasComponent<MeshTagComponent>();
+
+		if (missingMesh || missingStaticMesh)
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.4f, 0.3f, 1.0f));
+
+		if(editorSettings.HighlightUnsetMeshes && !isSelected && !isPrefab && (meshNotSet || staticMeshNotSet))
+			ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::meshNotSet);
+
+
 		bool isValidPrefab = false;
 		if (isPrefab)
 			isValidPrefab = AssetManager::IsAssetHandleValid(entity.GetComponent<PrefabComponent>().PrefabID);
 
 		if (isPrefab && !isSelected)
 			ImGui::PushStyleColor(ImGuiCol_Text, isValidPrefab ? Colors::Theme::validPrefab : Colors::Theme::invalidPrefab);
-
-		if(isMeshChild && !isPrefab && !isSelected)
-			ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::validPrefab);
-
-		bool isMeshValid = true;
-		if (editorSettings.HighlightUnsetMeshes && !isSelected && !isPrefab)
-		{
-			if (entity.HasComponent<MeshComponent>())
-				isMeshValid = AssetManager::IsAssetHandleValid(entity.GetComponent<MeshComponent>().Mesh);
-			else if (entity.HasComponent<StaticMeshComponent>())
-				isMeshValid = AssetManager::IsAssetHandleValid(entity.GetComponent<StaticMeshComponent>().StaticMesh);
-
-			if (!isMeshValid)
-				ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::meshNotSet);
-		}
 
 		// Tree node
 		//----------
@@ -639,7 +787,7 @@ namespace Hazel {
 			}
 		}
 
-		const std::string rightClickPopupID = std::format("{0}-ContextMenu", strID);
+		const std::string rightClickPopupID = fmt::format("{0}-ContextMenu", strID);
 
 		bool entityDeleted = false;
 		if (ImGui::BeginPopupContextItem(rightClickPopupID.c_str()))
@@ -650,7 +798,6 @@ namespace Hazel {
 													  ImGuiCol_HeaderHovered, Colors::Theme::groupHeader,
 													  ImGuiCol_HeaderActive, Colors::Theme::groupHeader);
 
-				bool isMeshChild = entity.HasComponent<MeshTagComponent>();
 				if (!isSelected)
 				{
 					if (!Input::IsKeyDown(KeyCode::LeftControl))
@@ -659,8 +806,8 @@ namespace Hazel {
 					SelectionManager::Select(s_ActiveSelectionContext, entity.GetUUID());
 				}
 
+				if (entity.GetParent())
 				{
-					UI::ScopedDisable disable(!entity.GetParent() || isMeshChild);
 					if (ImGui::MenuItem("Unparent"))
 						m_Context->UnparentEntity(entity, true);
 				}
@@ -680,11 +827,8 @@ namespace Hazel {
 
 				DrawEntityCreateMenu(entity);
 
-				{
-					UI::ScopedDisable disable(isMeshChild);
-					if (ImGui::MenuItem("Delete"))
-						entityDeleted = true;
-				}
+				if (ImGui::MenuItem("Delete"))
+					entityDeleted = true;
 
 				ImGui::Separator();
 
@@ -698,7 +842,7 @@ namespace Hazel {
 				if (!m_EntityContextMenuPlugins.empty())
 				{
 					ImGui::Separator();
-
+					
 					if (ImGui::MenuItem("Set Transform to Editor Camera Transform"))
 					{
 						for (auto& func : m_EntityContextMenuPlugins)
@@ -759,8 +903,15 @@ namespace Hazel {
 			ImGui::FocusWindow(ImGui::GetCurrentWindow());
 		}
 
-		if (isSelected || isPrefab || isMeshChild || (editorSettings.HighlightUnsetMeshes && !isMeshValid))
+		if (missingMesh || missingStaticMesh)
 			ImGui::PopStyleColor();
+
+		if (editorSettings.HighlightUnsetMeshes && !isSelected && !isPrefab && (meshNotSet || staticMeshNotSet))
+			ImGui::PopStyleColor();
+
+		if (isSelected)
+			ImGui::PopStyleColor();
+
 
 		// Drag & Drop
 		//------------
@@ -798,37 +949,11 @@ namespace Hazel {
 			{
 				size_t count = payload->DataSize / sizeof(UUID);
 
-				// Do not allow user to rearrange the hierarchy of a mesh entity
-				bool canDrop = true;
 				for (size_t i = 0; i < count; i++)
 				{
 					UUID droppedEntityID = *(((UUID*)payload->Data) + i);
 					Entity droppedEntity = m_Context->GetEntityWithUUID(droppedEntityID);
-					if (droppedEntity.HasComponent<MeshTagComponent>()) canDrop = false;
-
-					if (canDrop && entity.HasComponent<MeshTagComponent>())
-					{
-						for(auto parent = entity.GetParent(); parent; parent = parent.GetParent())
-						{
-							if (parent == droppedEntity)
-							{
-								canDrop = false;
-								break;
-							}
-						}
-					}
-
-					if (!canDrop) break;
-				}
-
-				if (canDrop)
-				{
-					for (size_t i = 0; i < count; i++)
-					{
-						UUID droppedEntityID = *(((UUID*)payload->Data) + i);
-						Entity droppedEntity = m_Context->GetEntityWithUUID(droppedEntityID);
-						m_Context->ParentEntity(droppedEntity, entity);
-					}
+					m_Context->ParentEntity(droppedEntity, entity);
 				}
 			}
 
@@ -845,21 +970,7 @@ namespace Hazel {
 				ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::backgroundDark);
 
 			ImGui::TextUnformatted("Prefab");
-
-			if (isSelected)
-				ImGui::PopStyleColor();
-		}
-		else if (isMeshChild)
-		{
-			UI::ShiftCursorX(edgeOffset * 3.0f);
-
-			if (isSelected)
-				ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::backgroundDark);
-
-			ImGui::TextUnformatted("Submesh");
-
-			if (isSelected)
-				ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
 		}
 
 		// Draw children
@@ -883,7 +994,8 @@ namespace Hazel {
 		}
 	}
 
-	static bool DrawVec3Control(const std::string_view label, glm::vec3& value, bool& manuallyEdited, float resetValue = 0.0f, float columnWidth = 100.0f, UI::VectorAxis renderMultiSelectAxes = UI::VectorAxis::None)
+
+	static bool DrawVec3Control(const std::string& label, glm::vec3& values, bool& manuallyEdited, float resetValue = 0.0f, float columnWidth = 100.0f, uint32_t renderMultiSelectAxes = 0)
 	{
 		bool modified = false;
 
@@ -891,16 +1003,91 @@ namespace Hazel {
 		ImGui::TableSetColumnIndex(0);
 		UI::ShiftCursor(17.0f, 7.0f);
 
-		ImGui::Text(label.data());
+		ImGui::Text(label.c_str());
 		UI::Draw::Underline(false, 0.0f, 2.0f);
 
 		ImGui::TableSetColumnIndex(1);
 		UI::ShiftCursor(7.0f, 0.0f);
 
-		modified = UI::Widgets::EditVec3(label, ImVec2(ImGui::GetContentRegionAvail().x - 8.0f, ImGui::GetFrameHeightWithSpacing() + 8.0f), resetValue, manuallyEdited, value, renderMultiSelectAxes);
+		{
+			const float spacingX = 8.0f;
+			UI::ScopedStyle itemSpacing(ImGuiStyleVar_ItemSpacing, ImVec2{ spacingX, 0.0f });
+			UI::ScopedStyle padding(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 2.0f });
+
+			{
+				// Begin XYZ area
+				UI::ScopedColour padding(ImGuiCol_Border, IM_COL32(0, 0, 0, 0));
+				UI::ScopedColour frame(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0));
+
+				ImGui::BeginChild(ImGui::GetID((label + "fr").c_str()),
+								  ImVec2(ImGui::GetContentRegionAvail().x - spacingX, ImGui::GetFrameHeightWithSpacing() + 8.0f),
+								  false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+			}
+			const float framePadding = 2.0f;
+			const float outlineSpacing = 1.0f;
+			const float lineHeight = GImGui->Font->FontSize + framePadding * 2.0f;
+			const ImVec2 buttonSize = { lineHeight + 2.0f, lineHeight };
+			const float inputItemWidth = (ImGui::GetContentRegionAvail().x - spacingX) / 3.0f - buttonSize.x;
+
+			UI::ShiftCursor(0.0f, framePadding);
+
+			const ImGuiIO& io = ImGui::GetIO();
+			auto boldFont = io.Fonts->Fonts[0];
+
+			auto drawControl = [&](const std::string& label, float& value, const ImVec4& colourN,
+								   const ImVec4& colourH,
+								   const ImVec4& colourP, bool renderMultiSelect)
+			{
+				{
+					UI::ScopedStyle buttonFrame(ImGuiStyleVar_FramePadding, ImVec2(framePadding, 0.0f));
+					UI::ScopedStyle buttonRounding(ImGuiStyleVar_FrameRounding, 1.0f);
+					UI::ScopedColourStack buttonColours(ImGuiCol_Button, colourN,
+														ImGuiCol_ButtonHovered, colourH,
+														ImGuiCol_ButtonActive, colourP);
+
+					UI::ScopedFont buttonFont(boldFont);
+
+					UI::ShiftCursorY(2.0f);
+					if (ImGui::Button(label.c_str(), buttonSize))
+					{
+						value = resetValue;
+						modified = true;
+					}
+				}
+
+				ImGui::SameLine(0.0f, outlineSpacing);
+				ImGui::SetNextItemWidth(inputItemWidth);
+				UI::ShiftCursorY(-2.0f);
+				ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, renderMultiSelect);
+				bool wasTempInputActive = ImGui::TempInputIsActive(ImGui::GetID(("##" + label).c_str()));
+				modified |= UI::DragFloat(("##" + label).c_str(), &value, 0.1f, 0.0f, 0.0f, "%.2f", 0);
+
+				// NOTE(Peter): Ugly hack to make tabbing behave the same as Enter (e.g marking it as manually modified)
+				if (modified && Input::IsKeyDown(KeyCode::Tab))
+					manuallyEdited = true;
+
+				if (ImGui::TempInputIsActive(ImGui::GetID(("##" + label).c_str())))
+					modified = false;
+
+				ImGui::PopItemFlag();
+
+				if (wasTempInputActive)
+					manuallyEdited |= ImGui::IsItemDeactivatedAfterEdit();
+			};
+
+			drawControl("X", values.x, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f }, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f }, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f }, renderMultiSelectAxes & (uint32_t)VectorAxis::X);
+
+			ImGui::SameLine(0.0f, outlineSpacing);
+			drawControl("Y", values.y, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f }, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f }, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f }, renderMultiSelectAxes & (uint32_t)VectorAxis::Y);
+
+			ImGui::SameLine(0.0f, outlineSpacing);
+			drawControl("Z", values.z, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f }, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f }, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f }, renderMultiSelectAxes & (uint32_t)VectorAxis::Z);
+
+			ImGui::EndChild();
+		}
 		UI::PopID();
 
-		return modified;
+		return modified || manuallyEdited;
 	}
 
 	template<typename TComponent>
@@ -921,10 +1108,10 @@ namespace Hazel {
 				bool hasLocalMaterial = localMaterialTable->HasMaterial(i);
 				bool hasMeshMaterial = meshMaterialTable->HasMaterial(i);
 
-				std::string label = std::format("[Material {0}]", i);
+				std::string label = fmt::format("[Material {0}]", i);
 
 				// NOTE(Peter): Fix for weird ImGui ID bug...
-				std::string id = std::format("{0}-{1}", label, i);
+				std::string id = fmt::format("{0}-{1}", label, i);
 				ImGui::PushID(id.c_str());
 
 				UI::PropertyAssetReferenceSettings settings;
@@ -941,7 +1128,7 @@ namespace Hazel {
 					ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, entities.size() > 1 && _this->IsInconsistentPrimitive<AssetHandle, TComponent>([i](const TComponent& component)
 					{
 						Ref<MaterialTable> materialTable = nullptr;
-						if constexpr (std::is_same_v<TComponent, SubmeshComponent>)
+						if constexpr (std::is_same_v<TComponent, MeshComponent>)
 							materialTable = AssetManager::GetAsset<Mesh>(component.Mesh)->GetMaterials();
 						else
 							materialTable = AssetManager::GetAsset<StaticMesh>(component.StaticMesh)->GetMaterials();
@@ -1307,8 +1494,8 @@ namespace Hazel {
 					ImGui::TableSetupColumn("ComponentNames", ImGuiTableColumnFlags_WidthFixed, addComponentPanelWidth * 0.85f);
 
 					DrawSimpleAddComponentButton<CameraComponent>(this, "Camera", EditorResources::CameraIcon);
-					DrawSimpleAddComponentButton<MeshComponent, MeshTagComponent, StaticMeshComponent>(this, "Mesh", EditorResources::MeshIcon);
-					DrawSimpleAddComponentButton<StaticMeshComponent, MeshComponent, MeshTagComponent>(this, "Static Mesh", EditorResources::StaticMeshIcon);
+					DrawSimpleAddComponentButton<MeshComponent, StaticMeshComponent>(this, "Mesh", EditorResources::MeshIcon);
+					DrawSimpleAddComponentButton<StaticMeshComponent, MeshComponent>(this, "Static Mesh", EditorResources::StaticMeshIcon);
 					DrawSimpleAddComponentButton<DirectionalLightComponent>(this, "Directional Light", EditorResources::DirectionalLightIcon);
 					DrawSimpleAddComponentButton<PointLightComponent>(this, "Point Light", EditorResources::PointLightIcon);
 					DrawSimpleAddComponentButton<SpotLightComponent>(this, "Spot Light", EditorResources::SpotLightIcon);
@@ -1337,6 +1524,7 @@ namespace Hazel {
 					{
 						PhysicsSystem::GetOrCreateColliderAsset(entity, colliderComponent);
 					}, EditorResources::MeshColliderIcon);
+					DrawSimpleAddComponentButton<FixedJointComponent>(this, "Fixed Joint", EditorResources::FixedJointIcon);
 					DrawSimpleAddComponentButton<AudioComponent>(this, "Audio", EditorResources::AudioIcon);
 					DrawAddComponentButton<AudioListenerComponent>(this, "Audio Listener", [&](Entity entity, AudioListenerComponent& alc)
 					{
@@ -1401,9 +1589,9 @@ namespace Hazel {
 
 			if (isMultiEdit)
 			{
-				UI::VectorAxis translationAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.Translation; });
-				UI::VectorAxis rotationAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.GetRotationEuler(); });
-				UI::VectorAxis scaleAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.Scale; });
+				uint32_t translationAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.Translation; });
+				uint32_t rotationAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.GetRotationEuler(); });
+				uint32_t scaleAxes = GetInconsistentVectorAxis<glm::vec3, TransformComponent>([](const TransformComponent& other) { return other.Scale; });
 
 				glm::vec3 translation = firstComponent.Translation;
 				glm::vec3 rotation = glm::degrees(firstComponent.GetRotationEuler());
@@ -1435,27 +1623,27 @@ namespace Hazel {
 							Entity entity = m_Context->GetEntityWithUUID(entityID);
 							auto& component = entity.GetComponent<TransformComponent>();
 
-							if ((translationAxes & UI::VectorAxis::X) != UI::VectorAxis::None)
+							if ((translationAxes & (uint32_t)VectorAxis::X) != 0)
 								component.Translation.x = translation.x;
-							if ((translationAxes & UI::VectorAxis::Y) != UI::VectorAxis::None)
+							if ((translationAxes & (uint32_t)VectorAxis::Y) != 0)
 								component.Translation.y = translation.y;
-							if ((translationAxes & UI::VectorAxis::Z) != UI::VectorAxis::None)
+							if ((translationAxes & (uint32_t)VectorAxis::Z) != 0)
 								component.Translation.z = translation.z;
 
 							glm::vec3 componentRotation = component.GetRotationEuler();
-							if ((rotationAxes & UI::VectorAxis::X) != UI::VectorAxis::None)
+							if ((rotationAxes & (uint32_t)VectorAxis::X) != 0)
 								componentRotation.x = glm::radians(rotation.x);
-							if ((rotationAxes & UI::VectorAxis::Y) != UI::VectorAxis::None)
+							if ((rotationAxes & (uint32_t)VectorAxis::Y) != 0)
 								componentRotation.y = glm::radians(rotation.y);
-							if ((rotationAxes & UI::VectorAxis::Z) != UI::VectorAxis::None)
+							if ((rotationAxes & (uint32_t)VectorAxis::Z) != 0)
 								componentRotation.z = glm::radians(rotation.z);
 							component.SetRotationEuler(componentRotation);
 
-							if ((scaleAxes & UI::VectorAxis::X) != UI::VectorAxis::None)
+							if ((scaleAxes & (uint32_t)VectorAxis::X) != 0)
 								component.Scale.x = scale.x;
-							if ((scaleAxes & UI::VectorAxis::Y) != UI::VectorAxis::None)
+							if ((scaleAxes & (uint32_t)VectorAxis::Y) != 0)
 								component.Scale.y = scale.y;
-							if ((scaleAxes & UI::VectorAxis::Z) != UI::VectorAxis::None)
+							if ((scaleAxes & (uint32_t)VectorAxis::Z) != 0)
 								component.Scale.z = scale.z;
 						}
 					}
@@ -1507,8 +1695,7 @@ namespace Hazel {
 		DrawComponent<MeshComponent>("Mesh", [&](MeshComponent& firstComponent, const std::vector<UUID>& entities, const bool isMultiEdit)
 		{
 			AssetHandle meshHandle = firstComponent.Mesh;
-			auto mesh = AssetManager::GetAsset<Mesh>(meshHandle);
-			auto meshSource = mesh ? AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()) : nullptr;
+			Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(meshHandle);
 			UI::BeginPropertyGrid();
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<AssetHandle, MeshComponent>([](const MeshComponent& other) { return other.Mesh; }));
 			UI::PropertyAssetReferenceError error;
@@ -1520,68 +1707,54 @@ namespace Hazel {
 			},"", & error))
 			{
 				mesh = AssetManager::GetAsset<Mesh>(meshHandle);
-				meshSource = mesh ? AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()) : nullptr;
 				for (auto& entityID : entities)
 				{
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
 					auto& mc = entity.GetComponent<MeshComponent>();
 					mc.Mesh = meshHandle;
-					m_Context->RebuildMeshEntityHierarchy(entity);
-
-					//// TODO(Yan): maybe prompt for this, this isn't always expected behaviour
-					//if (entity.HasComponent<MeshColliderComponent>())
-					//{
-					//	//CookingFactory::CookMesh(mcc.CollisionMesh);	
-					//}
+					mc.BoneEntityIds = m_Context->FindBoneEntityIds(entity, entity.GetParent(), mesh);
+					if (mesh)
+					{
+						// Validate submesh index	
+						mc.SubmeshIndex = glm::clamp<uint32_t>(mc.SubmeshIndex, 0, (uint32_t)mesh->GetMeshSource()->GetSubmeshes().size() - 1);
+						// TODO(Yan): maybe prompt for this, this isn't always expected behaviour	
+						if (entity.HasComponent<MeshColliderComponent>())
+						{
+							//CookingFactory::CookMesh(mcc.CollisionMesh);	
+						}
+					}
 				}
 			}
 			ImGui::PopItemFlag();
-
 			if (error == UI::PropertyAssetReferenceError::InvalidMetadata)
 			{
 				if (m_InvalidMetadataCallback && !isMultiEdit)
 					m_InvalidMetadataCallback(m_Context->GetEntityWithUUID(entities[0]), UI::s_PropertyAssetReferenceAssetHandle);
 			}
-			UI::EndPropertyGrid();
-		}, EditorResources::MeshIcon);
-
-		DrawComponent<SubmeshComponent>("Sub Mesh", [&](SubmeshComponent& firstComponent, const std::vector<UUID>& entities, const bool isMultiEdit)
-		{
-			AssetHandle meshHandle = firstComponent.Mesh;
-			auto mesh = AssetManager::GetAsset<Mesh>(meshHandle);
-			auto meshSource = mesh ? AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()) : nullptr;
-			UI::BeginPropertyGrid();
-			if (meshSource)
+			if (mesh)
 			{
+				uint32_t submeshIndex = firstComponent.SubmeshIndex;
+				ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<uint32_t, MeshComponent>([](const MeshComponent& other) { return other.SubmeshIndex; }));
+				if (UI::Property("Submesh Index", submeshIndex, 0, (uint32_t)mesh->GetMeshSource()->GetSubmeshes().size() - 1))
 				{
-					UI::ScopedItemFlags itemFlags(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, SubmeshComponent>([](const SubmeshComponent& other) { return other.Visible; }));
-					if (UI::Property("Visible", firstComponent.Visible))
+					for (auto& entityID : entities)
 					{
-						for (auto& entityID : entities)
-						{
-							Entity entity = m_Context->GetEntityWithUUID(entityID);
-							auto& mc = entity.GetComponent<SubmeshComponent>();
-							mc.Visible = firstComponent.Visible;
-						}
+						Entity entity = m_Context->GetEntityWithUUID(entityID);
+						auto& mc = entity.GetComponent<MeshComponent>();
+						mc.SubmeshIndex = glm::clamp<uint32_t>(submeshIndex, 0, (uint32_t)mesh->GetMeshSource()->GetSubmeshes().size() - 1);
 					}
 				}
-				{
-					uint32_t submeshIndex = firstComponent.SubmeshIndex;
-					UI::ScopedItemFlags itemFlags(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<uint32_t, SubmeshComponent>([](const SubmeshComponent& other) { return other.SubmeshIndex; }));
-					UI::ScopedDisable disable;
-					UI::Property("Submesh Index", submeshIndex, 0, (uint32_t)meshSource->GetSubmeshes().size() - 1);
-				}
+				ImGui::PopItemFlag();
 			}
 			UI::EndPropertyGrid();
-
-			if (mesh)
-				DrawMaterialTable<SubmeshComponent>(this, entities, mesh->GetMaterials(), firstComponent.MaterialTable);
+			if (mesh && mesh->IsValid())
+				DrawMaterialTable<MeshComponent>(this, entities, mesh->GetMaterials(), firstComponent.MaterialTable);
 		}, EditorResources::MeshIcon);
 
 		DrawComponent<StaticMeshComponent>("Static Mesh", [&](StaticMeshComponent& firstComponent, const std::vector<UUID>& entities, const bool isMultiEdit)
 		{
+			Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(firstComponent.StaticMesh);
 			AssetHandle meshHandle = firstComponent.StaticMesh;
-			auto mesh = AssetManager::GetAsset<StaticMesh>(firstComponent.StaticMesh);
 
 			UI::BeginPropertyGrid();
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit&& IsInconsistentPrimitive<bool, StaticMeshComponent>([](const StaticMeshComponent& other) { return other.Visible; }));
@@ -1596,7 +1769,9 @@ namespace Hazel {
 			}
 			ImGui::PopItemFlag();
 
+
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<AssetHandle, StaticMeshComponent>([](const StaticMeshComponent& other) { return other.StaticMesh; }));
+
 			UI::PropertyAssetReferenceError error;
 			if (UI::PropertyAssetReferenceWithConversion<StaticMesh, MeshSource>("Static Mesh", meshHandle,
 				[=](Ref<MeshSource> meshAsset)
@@ -1622,6 +1797,7 @@ namespace Hazel {
 					}*/
 				}
 			}
+
 			ImGui::PopItemFlag();
 
 			if (error == UI::PropertyAssetReferenceError::InvalidMetadata)
@@ -1632,7 +1808,7 @@ namespace Hazel {
 
 			UI::EndPropertyGrid();
 
-			if (mesh)
+			if (mesh && mesh->IsValid())
 				DrawMaterialTable<StaticMeshComponent>(this, entities, mesh->GetMaterials(), firstComponent.MaterialTable);
 		}, EditorResources::StaticMeshIcon);
 
@@ -1660,10 +1836,7 @@ namespace Hazel {
 					if (animationGraphAsset)
 					{
 						anim.AnimationGraph = animationGraphAsset->CreateInstance();
-						if (anim.AnimationGraph)
-						{
-							anim.BoneEntityIds = m_Context->FindBoneEntityIds(entity, entity, anim.AnimationGraph->GetSkeleton());
-						}
+						anim.BoneEntityIds = m_Context->FindBoneEntityIds(entity, entity, anim.AnimationGraph);
 					}
 					else
 					{
@@ -1684,12 +1857,10 @@ namespace Hazel {
 			{
 				for (auto [id, value] : firstComponent.AnimationGraph->Ins)
 				{
-					     if (value.isFloat32()) EditGraphInput<float>(id, value, entities);
+					if (value.isBool())         EditGraphInput<bool>(id, value, entities);
 					else if (value.isInt32())   EditGraphInput<int32_t>(id, value, entities);
-					else if (value.isBool())    EditGraphInput<bool>(id, value, entities);
-					else if (value.isVoid())    EditGraphInput<void>(id, value, entities);
-					else if (value.isObjectWithClassName(type::type_name<glm::vec3>())) EditGraphInput<glm::vec3>(id, value, entities);
 					else if (value.isInt64())   EditGraphInput<int64_t>(id, value, entities);
+					else if (value.isFloat32()) EditGraphInput<float>(id, value, entities);
 					else if (value.isFloat64()) EditGraphInput<double>(id, value, entities);
 				}
 			}
@@ -2182,9 +2353,7 @@ namespace Hazel {
 				for (auto& entityID : entities)
 				{
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					auto& slc = entity.GetComponent<SkyLightComponent>();
-					slc.SceneEnvironment = firstComponent.SceneEnvironment;
-					slc.DynamicSky = !firstComponent.SceneEnvironment;
+					entity.GetComponent<SkyLightComponent>().SceneEnvironment = firstComponent.SceneEnvironment;
 				}
 			}
 			ImGui::PopItemFlag();
@@ -2202,13 +2371,13 @@ namespace Hazel {
 
 			if (AssetManager::IsAssetHandleValid(firstComponent.SceneEnvironment))
 			{
-				Ref<Environment> environment = AssetManager::GetAssetAsync<Environment>(firstComponent.SceneEnvironment);
+				auto environment = AssetManager::GetAsset<Environment>(firstComponent.SceneEnvironment);
 				bool lodChanged = false;
 				if (environment && environment->RadianceMap)
 				{
 					ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<uint32_t, SkyLightComponent>([](const SkyLightComponent& other)
 					{
-						Ref<Environment> otherEnv = AssetManager::GetAssetAsync<Environment>(other.SceneEnvironment);
+						auto otherEnv = AssetManager::GetAsset<Environment>(other.SceneEnvironment);
 						return otherEnv->RadianceMap->GetMipLevelCount();
 					}));
 
@@ -2232,10 +2401,7 @@ namespace Hazel {
 				for (auto& entityID : entities)
 				{
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					auto& slc = entity.GetComponent<SkyLightComponent>();
-					slc.DynamicSky = firstComponent.DynamicSky;
-					if (slc.DynamicSky)
-						slc.SceneEnvironment = 0;
+					entity.GetComponent<SkyLightComponent>().DynamicSky = firstComponent.DynamicSky;
 				}
 			}
 			ImGui::PopItemFlag();
@@ -2285,16 +2451,20 @@ namespace Hazel {
 
 				if (changed)
 				{
-					if (auto env = AssetManager::GetMemoryAsset(firstComponent.SceneEnvironment).As<Environment>(); env)
+					if (AssetManager::IsMemoryAsset(firstComponent.SceneEnvironment))
 					{
 						Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(firstComponent.TurbidityAzimuthInclination.x, firstComponent.TurbidityAzimuthInclination.y, firstComponent.TurbidityAzimuthInclination.z);
-						env->RadianceMap = preethamEnv;
-						env->IrradianceMap = preethamEnv;
+						Ref<Environment> env = AssetManager::GetAsset<Environment>(firstComponent.SceneEnvironment);
+						if (env)
+						{
+							env->RadianceMap = preethamEnv;
+							env->IrradianceMap = preethamEnv;
+						}
 					}
 					else
 					{
 						Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(firstComponent.TurbidityAzimuthInclination.x, firstComponent.TurbidityAzimuthInclination.y, firstComponent.TurbidityAzimuthInclination.z);
-						firstComponent.SceneEnvironment = AssetManager::AddMemoryOnlyAsset(Ref<Environment>::Create(preethamEnv, preethamEnv));
+						firstComponent.SceneEnvironment = AssetManager::CreateMemoryOnlyAsset<Environment>(preethamEnv, preethamEnv);
 					}
 
 					for (auto& entityID : entities)
@@ -2311,40 +2481,38 @@ namespace Hazel {
 		{
 			UI::BeginPropertyGrid();
 
-			const bool inconsistentScriptClass = IsInconsistentPrimitive<UUID, ScriptComponent>([](const ScriptComponent& other) { return other.ScriptID; });
+			const bool inconsistentScriptClass = IsInconsistentPrimitive<AssetHandle, ScriptComponent>([](const ScriptComponent& other) { return other.ScriptClassHandle; });
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && inconsistentScriptClass);
-			auto& scriptEngine = ScriptEngine::GetMutable();
 
-			bool isError = !scriptEngine.IsValidScript(firstComponent.ScriptID);
-			const UI::PropertyAssetReferenceSettings c_AssetRefSettings = { true, false, 0.0f, (isError && !inconsistentScriptClass) ? ImVec4(0.9f, 0.2f, 0.2f, 1.0f) : ImGui::ColorConvertU32ToFloat4(Colors::Theme::text), ImGui::ColorConvertU32ToFloat4(Colors::Theme::textError), true };
+			bool isError = !ScriptEngine::IsModuleValid(firstComponent.ScriptClassHandle);
+			const UI::PropertyAssetReferenceSettings c_AssetRefSettings = { true, false, 0.0f, true, (isError && !inconsistentScriptClass) ? ImVec4(0.9f, 0.2f, 0.2f, 1.0f) : ImGui::ColorConvertU32ToFloat4(Colors::Theme::text), ImGui::ColorConvertU32ToFloat4(Colors::Theme::textError), true };
 
-			auto oldScriptID = firstComponent.ScriptID;
+			AssetHandle oldAssetHandle = firstComponent.ScriptClassHandle;
 
-			if (UI::PropertyScriptReference("Script Class", firstComponent.ScriptID, c_AssetRefSettings))
+			if (UI::PropertyAssetReference<ScriptAsset>("Script Class", firstComponent.ScriptClassHandle, "", nullptr, c_AssetRefSettings))
 			{
-				isError = !scriptEngine.IsValidScript(firstComponent.ScriptID);
+				isError = !ScriptEngine::IsModuleValid(firstComponent.ScriptClassHandle);
 
 				for (auto entityID : entities)
 				{
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
 					auto& sc = entity.GetComponent<ScriptComponent>();
-					sc.ScriptID = firstComponent.ScriptID;
+					sc.ScriptClassHandle = firstComponent.ScriptClassHandle;
 
 					if (isError)
 					{
-						bool wasCleared = sc.ScriptID == 0;
+						bool wasCleared = sc.ScriptClassHandle == 0;
 						if (wasCleared)
-							sc.ScriptID = oldScriptID;
+							sc.ScriptClassHandle = oldAssetHandle; // NOTE(Peter): We need the old asset handle to properly shutdown an entity (at least during runtime)
 
-						if (oldScriptID)
-							m_Context->GetScriptStorage().ShutdownEntityStorage(sc.ScriptID, entity.GetUUID());
+						ScriptEngine::ShutdownScriptEntity(entity);
 
 						if (wasCleared)
-							sc.ScriptID = 0;
+							sc.ScriptClassHandle = 0;
 					}
 					else
 					{
-						m_Context->GetScriptStorage().InitializeEntityStorage(sc.ScriptID, entity.GetUUID());
+						ScriptEngine::InitializeScriptEntity(entity);
 					}
 				}
 			}
@@ -2353,39 +2521,48 @@ namespace Hazel {
 
 			UI::EndPropertyGrid();
 
-			auto& scriptStorage = m_Context->GetScriptStorage();
-
 			// NOTE(Peter): Editing fields doesn't really work if there's inconsistencies with the script classes...
-			if (!isError && !inconsistentScriptClass && scriptStorage.EntityStorage.contains(firstEntity.GetUUID()))
+			if (!isError && !inconsistentScriptClass && firstComponent.FieldIDs.size() > 0)
 			{
 				UI::BeginPropertyGrid();
+				Entity firstEntity = m_Context->GetEntityWithUUID(entities[0]);
 
-				auto& entityStorage = scriptStorage.EntityStorage.at(firstEntity.GetUUID());
-
-				for (auto& [fieldID, fieldStorage] : entityStorage.Fields)
+				for (auto fieldID : firstComponent.FieldIDs)
 				{
-					if (fieldStorage.IsArray())
+					FieldInfo* field = ScriptCache::GetFieldByID(fieldID);
+					Ref<FieldStorageBase> storage = ScriptEngine::GetFieldStorage(firstEntity, field->ID);
+
+					/*const bool isHidden = field->HasAttribute("Hazel.HideFromEditorAttribute") || !field->IsWritable() || !storage->IsLive();
+
+					if (isHidden && !ApplicationSettings::Get().ShowHiddenFields)
+						continue;
+
+					UI::ScopedDisable disable(isHidden);*/
+					std::string fieldName = field->DisplayName.empty() ? Utils::String::SubStr(field->Name, field->Name.find(':') + 1) : field->DisplayName;
+
+					// TODO(Peter): Update field input to display "---" when there's mixed values
+					if (field->IsArray())
 					{
-						if (UI::DrawFieldArray(m_Context, fieldStorage.GetName(), fieldStorage))
+						if (UI::DrawFieldArray(m_Context, fieldName, storage.As<ArrayFieldStorage>()))
 						{
-							/*for (auto entityID : entities)
+							for (auto entityID : entities)
 							{
-								Entity entity = m_Context->GetEntityWithUUID(entityID);
+								/*Entity entity = m_Context->GetEntityWithUUID(entityID);
 								const auto& sc = entity.GetComponent<ScriptComponent>();
-								storage->CopyData(firstComponent.ManagedInstance, sc.ManagedInstance);
-							}*/
+								storage->CopyData(firstComponent.ManagedInstance, sc.ManagedInstance);*/
+							}
 						}
 					}
 					else
 					{
-						if (UI::DrawFieldValue(m_Context, fieldStorage.GetName(), fieldStorage))
+						if (UI::DrawFieldValue(m_Context, fieldName, storage.As<FieldStorage>()))
 						{
-							/*for (auto entityID : entities)
+							for (auto entityID : entities)
 							{
-								Entity entity = m_Context->GetEntityWithUUID(entityID);
+								/*Entity entity = m_Context->GetEntityWithUUID(entityID);
 								const auto& sc = entity.GetComponent<ScriptComponent>();
-								storage->CopyData(firstComponent.ManagedInstance, sc.ManagedInstance);
-							}*/
+								storage->CopyData(firstComponent.ManagedInstance, sc.ManagedInstance);*/
+							}
 						}
 					}
 				}
@@ -2476,17 +2653,6 @@ namespace Hazel {
 				{
 					Entity entity = m_Context->GetEntityWithUUID(entityID);
 					entity.GetComponent<SpriteRendererComponent>().UVEnd = firstComponent.UVEnd;
-				}
-			}
-			ImGui::PopItemFlag();
-
-			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, SpriteRendererComponent>([](const SpriteRendererComponent& other) { return other.ScreenSpace; }));
-			if (UI::Property("Screen Space", firstComponent.ScreenSpace))
-			{
-				for (auto& entityID : entities)
-				{
-					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					entity.GetComponent<SpriteRendererComponent>().ScreenSpace = firstComponent.ScreenSpace;
 				}
 			}
 			ImGui::PopItemFlag();
@@ -3140,42 +3306,6 @@ namespace Hazel {
 			}
 			ImGui::PopItemFlag();
 
-			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit&& IsInconsistentPrimitive<bool, CharacterControllerComponent>([](const CharacterControllerComponent& other) { return other.ControlMovementInAir; }));
-			if (UI::Property("Control Movement In Air", firstComponent.ControlMovementInAir))
-			{
-				for (auto& entityID : entities)
-				{
-					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					entity.GetComponent<CharacterControllerComponent>().ControlMovementInAir = firstComponent.ControlMovementInAir;
-
-					if (m_Context->IsPlaying())
-					{
-						auto controller = m_Context->GetPhysicsScene()->GetCharacterController(entity);
-						if (controller)
-							controller->SetControlMovementInAir(!firstComponent.ControlMovementInAir);
-					}
-				}
-			}
-			ImGui::PopItemFlag();
-
-			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit&& IsInconsistentPrimitive<bool, CharacterControllerComponent>([](const CharacterControllerComponent& other) { return other.ControlRotationInAir; }));
-			if (UI::Property("Control Rotation In Air", firstComponent.ControlRotationInAir))
-			{
-				for (auto& entityID : entities)
-				{
-					Entity entity = m_Context->GetEntityWithUUID(entityID);
-					entity.GetComponent<CharacterControllerComponent>().ControlRotationInAir = firstComponent.ControlRotationInAir;
-
-					if (m_Context->IsPlaying())
-					{
-						auto controller = m_Context->GetPhysicsScene()->GetCharacterController(entity);
-						if (controller)
-							controller->SetControlRotationInAir(!firstComponent.ControlRotationInAir);
-					}
-				}
-			}
-			ImGui::PopItemFlag();
-
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<float, CharacterControllerComponent>([](const CharacterControllerComponent& other) { return other.SlopeLimitDeg; }));
 			if (UI::Property("Slope Limit", firstComponent.SlopeLimitDeg, 1.0f, 0.0f, 90.0f))
 			{
@@ -3213,6 +3343,130 @@ namespace Hazel {
 
 			UI::EndPropertyGrid();
 		}, EditorResources::CharacterControllerIcon);
+
+		DrawComponent<FixedJointComponent>("Fixed Joint", [&](FixedJointComponent& firstComponent, const std::vector<UUID>& entities, const bool isMultiEdit)
+		{
+			UI::BeginPropertyGrid();
+
+			auto physicsScene = m_Context->GetPhysicsScene();
+
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<UUID, FixedJointComponent>([](const FixedJointComponent& other) { return other.ConnectedEntity; }));
+			if (UI::PropertyEntityReference("Connected Entity", firstComponent.ConnectedEntity, m_Context))
+			{
+				for (auto& entityID : entities)
+				{
+					Entity entity = m_Context->GetEntityWithUUID(entityID);
+					entity.GetComponent<FixedJointComponent>().ConnectedEntity = firstComponent.ConnectedEntity;
+
+					/*if (m_Context->IsPlaying())
+					{
+						auto joint = physicsScene->GetJoint(entity);
+						if (joint)
+							joint->SetConnectedEntity(m_Context->TryGetEntityWithUUID(firstComponent.ConnectedEntity));
+					}*/
+				}
+			}
+			ImGui::PopItemFlag();
+
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, FixedJointComponent>([](const FixedJointComponent& other) { return other.IsBreakable; }));
+			if (UI::Property("Is Breakable", firstComponent.IsBreakable))
+			{
+				for (auto& entityID : entities)
+				{
+					Entity entity = m_Context->GetEntityWithUUID(entityID);
+					entity.GetComponent<FixedJointComponent>().IsBreakable = firstComponent.IsBreakable;
+
+					/*if (m_Context->IsPlaying())
+					{
+						auto joint = physicsScene->GetJoint(entity);
+						if (joint)
+						{
+							if (firstComponent.IsBreakable)
+								joint->SetBreakForceAndTorque(firstComponent.BreakForce, firstComponent.BreakTorque);
+							else
+								joint->SetBreakForceAndTorque(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+						}
+					}*/
+				}
+			}
+			ImGui::PopItemFlag();
+
+			if (firstComponent.IsBreakable)
+			{
+				ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<float, FixedJointComponent>([](const FixedJointComponent& other) { return other.BreakForce; }));
+				if (UI::Property("Break Force", firstComponent.BreakForce, 1.0f))
+				{
+					for (auto& entityID : entities)
+					{
+						Entity entity = m_Context->GetEntityWithUUID(entityID);
+						entity.GetComponent<FixedJointComponent>().BreakForce = firstComponent.BreakForce;
+						/*if (m_Context->IsPlaying())
+						{
+							auto joint = physicsScene->GetJoint(entity);
+							if (joint)
+								joint->SetBreakForceAndTorque(firstComponent.BreakForce, firstComponent.BreakTorque);
+						}*/
+					}
+				}
+				ImGui::PopItemFlag();
+				UI::SetTooltip("The amount of force required to break this joint");
+
+				ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<float, FixedJointComponent>([](const FixedJointComponent& other) { return other.BreakTorque; }));
+				if (UI::Property("Break Torque", firstComponent.BreakTorque, 1.0f))
+				{
+					for (auto& entityID : entities)
+					{
+						Entity entity = m_Context->GetEntityWithUUID(entityID);
+						entity.GetComponent<FixedJointComponent>().BreakTorque = firstComponent.BreakTorque;
+						/*if (m_Context->IsPlaying())
+						{
+							auto joint = physicsScene->GetJoint(entity);
+							if (joint)
+								joint->SetBreakForceAndTorque(firstComponent.BreakForce, firstComponent.BreakTorque);
+						}*/
+					}
+				}
+				ImGui::PopItemFlag();
+				UI::SetTooltip("The amount of torque required to break this joint");
+			}
+
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, FixedJointComponent>([](const FixedJointComponent& other) { return other.EnableCollision; }));
+			if (UI::Property("Enable Collision", firstComponent.EnableCollision))
+			{
+				for (auto& entityID : entities)
+				{
+					Entity entity = m_Context->GetEntityWithUUID(entityID);
+					entity.GetComponent<FixedJointComponent>().EnableCollision = firstComponent.EnableCollision;
+					/*if (m_Context->IsPlaying())
+					{
+						auto joint = physicsScene->GetJoint(entity);
+						if (joint)
+							joint->SetCollisionEnabled(firstComponent.EnableCollision);
+					}*/
+				}
+			}
+			ImGui::PopItemFlag();
+			UI::SetTooltip("Enable collision between the entities that this joint constraints");
+
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, FixedJointComponent>([](const FixedJointComponent& other) { return other.EnablePreProcessing; }));
+			if (UI::Property("Enable Preprocessing", firstComponent.EnablePreProcessing))
+			{
+				for (auto& entityID : entities)
+				{
+					Entity entity = m_Context->GetEntityWithUUID(entityID);
+					entity.GetComponent<FixedJointComponent>().EnablePreProcessing = firstComponent.EnablePreProcessing;
+					/*if (m_Context->IsPlaying())
+					{
+						auto joint = physicsScene->GetJoint(entity);
+						if (joint)
+							joint->SetPreProcessingEnabled(firstComponent.EnablePreProcessing);
+					}*/
+				}
+			}
+			ImGui::PopItemFlag();
+
+			UI::EndPropertyGrid();
+		}, EditorResources::FixedJointIcon);
 
 		DrawComponent<CompoundColliderComponent>("Compound Collider", [&](CompoundColliderComponent& firstComponent, const std::vector<UUID>& entities, const bool isMultiEdit)
 		{
@@ -3412,14 +3666,14 @@ namespace Hazel {
 					if (component.ColliderAsset == 0)
 						PhysicsSystem::GetOrCreateColliderAsset(entity, component);
 
-					if (entity.HasComponent<SubmeshComponent>())
-						component.SubmeshIndex = entity.GetComponent<SubmeshComponent>().SubmeshIndex;
+					if (entity.HasComponent<MeshComponent>())
+						component.SubmeshIndex = entity.GetComponent<MeshComponent>().SubmeshIndex;
 				}
 			}
 			ImGui::PopItemFlag();
 
 			auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(firstComponent.ColliderAsset);
-			const bool isPhysicalAsset = !AssetManager::GetMemoryAsset(firstComponent.ColliderAsset);
+			const bool isPhysicalAsset = !AssetManager::IsMemoryAsset(firstComponent.ColliderAsset);
 
 			UI::BeginDisabled(colliderAsset && isPhysicalAsset);
 			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, isMultiEdit && IsInconsistentPrimitive<bool, MeshColliderComponent>([](const MeshColliderComponent& other) { return other.UseSharedShape; }));

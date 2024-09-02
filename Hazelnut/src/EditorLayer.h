@@ -26,8 +26,6 @@
 
 #include <future>
 
-#include <filewatch/FileWatch.hpp>
-
 namespace Hazel {
 
 	class EditorLayer : public Layer
@@ -50,7 +48,6 @@ namespace Hazel {
 
 		void OpenProject();
 		void OpenProject(const std::filesystem::path& filepath);
-
 		void CreateProject(std::filesystem::path projectPath);
 		void EmptyProject();
 		void UpdateCurrentProject();
@@ -67,6 +64,7 @@ namespace Hazel {
 		void OnCreateMeshFromMeshSource(Entity entity, Ref<MeshSource> meshSource);
 		void SceneHierarchyInvalidMetadataCallback(Entity entity, AssetHandle handle);
 		void SceneHierarchySetEditorCameraTransform(Entity entity);
+
 	private:
 		std::pair<float, float> GetMouseViewportSpace(bool primaryViewport);
 		std::pair<glm::vec3, glm::vec3> CastRay(const EditorCamera& camera, float mx, float my);
@@ -104,7 +102,7 @@ namespace Hazel {
 		// Popups
 		void UI_ShowNewProjectPopup();
 		void UI_ShowLoadAutoSavePopup();
-		void UI_ShowCreateAssetsFromMeshSourcePopup();
+		void UI_ShowCreateNewMeshPopup();
 		void UI_ShowInvalidAssetMetadataPopup();
 		void UI_ShowNoMeshPopup();
 		void UI_ShowNoSkeletonPopup();
@@ -125,19 +123,13 @@ namespace Hazel {
 		void UpdateSceneRendererSettings();
 		void QueueSceneTransition(AssetHandle scene);
 
-		void BuildProjectData();
 		void BuildShaderPack();
-		void BuildSoundBank();
 		void BuildAssetPack();
-		void BuildAll();
 		void RegenerateProjectScriptSolution(const std::filesystem::path& projectPath);
-		void ReloadCSharp();
-		void FocusLogPanel();
 	private:
 		Ref<UserPreferences> m_UserPreferences;
 
 		Scope<PanelManager> m_PanelManager;
-		Ref<EditorConsolePanel> m_ConsolePanel;
 		bool m_ShowStatisticsPanel = false;
 
 		Ref<Scene> m_RuntimeScene, m_EditorScene, m_SimulationScene, m_CurrentScene;
@@ -150,15 +142,9 @@ namespace Hazel {
 		EditorCamera m_EditorCamera;
 		EditorCamera m_SecondEditorCamera;
 
-		float m_AssetUpdatePerf = 0.0f;
-
 		float m_LineWidth = 2.0f;
 
 		bool m_TitleBarHovered = false;
-		uint32_t m_TitleBarTargetColor;
-		uint32_t m_TitleBarActiveColor;
-		uint32_t m_TitleBarPreviousColor;
-		bool m_AnimateTitleBarColor;
 
 		glm::vec2 m_ViewportBounds[2];
 		glm::vec2 m_SecondViewportBounds[2];
@@ -195,8 +181,6 @@ namespace Hazel {
 
 		bool m_EditorCameraInRuntime = false;
 
-		std::atomic_bool m_ShouldReloadCSharp = false;
-
 		enum class TransformationTarget { MedianPoint, IndividualOrigins };
 		TransformationTarget m_MultiTransformTarget = TransformationTarget::MedianPoint;
 
@@ -209,8 +193,7 @@ namespace Hazel {
 		struct CreateNewMeshPopupData
 		{
 			Ref<MeshSource> MeshToCreate;
-			std::string CreateStaticMeshFilenameBuffer;
-			std::string CreateDynamicMeshFilenameBuffer;
+			std::string CreateMeshFilenameBuffer;
 			std::string CreateSkeletonFilenameBuffer;
 			std::vector<std::string> CreateAnimationFilenameBuffer;
 			std::string CreateGraphFilenameBuffer;
@@ -218,8 +201,7 @@ namespace Hazel {
 
 			CreateNewMeshPopupData()
 			{
-				CreateStaticMeshFilenameBuffer = "";
-				CreateDynamicMeshFilenameBuffer = "";
+				CreateMeshFilenameBuffer = "";
 				CreateSkeletonFilenameBuffer = "";
 				CreateGraphFilenameBuffer = "";
 				MeshToCreate = nullptr;
@@ -254,16 +236,12 @@ namespace Hazel {
 
 		std::thread m_AssetPackThread;
 		std::future<Ref<AssetPack>> m_AssetPackFuture;
+		std::atomic<bool> m_AssetPackBuildInProgress = false;
 		std::atomic<float> m_AssetPackBuildProgress = 0.0f;
 		std::string m_AssetPackBuildMessage;
-		bool m_BuildAllInProgress = false;
+		bool m_OpenAssetPackDialog = false;
 
-#ifdef HZ_PLATFORM_WINDOWS
-		using WatcherString = std::wstring;
-#else
-		using WatcherString = std::string;
-#endif
-		std::unique_ptr<filewatch::FileWatch<WatcherString>> m_ScriptFileWatcher = nullptr;
+		void SerializeEnvironmentMap();
 	};
 
 }

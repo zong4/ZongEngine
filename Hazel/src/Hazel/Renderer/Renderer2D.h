@@ -4,6 +4,7 @@
 
 #include "Hazel/Core/Math/AABB.h"
 
+#include "Hazel/Renderer/Mesh.h"
 #include "Hazel/Renderer/RenderPass.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/RenderCommandBuffer.h"
@@ -54,20 +55,19 @@ namespace Hazel {
 		void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-		void DrawRotatedRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color, const bool onTop = false);
-		void DrawRotatedRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color, const bool onTop = false);
+		void DrawRotatedRect(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+		void DrawRotatedRect(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 		
 		// Thickness is between 0 and 1
-		void DrawCircle(const glm::vec3& p0, const glm::vec3& rotation, float radius, const glm::vec4& color, const bool onTop = false);
-		void DrawCircle(const glm::mat4& transform, const glm::vec4& color, bool const onTop = false);
+		void DrawCircle(const glm::vec3& p0, const glm::vec3& rotation, float radius, const glm::vec4& color);
+		void DrawCircle(const glm::mat4& transform, const glm::vec4& color);
 		void FillCircle(const glm::vec2& p0, float radius, const glm::vec4& color, float thickness = 0.05f);
 		void FillCircle(const glm::vec3& p0, float radius, const glm::vec4& color, float thickness = 0.05f);
 
-		void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color = glm::vec4(1.0f), const bool onTop = false);
+		void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color = glm::vec4(1.0f));
 
-		void DrawTransform(const glm::mat4& transform, float scale = 1.0f, const bool onTop = true);
-
-		void DrawAABB(const AABB& aabb, const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f), const bool onTop = false);
+		void DrawAABB(const AABB& aabb, const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+		void DrawAABB(Ref<Mesh> mesh, const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
 
 		void DrawString(const std::string& string, const glm::vec3& position, float maxWidth, const glm::vec4& color = glm::vec4(1.0f));
 		void DrawString(const std::string& string, const Ref<Font>& font, const glm::vec3& position, float maxWidth, const glm::vec4& color = glm::vec4(1.0f));
@@ -103,7 +103,7 @@ namespace Hazel {
 		void Flush();
 
 		void AddQuadBuffer();
-		void AddLineBuffer(const bool onTop);
+		void AddLineBuffer();
 		void AddTextBuffer();
 		void AddCircleBuffer();
 	private:
@@ -139,7 +139,7 @@ namespace Hazel {
 		};
 
 		QuadVertex*& GetWriteableQuadBuffer();
-		LineVertex*& GetWriteableLineBuffer(const bool onTop);
+		LineVertex*& GetWriteableLineBuffer();
 		TextVertex*& GetWriteableTextBuffer();
 		CircleVertex*& GetWriteableCircleBuffer();
 
@@ -186,21 +186,16 @@ namespace Hazel {
 
 		// Lines
 		Ref<RenderPass> m_LinePass;
+		Ref<RenderPass> m_LineOnTopPass;
 		std::vector<VertexBufferPerFrame> m_LineVertexBuffers;
-		std::vector<VertexBufferPerFrame> m_LineOnTopVertexBuffers;
 		Ref<IndexBuffer> m_LineIndexBuffer;
-		Ref<IndexBuffer> m_LineOnTopIndexBuffer;
 		Ref<Material> m_LineMaterial;
 
 		uint32_t m_LineIndexCount = 0;
-		uint32_t m_LineOnTopIndexCount = 0;
 		using LineVertexBasePerFrame = std::vector<LineVertex*>;
 		std::vector<LineVertexBasePerFrame> m_LineVertexBufferBases;
-		std::vector<LineVertexBasePerFrame> m_LineOnTopVertexBufferBases;
 		std::vector<LineVertex*> m_LineVertexBufferPtr;
-		std::vector<LineVertex*> m_LineOnTopVertexBufferPtr;
 		uint32_t m_LineBufferWriteIndex = 0;
-		uint32_t m_LineOnTopBufferWriteIndex = 0;
 
 		// Text
 		Ref<RenderPass> m_TextPass;

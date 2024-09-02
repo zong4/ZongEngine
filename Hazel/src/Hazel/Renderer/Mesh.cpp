@@ -47,20 +47,6 @@ namespace Hazel
 
 		m_VertexBuffer = VertexBuffer::Create(m_Vertices.data(), (uint32_t)(m_Vertices.size() * sizeof(Vertex)));
 		m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), (uint32_t)(m_Indices.size() * sizeof(Index)));
-
-		// Calculate bounding box
-		m_BoundingBox.Min = { FLT_MAX, FLT_MAX, FLT_MAX };
-		m_BoundingBox.Max = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		for (size_t i = 0; i < m_Vertices.size(); i++)
-		{
-			const Vertex& vertex = m_Vertices[i];
-			m_BoundingBox.Min.x = glm::min(vertex.Position.x, m_BoundingBox.Min.x);
-			m_BoundingBox.Min.y = glm::min(vertex.Position.y, m_BoundingBox.Min.y);
-			m_BoundingBox.Min.z = glm::min(vertex.Position.z, m_BoundingBox.Min.z);
-			m_BoundingBox.Max.x = glm::max(vertex.Position.x, m_BoundingBox.Max.x);
-			m_BoundingBox.Max.y = glm::max(vertex.Position.y, m_BoundingBox.Max.y);
-			m_BoundingBox.Max.z = glm::max(vertex.Position.z, m_BoundingBox.Max.z);
-		}
 	}
 
 	MeshSource::MeshSource(const std::vector<Vertex>& vertices, const std::vector<Index>& indices, const std::vector<Submesh>& submeshes)
@@ -72,19 +58,7 @@ namespace Hazel
 		m_VertexBuffer = VertexBuffer::Create(m_Vertices.data(), (uint32_t)(m_Vertices.size() * sizeof(Vertex)));
 		m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), (uint32_t)(m_Indices.size() * sizeof(Index)));
 
-		// Calculate bounding box
-		m_BoundingBox.Min = { FLT_MAX, FLT_MAX, FLT_MAX };
-		m_BoundingBox.Max = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		for (size_t i = 0; i < m_Vertices.size(); i++)
-		{
-			const Vertex& vertex = m_Vertices[i];
-			m_BoundingBox.Min.x = glm::min(vertex.Position.x, m_BoundingBox.Min.x);
-			m_BoundingBox.Min.y = glm::min(vertex.Position.y, m_BoundingBox.Min.y);
-			m_BoundingBox.Min.z = glm::min(vertex.Position.z, m_BoundingBox.Min.z);
-			m_BoundingBox.Max.x = glm::max(vertex.Position.x, m_BoundingBox.Max.x);
-			m_BoundingBox.Max.y = glm::max(vertex.Position.y, m_BoundingBox.Max.y);
-			m_BoundingBox.Max.z = glm::max(vertex.Position.z, m_BoundingBox.Max.z);
-		}
+		// TODO: generate bounding box for submeshes, etc.
 	}
 
 	MeshSource::~MeshSource()
@@ -121,100 +95,91 @@ namespace Hazel
 
 
 	// TODO (0x): this is temporary.. and will eventually be replaced with some kind of skeleton retargeting
-	bool MeshSource::IsCompatibleSkeleton(const std::string_view animationName, const Skeleton& skeleton) const
+	bool MeshSource::IsCompatibleSkeleton(const uint32_t animationIndex, const Skeleton& skeleton) const
 	{
 		if (!m_Skeleton)
 		{
 			HZ_CORE_VERIFY(!m_Runtime);
 			auto path = Project::GetEditorAssetManager()->GetFileSystemPath(Handle);
 			AssimpMeshImporter importer(path);
-			return importer.IsCompatibleSkeleton(animationName, skeleton);
+			return importer.IsCompatibleSkeleton(animationIndex, skeleton);
 		}
-
+		
 		return m_Skeleton->GetBoneNames() == skeleton.GetBoneNames();
 	}
-
 
 	std::vector<std::string> MeshSource::GetAnimationNames() const
 	{
 		return m_AnimationNames;
 	}
 
-
-	const Animation* MeshSource::GetAnimation(const std::string& animationName, const Skeleton& skeleton, bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask) const
+	const Animation* MeshSource::GetAnimation(const uint32_t animationIndex, const Skeleton& skeleton, bool isMaskedRootMotion, const glm::vec3& rootTranslationMask, float rootRotationMask) const
 	{
-		// Note: It's possible that the same animation could be requested but with different root motion parameters.
+		// Note: It's possible that the same animation index could be requested but with different root motion parameters.
 		//       This is pretty edge-case, and not currently supported!
-		if(auto it = std::find(m_AnimationNames.begin(), m_AnimationNames.end(), animationName); it != m_AnimationNames.end())
+		if (!m_Animations[animationIndex])
 		{
-			auto& animation = m_Animations[it - m_AnimationNames.begin()];
-			if (!animation)
-			{
-				// Deferred load of animations.
-				// We cannot load them earlier (e.g. in MeshSource constructor) for two reasons:
-				// 1) Assimp does not import bones (and hence no skeleton) if the mesh source file contains only animations (and no skin)
-				//    This means we need to wait until we know what the skeleton is before we can load the animations.
-				// 2) We don't have any way to pass the root motion parameters to the mesh source constructor
-				HZ_CORE_VERIFY(!m_Runtime);
-				auto path = Project::GetEditorAssetManager()->GetFileSystemPath(Handle);
-				AssimpMeshImporter importer(path);
-				importer.ImportAnimation(animationName, skeleton, isMaskedRootMotion, rootTranslationMask, rootRotationMask, animation);
-			}
-			return animation.get(); // Note: (0x) could still be nullptr (e.g. if import, above, failed.)
+			// Deferred load of animations.
+			// We cannot load them earlier (e.g. in MeshSource constructor) for two reasons:
+			// 1) Assimp does not import bones (and hence no skeleton) if the mesh source file contains only animations (and no skin)
+			//    This means we need to wait until we know what the skeleton is before we can load the animations.
+			// 2) We don't have any way to pass the root motion parameters to the mesh source constructor
+
+			HZ_CORE_VERIFY(!m_Runtime);
+			auto path = Project::GetEditorAssetManager()->GetFileSystemPath(Handle);
+			AssimpMeshImporter importer(path);
+			importer.ImportAnimation(animationIndex, skeleton, isMaskedRootMotion, rootTranslationMask, rootRotationMask, m_Animations[animationIndex]);
 		}
-		HZ_CONSOLE_LOG_ERROR("Animation {0} not found in mesh source {1}!  Please reload the asset.", animationName, m_FilePath);
+
+		HZ_CORE_ASSERT(animationIndex < m_Animations.size(), "Animation index out of range!");
+		HZ_CORE_ASSERT(m_Animations[animationIndex], "Attempted to access null animation!");
+		if (animationIndex < m_Animations.size())
+		{
+			return m_Animations[animationIndex].get();
+		}
 		return nullptr;
 	}
 
 
-	Mesh::Mesh(AssetHandle meshSource, bool generateColliders)
+	Mesh::Mesh(Ref<MeshSource> meshSource)
 		: m_MeshSource(meshSource)
-		, m_GenerateColliders(generateColliders)
 	{
 		// Generate a new asset handle
 		Handle = {};
 
-		// Make sure to create material table even if meshsource asset cannot be retrieved
-		// (this saves having to keep checking mesh->m_Materials is not null elsewhere in the code)
-		m_Materials = Ref<MaterialTable>::Create(0);
+		SetSubmeshes({});
 
-		if (auto meshSourceAsset = AssetManager::GetAsset<MeshSource>(meshSource); meshSourceAsset)
-		{
-			SetSubmeshes({}, meshSourceAsset);
-
-			const std::vector<AssetHandle>& meshMaterials = meshSourceAsset->GetMaterials();
-			for (size_t i = 0; i < meshMaterials.size(); i++)
-				m_Materials->SetMaterial((uint32_t)i, meshMaterials[i]);
-		}
+		const auto& meshMaterials = meshSource->GetMaterials();
+		m_Materials = Ref<MaterialTable>::Create((uint32_t)meshMaterials.size());
+		for (size_t i = 0; i < meshMaterials.size(); i++)
+			m_Materials->SetMaterial((uint32_t)i, AssetManager::CreateMemoryOnlyAsset<MaterialAsset>(meshMaterials[i]));
 	}
 
-	Mesh::Mesh(AssetHandle meshSource, const std::vector<uint32_t>& submeshes, bool generateColliders)
+	Mesh::Mesh(Ref<MeshSource> meshSource, const std::vector<uint32_t>& submeshes)
 		: m_MeshSource(meshSource)
-		, m_GenerateColliders(generateColliders)
 	{
 		// Generate a new asset handle
 		Handle = {};
 
-		// Make sure to create material table even if meshsource asset cannot be retrieved
-		// (this saves having to keep checking mesh->m_Materials is not null elsewhere in the code)
-		m_Materials = Ref<MaterialTable>::Create(0);
+		SetSubmeshes(submeshes);
 
-		if (auto meshSourceAsset = AssetManager::GetAsset<MeshSource>(meshSource); meshSourceAsset)
-		{
-			SetSubmeshes(submeshes, meshSourceAsset);
-
-			const std::vector<AssetHandle>& meshMaterials = meshSourceAsset->GetMaterials();
-			for (size_t i = 0; i < meshMaterials.size(); i++)
-				m_Materials->SetMaterial((uint32_t)i, meshMaterials[i]);
-		}
+		const auto& meshMaterials = meshSource->GetMaterials();
+		m_Materials = Ref<MaterialTable>::Create((uint32_t)meshMaterials.size());
+		for (size_t i = 0; i < meshMaterials.size(); i++)
+			m_Materials->SetMaterial((uint32_t)i, AssetManager::CreateMemoryOnlyAsset<MaterialAsset>(meshMaterials[i]));
 	}
 
-	void Mesh::OnDependencyUpdated(AssetHandle handle)
+	Mesh::Mesh(const Ref<Mesh>& other)
+		: m_MeshSource(other->m_MeshSource), m_Materials(other->m_Materials)
 	{
-		Project::GetAssetManager()->ReloadDataAsync(Handle);
+		SetSubmeshes(other->m_Submeshes);
 	}
 
-	void Mesh::SetSubmeshes(const std::vector<uint32_t>& submeshes, Ref<MeshSource> meshSource)
+	Mesh::~Mesh()
+	{
+	}
+
+	void Mesh::SetSubmeshes(const std::vector<uint32_t>& submeshes)
 	{
 		if (!submeshes.empty())
 		{
@@ -222,7 +187,7 @@ namespace Hazel
 		}
 		else
 		{
-			const auto& submeshes = meshSource->GetSubmeshes();
+			const auto& submeshes = m_MeshSource->GetSubmeshes();
 			m_Submeshes.resize(submeshes.size());
 			for (uint32_t i = 0; i < submeshes.size(); i++)
 				m_Submeshes[i] = i;
@@ -233,56 +198,47 @@ namespace Hazel
 	// StaticMesh //////////////////////////////////////////
 	////////////////////////////////////////////////////////
 
-	StaticMesh::StaticMesh(AssetHandle meshSource, bool generateColliders)
+	StaticMesh::StaticMesh(Ref<MeshSource> meshSource)
 		: m_MeshSource(meshSource)
-		, m_GenerateColliders(generateColliders)
 	{
 		// Generate a new asset handle
 		Handle = {};
 
-		// Make sure to create material table even if meshsource asset cannot be retrieved
-		// (this saves having to keep checking mesh->m_Materials is not null elsewhere in the code)
-		m_Materials = Ref<MaterialTable>::Create(0);
+		SetSubmeshes({});
 
-		if(auto meshSourceAsset = AssetManager::GetAsset<MeshSource>(meshSource); meshSourceAsset)
-		{
-			SetSubmeshes({}, meshSourceAsset);
-
-			const std::vector<AssetHandle>& meshMaterials = meshSourceAsset->GetMaterials();
-			uint32_t numMaterials = static_cast<uint32_t>(meshMaterials.size());
-			for (uint32_t i = 0; i < numMaterials; i++)
-				m_Materials->SetMaterial(i, meshMaterials[i]);
-		}
+		const auto& meshMaterials = meshSource->GetMaterials();
+		uint32_t numMaterials = static_cast<uint32_t>(meshMaterials.size());
+		m_Materials = Ref<MaterialTable>::Create(numMaterials);
+		for (uint32_t i = 0; i < numMaterials; i++)
+			m_Materials->SetMaterial(i, AssetManager::CreateMemoryOnlyAsset<MaterialAsset>(meshMaterials[i]));
 	}
 
-	StaticMesh::StaticMesh(AssetHandle meshSource, const std::vector<uint32_t>& submeshes, bool generateColliders)
+	StaticMesh::StaticMesh(Ref<MeshSource> meshSource, const std::vector<uint32_t>& submeshes)
 		: m_MeshSource(meshSource)
-		, m_GenerateColliders(generateColliders)
 	{
 		// Generate a new asset handle
 		Handle = {};
 
-		// Make sure to create material table even if meshsource asset cannot be retrieved
-		// (this saves having to keep checking mesh->m_Materials is not null elsewhere in the code)
-		m_Materials = Ref<MaterialTable>::Create(0);
+		SetSubmeshes(submeshes);
 
-		if (auto meshSourceAsset = AssetManager::GetAsset<MeshSource>(meshSource); meshSourceAsset)
-		{
-			SetSubmeshes(submeshes, meshSourceAsset);
-
-			const std::vector<AssetHandle>& meshMaterials = meshSourceAsset->GetMaterials();
-			uint32_t numMaterials = static_cast<uint32_t>(meshMaterials.size());
-			for (uint32_t i = 0; i < numMaterials; i++)
-				m_Materials->SetMaterial(i, meshMaterials[i]);
-		}
+		const auto& meshMaterials = meshSource->GetMaterials();
+		uint32_t numMaterials = static_cast<uint32_t>(meshMaterials.size());
+		m_Materials = Ref<MaterialTable>::Create(numMaterials);
+		for (uint32_t i = 0; i < numMaterials; i++)
+			m_Materials->SetMaterial(i, AssetManager::CreateMemoryOnlyAsset<MaterialAsset>(meshMaterials[i]));
 	}
 
-	void StaticMesh::OnDependencyUpdated(AssetHandle)
+	StaticMesh::StaticMesh(const Ref<StaticMesh>& other)
+		: m_MeshSource(other->m_MeshSource), m_Materials(other->m_Materials)
 	{
-		Project::GetAssetManager()->ReloadDataAsync(Handle);
+		SetSubmeshes(other->m_Submeshes);
 	}
 
-	void StaticMesh::SetSubmeshes(const std::vector<uint32_t>& submeshes, Ref<MeshSource> meshSource)
+	StaticMesh::~StaticMesh()
+	{
+	}
+
+	void StaticMesh::SetSubmeshes(const std::vector<uint32_t>& submeshes)
 	{
 		if (!submeshes.empty())
 		{
@@ -290,7 +246,7 @@ namespace Hazel
 		}
 		else
 		{
-			const auto& submeshes = meshSource->GetSubmeshes();
+			const auto& submeshes = m_MeshSource->GetSubmeshes();
 			m_Submeshes.resize(submeshes.size());
 			for (uint32_t i = 0; i < submeshes.size(); i++)
 				m_Submeshes[i] = i;

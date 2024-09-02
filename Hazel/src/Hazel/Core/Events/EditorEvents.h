@@ -22,23 +22,23 @@ namespace Hazel {
 		EVENT_CLASS_CATEGORY(EventCategoryEditor)
 	};
 
-	class AssetReloadedEvent : public Event
+	class AnimationGraphCompiledEvent : public Event
 	{
 	public:
-		AssetReloadedEvent(AssetHandle assetHandle) : AssetHandle(assetHandle) {}
+		AnimationGraphCompiledEvent(AssetHandle animationGraphHandle) : AnimationGraphHandle(animationGraphHandle) {}
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "AssetReloadedEvent";
+			ss << "AnimationGraphCompiledEvent";
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(AssetReloaded)
+		EVENT_CLASS_TYPE(AnimationGraphCompiled)
 			EVENT_CLASS_CATEGORY(EventCategoryEditor)
 
 	public:
-		AssetHandle AssetHandle;
+		AssetHandle AnimationGraphHandle;
 	};
 
 }

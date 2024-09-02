@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Hazel
 {
@@ -6,85 +10,53 @@ namespace Hazel
 	{
 		public Noise(int seed = 8)
 		{
-			unsafe { m_UnmanagedInstance = InternalCalls.Noise_Constructor(seed); }
+			m_UnmanagedInstance = InternalCalls.Noise_Constructor(seed);
 		}
 
 		~Noise()
 		{
-			unsafe { InternalCalls.Noise_Destructor(m_UnmanagedInstance); }
+			InternalCalls.Noise_Destructor(m_UnmanagedInstance);
 		}
 
 		public float Frequency
 		{
-			get
-			{
-				unsafe { return InternalCalls.Noise_GetFrequency(m_UnmanagedInstance); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.Noise_SetFrequency(m_UnmanagedInstance, value); }
-			}
+			get => InternalCalls.Noise_GetFrequency(m_UnmanagedInstance);
+			set => InternalCalls.Noise_SetFrequency(m_UnmanagedInstance, value);
 		}
 
 		public int Octaves
 		{
-			get
-			{
-				unsafe { return InternalCalls.Noise_GetFractalOctaves(m_UnmanagedInstance); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.Noise_SetFractalOctaves(m_UnmanagedInstance, value); }
-			}
+			get => InternalCalls.Noise_GetFractalOctaves(m_UnmanagedInstance);
+			set => InternalCalls.Noise_SetFractalOctaves(m_UnmanagedInstance, value);
 		}
 
 		public float Lacunarity
 		{
-			get
-			{
-				unsafe { return InternalCalls.Noise_GetFractalLacunarity(m_UnmanagedInstance); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.Noise_SetFractalLacunarity(m_UnmanagedInstance, value); }
-			}
-		}
-		
-		public float Get(float x, float y)
-		{
-			unsafe { return InternalCalls.Noise_Get(m_UnmanagedInstance, x, y); }
+			get => InternalCalls.Noise_GetFractalLacunarity(m_UnmanagedInstance);
+			set => InternalCalls.Noise_SetFractalLacunarity(m_UnmanagedInstance, value);
 		}
 
 		public float Gain
 		{
-			get
-			{
-				unsafe { return InternalCalls.Noise_GetFractalGain(m_UnmanagedInstance); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.Noise_SetFractalGain(m_UnmanagedInstance, value); }
-			}
+			get => InternalCalls.Noise_GetFractalGain(m_UnmanagedInstance);
+			set => InternalCalls.Noise_SetFractalGain(m_UnmanagedInstance, value);
 		}
 
-		public static int StaticSeed
+		public float Get(float x, float y)
 		{
-			set
-			{
-				unsafe { InternalCalls.Noise_SetSeed(value); }
-			}
+			return InternalCalls.Noise_Get(m_UnmanagedInstance, x, y);
 		}
 
 		internal IntPtr m_UnmanagedInstance;
 
-		public static float Perlin(float x, float y)
+		public static int StaticSeed
 		{
-			unsafe { return InternalCalls.Noise_Perlin(x, y); }
+			set => InternalCalls.Noise_SetSeed(value);
 		}
 
+		public static float Perlin(float x, float y)
+		{
+			return InternalCalls.Noise_Perlin(x, y);
+		}
 	}
 }

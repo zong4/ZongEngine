@@ -77,7 +77,6 @@ namespace Hazel {
 	{
 		VkBuffer buffer = m_VulkanBuffer;
 		VmaAllocation allocation = m_MemoryAllocation;
-
 		Renderer::SubmitResourceFree([buffer, allocation]()
 		{
 			VulkanAllocator allocator("IndexBuffer");

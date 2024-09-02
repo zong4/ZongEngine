@@ -1,13 +1,12 @@
 #include "hzpch.h"
 #include "MeshColliderEditor.h"
-
 #include "Hazel/Asset/AssetImporter.h"
 #include "Hazel/Renderer/Renderer.h"
+//#include "Hazel/Physics/3D/CookingFactory.h"
 #include "Hazel/Physics/PhysicsSystem.h"
 #include "Hazel/Editor/EditorResources.h"
 #include "Hazel/Debug/Profiler.h"
 
-#include <format>
 #include <stack>
 
 namespace Hazel {
@@ -105,7 +104,7 @@ namespace Hazel {
 		auto& skyLight = tabData->SkyLight.AddComponent<SkyLightComponent>();
 		skyLight.DynamicSky = true;
 		Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(skyLight.TurbidityAzimuthInclination.x, skyLight.TurbidityAzimuthInclination.y, skyLight.TurbidityAzimuthInclination.z);
-		skyLight.SceneEnvironment = AssetManager::AddMemoryOnlyAsset(Ref<Environment>::Create(preethamEnv, preethamEnv));
+		skyLight.SceneEnvironment = AssetManager::CreateMemoryOnlyAsset<Environment>(preethamEnv, preethamEnv);
 
 		tabData->DirectionalLight = tabData->ViewportScene->CreateEntity("DirectionalLight");
 		tabData->DirectionalLight.AddComponent<DirectionalLightComponent>();
@@ -116,8 +115,8 @@ namespace Hazel {
 		rendererOptions.PhysicsColliderMode = SceneRendererOptions::PhysicsColliderView::All;
 		rendererOptions.ShowPhysicsColliders = true;
 
-		tabData->ViewportPanelName = std::format("Viewport##{}-{}", tabData->Name, "Viewport");
-		tabData->SettingsPanelName = std::format("Settings##{}-{}", tabData->Name, "Settings");
+		tabData->ViewportPanelName = fmt::format("Viewport##{}-{}", tabData->Name, "Viewport");
+		tabData->SettingsPanelName = fmt::format("Settings##{}-{}", tabData->Name, "Settings");
 		tabData->ResetDockspace = true;
 
 		m_TabToFocus = name;
@@ -256,7 +255,7 @@ namespace Hazel {
 	void MeshColliderEditor::RenderTab(const std::shared_ptr<MeshColliderTabData>& tabData)
 	{
 		HZ_PROFILE_FUNC();
-		const std::string dockspaceName = std::format("##{}-DockSpace", tabData->Name);
+		const std::string dockspaceName = fmt::format("##{}-DockSpace", tabData->Name);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 2.0f));
@@ -520,7 +519,7 @@ namespace Hazel {
 
 		if (colliderMetadata.Type == AssetType::StaticMesh)
 		{
-			tabData->ColliderEntity.RemoveComponentIfExists<SubmeshComponent>();
+			tabData->ColliderEntity.RemoveComponentIfExists<MeshComponent>();
 			tabData->ColliderEntity.RemoveComponentIfExists<StaticMeshComponent>();
 			tabData->ColliderEntity.AddComponent<StaticMeshComponent>(tabData->ColliderAsset->ColliderMesh);
 
@@ -534,14 +533,14 @@ namespace Hazel {
 			tabData->ColliderEntity.AddComponent<MeshComponent>(tabData->ColliderAsset->ColliderMesh);*/
 
 			tabData->ViewportScene->DestroyEntity(tabData->ColliderEntity);
-			tabData->ColliderEntity = tabData->ViewportScene->InstantiateMesh(AssetManager::GetAsset<Mesh>(tabData->ColliderAsset->ColliderMesh));
+			tabData->ColliderEntity = tabData->ViewportScene->InstantiateMesh(AssetManager::GetAsset<Mesh>(tabData->ColliderAsset->ColliderMesh), false);
 
-			auto view = tabData->ViewportScene->GetAllEntitiesWith<SubmeshComponent>();
+			auto view = tabData->ViewportScene->GetAllEntitiesWith<MeshComponent>();
 			for (auto enttID : view)
 			{
 				Entity entity = { enttID, tabData->ViewportScene.Raw() };
 				auto& meshCollider = entity.AddComponent<MeshColliderComponent>(tabData->ColliderAsset->Handle);
-				meshCollider.SubmeshIndex = entity.GetComponent<SubmeshComponent>().SubmeshIndex;
+				meshCollider.SubmeshIndex = entity.GetComponent<MeshComponent>().SubmeshIndex;
 			}
 		}
 	}

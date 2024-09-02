@@ -5,6 +5,7 @@
 #include "Hazel/Core/Timer.h"
 #include "Hazel/Core/Window.h"
 #include "Hazel/Core/LayerStack.h"
+#include "Hazel/Script/ScriptEngine.h"
 #include "Hazel/Renderer/RendererConfig.h"
 
 #include "Hazel/Core/ApplicationSettings.h"
@@ -12,7 +13,7 @@
 #include "Hazel/Core/RenderThread.h"
 
 #include "Hazel/ImGui/ImGuiLayer.h"
-#include <deque>
+#include <queue>
 
 namespace Hazel {
 
@@ -27,7 +28,7 @@ namespace Hazel {
 		bool StartMaximized = true;
 		bool Resizable = true;
 		bool EnableImGui = true;
-		//ScriptEngineConfig ScriptConfig;
+		ScriptEngineConfig ScriptConfig;
 		RendererConfig RenderConfig;
 		ThreadingPolicy CoreThreadingPolicy = ThreadingPolicy::MultiThreaded;
 		std::filesystem::path IconPath;
@@ -74,23 +75,14 @@ namespace Hazel {
 		template<typename Func>
 		void QueueEvent(Func&& func)
 		{
-			std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
-			m_EventQueue.emplace_back(true, func);
+			m_EventQueue.push(func);
 		}
 
-		// Creates & Dispatches an event either immediately, or adds it to an event queue which will be processed after the next call
-		// to SyncEvents().
-		// Waiting until after next sync gives the application some control over _when_ the events will be processed.
-		// An example of where this is useful:
-		// Suppose an asset thread is loading assets and dispatching "AssetReloaded" events.
-		// We do not want those events to be processed until the asset thread has synced its assets back to the main thread.
+		/// Creates & Dispatches an event either immediately, or adds it to an event queue which will be proccessed at the end of each frame
 		template<typename TEvent, bool DispatchImmediately = false, typename... TEventArgs>
 		void DispatchEvent(TEventArgs&&... args)
 		{
-#ifndef HZ_COMPILER_GCC
-			// TODO(Emily): GCC causes this to fail for AnimationGraphCompiledEvent for some reason. Investigate.
 			static_assert(std::is_assignable_v<Event, TEvent>);
-#endif
 
 			std::shared_ptr<TEvent> event = std::make_shared<TEvent>(std::forward<TEventArgs>(args)...);
 			if constexpr (DispatchImmediately)
@@ -100,13 +92,9 @@ namespace Hazel {
 			else
 			{
 				std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
-				m_EventQueue.emplace_back(false, [event](){ Application::Get().OnEvent(*event); });
+				m_EventQueue.push([event](){ Application::Get().OnEvent(*event); });
 			}
 		}
-
-		// Mark all waiting events as sync'd.
-		// Thus allowing them to be processed on next call to ProcessEvents()
-		void SyncEvents();
 
 		inline Window& GetWindow() { return *m_Window; }
 		
@@ -117,7 +105,6 @@ namespace Hazel {
 		float GetTime() const; // TODO: This should be in "Platform"
 
 		static std::thread::id GetMainThreadID();
-		static bool IsMainThread();
 
 		static const char* GetConfigurationName();
 		static const char* GetPlatformName();
@@ -159,7 +146,7 @@ namespace Hazel {
 		RenderThread m_RenderThread;
 
 		std::mutex m_EventQueueMutex;
-		std::deque<std::pair<bool, std::function<void()>>> m_EventQueue;
+		std::queue<std::function<void()>> m_EventQueue;
 		std::vector<EventCallbackFn> m_EventCallbacks;
 
 		float m_LastFrameTime = 0.0f;

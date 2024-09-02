@@ -1,8 +1,7 @@
 #include "hzpch.h"
-#include "StateMachineNodes.h"
+#include "NodeDescriptors.h"
 
 #include "Hazel/Animation/Animation.h"
-#include "Hazel/Animation/BlendUtils.h"
 #include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Debug/Profiler.h"
 
@@ -11,17 +10,17 @@
 
 namespace Hazel::AnimationGraph {
 
-	TransitionNode::TransitionNode(std::string_view dbgName, UUID id) : StateMachineNodeProcessor(dbgName, id)
+	TransitionNode::TransitionNode(std::string_view dbgName, UUID id) : AnimationNodeProcessor(dbgName, id)
 	{
 		EndpointUtilities::RegisterEndpoints(this);
 	}
 
 
-	void TransitionNode::Init(const Skeleton* skeleton)
+	void TransitionNode::Init()
 	{
 		HZ_CORE_ASSERT(m_ConditionGraph, "No condition graph set");
 		EndpointUtilities::InitializeInputs(this);
-		m_ConditionGraph->Init(skeleton);
+		m_ConditionGraph->Init();
 	}
 
 
@@ -83,15 +82,20 @@ namespace Hazel::AnimationGraph {
 
 	void TransitionNode::Blend(const choc::value::ValueView source, const choc::value::ValueView destination, float w)
 	{
-		const Pose* poseA = static_cast<const Pose*>(source.getRawData());
-		const Pose* poseB = static_cast<const Pose*>(destination.getRawData());
+		const Pose* poseA = reinterpret_cast<const Pose*>(source.getRawData());
+		const Pose* poseB = reinterpret_cast<const Pose*>(destination.getRawData());
 		HZ_CORE_ASSERT(poseA->NumBones == poseB->NumBones, "Poses have different number of bones");
 
-		Pose* result = static_cast<Pose*>(out_Pose.getRawData());
-
-		Utils::Animation::BlendBoneTransforms(poseA, poseB, w, result);
-		Utils::Animation::BlendRootMotion(poseA, poseB, w, result);
-
+		Pose* result = reinterpret_cast<Pose*>(out_Pose.getRawData());
+		for (uint32_t i = 0, N = glm::min(poseA->NumBones, poseB->NumBones); i < N; i++)
+		{
+			result->BoneTransforms[i].Translation = glm::mix(poseA->BoneTransforms[i].Translation, poseB->BoneTransforms[i].Translation, w);
+			result->BoneTransforms[i].Rotation = glm::slerp(poseA->BoneTransforms[i].Rotation, poseB->BoneTransforms[i].Rotation, w);
+			result->BoneTransforms[i].Scale = glm::mix(poseA->BoneTransforms[i].Scale, poseB->BoneTransforms[i].Scale, w);
+		}
+		result->RootMotion.Translation = glm::mix(poseA->RootMotion.Translation, poseB->RootMotion.Translation, w);
+		result->RootMotion.Rotation = glm::slerp(poseA->RootMotion.Rotation, poseB->RootMotion.Rotation, w);
+		result->RootMotion.Scale = glm::mix(poseA->RootMotion.Scale, poseB->RootMotion.Scale, w);
 		result->AnimationDuration = glm::mix(poseA->AnimationDuration, poseB->AnimationDuration, w);
 		result->AnimationTimePos = glm::mix(poseA->AnimationTimePos, poseB->AnimationTimePos, w);
 		result->NumBones = poseA->NumBones;
@@ -130,6 +134,7 @@ namespace Hazel::AnimationGraph {
 		{
 			m_DestinationState->SetAnimationTimePos(0.0f);
 		}
+
 	}
 
 
@@ -139,22 +144,20 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void StateMachine::Init(const Skeleton* skeleton)
+	void StateMachine::Init()
 	{
 		EndpointUtilities::InitializeInputs(this);
 
 		m_CurrentState = m_States.front().get();
 		for (auto& transition : m_Transitions)
 		{
-			transition->Init(skeleton);
+			transition->Init();
 		}
 
 		for (auto& state : m_States)
 		{
-			state->Init(skeleton);
+			state->Init();
 		}
-
-		m_CurrentState->Process(0.0f);
 	}
 
 
@@ -210,7 +213,7 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void StateMachine::SetCurrentState(StateMachineNodeProcessor* node)
+	void StateMachine::SetCurrentState(AnimationNodeProcessor* node)
 	{
 		m_CurrentState = node;
 	}
@@ -222,13 +225,13 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void State::Init(const Skeleton* skeleton)
+	void State::Init()
 	{
 		HZ_CORE_ASSERT(m_AnimationGraph, "No animation graph set");
 		EndpointUtilities::InitializeInputs(this);
 		for(auto& transition : m_Transitions)
 		{
-			transition->Init(skeleton);
+			transition->Init();
 		}
 		m_AnimationGraph->Init();
 	}
@@ -283,9 +286,7 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	QuickState::QuickState(std::string_view dbgName, UUID id)
-	: StateBase(dbgName, id)
-	, m_TrackWriter(static_cast<Pose*>(out_Pose.getRawData()))
+	QuickState::QuickState(std::string_view dbgName, UUID id) : StateBase(dbgName, id)
 	{
 		EndpointUtilities::RegisterEndpoints(this);
 	}
@@ -314,17 +315,22 @@ namespace Hazel::AnimationGraph {
 	{
 		HZ_PROFILE_FUNC();
 
-		Pose* pose = static_cast<Pose*>(out_Pose.getRawData());
+		Pose* pose = reinterpret_cast<Pose*>(out_Pose.getRawData());
 
 		if (m_PreviousAnimation != *in_Animation)
 		{
-			if(auto animationAsset = AssetManager::GetAsset<AnimationAsset>(*in_Animation); animationAsset)
+			auto animationAsset = AssetManager::GetAsset<AnimationAsset>(*in_Animation);
+			if (animationAsset && animationAsset->IsValid())
 			{
 				m_Animation = animationAsset->GetAnimation();
 			}
 			if (m_Animation)
 			{
-				context.initialize(*static_cast<const acl::compressed_tracks*>(m_Animation->GetData()));
+				m_TranslationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetTranslationKeys());
+				m_RotationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetRotationKeys());
+				m_ScaleCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetScaleKeys());
+				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].FrameTime == 0.0f);
+				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].Track == 0);
 				m_RootTranslationStart = m_Animation->GetRootTranslationStart();
 				m_RootRotationStart = m_Animation->GetRootRotationStart();
 				m_RootTranslationEnd = m_Animation->GetRootTranslationEnd();
@@ -348,8 +354,13 @@ namespace Hazel::AnimationGraph {
 			m_AnimationTimePos += timestep / m_Animation->GetDuration();
 			m_AnimationTimePos -= floorf(m_AnimationTimePos);
 
-			context.seek(m_AnimationTimePos * pose->AnimationDuration, acl::sample_rounding_policy::none);
-			context.decompress_tracks(m_TrackWriter);
+			m_TranslationCache.Step(m_AnimationTimePos, m_Animation->GetTranslationKeys());
+			m_RotationCache.Step(m_AnimationTimePos, m_Animation->GetRotationKeys());
+			m_ScaleCache.Step(m_AnimationTimePos, m_Animation->GetScaleKeys());
+
+			m_TranslationCache.Interpolate<0>(m_AnimationTimePos, &pose->BoneTransforms[0], [](const glm::vec3& a, const glm::vec3& b, const float t) {return glm::mix(a, b, t); });
+			m_RotationCache.Interpolate<1>(m_AnimationTimePos, &pose->BoneTransforms[0], [](const glm::quat& a, const glm::quat& b, const float t) {return glm::slerp(a, b, t); });
+			m_ScaleCache.Interpolate<2>(m_AnimationTimePos, &pose->BoneTransforms[0], [](const glm::vec3& a, const glm::vec3& b, const float t) {return glm::mix(a, b, t); });
 
 			// Work out root motion by looking at change in pose of root bone.
 			// Bear in mind some tricky cases:
@@ -397,7 +408,7 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void QuickState::Init(const Skeleton* skeleton)
+	void QuickState::Init()
 	{
 		EndpointUtilities::InitializeInputs(this);
 		m_PreviousAnimation = 0;
@@ -410,7 +421,7 @@ namespace Hazel::AnimationGraph {
 
 		for (auto& transition : m_Transitions)
 		{
-			transition->Init(skeleton);
+			transition->Init();
 		}
 	}
 

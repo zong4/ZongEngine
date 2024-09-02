@@ -41,7 +41,7 @@ namespace Hazel {
 
 		if (!selectedPhysicalDevice)
 		{
-			HZ_CORE_INFO_TAG("Renderer", "Could not find discrete GPU.");
+			HZ_CORE_TRACE_TAG("Renderer", "Could not find discrete GPU.");
 			selectedPhysicalDevice = physicalDevices.back();
 		}
 
@@ -64,11 +64,11 @@ namespace Hazel {
 			std::vector<VkExtensionProperties> extensions(extCount);
 			if (vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
 			{
-				HZ_CORE_INFO_TAG("Renderer", "Selected physical device has {0} extensions", extensions.size());
+				HZ_CORE_TRACE_TAG("Renderer", "Selected physical device has {0} extensions", extensions.size());
 				for (const auto& ext : extensions)
 				{
 					m_SupportedExtensions.emplace(ext.extensionName);
-					HZ_CORE_INFO_TAG("Renderer", "  {0}", ext.extensionName);
+					HZ_CORE_TRACE_TAG("Renderer", "  {0}", ext.extensionName);
 				}
 			}
 		}
@@ -328,22 +328,6 @@ namespace Hazel {
 		vkDestroyDevice(m_LogicalDevice, nullptr);
 	}
 
-	void VulkanDevice::LockQueue(bool compute)
-	{
-		if (compute)
-			m_ComputeQueueMutex.lock();
-		else 
-			m_GraphicsQueueMutex.lock();
-	}
-
-	void VulkanDevice::UnlockQueue(bool compute)
-	{
-		if (compute)
-			m_ComputeQueueMutex.unlock();
-		else
-			m_GraphicsQueueMutex.unlock();
-	}
-
 	VkCommandBuffer VulkanDevice::GetCommandBuffer(bool begin, bool compute)
 	{
 		return GetOrCreateThreadLocalCommandPool()->AllocateCommandBuffer(begin, compute);
@@ -453,7 +437,6 @@ namespace Hazel {
 	void VulkanCommandPool::FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue)
 	{
 		auto device = VulkanContext::GetCurrentDevice();
-		HZ_CORE_VERIFY(queue == device->GetGraphicsQueue());
 		auto vulkanDevice = device->GetVulkanDevice();
 
 		const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
@@ -475,12 +458,11 @@ namespace Hazel {
 		VK_CHECK_RESULT(vkCreateFence(vulkanDevice, &fenceCreateInfo, nullptr, &fence));
 
 		{
-			device->LockQueue();
+			static std::mutex submissionLock;
+			std::scoped_lock<std::mutex> lock(submissionLock);
 
 			// Submit to the queue
 			VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, fence));
-			
-			device->UnlockQueue();
 		}
 		// Wait for the fence to signal that command buffer has finished executing
 		VK_CHECK_RESULT(vkWaitForFences(vulkanDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));

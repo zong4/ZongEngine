@@ -31,17 +31,20 @@ filter "system:windows"
 
 	filter { "system:windows", "configurations:Debug" }
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll "%{cfg.targetdir}"'
+			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
 		}
 
 	filter { "system:windows", "configurations:Release or configurations:Dist" }
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"'
+			'{COPY} "../Hazel/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
 		}
 
 	filter { "system:windows", "configurations:Debug-AS" }	
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll "%{cfg.targetdir}"'
+			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll "%{cfg.targetdir}"',
+			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
 		}
 
 	filter "system:linux"

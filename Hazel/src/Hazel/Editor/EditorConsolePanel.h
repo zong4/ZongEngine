@@ -20,10 +20,6 @@ namespace Hazel {
 		virtual void OnImGuiRender(bool& isOpen) override;
 		virtual void OnProjectChanged(const Ref<Project>& project) override;
 
-		void Focus();
-
-		void SetProgress(const std::string& label, float progress);
-		void ClearProgress();
 	private:
 		void RenderMenu(const ImVec2& size);
 		void RenderConsole(const ImVec2& size);
@@ -35,7 +31,6 @@ namespace Hazel {
 		static void PushMessage(const ConsoleMessage& message);
 
 	private:
-		const char* m_PanelName = "Log";
 		bool m_ClearOnPlay = true;
 
 		std::mutex m_MessageBufferMutex;
@@ -48,9 +43,6 @@ namespace Hazel {
 		int16_t m_MessageFilters = (int16_t)ConsoleMessageFlags::All;
 
 		bool m_DetailedPanelOpen = false;
-
-		std::string m_ProgressLabel;
-		float m_Progress = 0.0f;
 	private:
 		friend class EditorConsoleSink;
 	};

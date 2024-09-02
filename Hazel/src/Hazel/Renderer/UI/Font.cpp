@@ -3,11 +3,9 @@
 
 #include "MSDFData.h"
 
-#include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Project/Project.h"
 #include "Hazel/Utilities/FileSystem.h"
-
-#include <format>
+#include "Hazel/Asset/AssetManager.h"
 
 namespace Hazel {
 
@@ -66,7 +64,7 @@ namespace Hazel {
 
 	static bool TryReadFontAtlasFromCache(const std::string& fontName, float fontSize, AtlasHeader& header, void*& pixels, Buffer& storageBuffer)
 	{
-		std::string filename = std::format("{0}-{1}.hfa", fontName, fontSize);
+		std::string filename = fmt::format("{0}-{1}.hfa", fontName, fontSize);
 		std::filesystem::path filepath = Utils::GetCacheDirectory() / filename;
 
 		if (std::filesystem::exists(filepath))
@@ -83,7 +81,7 @@ namespace Hazel {
 	{
 		Utils::CreateCacheDirectoryIfNeeded();
 
-		std::string filename = std::format("{0}-{1}.hfa", fontName, fontSize);
+		std::string filename = fmt::format("{0}-{1}.hfa", fontName, fontSize);
 		std::filesystem::path filepath = Utils::GetCacheDirectory() / filename;
 
 		std::ofstream stream(filepath, std::ios::binary | std::ios::trunc);
@@ -258,11 +256,11 @@ namespace Hazel {
 		}
 
 		HZ_CORE_ASSERT(glyphsLoaded >= 0);
-		HZ_CORE_TRACE_TAG("Renderer", "Loaded geometry of {} out of {} glyphs", glyphsLoaded, (int)charset.size());
+		HZ_CORE_TRACE_TAG("Renderer", "Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, (int)charset.size());
 		// List missing glyphs
 		if (glyphsLoaded < (int)charset.size())
 		{
-			HZ_CORE_WARN_TAG("Renderer", "Font {} is missing {} {}", m_Name, (int)charset.size() - glyphsLoaded, fontInput.glyphIdentifierType == GlyphIdentifierType::UNICODE_CODEPOINT ? "codepoints" : "glyphs");
+			HZ_CORE_WARN_TAG("Renderer", "Missing {0} {1}", (int)charset.size() - glyphsLoaded, fontInput.glyphIdentifierType == GlyphIdentifierType::UNICODE_CODEPOINT ? "codepoints" : "glyphs");
 		}
 
 		if (fontInput.fontName)

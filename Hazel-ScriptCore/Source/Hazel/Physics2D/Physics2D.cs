@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using Coral.Managed.Interop;
-
 namespace Hazel
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -11,47 +9,44 @@ namespace Hazel
 		public Vector2 Origin;
 		public Vector2 Direction;
 		public float MaxDistance;
-		private readonly float Padding; // NOTE(Peter): Manual padding because C# doesn't fully respect the 8-byte alignment here
-		public NativeArray<ReflectionType> RequiredComponents;
+		public Type[] RequiredComponents;
 	}
 
-	public struct RaycastHit2D
+	// NOTE(Peter): This can be converted to a struct (would make it less memory intensive)
+	public class RaycastHit2D
 	{
-		public readonly ulong EntityID;
-		public readonly Vector2 Position;
-		public readonly Vector2 Normal;
-		public readonly float Distance;
+		public Entity Entity { get; internal set; }
+		public Vector2 Position { get; internal set; }
+		public Vector2 Normal { get; internal set; }
+		public float Distance { get; internal set; }
 
-		public Entity? Entity => Scene.FindEntityByID(EntityID);
+		internal RaycastHit2D()
+		{
+			Entity = null;
+			Position = Vector2.Zero;
+			Normal = Vector2.Zero;
+			Distance = 0.0f;
+		}
+
+		internal RaycastHit2D(Entity entity, Vector2 position, Vector2 normal, float distance)
+		{
+			Entity = entity;
+			Position = position;
+			Normal = normal;
+			Distance = distance;
+		}
 	}
 
 	public static class Physics2D
 	{
-		public static RaycastHit2D[] Raycast2D(RaycastData2D raycastData)
+		public static RaycastHit2D[] Raycast2D(RaycastData2D raycastData) => InternalCalls.Physics_Raycast2D(ref raycastData);
+		public static RaycastHit2D[] Raycast2D(Vector2 origin, Vector2 direction, float maxDistance, params Type[] componentFilters)
 		{
-			unsafe { return InternalCalls.Physics_Raycast2D(&raycastData); }
-		}
-
-		public static RaycastHit2D[] Raycast2D(Vector2 origin, Vector2 direction, float maxDistance, params ReflectionType[] componentFilters)
-		{
-			Console.WriteLine($"Origin: {Marshal.OffsetOf<RaycastData2D>("Origin")}");
-			Console.WriteLine($"Direction: {Marshal.OffsetOf<RaycastData2D>("Direction")}");
-			Console.WriteLine($"MaxDistance: {Marshal.OffsetOf<RaycastData2D>("MaxDistance")}");
-			Console.WriteLine($"RequiredComponents: {Marshal.OffsetOf<RaycastData2D>("RequiredComponents")}");
-
 			s_RaycastData2D.Origin = origin;
 			s_RaycastData2D.Direction = direction;
 			s_RaycastData2D.MaxDistance = maxDistance;
 			s_RaycastData2D.RequiredComponents = componentFilters;
-
-			unsafe
-			{
-				fixed (RaycastData2D* data = &s_RaycastData2D)
-				{
-					using var result = InternalCalls.Physics_Raycast2D(data);
-					return result;
-				}
-			}
+			return InternalCalls.Physics_Raycast2D(ref s_RaycastData2D);
 		}
 
 		private static RaycastData2D s_RaycastData2D;

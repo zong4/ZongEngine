@@ -1,13 +1,13 @@
 #include "hzpch.h"
 #include "VulkanComputePipeline.h"
 
-#include "Hazel/Core/Timer.h"
+#include "Hazel/Renderer/Renderer.h"
+
 #include "Hazel/Platform/Vulkan/VulkanContext.h"
 #include "Hazel/Platform/Vulkan/VulkanDiagnostics.h"
 #include "Hazel/Platform/Vulkan/VulkanStorageBuffer.h"
-#include "Hazel/Renderer/Renderer.h"
 
-#include <format>
+#include "Hazel/Core/Timer.h"
 
 namespace Hazel {
 
@@ -167,7 +167,7 @@ namespace Hazel {
 			fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 			VK_CHECK_RESULT(vkCreateFence(device, &fenceCreateInfo, nullptr, &s_ComputeFence));
 
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_FENCE, std::format("Compute pipeline fence"), s_ComputeFence);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_FENCE, fmt::format("Compute pipeline fence"), s_ComputeFence);
 		}
 
 		// Make sure previous compute shader in pipeline has completed (TODO: this shouldn't be needed for all cases)

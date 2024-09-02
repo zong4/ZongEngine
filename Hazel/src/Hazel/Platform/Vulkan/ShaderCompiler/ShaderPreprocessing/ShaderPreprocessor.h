@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Hazel/Platform/Vulkan/VulkanShaderUtils.h"
-#include "Hazel/Renderer/Shader.h"
-#include "Hazel/Utilities/StringUtils.h"
-
 #include <filesystem>
-#include <format>
-#include <sstream>
 #include <unordered_set>
+#include <sstream>
+
+#include "Hazel/Utilities/StringUtils.h"
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Platform/Vulkan/VulkanShaderUtils.h"
 
 enum VkShaderStageFlagBits;
 
@@ -183,9 +182,9 @@ namespace Hazel {
 
 						// Add #endif
 						if (stageCount == 0)
-							contents.replace(startOfShaderStage, endOfLine - startOfShaderStage, std::format("#ifdef {}\r\n", ShaderUtils::StageToShaderMacro(stage)));
+							contents.replace(startOfShaderStage, endOfLine - startOfShaderStage, fmt::format("#ifdef {}\r\n", ShaderUtils::StageToShaderMacro(stage)));
 						else // Add stage macro instead of stage pragma, both #endif and #ifdef must be in the same line, hence no '\n'
-							contents.replace(startOfShaderStage, endOfLine - startOfShaderStage, std::format("#endif\r\n#ifdef {}", ShaderUtils::StageToShaderMacro(stage)));
+							contents.replace(startOfShaderStage, endOfLine - startOfShaderStage, fmt::format("#endif\r\n#ifdef {}", ShaderUtils::StageToShaderMacro(stage)));
 
 						*(int*)&stagesInHeader |= (int)foundStage;
 						stageCount++;
@@ -328,7 +327,7 @@ namespace Hazel {
 				auto& [stage, stagePos] = stagePositions[i];
 				std::string stageStr = newSource.substr(stagePos, stagePositions[i + 1].second - stagePos);
 				const size_t secondLinePos = stageStr.find_first_of('\n', 1) + 1;
-				stageStr.insert(secondLinePos, std::format("#line {}\n", lineCount));
+				stageStr.insert(secondLinePos, fmt::format("#line {}\n", lineCount));
 				shaderSources[stage] = stageStr;
 				lineCount += std::count(stageStr.begin(), stageStr.end(), '\n') + 1;
 			}
@@ -337,7 +336,7 @@ namespace Hazel {
 			auto& [stage, stagePos] = stagePositions[stagePositions.size() - 1];
 			std::string lastStageStr = newSource.substr(stagePos);
 			const size_t secondLinePos = lastStageStr.find_first_of('\n', 1) + 1;
-			lastStageStr.insert(secondLinePos, std::format("#line {}\n", lineCount + 1));
+			lastStageStr.insert(secondLinePos, fmt::format("#line {}\n", lineCount + 1));
 			shaderSources[stage] = lastStageStr;
 		}
 		else

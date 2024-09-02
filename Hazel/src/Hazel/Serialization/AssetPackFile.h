@@ -34,7 +34,7 @@ namespace Hazel {
 		struct FileHeader
 		{
 			const char HEADER[4] = {'H','Z','A','P'};
-			uint32_t Version = 3;
+			uint32_t Version = 2;
 			uint64_t BuildVersion = 0; // Usually date/time format (eg. 202210061535)
 		};
 

@@ -18,24 +18,6 @@ namespace Hazel {
 
 	static std::filesystem::path s_PersistentStoragePath;
 
-	FileStatus FileSystem::TryOpenFile(const std::filesystem::path& filepath)
-	{
-		HANDLE fileHandle = CreateFile(filepath.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (fileHandle == INVALID_HANDLE_VALUE)
-		{
-			DWORD errorCode = GetLastError();
-			if (errorCode == ERROR_FILE_NOT_FOUND || errorCode == ERROR_PATH_NOT_FOUND)
-				return FileStatus::Invalid;
-			if (errorCode == ERROR_SHARING_VIOLATION)
-				return FileStatus::Locked;
-
-			return FileStatus::OtherError;
-		}
-
-		CloseHandle(fileHandle);
-		return FileStatus::Success;
-	}
-
 	bool FileSystem::WriteBytes(const std::filesystem::path& filepath, const Buffer& buffer)
 	{
 		std::ofstream stream(filepath, std::ios::binary | std::ios::trunc);
@@ -110,7 +92,7 @@ namespace Hazel {
 		LSTATUS lOpenStatus = RegCreateKeyExA(HKEY_CURRENT_USER, keyPath, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &createdNewKey);
 		if (lOpenStatus == ERROR_SUCCESS)
 		{
-			LSTATUS lSetStatus = RegSetValueExA(hKey, key.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), (DWORD)(value.length() + 1));
+			LSTATUS lSetStatus = RegSetValueExA(hKey, key.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), value.length() + 1);
 			RegCloseKey(hKey);
 
 			if (lSetStatus == ERROR_SUCCESS)

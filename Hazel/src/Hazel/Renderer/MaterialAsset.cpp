@@ -3,8 +3,6 @@
 
 #include "Hazel/Renderer/Renderer.h"
 
-#include "Hazel/Asset/AssetManager.h"
-
 namespace Hazel {
 
 	static const std::string s_AlbedoColorUniform = "u_MaterialUniforms.AlbedoColor";
@@ -40,35 +38,6 @@ namespace Hazel {
 
 	MaterialAsset::~MaterialAsset()
 	{
-	}
-
-	void MaterialAsset::OnDependencyUpdated(AssetHandle handle)
-	{
-		if (handle == m_Maps.AlbedoMap)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(m_Maps.AlbedoMap);
-			HZ_CORE_VERIFY(texture);
-			m_Material->Set(s_AlbedoMapUniform, texture);
-		}
-		else if (handle == m_Maps.NormalMap)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(m_Maps.NormalMap);
-			HZ_CORE_VERIFY(texture);
-			m_Material->Set(s_NormalMapUniform, texture);
-		}
-		else if (handle == m_Maps.MetalnessMap)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(m_Maps.MetalnessMap);
-			HZ_CORE_VERIFY(texture);
-			m_Material->Set(s_MetalnessMapUniform, texture);
-
-		}
-		else if (handle == m_Maps.RoughnessMap)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(m_Maps.RoughnessMap);
-			HZ_CORE_VERIFY(texture);
-			m_Material->Set(s_RoughnessMapUniform, texture);
-		}
 	}
 
 	glm::vec3& MaterialAsset::GetAlbedoColor()
@@ -116,20 +85,9 @@ namespace Hazel {
 		return m_Material->TryGetTexture2D(s_AlbedoMapUniform);
 	}
 
-	void MaterialAsset::SetAlbedoMap(AssetHandle handle)
+	void MaterialAsset::SetAlbedoMap(Ref<Texture2D> texture)
 	{
-		m_Maps.AlbedoMap = handle;
-
-		if (handle)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
-			m_Material->Set(s_AlbedoMapUniform, texture);
-			AssetManager::RegisterDependency(handle, Handle);
-		}
-		else
-		{
-			ClearAlbedoMap();
-		}
+		m_Material->Set(s_AlbedoMapUniform, texture);
 	}
 
 	void MaterialAsset::ClearAlbedoMap()
@@ -142,20 +100,9 @@ namespace Hazel {
 		return m_Material->TryGetTexture2D(s_NormalMapUniform);
 	}
 
-	void MaterialAsset::SetNormalMap(AssetHandle handle)
+	void MaterialAsset::SetNormalMap(Ref<Texture2D> texture)
 	{
-		m_Maps.NormalMap = handle;
-
-		if (handle)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
-			m_Material->Set(s_NormalMapUniform, texture);
-			AssetManager::RegisterDependency(handle, Handle);
-		}
-		else
-		{
-			ClearNormalMap();
-		}
+		m_Material->Set(s_NormalMapUniform, texture);
 	}
 
 	bool MaterialAsset::IsUsingNormalMap()
@@ -178,20 +125,9 @@ namespace Hazel {
 		return m_Material->TryGetTexture2D(s_MetalnessMapUniform);
 	}
 
-	void MaterialAsset::SetMetalnessMap(AssetHandle handle)
+	void MaterialAsset::SetMetalnessMap(Ref<Texture2D> texture)
 	{
-		m_Maps.MetalnessMap = handle;
-
-		if (handle)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
-			m_Material->Set(s_MetalnessMapUniform, texture);
-			AssetManager::RegisterDependency(handle, Handle);
-		}
-		else
-		{
-			ClearMetalnessMap();
-		}
+		m_Material->Set(s_MetalnessMapUniform, texture);
 	}
 
 	void MaterialAsset::ClearMetalnessMap()
@@ -204,20 +140,9 @@ namespace Hazel {
 		return m_Material->TryGetTexture2D(s_RoughnessMapUniform);
 	}
 
-	void MaterialAsset::SetRoughnessMap(AssetHandle handle)
+	void MaterialAsset::SetRoughnessMap(Ref<Texture2D> texture)
 	{
-		m_Maps.RoughnessMap = handle;
-
-		if (handle)
-		{
-			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
-			m_Material->Set(s_RoughnessMapUniform, texture);
-			AssetManager::RegisterDependency(handle, Handle);
-		}
-		else
-		{
-			ClearRoughnessMap();
-		}
+		m_Material->Set(s_RoughnessMapUniform, texture);
 	}
 
 	void MaterialAsset::ClearRoughnessMap()
@@ -243,7 +168,7 @@ namespace Hazel {
 			SetAlbedoColor(glm::vec3(0.8f));
 
 			// Maps
-			ClearAlbedoMap();
+			SetAlbedoMap(Renderer::GetWhiteTexture());
 		}
 		else
 		{
@@ -255,10 +180,10 @@ namespace Hazel {
 			SetRoughness(0.4f);
 
 			// Maps
-			ClearAlbedoMap();
-			ClearNormalMap();
-			ClearMetalnessMap();
-			ClearRoughnessMap();
+			SetAlbedoMap(Renderer::GetWhiteTexture());
+			SetNormalMap(Renderer::GetWhiteTexture());
+			SetMetalnessMap(Renderer::GetWhiteTexture());
+			SetRoughnessMap(Renderer::GetWhiteTexture());
 		}
 	}
 
@@ -272,6 +197,7 @@ namespace Hazel {
 	{
 		const auto& meshMaterials = other->GetMaterials();
 		for (auto[index, materialAsset] : meshMaterials)
+			//SetMaterial(index, Ref<MaterialAsset>::Create(materialAsset->GetMaterial()));
 			SetMaterial(index, materialAsset);
 	}
 

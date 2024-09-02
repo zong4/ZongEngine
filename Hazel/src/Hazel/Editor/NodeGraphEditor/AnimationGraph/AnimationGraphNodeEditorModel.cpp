@@ -2,20 +2,15 @@
 #include "AnimationGraphNodeEditorModel.h"
 
 #include "AnimationGraphAsset.h"
-
 #include "Hazel/Animation/AnimationGraphFactory.h"
-#include "Hazel/Animation/NodeDescriptor.h"
-#include "Hazel/Asset/AnimationAssetSerializer.h"
+#include "Hazel/Animation/Nodes/NodeDescriptors.h"
 #include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/Events/EditorEvents.h"
 #include "Hazel/Editor/NodeGraphEditor/NodeGraphUtils.h"
 #include "Hazel/Project/Project.h"
 
-#include <CDT/CDT.h>
-#include <imgui-node-editor/imgui_node_editor.h>
-
-#include <format>
+#include "imgui-node-editor/imgui_node_editor.h"
 
 namespace AG = Hazel::AnimationGraph;
 
@@ -63,10 +58,9 @@ namespace Hazel {
 		};
 
 
-		std::pair<std::vector<std::string>, std::vector<std::string>> PreValidateGraph(AnimationGraphNodeEditorModel& model)
+		std::vector<std::string> PreValidateGraph(AnimationGraphNodeEditorModel& model)
 		{
 			std::vector<std::string> errors;
-			std::vector<std::string> warnings;
 
 			const auto validateNode = [&model, &errors](const Node* node)
 			{
@@ -83,9 +77,6 @@ namespace Hazel {
 					if (in->Value.isVoid() && !model.IsPinLinked(in->ID) && !in->IsType(Types::EPinType::Flow))
 						errors.push_back("Invalid linkage: node '" + node->Name + "', pin '" + in->Name + "'");
 				}
-
-				if(auto error = model.GetNodeError(node); !error.empty())
-					errors.push_back(std::format("Node '{}': {}", node->Name, error));
 			};
 
 			for (auto& [id, nodes] : model.GetAllNodes())
@@ -101,24 +92,13 @@ namespace Hazel {
 
 					if (node->Name == "Output")
 					{
-						if (hasOutputNode)
-						{
-							if (rootNode)
-							{
-								errors.push_back("Animation subgraph for '" + rootNode->Description + "' must have only one 'Output' node");
-							}
-							else
-							{
-								errors.push_back("Animation graph must have only one 'Output' node");
-							}
-						}
 						hasOutputNode = true;
 					}
 				}
 
-				if (!rootNode || (rootNode->GetTypeID() != AG::Types::StateMachine && rootNode->GetTypeID() != AG::Types::BlendSpace))
+				if (!rootNode || rootNode->GetTypeID() != AG::Types::StateMachine)
 				{
-					// root node is not a state machine or blend space => there must be an "output" node in the graph
+					// root node is not a state machine => there must be an "output" node in the graph
 					if (!hasOutputNode)
 					{
 						if (rootNode)
@@ -136,86 +116,12 @@ namespace Hazel {
 					// root node is a state machine => there must be at least one state
 					if (nodes.empty())
 					{
-						if (rootNode->GetTypeID() == AG::Types::StateMachine)
-						{
-							errors.push_back("Animation state machine '" + rootNode->Description + "' must have at least one state");
-						}
-						else if(rootNode->GetTypeID() == AG::Types::BlendSpace)
-						{
-							errors.push_back("Animation blend space '" + rootNode->Description + "' must have at least one vertex");
-						}
-					}
-					if (rootNode->GetTypeID() == AG::Types::BlendSpace)
-					{
-						// check for problems with blend space:
-						// 1) we cannot have duplicate vertices
-						// 2) triangles with very small area are probably not what user intended
-						// 3) triangles with very small width or height are probably not what user intended
-
-						std::vector<CDT::V2d<float>> vertices;
-						vertices.reserve(nodes.size());
-						for (auto node : nodes)
-						{
-							auto blendSpaceVertex = static_cast<AG::Types::Node*>(node);
-							vertices.emplace_back(blendSpaceVertex->Offset.x, blendSpaceVertex->Offset.y);
-						}
-						auto info = CDT::RemoveDuplicates(vertices);
-						if (!info.duplicates.empty())
-						{
-							errors.push_back("Animation Blend Space '" + rootNode->Description + "' has duplicate vertices!");
-						}
-
-						CDT::Triangulation<float> triangulation;
-						triangulation.insertVertices(vertices);
-						triangulation.eraseSuperTriangle();
-						for (auto triangle : triangulation.triangles)
-						{
-							auto v0 = triangulation.vertices[triangle.vertices[0]];
-							auto v1 = triangulation.vertices[triangle.vertices[1]];
-							auto v2 = triangulation.vertices[triangle.vertices[2]];
-							auto area = fabs(0.5f * ((v1.x - v0.x) * (v2.y - v0.y) - (v2.x - v0.x) * (v1.y - v0.y)));
-							if (area < 0.001f)
-							{
-								warnings.push_back("Animation Blend Space '" + rootNode->Description + "' has degenerate triangles!");
-								break;
-							}
-
-							auto edge0Squared = (v1.x - v0.x) * (v1.x - v0.x) + (v1.y - v0.y) * (v1.y - v0.y);
-							auto edge1Squared = (v2.x - v1.x) * (v2.x - v1.x) + (v2.y - v1.y) * (v2.y - v1.y);
-							auto edge2Squared = (v0.x - v2.x) * (v0.x - v2.x) + (v0.y - v2.y) * (v0.y - v2.y);
-							auto widthSquared = std::max({ edge0Squared, edge1Squared, edge2Squared });
-							auto width = glm::sqrt(widthSquared);
-							auto height = 2.0f * area / width;
-
-							if ((width < 0.01f) || (height < 0.01f))
-							{
-								warnings.push_back("Animation Blend Space '" + rootNode->Description + "' has degenerate triangles!");
-								break;
-							}
-						}
+						errors.push_back("Animation state machine '" + rootNode->Description + "' must have at least one state");
 					}
 				}
 			}
 
-			for (auto& [id, links] : model.GetAllLinks())
-			{
-				Node* rootNode = id == 0 ? nullptr : model.FindInAllNodes(id);
-				HZ_CORE_ASSERT(id == 0 || rootNode);
-				model.SetCurrentPath(rootNode);
-
-				for (const auto& link : links)
-				{
-					const Pin* sourcePin = model.FindPin(link.StartPinID);
-					const Pin* destPin = model.FindPin(link.EndPinID);
-
-					if(!sourcePin || !destPin || sourcePin->GetType() != destPin->GetType())
-					{
-						errors.push_back("Invalid linkage");
-					}
-				}
-			}
-
-			return { errors, warnings };
+			return errors;
 		}
 
 
@@ -231,21 +137,13 @@ namespace Hazel {
 
 			bool Parse()
 			{
-				try
-				{
-					ConstructIO();
-					ParseInputParameters();
-					ParseNodes();
-					ParseConnections();
+				ConstructIO();
+				ParseInputParameters();
+				ParseNodes();
+				ParseConnections();
 
-					// TODO: collect errors, potentially stop parsing at the first error encountered
-					return true;
-				}
-				catch (const std::exception& e)
-				{
-					HZ_CONSOLE_LOG_ERROR(std::format("Failed to construct Animation Graph Prototype!\n{}", e.what()));
-					return false;
-				}
+				// TODO: collect errors, potentially stop parsing at the first error encountered
+				return true;
 			}
 
 		private:
@@ -258,17 +156,7 @@ namespace Hazel {
 				else         return choc::value::createInt64((int64_t)Utils::GetAssetHandleFromValue(value));
 			}
 
-			// We want to pass Bones as primitive integer (index) instead of string (name)
-			// because the later would impose heavy lookup to get the bone index at runtime.
-			choc::value::Value TranslateBoneName(const choc::value::ValueView& value, const bool isArray)
-			{
-				if (isArray) return choc::value::createArray(value.size(), [copy = value, this](uint32_t i) { return static_cast<int>(m_Options.Model->FindBoneIndex(copy[i]["Value"].getString())); });
-				else         return choc::value::createInt32(static_cast<int>(m_Options.Model->FindBoneIndex(value["Value"].getString())));
-			}
-
-			// translate (in place) editor values into runtime values:
-			//    asset handle --> plain int64
-			//    bone name --> int (index)
+			// translate (in place) an asset handle value object into a plain int64
 			void TranslateValue(choc::value::Value& value)
 			{
 				const bool isArray = value.isArray();
@@ -278,15 +166,15 @@ namespace Hazel {
 				{
 					value = TranslateAssetHandle(value, isArray);
 				}
-				else if (type.isObjectWithClassName(type::type_name<AG::Types::TBone>()))
+				else
 				{
-					value = TranslateBoneName(value, isArray);
+					HZ_CORE_ASSERT(!type.isObject());
 				}
 			}
 
 			bool IsOrphan(const Node* node) const
 			{
-				if (m_Options.RootNode && ((m_Options.RootNode->GetTypeID() == AG::Types::StateMachine) || (m_Options.RootNode->GetTypeID() == AG::Types::BlendSpace)))
+				if (m_Options.RootNode && m_Options.RootNode->GetTypeID() == AG::Types::StateMachine)
 					return false;
 
 				if (node->SortIndex == Node::UndefinedSortIndex)
@@ -421,31 +309,17 @@ namespace Hazel {
 						pnode.DefaultValuePlugs.reserve(defaultPlugsToAdd);
 						for (const auto& input : node->Inputs)
 						{
+							choc::value::ValueView value = input->Value;
+
+							// connected pins are not Void
 							if (!requiresPlug(input))
 								continue;
 
-							choc::value::Value value = input->Value;
-							TranslateValue(value);
 							const std::string inputValueName = choc::text::replace(input->Name, " ", "");
 							pnode.DefaultValuePlugs.emplace_back(Identifier(inputValueName), value);
 						}
-						if (node->Name == "Blend Space Vertex")
-						{
-							// HACK: pack blend space vertex position into two additional inputs
-							auto agNode = static_cast<const AG::Types::Node*>(node);
-							pnode.DefaultValuePlugs.emplace_back(AG::IDs::X, choc::value::createFloat32(agNode->Offset.x));
-							pnode.DefaultValuePlugs.emplace_back(AG::IDs::Y, choc::value::createFloat32(agNode->Offset.y));
-						}
 
-						if (node->GetTypeID() == AG::Types::BlendSpace)
-						{
-							// HACK: pack lerp times into two additional inputs
-							auto agNode = static_cast<const AG::Types::Node*>(node);
-							pnode.DefaultValuePlugs.emplace_back(AG::IDs::LerpSecondsPerUnitX, choc::value::createFloat32(agNode->LerpSecondsPerUnit.x));
-							pnode.DefaultValuePlugs.emplace_back(AG::IDs::LerpSecondsPerUnitY, choc::value::createFloat32(agNode->LerpSecondsPerUnit.y));
-						}
-
-						if (node->Type == NodeType::Subroutine)
+						if ((node->GetTypeID() == AG::Types::StateMachine) || (node->GetTypeID() == AG::Types::State) || (node->GetTypeID() == AG::Types::Transition))
 						{
 							auto subroutine = CreateScope<Prototype>(m_Options.Model->GetSkeletonHandle());
 
@@ -456,10 +330,6 @@ namespace Hazel {
 							if (parser.Parse())
 							{
 								pnode.Subroutine = std::move(subroutine);
-							}
-							else
-							{
-								HZ_CORE_ASSERT(false, "Failed to parse subroutine! (this should not happen - check PreValidateGraph)");
 							}
 						}
 					}
@@ -490,12 +360,6 @@ namespace Hazel {
 
 						if (!sourceNode || !destNode)
 							continue;
-
-						if (sourcePin->GetType() != destPin->GetType())
-						{
-							HZ_CORE_ASSERT(false, "sourcePin type is different from destPin.  This should have been picked up in PreValidateGraph()");
-							continue;
-						}
 
 						if (sourceNode->SortIndex == Node::UndefinedSortIndex || destNode->SortIndex == Node::UndefinedSortIndex)
 							continue;
@@ -530,28 +394,18 @@ namespace Hazel {
 							}
 							else // Local variable plug connection
 							{
-								if (destNodeName == "Output")
+								if (!sourcePin->IsType(Types::EPinType::Flow))
 								{
-									HZ_CORE_ASSERT(!sourcePin->IsType(EPinType::Flow), "Output pin type is flow.  This does not make sense (graph outputs need to be proper values, not 'triggers').");
 									m_Prototype.Connections.emplace_back(
-										Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ sourcePinName } },
-										Prototype::Connection::Endpoint{ 0, Identifier{ destPinName } },
-										Prototype::Connection::LocalVariable_GraphValue
+										Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{sourcePinName} },
+										Prototype::Connection::Endpoint{ destNode->ID, Identifier{destPinName} },
+										Prototype::Connection::LocalVariable_NodeValue
 									);
 								}
 								else
 								{
-									// Note: Local variable plug means there wasn't any "setter" node for the local variable.
-									//       If the local variable is "Flow" (aka "Trigger") type, and there isn't a setter, then it means the
-									//       trigger will never occur.  There is no need to create any connection in this case.
-									if (!sourcePin->IsType(Types::EPinType::Flow))
-									{
-										m_Prototype.Connections.emplace_back(
-											Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{sourcePinName} },
-											Prototype::Connection::Endpoint{ destNode->ID, Identifier{destPinName} },
-											Prototype::Connection::LocalVariable_NodeValue
-										);
-									}
+									// TODO: in this case the graph should not crash, just the getters of this LV wouldn't be ever triggered
+									HZ_CORE_ERROR("We can't have default plugs for Local Variables of flow type!");
 								}
 
 								continue;
@@ -584,7 +438,6 @@ namespace Hazel {
 						}
 						else if (destNodeName == "Output")
 						{
-							HZ_CORE_ASSERT(!sourcePin->IsType(EPinType::Flow), "Output pin type is flow.  This does not make sense (graph outputs need to be proper values, not 'triggers').");
 							if (sourceNodeName == "Input")
 							{
 								m_Prototype.Connections.emplace_back(
@@ -596,7 +449,7 @@ namespace Hazel {
 							else
 							{
 								m_Prototype.Connections.emplace_back(
-									Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{ sourcePinName } },
+									Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{sourcePinName} },
 									Prototype::Connection::Endpoint{ 0, Identifier{ destPinName } },
 									Prototype::Connection::NodeValue_GraphValue
 								);
@@ -607,22 +460,11 @@ namespace Hazel {
 							HZ_CORE_ASSERT(destNode->Inputs.size() >= 2);
 							HZ_CORE_ASSERT(destNode->Inputs[1]->GetType() == Types::EPinType::String);
 							std::string_view eventName = destNode->Inputs[1]->Value.getString();
-							if (sourceNodeName == "Input")
-							{
-								m_Prototype.Connections.emplace_back(
-									Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ sourcePinName } },
-									Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ destPinName } },
-									Prototype::Connection::GraphEvent_GraphEvent
-								);
-							}
-							else
-							{
-								m_Prototype.Connections.emplace_back(
-									Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{ sourcePinName } },
-									Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ eventName } },
-									Prototype::Connection::NodeEvent_GraphEvent
-								);
-							}
+							m_Prototype.Connections.emplace_back(
+								Prototype::Connection::Endpoint{ sourceNode->ID, Identifier(sourcePinName) },
+								Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier(eventName) },
+								Prototype::Connection::NodeEvent_GraphEvent
+							);
 						}
 						else if (sourceNodeName == "Input")
 						{
@@ -631,7 +473,7 @@ namespace Hazel {
 
 							m_Prototype.Connections.emplace_back(
 								Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ sourcePinName } },
-								Prototype::Connection::Endpoint{ destNode->ID, Identifier{ destPinName } },
+								Prototype::Connection::Endpoint{ destNode->ID, Identifier{destPinName} },
 								sourcePin->IsType(Types::EPinType::Flow) ? Prototype::Connection::GraphEvent_NodeEvent : Prototype::Connection::GraphValue_NodeValue
 							);
 						}
@@ -642,8 +484,8 @@ namespace Hazel {
 							HZ_CORE_ASSERT(FindNodeByID(destNode->ID));
 
 							m_Prototype.Connections.emplace_back(
-								Prototype::Connection::Endpoint{ sourceNode->ID, Identifier{ sourcePinName } },
-								Prototype::Connection::Endpoint{ destNode->ID, Identifier{ destPinName } },
+								Prototype::Connection::Endpoint{ sourceNode->ID, Identifier(sourcePinName) },
+								Prototype::Connection::Endpoint{ destNode->ID, Identifier(destPinName) },
 								sourcePin->IsType(Types::EPinType::Flow) ? Prototype::Connection::NodeEvent_NodeEvent : Prototype::Connection::NodeValue_NodeValue
 							);
 						}
@@ -677,15 +519,7 @@ namespace Hazel {
 			if (!options.Model)
 				return nullptr;
 
-			auto [errors, warnings] = PreValidateGraph(*options.Model);
-
-			if (!warnings.empty())
-			{
-				for (const auto& warning : warnings)
-				{
-					HZ_CONSOLE_LOG_WARN(warning);
-				}
-			}
+			std::vector<std::string> errors = PreValidateGraph(*options.Model);
 
 			if (!errors.empty())
 			{
@@ -850,7 +684,7 @@ namespace Hazel {
 			std::string name;
 			if (asset->Handle)
 			{
-				const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(asset->Handle);
+				const AssetMetadata& md = Project::GetEditorAssetManager()->GetMetadata(asset);
 				name = md.FilePath.stem().string();
 			}
 
@@ -863,6 +697,10 @@ namespace Hazel {
 			}
 
 			return false;
+		};
+
+		onCompiledSuccessfully = [this]() {
+			Application::Get().DispatchEvent<AnimationGraphCompiledEvent>(m_AnimationGraph->Handle);
 		};
 	}
 
@@ -885,28 +723,24 @@ namespace Hazel {
 		{
 			GetAllNodes()[parent->ID] = {};
 			GetAllLinks()[parent->ID] = {};
-			if (parent->GetTypeID() == AG::Types::Transition)
+			if (parent->GetTypeID() == AG::Types::State)
+			{
+				auto node = m_AnimationGraphNodeFactory.SpawnNode("Animation", "Output");
+				OnNodeSpawned(node);
+				m_AnimationGraph->m_GraphState[parent->ID] = fmt::format("{{\"nodes\":{{\"node:{0}\":{{\"location\":{{\"x\":968,\"y\":446}}}}}},\"selection\":null,\"view\":{{\"scroll\":{{\"x\":465.8328857421875,\"y\":137.405792236328125}},\"visible_rect\":{{\"max\":{{\"x\":1202.6761474609375,\"y\":836.28948974609375}},\"min\":{{\"x\":271.59063720703125,\"y\":80.1105422973632812}}}},\"zoom\":1.7152024507522583}}}}", node->ID);
+			}
+			else if (parent->GetTypeID() == AG::Types::Transition)
 			{
 				auto previousRootId = m_RootNodeId;
 				m_RootNodeId = parent->ID;
 				auto node = m_TransitionGraphNodeFactory.SpawnNode("Transition", "Output");
 				OnNodeSpawned(node);
-				m_AnimationGraph->m_GraphState[parent->ID] = std::format("{{\"nodes\":{{\"node:{0}\":{{\"location\":{{\"x\":967,\"y\":376}}}}}},\"selection\":null,\"view\":{{\"scroll\":{{\"x\":279.6109619140625,\"y\":333.6357421875}},\"visible_rect\":{{\"max\":{{\"x\":1624.48876953125,\"y\":697.30859375}},\"min\":{{\"x\":223.688766479492188,\"y\":266.908599853515625}}}},\"zoom\":1.25}}}}", node->ID);
+				m_AnimationGraph->m_GraphState[parent->ID] = fmt::format("{{\"nodes\":{{\"node:{0}\":{{\"location\":{{\"x\":967,\"y\":376}}}}}},\"selection\":null,\"view\":{{\"scroll\":{{\"x\":279.6109619140625,\"y\":333.6357421875}},\"visible_rect\":{{\"max\":{{\"x\":1624.48876953125,\"y\":697.30859375}},\"min\":{{\"x\":223.688766479492188,\"y\":266.908599853515625}}}},\"zoom\":1.25}}}}", node->ID);
 				m_RootNodeId = previousRootId;
-			}
-			else if (parent->GetTypeID() == AG::Types::StateMachine)
-			{
-				m_AnimationGraph->m_GraphState[parent->ID] = "{\"nodes\":null,\"selection\":null,\"view\":{\"scroll\":{\"x\":434.9451904296875,\"y\":431.64227294921875},\"visible_rect\":{\"max\":{\"x\":1457.2969970703125,\"y\":763.76165771484375},\"min\":{\"x\":289.9635009765625,\"y\":287.76153564453125}},\"zoom\":1.4999997615814209}}";
-			}
-			else if (parent->GetTypeID() == AG::Types::BlendSpace)
-			{
-				m_AnimationGraph->m_GraphState[parent->ID] = "{\"nodes\":null,\"selection\":null,\"view\":{\"scroll\":{\"x\":0.0,\"y\":0.0},\"visible_rect\":{\"max\":{\"x\":400.0,\"y\":400.0},\"min\":{\"x\":-400.0,\"y\":-400.0}},\"zoom\":1.0}}";
 			}
 			else
 			{
-				auto node = m_AnimationGraphNodeFactory.SpawnNode("Animation", "Output");
-				OnNodeSpawned(node);
-				m_AnimationGraph->m_GraphState[parent->ID] = std::format("{{\"nodes\":{{\"node:{0}\":{{\"location\":{{\"x\":968,\"y\":446}}}}}},\"selection\":null,\"view\":{{\"scroll\":{{\"x\":465.8328857421875,\"y\":137.405792236328125}},\"visible_rect\":{{\"max\":{{\"x\":1202.6761474609375,\"y\":836.28948974609375}},\"min\":{{\"x\":271.59063720703125,\"y\":80.1105422973632812}}}},\"zoom\":1.7152024507522583}}}}", node->ID);
+				m_AnimationGraph->m_GraphState[parent->ID] = "{\"nodes\":null,\"selection\":null,\"view\":{\"scroll\":{\"x\":434.9451904296875,\"y\":431.64227294921875},\"visible_rect\":{\"max\":{\"x\":1457.2969970703125,\"y\":763.76165771484375},\"min\":{\"x\":289.9635009765625,\"y\":287.76153564453125}},\"zoom\":1.4999997615814209}}";
 			}
 		}
 	}
@@ -969,10 +803,6 @@ namespace Hazel {
 			else if (currentPath.back()->GetTypeID() == AG::Types::ENodeType::Transition)
 			{
 				return m_TransitionGraphNodeFactory.Registry;
-			}
-			else if (currentPath.back()->GetTypeID() == AG::Types::ENodeType::BlendSpace)
-			{
-				return m_BlendSpaceNodeFactory.Registry;
 			}
 		}
 		return m_AnimationGraphNodeFactory.Registry;
@@ -1280,103 +1110,6 @@ namespace Hazel {
 	}
 
 
-	void AnimationGraphNodeEditorModel::PromoteQuickStateToState(Node* quickState)
-	{
-		HZ_CORE_ASSERT(quickState);
-
-		auto state = CreateNode("StateMachine", "State");
-		HZ_CORE_ASSERT(state);
-
-		// Could copy the quick-state description, but I think it's better we don't
-		// (chances are the promoted state is going to be changed, and the quick state node description may no longer be appropriate)
-		//stateNode->Description = quickState->Description;
-		state->SetPosition(quickState->GetPosition());
-
-		Ref<AnimationGraphAsset> animationGraph;
-		auto extension = Project::GetEditorAssetManager()->GetDefaultExtensionForAssetType(AssetType::AnimationGraph);
-		HZ_CORE_VERIFY(AnimationGraphAssetSerializer::TryLoadData("Resources/Animation/PromotedStateAnimationGraph" + extension, animationGraph));
-		// Regenerate the IDs in the newly copied graph.
-		// Reason for this is that we need IDs to be unique across all sub-graphs
-		// (and we might promote more than one quick state)
-		std::unordered_map<UUID, UUID> idMapping;
-		for (auto& node : animationGraph->m_Nodes[0])
-		{
-			idMapping[node->ID] = UUID();
-			node->ID = idMapping[node->ID];
-
-			for (auto& pin : node->Inputs)
-			{
-				idMapping[pin->ID] = UUID();
-				pin->ID = idMapping[pin->ID];
-				pin->NodeID = node->ID;
-				if ((pin->Name == "Animation") && (node->Name == "Animation Player"))
-				{
-					pin->Value = quickState->Inputs[0]->Value;
-				}
-			}
-			for (auto& pin : node->Outputs)
-			{
-				idMapping[pin->ID] = UUID();
-				pin->ID = idMapping[pin->ID];
-				pin->NodeID = node->ID;
-			}
-		}
-
-		for (auto& link : animationGraph->m_Links[0])
-		{
-			link.ID = UUID();
-			link.StartPinID = idMapping[link.StartPinID];
-			link.EndPinID = idMapping[link.EndPinID];
-		}
-
-		// remap all transitions out of the quick state
-		for (auto output : quickState->Outputs)
-		{
-			Pin* pin = state->Outputs.emplace_back(AnimationGraph::Types::CreatePinForType(AG::Types::EPinType::Flow, "Transition"));
-			pin->ID = output->ID;
-			pin->NodeID = state->ID;
-			pin->Kind = PinKind::Output;
-		}
-
-		// remap all transitions into the quick state
-		for (auto input : quickState->Inputs)
-		{
-			if (auto link = GetLinkConnectedToPin(input->ID); link)
-			{
-				Pin* pin = state->Inputs.emplace_back(AnimationGraph::Types::CreatePinForType(AG::Types::EPinType::Flow, "Transition"));
-				pin->ID = input->ID;
-				pin->NodeID = state->ID;
-				pin->Kind = PinKind::Input;
-			}
-		}
-
-		quickState->Outputs.clear();
-		quickState->Inputs.clear();
-
-		// delete the quick state
-		UUID id = quickState->ID;
-		RemoveNode(quickState->ID);
-
-		// re-ID the new state node to have the same ID as the old quick state node.
-		// This ensures that the new state nodes remain selected in the UI
-		// (same as the old quick state nodes were)
-		state->ID = id;
-		for (auto output : state->Outputs)
-		{
-			output->NodeID = state->ID;
-		}
-
-		for (auto input : state->Inputs)
-		{
-			input->NodeID = state->ID;
-		}
-
-		GetAllLinks()[state->ID] = animationGraph->m_Links[0];
-		GetAllNodes()[state->ID] = animationGraph->m_Nodes[0];
-		m_AnimationGraph->m_GraphState[state->ID] = animationGraph->m_GraphState[0];
-	}
-
-
 	void AnimationGraphNodeEditorModel::EnsureEntryStates()
 	{
 		AnimationGraph::PathHelper helper(m_RootNodeId, m_CurrentPath);
@@ -1394,90 +1127,55 @@ namespace Hazel {
 	}
 
 
-	uint32_t AnimationGraphNodeEditorModel::FindBoneIndex(std::string_view boneName) const
-	{
-		if (boneName == "root")
-			return 0;
-
-		AssetHandle skeletonHandle = GetSkeletonHandle();
-		auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonHandle);
-		if (skeletonAsset)
-		{
-			auto boneIndex = skeletonAsset->GetSkeleton().GetBoneIndex(boneName);
-			if (boneIndex != Skeleton::NullIndex)
-				return boneIndex + 1;
-		}
-
-		return Skeleton::NullIndex;
-	}
-
-
-	std::string AnimationGraphNodeEditorModel::GetNodeError(const Node* node)
+	bool AnimationGraphNodeEditorModel::IsWellDefined(Node* node)
 	{
 		if (!node)
 		{
 			HZ_CORE_ASSERT(false);
-			return "node is null";
+			return false;
 		}
 
-		// A node with a sub-graph is well defined only if the sub-graph is well defined
-		if (node->Type == NodeType::Subroutine)
+		// State is well defined if it has a sub graph, and there are no ill-defined nodes in the sub-graph
+		if (node->GetTypeID() == AG::Types::State || node->GetTypeID() == AG::Types::StateMachine)
 		{
-			if (!GetAllNodes().contains(node->ID) || GetAllNodes().at(node->ID).size() <= (node->GetTypeID() == AG::Types::State ? 1 : 0))
-				return std::format("{} sub-graph has not been defined", node->Name);
+			if (!GetAllNodes().contains(node->ID) || GetAllNodes().at(node->ID).size() <= (node->GetTypeID() == AG::Types::State? 1 : 0))
+				return false;
 
 			auto previousRootId = m_RootNodeId;
 			m_RootNodeId = node->ID;
-			const auto& subnodes = GetAllNodes().at(node->ID);
-
-			for (auto& subNode : subnodes)
+			for (auto& subNode : GetAllNodes().at(node->ID))
 			{
-				auto error = GetNodeError(subNode);
-				if (!error.empty())
+				if (!IsWellDefined(subNode))
 				{
 					m_RootNodeId = previousRootId;
-					return error;
+					return false;
 				}
 			}
-
-			// State nodes must have an 'Output' node in the sub-graph
-			if (node->GetTypeID() == AG::Types::State)
-			{
-				auto it = std::find_if(subnodes.begin(), subnodes.end(), [](const Node* n) { return n->Name == "Output"; });
-				if (it == subnodes.end())
-				{
-					m_RootNodeId = previousRootId;
-					return std::format("State '{}' graph has no 'Output' node", node->Name);
-				}
-			}
-
-			// Transition nodes must have an 'Output' node in the sub-graph, and the transition condition must not be always false
-			// (always true is allowed - this is a transition that happens straight away, it will still blend smoothly
-			//  between source and destination states)
-			if (node->GetTypeID() == AG::Types::Transition)
-			{
-				auto it = std::find_if(subnodes.begin(), subnodes.end(), [](const Node* n) { return n->Name == "Output"; });
-				if (it == subnodes.end())
-				{
-					m_RootNodeId = previousRootId;
-					return "Transition graph has no 'Output' node";
-				}
-
-				auto outputNode = *it;
-				if (!IsPinLinked(outputNode->Inputs[0]->ID) && (!outputNode->Inputs[0]->Value.isBool() || !outputNode->Inputs[0]->Value.getBool()))
-				{
-					m_RootNodeId = previousRootId;
-					return "Transition will never occur.";
-				}
-			}
-
 			m_RootNodeId = previousRootId;
-			return {};
+			return true;
+		}
+
+		if (node->GetTypeID() == AG::Types::Transition)
+		{
+			if (!GetAllNodes().contains(node->ID) || GetAllNodes().at(node->ID).empty())
+				return false;
+
+			const auto& subnodes = GetAllNodes().at(node->ID);
+			auto it = std::find_if(subnodes.begin(), subnodes.end(), [](const Node* n) { return n->Name == "Output"; });
+			if (it == subnodes.end())
+				return false;
+
+			auto outputNode = *it;
+			if (outputNode->Inputs[0]->Value.isBool())
+			{
+				return outputNode->Inputs[0]->Value.getBool();
+			}
+
+			return true;
 		}
 
 		// If node has an asset handle input that is null -> not well defined
 		// If node has an input that is a pose and is not connected to anything -> not well defined
-		// If node has an input that is a bone, and that bone is not found in the skeleton -> not well defined
 		for (auto input : node->Inputs)
 		{
 			// note: Asset handle pins start off as integers with value 0.
@@ -1485,44 +1183,20 @@ namespace Hazel {
 			if (input->GetType() == AG::Types::EPinType::AnimationAsset)
 			{
 				AssetHandle assetHandle = 0;
-
+				
 				if (input->Storage != StorageKind::Array && Utils::IsAssetHandle<AssetType::Animation>(input->Value))
 					assetHandle = Utils::GetAssetHandleFromValue(input->Value);
 
 				if (!AssetManager::IsAssetHandleValid(assetHandle) && !GetNodeConnectedToPin(input->ID))
-					return std::format("{} asset is not valid", input->Name);
+					return false;
 			}
 
 			if ((input->Name == "Pose") && !GetNodeConnectedToPin(input->ID))
-				return std::format("{} input is not connected", input->Name);
-
-			if (input->GetType() == AG::Types::EPinType::Bone)
-			{
-				HZ_CORE_ASSERT(input->Storage != StorageKind::Array, "Found bone pin that is an array.  This needs to be handled!");
-
-				auto selectedBone = input->Value["Value"].getString();
-				uint32_t boneIndex = FindBoneIndex(selectedBone);
-				if (boneIndex == Skeleton::NullIndex)
-					return std::format("{} '{}' not found in skeleton", input->Name, selectedBone);
-			}
+				return false;
 		}
 
-		// If node has an output that is connected to something, it must be the same type
-		for (auto output : node->Outputs)
-		{
-			Link* link = GetLinkConnectedToPin(output->ID);
-			if (!link)
-				continue;
-
-			Pin* otherPin = FindPin(link->EndPinID);
-			if (!otherPin)
-				return std::format("{} output is connected to a pin that does not exist", output->Name);
-
-			if (otherPin->GetType() != output->GetType())
-				return std::format("{} output is connected to a pin of different type", output->Name);
-		}
-	
-		return {};
+		// other nodes, we can't tell. So just assume they are well defined
+		return true;
 	}
 
 
@@ -1781,10 +1455,6 @@ namespace Hazel {
 			else if (currentPath.back()->GetTypeID() == AG::Types::ENodeType::Transition)
 			{
 				return &m_TransitionGraphNodeFactory;
-			}
-			else if (currentPath.back()->GetTypeID() == AG::Types::ENodeType::BlendSpace)
-			{
-				return &m_BlendSpaceNodeFactory;
 			}
 		}
 		return &m_AnimationGraphNodeFactory;

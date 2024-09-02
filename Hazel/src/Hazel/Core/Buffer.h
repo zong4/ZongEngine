@@ -1,18 +1,24 @@
 #pragma once
 
-#include "Hazel/Core/Assert.h"
+#include "Hazel/Core/Base.h"
+#include "Hazel/Core/Log.h"
 
 namespace Hazel {
 
 	struct Buffer
 	{
-		void* Data = nullptr;
-		uint64_t Size = 0;
+		void* Data;
+		uint64_t Size;
 
-		Buffer() = default;
+		Buffer()
+			: Data(nullptr), Size(0)
+		{
+		}
 
 		Buffer(const void* data, uint64_t size = 0)
-			: Data((void*)data), Size(size) { }
+			: Data((void*)data), Size(size)
+		{
+		}
 
 		static Buffer Copy(const Buffer& other)
 		{
@@ -34,12 +40,12 @@ namespace Hazel {
 		{
 			delete[] (byte*)Data;
 			Data = nullptr;
-			Size = size;
 
 			if (size == 0)
 				return;
 
 			Data = hnew byte[size];
+			Size = size;
 		}
 
 		void Release()
@@ -83,7 +89,7 @@ namespace Hazel {
 
 		operator bool() const
 		{
-			return (bool)Data;
+			return Data;
 		}
 
 		byte& operator[](int index)

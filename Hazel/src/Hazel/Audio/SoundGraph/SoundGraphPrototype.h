@@ -140,7 +140,7 @@ namespace Hazel::Serialization
 		//=============================================================================
 		// Serialization
 		template<>
-		HZ_EXPLICIT_STATIC inline bool SerializeImpl(Hazel::StreamWriter* writer, const choc::value::Value& v)
+		static inline bool SerializeImpl(Hazel::StreamWriter* writer, const choc::value::Value& v)
 		{
 			struct ValueSerializer wrapper;
 			v.serialise(wrapper);
@@ -151,7 +151,7 @@ namespace Hazel::Serialization
 
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool SerializeImpl(Hazel::StreamWriter* writer, const Prototype::Connection& v)
+		static inline bool SerializeImpl(Hazel::StreamWriter* writer, const Prototype::Connection& v)
 		{
 			writer->WriteRaw(v);
 			return true;
@@ -161,7 +161,7 @@ namespace Hazel::Serialization
 		// Deserialization
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool DeserializeImpl(Hazel::StreamReader* reader, choc::value::Value& v)
+		static inline bool DeserializeImpl(Hazel::StreamReader* reader, choc::value::Value& v)
 		{
 			std::vector<uint8_t> data;
 			reader->ReadArray(data);
@@ -171,7 +171,7 @@ namespace Hazel::Serialization
 		}
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool DeserializeImpl(Hazel::StreamReader* reader, Prototype::Connection& v)
+		static inline bool DeserializeImpl(Hazel::StreamReader* reader, Prototype::Connection& v)
 		{
 			reader->ReadRaw(v);
 			return true;

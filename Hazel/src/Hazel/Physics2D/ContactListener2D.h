@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Scene/Scene.h"
+#include "Hazel/Script/ScriptEngine.h"
 
 #include <box2d/box2d.h>
 

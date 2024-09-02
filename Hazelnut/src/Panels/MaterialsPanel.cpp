@@ -1,11 +1,10 @@
 #include "MaterialsPanel.h"
 
+#include "Hazel/ImGui/ImGui.h"
+
+#include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Editor/SelectionManager.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Renderer/Renderer.h"
-
-#include <format>
 
 namespace Hazel {
 
@@ -32,21 +31,21 @@ namespace Hazel {
 			m_SelectedEntity = {};
 		}
 
-		const bool hasValidEntity = m_SelectedEntity && m_SelectedEntity.HasAny<SubmeshComponent, StaticMeshComponent>();
+		const bool hasValidEntity = m_SelectedEntity && m_SelectedEntity.HasAny<MeshComponent, StaticMeshComponent>();
 
 		ImGui::SetNextWindowSize(ImVec2(200.0f, 300.0f), ImGuiCond_Appearing);
 		if (ImGui::Begin("Materials", &isOpen) && hasValidEntity)
 		{
-			const bool hasDynamicMesh = m_SelectedEntity.HasComponent<SubmeshComponent>() && AssetManager::IsAssetHandleValid(m_SelectedEntity.GetComponent<SubmeshComponent>().Mesh);
+			const bool hasDynamicMesh = m_SelectedEntity.HasComponent<MeshComponent>() && AssetManager::IsAssetHandleValid(m_SelectedEntity.GetComponent<MeshComponent>().Mesh);
 			const bool hasStaticMesh = m_SelectedEntity.HasComponent<StaticMeshComponent>() && AssetManager::IsAssetHandleValid(m_SelectedEntity.GetComponent<StaticMeshComponent>().StaticMesh);
 
 			if (hasDynamicMesh || hasStaticMesh)
 			{
 				Ref<MaterialTable> meshMaterialTable, componentMaterialTable;
 
-				if (m_SelectedEntity.HasComponent<SubmeshComponent>())
+				if (m_SelectedEntity.HasComponent<MeshComponent>())
 				{
-					const auto& meshComponent = m_SelectedEntity.GetComponent<SubmeshComponent>();
+					const auto& meshComponent = m_SelectedEntity.GetComponent<MeshComponent>();
 					componentMaterialTable = meshComponent.MaterialTable;
 					auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
 					if(mesh)
@@ -99,7 +98,7 @@ namespace Hazel {
 		if (name.empty())
 			name = "Unnamed Material";
 
-		name = std::format("{0} ({1}", name, material->GetShader()->GetName());
+		name = fmt::format("{0} ({1}", name, material->GetShader()->GetName());
 
 		if (!UI::PropertyGridHeader(name, materialIndex == 0))
 			return;
@@ -168,7 +167,7 @@ namespace Hazel {
 						if (!filepath.empty())
 						{
 							TextureSpecification spec;
-							spec.Format = ImageFormat::SRGBA;
+							spec.SRGB = true;
 							albedoMap = Texture2D::Create(spec, filepath);
 							material->Set("u_AlbedoTexture", albedoMap);
 						}

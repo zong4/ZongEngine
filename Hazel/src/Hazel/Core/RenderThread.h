@@ -25,7 +25,9 @@ namespace Hazel {
 		};
 	public:
 		RenderThread(ThreadingPolicy coreThreadingPolicy);
+#ifdef HZ_PLATFORM_WINDOWS
 		~RenderThread();
+#endif
 
 		void Run();
 		bool IsRunning() const { return m_IsRunning; }
@@ -40,8 +42,6 @@ namespace Hazel {
 		void Kick();
 		
 		void Pump();
-
-		static bool IsCurrentThreadRT();
 	private:
 		RenderThreadData* m_Data;
 		ThreadingPolicy m_ThreadingPolicy;

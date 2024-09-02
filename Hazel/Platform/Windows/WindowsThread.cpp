@@ -22,8 +22,7 @@ namespace Hazel {
 
 	void Thread::Join()
 	{
-		if (m_Thread.joinable())
-			m_Thread.join();
+		m_Thread.join();
 	}
 
 	ThreadSignal::ThreadSignal(const std::string& name, bool manualReset)
@@ -45,11 +44,6 @@ namespace Hazel {
 	void ThreadSignal::Reset()
 	{
 		ResetEvent(m_SignalHandle);
-	}
-
-	std::thread::id Thread::GetID() const
-	{
-		return m_Thread.get_id();
 	}
 
 }

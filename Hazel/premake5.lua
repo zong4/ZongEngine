@@ -1,8 +1,5 @@
 project "Hazel"
 	kind "StaticLib"
-	dependson "Coral.Managed"
-
-    debuggertype "NativeWithManagedCore"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
@@ -49,7 +46,7 @@ project "Hazel"
 
 	filter "configurations:Debug or configurations:Debug-AS"
 		symbols "On"
-		defines { "HZ_DEBUG", "_DEBUG", "ACL_ON_ASSERT_ABORT", }
+		defines { "HZ_DEBUG", "_DEBUG", }
 
 	filter { "system:windows", "configurations:Debug-AS" }	
 		sanitize { "Address" }
@@ -85,29 +82,3 @@ project "Hazel"
 			"src/Hazel/Asset/AssimpMeshImporter.cpp",
 		}
 	
-	filter { "configurations:Debug-AS" }
-        postbuildcommands {
-			'{MKDIR} "%{wks.location}/Hazelnut/DotNet"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.runtimeconfig.json"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Build/Debug-AS-%{cfg.system}/Coral.Managed.dll" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.dll"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Build/Debug-AS-%{cfg.system}/Coral.Managed.pdb" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.pdb"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Build/Debug-AS-%{cfg.system}/Coral.Managed.deps.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.deps.json"',
-	    }
-
-    filter { "configurations:Debug" }
-        postbuildcommands {
-			'{MKDIR} "%{wks.location}/Hazelnut/DotNet"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.runtimeconfig.json"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Debug/Coral.Managed.dll" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.dll"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Debug/Coral.Managed.pdb" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.pdb"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Debug/Coral.Managed.deps.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.deps.json"',
-	    }
-
-    filter { "configurations:Release" }
-        postbuildcommands {
-			'{MKDIR} "%{wks.location}/Hazelnut/DotNet"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Coral.Managed/Coral.Managed.runtimeconfig.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.runtimeconfig.json"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Release/Coral.Managed.dll" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.dll"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Release/Coral.Managed.pdb" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.pdb"',
-		    '{COPYFILE} "%{wks.location}/Hazel/vendor/Coral/Build/Release/Coral.Managed.deps.json" "%{wks.location}/Hazelnut/DotNet/Coral.Managed.deps.json"',
-	    }

@@ -61,7 +61,7 @@ namespace Hazel {
 		virtual Ref<Asset> DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const;
 	private:
 		std::string SerializeToYAML(Ref<MaterialAsset> materialAsset) const;
-		bool DeserializeFromYAML(const std::string& yamlString, Ref<MaterialAsset>& targetMaterialAsset, AssetHandle handle) const;
+		bool DeserializeFromYAML(const std::string& yamlString, Ref<MaterialAsset>& targetMaterialAsset) const;
 	};
 
 	class EnvironmentSerializer : public AssetSerializer

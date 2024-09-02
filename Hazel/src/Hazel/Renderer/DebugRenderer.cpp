@@ -11,14 +11,6 @@ namespace Hazel {
 		});
 	}
 
-	void DebugRenderer::DrawTransform(const glm::mat4& transform, float scale)
-	{
-		m_RenderQueue.emplace_back([transform, scale](Ref<Renderer2D> renderer)
-		{
-			renderer->DrawTransform(transform, scale);
-		});
-	}
-
 	void DebugRenderer::DrawQuadBillboard(const glm::vec3& translation, const glm::vec2& size, const glm::vec4& color)
 	{
 		m_RenderQueue.emplace_back([translation, size, color](Ref<Renderer2D> renderer)

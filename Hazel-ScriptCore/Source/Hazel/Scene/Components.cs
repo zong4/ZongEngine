@@ -1,5 +1,4 @@
 ﻿using System;
-using Coral.Managed.Interop;
 
 namespace Hazel
 {
@@ -10,10 +9,10 @@ namespace Hazel
 
 	public class TagComponent : Component
 	{
-		public string? Tag
+		public string Tag
 		{
-			get { unsafe { return InternalCalls.TagComponent_GetTag(Entity.ID); } }
-			set { unsafe { InternalCalls.TagComponent_SetTag(Entity.ID, value); } }
+			get => InternalCalls.TagComponent_GetTag(Entity.ID);
+			set => InternalCalls.TagComponent_SetTag(Entity.ID, value);
 		}
 	}
 
@@ -26,18 +25,11 @@ namespace Hazel
 		{
 			get
 			{
-				unsafe
-				{
-					Transform transform;
-					InternalCalls.TransformComponent_GetTransform(Entity.ID, &transform);
-					return transform;
-				}
+				InternalCalls.TransformComponent_GetTransform(Entity.ID, out Transform result);
+				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetTransform(Entity.ID, &value); }
-			}
+			set => InternalCalls.TransformComponent_SetTransform(Entity.ID, ref value);
 		}
 
 		/// <summary>
@@ -47,8 +39,7 @@ namespace Hazel
 		{
 			get
 			{
-				Transform result;
-				unsafe { InternalCalls.TransformComponent_GetWorldSpaceTransform(Entity.ID, &result); }
+				InternalCalls.TransformComponent_GetWorldSpaceTransform(Entity.ID, out Transform result);
 				return result;
 			}
 		}
@@ -57,147 +48,86 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.TransformComponent_GetTranslation(Entity.ID, &result); }
+				InternalCalls.TransformComponent_GetTranslation(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetTranslation(Entity.ID, &value); }
-			}
+			set => InternalCalls.TransformComponent_SetTranslation(Entity.ID, ref value);
 		}
 
 		public Vector3 Rotation
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.TransformComponent_GetRotation(Entity.ID, &result); }
+				InternalCalls.TransformComponent_GetRotation(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetRotation(Entity.ID, &value); }
-			}
-		}
-
-		public Quaternion RotationQuat
-		{
-			get
-			{
-				Quaternion result;
-				unsafe { InternalCalls.TransformComponent_GetRotationQuat(Entity.ID, &result); }
-				return result;
-			}
-
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetRotationQuat(Entity.ID, &value); }
-			}
+			set => InternalCalls.TransformComponent_SetRotation(Entity.ID, ref value);
 		}
 
 		public Vector3 Scale
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.TransformComponent_GetScale(Entity.ID, &result); }
+				InternalCalls.TransformComponent_GetScale(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetScale(Entity.ID, &value); }
-			}
+			set => InternalCalls.TransformComponent_SetScale(Entity.ID, ref value);
 		}
 
 		public Matrix4 TransformMatrix
 		{
 			get
 			{
-				Matrix4 result;
-				unsafe { InternalCalls.TransformComponent_GetTransformMatrix(Entity.ID, &result); }
+				InternalCalls.TransformComponent_GetTransformMatrix(Entity.ID, out Matrix4 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TransformComponent_SetTransformMatrix(Entity.ID, &value); }
-			}
+			set => InternalCalls.TransformComponent_SetTransformMatrix(Entity.ID, ref value);
 		}
 
 		public void SetRotation(Quaternion rotation)
 		{
-			unsafe { InternalCalls.TransformComponent_SetRotationQuat(Entity.ID, &rotation); }
+			InternalCalls.TransformComponent_SetRotationQuat(Entity.ID, ref rotation);
 		}
+
 	}
 
-
-	// Note: (0x) For backwards compatibilty, the C++ SubmeshComponent is still "MeshComponent" in C#
-	//            This may change in future (which will break compatibility with old scripts)
 	public class MeshComponent : Component, IEquatable<MeshComponent>
 	{
-		public Mesh? Mesh
+		public Mesh Mesh
 		{
 			get
 			{
-				AssetHandle meshHandle;
-				unsafe
-				{
-					if (!InternalCalls.MeshComponent_GetMesh(Entity.ID, &meshHandle))
-						return null;
-				}
-
-				return new Mesh(meshHandle.m_Handle);
-			}
-
-			set
-			{
-				unsafe { InternalCalls.MeshComponent_SetMesh(Entity.ID, value.Handle); }
-			}
-		}
-
-		public bool Visible
-		{
-			get { unsafe { return InternalCalls.MeshComponent_GetVisible(Entity.ID); } }
-			set { unsafe { InternalCalls.MeshComponent_SetVisible(Entity.ID, value); } }
-		}
-
-		public bool HasMaterial(int index)
-		{
-			unsafe { return InternalCalls.MeshComponent_HasMaterial(Entity.ID, index); }
-		}
-
-		public Material? GetMaterial(int index)
-		{
-			if (!HasMaterial(index))
-				return null;
-
-			AssetHandle materialHandle;
-			unsafe
-			{
-				if (!InternalCalls.MeshComponent_GetMaterial(Entity.ID, index, &materialHandle))
+				if (!InternalCalls.MeshComponent_GetMesh(Entity.ID, out AssetHandle meshHandle))
 					return null;
+
+				return new Mesh(meshHandle);
 			}
+
+			set => InternalCalls.MeshComponent_SetMesh(Entity.ID, ref value.m_Handle);
+
+		}
+
+		public bool HasMaterial(int index) => InternalCalls.MeshComponent_HasMaterial(Entity.ID, index);
+
+		public Material GetMaterial(int index)
+		{
+			if (!HasMaterial(index) || !InternalCalls.MeshComponent_GetMaterial(Entity.ID, index, out AssetHandle materialHandle))
+				return null;
 
 			return new Material(Mesh.Handle, materialHandle, this);
 		}
+		public bool IsRigged => InternalCalls.MeshComponent_GetIsRigged(Entity.ID);
 
-		public bool IsRigged
-		{
-			get
-			{
-				unsafe { return InternalCalls.MeshComponent_GetIsRigged(Entity.ID); }
-			}
-		}
 
-		public override int GetHashCode() => (Mesh.Handle).GetHashCode();
+		public override int GetHashCode() => (Mesh.m_Handle).GetHashCode();
 		
-		public override bool Equals(object? obj) => obj is MeshComponent other && Equals(other);
+		public override bool Equals(object obj) => obj is MeshComponent other && Equals(other);
 		
-		public bool Equals(MeshComponent? right)
+		public bool Equals(MeshComponent right)
 		{
 			if (right is null)
 				return false;
@@ -218,67 +148,42 @@ namespace Hazel
 		{
 			get
 			{
-				AssetHandle outHandle;
-				unsafe { InternalCalls.StaticMeshComponent_GetMesh(Entity.ID, &outHandle); }
-				return new StaticMesh(outHandle.m_Handle);
+				InternalCalls.StaticMeshComponent_GetMesh(Entity.ID, out AssetHandle outHandle);
+				return new StaticMesh(outHandle);
 			}
-
-			set
-			{
-				unsafe { InternalCalls.StaticMeshComponent_SetMesh(Entity.ID, value.Handle); }
-			}
+			set => InternalCalls.StaticMeshComponent_SetMesh(Entity.ID, ref value.m_Handle);
 		}
 
-		public bool HasMaterial(int index)
-		{
-			unsafe { return InternalCalls.StaticMeshComponent_HasMaterial(Entity.ID, index); }
-		}
+		public bool HasMaterial(int index) => InternalCalls.StaticMeshComponent_HasMaterial(Entity.ID, index);
 
-		public Material? GetMaterial(int index)
+		public Material GetMaterial(int index)
 		{
-			if (!HasMaterial(index))
+			if (!HasMaterial(index) || !InternalCalls.StaticMeshComponent_GetMaterial(Entity.ID, index, out AssetHandle materialHandle))
 				return null;
-
-			AssetHandle materialHandle;
-
-			unsafe
-			{
-				if (!InternalCalls.StaticMeshComponent_GetMaterial(Entity.ID, index, &materialHandle))
-					return null;
-			}
 
 			return new Material(Mesh.Handle, materialHandle, this);
 		}
 
 		public void SetMaterial(int index, Material material)
 		{
-			unsafe
-			{
-				InternalCalls.StaticMeshComponent_SetMaterial(Entity.ID, index, material.Handle);
-			}
+			InternalCalls.StaticMeshComponent_SetMaterial(Entity.ID, index, material.Handle.m_Handle);
 		}
 
 		public bool Visible
 		{
-			get { unsafe { return InternalCalls.StaticMeshComponent_GetVisible(Entity.ID); } }
-			set { unsafe { InternalCalls.StaticMeshComponent_SetVisible(Entity.ID, value); } }
+			get => InternalCalls.StaticMeshComponent_IsVisible(Entity.ID);
+			set => InternalCalls.StaticMeshComponent_SetVisible(Entity.ID, value);
 		}
+
 	}
 
 	public readonly struct Identifier
 	{
 		public readonly uint ID;
 
-		public static readonly Identifier Invalid = new Identifier(0);
-
-		private Identifier(uint id)
-		{
-			ID = id;
-		}
-
 		public Identifier(string name)
 		{
-			unsafe { ID = InternalCalls.Identifier_Get(name); }
+			ID = InternalCalls.Identifier_Get(name);
 		}
 
 		public static implicit operator uint(Identifier id) => id.ID;
@@ -289,66 +194,39 @@ namespace Hazel
 	{
 		public bool GetInputBool(uint inputID)
 		{
-			unsafe { return InternalCalls.AnimationComponent_GetInputBool(Entity.ID, inputID); }
+			return InternalCalls.AnimationComponent_GetInputBool(Entity.ID, inputID);
 		}
 
 		public void SetInputBool(uint inputID, bool value)
 		{
-			unsafe { InternalCalls.AnimationComponent_SetInputBool(Entity.ID, inputID, value); }
+			InternalCalls.AnimationComponent_SetInputBool(Entity.ID, inputID, value);
 		}
 
 		public int GetInputInt(uint inputID)
 		{
-			unsafe { return InternalCalls.AnimationComponent_GetInputInt(Entity.ID, inputID); }
+			return InternalCalls.AnimationComponent_GetInputInt(Entity.ID, inputID);
 		}
 		
 		public void SetInputInt(uint inputID, int value)
 		{
-			unsafe { InternalCalls.AnimationComponent_SetInputInt(Entity.ID, inputID, value); }
+			InternalCalls.AnimationComponent_SetInputInt(Entity.ID, inputID, value);
 		}
 
 		public float GetInputFloat(uint inputID)
 		{
-			unsafe { return InternalCalls.AnimationComponent_GetInputFloat(Entity.ID, inputID); }
+			return InternalCalls.AnimationComponent_GetInputFloat(Entity.ID, inputID);
 		}
 
 		public void SetInputFloat(uint inputID, float value)
 		{
-			unsafe { InternalCalls.AnimationComponent_SetInputFloat(Entity.ID, inputID, value); }
-		}
-
-		public Vector3 GetInputVector3(uint inputID)
-		{
-			unsafe
-			{
-				Vector3 result;
-				InternalCalls.AnimationComponent_GetInputVector3(Entity.ID, inputID, &result);
-				return result;
-			}
-		}
-
-		public void SetInputVector3(uint inputID, Vector3 value)
-		{
-			unsafe
-			{
-				InternalCalls.AnimationComponent_SetInputVector3(Entity.ID, inputID, &value);
-			}
-		}
-		
-		public void SetInputTrigger(uint inputID)
-		{
-			unsafe
-			{
-				InternalCalls.AnimationComponent_SetInputTrigger(Entity.ID, inputID);
-			}
+			InternalCalls.AnimationComponent_SetInputFloat(Entity.ID, inputID, value);
 		}
 
 		public Transform RootMotion
 		{
 			get
 			{
-				Transform result;
-				unsafe { InternalCalls.AnimationComponent_GetRootMotion(Entity.ID, &result); }
+				InternalCalls.AnimationComponent_GetRootMotion(Entity.ID, out Transform result);
 				return result;
 			}
 		}
@@ -360,128 +238,57 @@ namespace Hazel
 		Perspective, 
 		Orthographic
 	}
-
 	public class CameraComponent : Component
 	{
-		public void SetPerspective(float verticalFov, float nearClip, float farClip)
-		{
-			unsafe { InternalCalls.CameraComponent_SetPerspective(Entity.ID, verticalFov, nearClip, farClip); }
-		}
-
-		public void SetOrthographic(float size, float nearClip, float farClip)
-		{
-			unsafe { InternalCalls.CameraComponent_SetOrthographic(Entity.ID, size, nearClip, farClip); }
-		}
+		public void SetPerspective(float verticalFov, float nearClip, float farClip) => InternalCalls.CameraComponent_SetPerspective(Entity.ID, verticalFov, nearClip, farClip);
+		public void SetOrthographic(float size, float nearClip, float farClip) => InternalCalls.CameraComponent_SetOrthographic(Entity.ID, size, nearClip, farClip);
 
 		public float VerticalFOV
-		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetVerticalFOV(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetVerticalFOV(Entity.ID, value); }
-			}
+		{ 
+			get => InternalCalls.CameraComponent_GetVerticalFOV(Entity.ID);
+			set => InternalCalls.CameraComponent_SetVerticalFOV(Entity.ID, value);
 		}
 
 		public float PerspectiveNearClip
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetPerspectiveNearClip(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe {  InternalCalls.CameraComponent_SetPerspectiveNearClip(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetPerspectiveNearClip(Entity.ID);
+			set => InternalCalls.CameraComponent_SetPerspectiveNearClip(Entity.ID, value);
 		}
 
 		public float PerspectiveFarClip
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetPerspectiveFarClip(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetPerspectiveFarClip(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetPerspectiveFarClip(Entity.ID);
+			set => InternalCalls.CameraComponent_SetPerspectiveFarClip(Entity.ID, value);
 		}
 
 		public float OrthographicSize
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetOrthographicSize(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetOrthographicSize(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetOrthographicSize(Entity.ID);
+			set => InternalCalls.CameraComponent_SetOrthographicSize(Entity.ID, value);
 		}
 
 		public float OrthographicNearClip
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetOrthographicNearClip(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetOrthographicNearClip(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetOrthographicNearClip(Entity.ID);
+			set => InternalCalls.CameraComponent_SetOrthographicNearClip(Entity.ID, value);
 		}
 
 		public float OrthographicFarClip
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetOrthographicFarClip(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetOrthographicFarClip(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetOrthographicFarClip(Entity.ID);
+			set => InternalCalls.CameraComponent_SetOrthographicFarClip(Entity.ID, value);
 		}
 
 		public CameraComponentType ProjectionType
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetProjectionType(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetProjectionType(Entity.ID, value); }
-			}
+			get => InternalCalls.CameraComponent_GetProjectionType(Entity.ID);
+			set => InternalCalls.CameraComponent_SetProjectionType(Entity.ID, value);
 		}
 
 		public bool Primary
 		{
-			get
-			{
-				unsafe { return InternalCalls.CameraComponent_GetPrimary(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CameraComponent_SetPrimary(Entity.ID, value); }
-			}
-		}
-
-		public Vector2 ToScreenSpace(Vector3 worldTranslation)
-		{
-			Vector2 result;
-			unsafe { InternalCalls.CameraComponent_ToScreenSpace(Entity.ID, &worldTranslation, &result); }
-			return result;
+			get => InternalCalls.CameraComponent_GetPrimary(Entity.ID);
+			set => InternalCalls.CameraComponent_SetPrimary(Entity.ID, value);
 		}
 	}
 
@@ -491,67 +298,35 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.DirectionalLightComponent_GetRadiance(Entity.ID, &result); }
+				InternalCalls.DirectionalLightComponent_GetRadiance(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.DirectionalLightComponent_SetRadiance(Entity.ID, &value); }
-			}
+			set => InternalCalls.DirectionalLightComponent_SetRadiance(Entity.ID, ref value);
 		}
 
 		public float Intensity
 		{
-			get
-			{
-				unsafe { return InternalCalls.DirectionalLightComponent_GetIntensity(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.DirectionalLightComponent_SetIntensity(Entity.ID, value); }
-			}
+			get => InternalCalls.DirectionalLightComponent_GetIntensity(Entity.ID);
+			set => InternalCalls.DirectionalLightComponent_SetIntensity(Entity.ID, value);
 		}
 
 		public bool CastShadows
 		{
-			get
-			{
-				unsafe { return InternalCalls.DirectionalLightComponent_GetCastShadows(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.DirectionalLightComponent_SetCastShadows(Entity.ID, value); }
-			}
+			get => InternalCalls.DirectionalLightComponent_GetCastShadows(Entity.ID);
+			set => InternalCalls.DirectionalLightComponent_SetCastShadows(Entity.ID, value);
 		}
 
 		public bool SoftShadows
 		{
-			get
-			{
-				unsafe { return InternalCalls.DirectionalLightComponent_GetSoftShadows(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.DirectionalLightComponent_SetSoftShadows(Entity.ID, value); }
-			}
+			get => InternalCalls.DirectionalLightComponent_GetSoftShadows(Entity.ID);
+			set => InternalCalls.DirectionalLightComponent_SetSoftShadows(Entity.ID, value);
 		}
 
 		public float LightSize
 		{
-			get
-			{
-				unsafe { return InternalCalls.DirectionalLightComponent_GetLightSize(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.DirectionalLightComponent_SetLightSize(Entity.ID, value); }
-			}
+			get => InternalCalls.DirectionalLightComponent_GetLightSize(Entity.ID);
+			set => InternalCalls.DirectionalLightComponent_SetLightSize(Entity.ID, value);
 		}
 	}
 
@@ -561,69 +336,29 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.PointLightComponent_GetRadiance(Entity.ID, &result); }
+				InternalCalls.PointLightComponent_GetRadiance(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.PointLightComponent_SetRadiance(Entity.ID, &value); }
-			}
+			set => InternalCalls.PointLightComponent_SetRadiance(Entity.ID, ref value);
 		}
 
 		public float Intensity
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.PointLightComponent_GetIntensity(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.PointLightComponent_SetIntensity(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.PointLightComponent_GetIntensity(Entity.ID);
+			set => InternalCalls.PointLightComponent_SetIntensity(Entity.ID, value);
 		}
 
 		public float Radius
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.PointLightComponent_GetRadius(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.PointLightComponent_SetRadius(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.PointLightComponent_GetRadius(Entity.ID);
+			set => InternalCalls.PointLightComponent_SetRadius(Entity.ID, value);
 		}
 
 		public float Falloff
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.PointLightComponent_GetFalloff(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.PointLightComponent_SetFalloff(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.PointLightComponent_GetFalloff(Entity.ID);
+			set => InternalCalls.PointLightComponent_SetFalloff(Entity.ID, value);
 		}
 	}
 
@@ -633,140 +368,52 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 result;
-				unsafe { InternalCalls.SpotLightComponent_GetRadiance(Entity.ID, &result); }
+				InternalCalls.SpotLightComponent_GetRadiance(Entity.ID, out Vector3 result);
 				return result;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.SpotLightComponent_SetRadiance(Entity.ID, &value); }
-			}
+			set => InternalCalls.SpotLightComponent_SetRadiance(Entity.ID, ref value);
 		}
 
 		public float Intensity
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetIntensity(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetIntensity(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetIntensity(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetIntensity(Entity.ID, value);
 		}
 
 		public float Range
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetRange(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetRange(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetRange(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetRange(Entity.ID, value);
 		}
 
 		public float Angle
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetAngle(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetAngle(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetAngle(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetAngle(Entity.ID, value);
 		}
 		public float AngleAttenuation
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetAngleAttenuation(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetAngleAttenuation(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetAngleAttenuation(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetAngleAttenuation(Entity.ID, value);
 		}
 
 		public float Falloff
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetFalloff(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetFalloff(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetFalloff(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetFalloff(Entity.ID, value);
 		}
 
 		public bool CastsShadows
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetCastsShadows(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetCastsShadows(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetCastsShadows(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetCastsShadows(Entity.ID, value);
 		}
 
 		public bool SoftShadows
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpotLightComponent_GetSoftShadows(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpotLightComponent_SetSoftShadows(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpotLightComponent_GetSoftShadows(Entity.ID);
+			set => InternalCalls.SpotLightComponent_SetSoftShadows(Entity.ID, value);
 		}
 	}
 	
@@ -774,86 +421,32 @@ namespace Hazel
 	{
 		public float Intensity
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SkyLightComponent_GetIntensity(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SkyLightComponent_SetIntensity(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SkyLightComponent_GetIntensity(Entity.ID);
+			set => InternalCalls.SkyLightComponent_SetIntensity(Entity.ID, value);
 		}
 
 		public float Turbidity
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SkyLightComponent_GetTurbidity(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SkyLightComponent_SetTurbidity(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SkyLightComponent_GetTurbidity(Entity.ID);
+			set => InternalCalls.SkyLightComponent_SetTurbidity(Entity.ID, value);
 		}
 
 		public float Azimuth
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SkyLightComponent_GetAzimuth(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SkyLightComponent_SetAzimuth(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SkyLightComponent_GetAzimuth(Entity.ID);
+			set => InternalCalls.SkyLightComponent_SetAzimuth(Entity.ID, value);
 		}
 
 		public float Inclination
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SkyLightComponent_GetInclination(Entity.ID);
-				}
-			}
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SkyLightComponent_SetInclination(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SkyLightComponent_GetInclination(Entity.ID);
+			private set => InternalCalls.SkyLightComponent_SetInclination(Entity.ID, value);
 		}
 	}
 
 	public class ScriptComponent : Component
 	{
-		public NativeInstance<object> Instance
-		{
-			get
-			{
-				unsafe { return InternalCalls.ScriptComponent_GetInstance(Entity.ID); }
-			}
-		}
+		public object Instance => InternalCalls.ScriptComponent_GetInstance(Entity.ID);
 	}
 
 	public class SpriteRendererComponent : Component
@@ -862,67 +455,33 @@ namespace Hazel
 		{
 			get
 			{
-				Vector4 color;
-				unsafe { InternalCalls.SpriteRendererComponent_GetColor(Entity.ID, &color); }
+				InternalCalls.SpriteRendererComponent_GetColor(Entity.ID, out Vector4 color);
 				return color;
 			}
-
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpriteRendererComponent_SetColor(Entity.ID, &value);
-				}
-			}
+			set => InternalCalls.SpriteRendererComponent_SetColor(Entity.ID, ref value);
 		}
-
 		public float TilingFactor
 		{
-			get
-			{
-				unsafe
-				{
-					return InternalCalls.SpriteRendererComponent_GetTilingFactor(Entity.ID);
-				}
-			}
-
-			set
-			{
-				unsafe
-				{
-					InternalCalls.SpriteRendererComponent_SetTilingFactor(Entity.ID, value);
-				}
-			}
+			get => InternalCalls.SpriteRendererComponent_GetTilingFactor(Entity.ID);
+			set => InternalCalls.SpriteRendererComponent_SetTilingFactor(Entity.ID, value);
 		}
-
 		public Vector2 UVStart
 		{ 
 			get
 			{
-				Vector2 uvStart;
-				unsafe { InternalCalls.SpriteRendererComponent_GetUVStart(Entity.ID, &uvStart); }
+				InternalCalls.SpriteRendererComponent_GetUVStart(Entity.ID, out Vector2 uvStart);
 				return uvStart;
 			}
-
-			set
-			{
-				unsafe { InternalCalls.SpriteRendererComponent_SetUVStart(Entity.ID, &value); }
-			}
+			set => InternalCalls.SpriteRendererComponent_SetUVStart(Entity.ID, ref value);
 		}
-
 		public Vector2 UVEnd
 		{ 
 			get
 			{
-				Vector2 uvEnd;
-				unsafe { InternalCalls.SpriteRendererComponent_GetUVEnd(Entity.ID, &uvEnd); }
+				InternalCalls.SpriteRendererComponent_GetUVEnd(Entity.ID, out Vector2 uvEnd);
 				return uvEnd;
 			}
-
-			set
-			{
-				unsafe { InternalCalls.SpriteRendererComponent_SetUVEnd(Entity.ID, &value); }
-			}
+			set => InternalCalls.SpriteRendererComponent_SetUVEnd(Entity.ID, ref value);
 		}
 	}
 
@@ -938,117 +497,61 @@ namespace Hazel
 	{
 		public RigidBody2DBodyType BodyType
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBody2DComponent_GetBodyType(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetBodyType(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBody2DComponent_GetBodyType(Entity.ID);
+			set => InternalCalls.RigidBody2DComponent_SetBodyType(Entity.ID, value);
 		}
 
 		public Vector2 Translation
 		{
 			get
 			{
-				Vector2 translation;
-				unsafe { InternalCalls.RigidBody2DComponent_GetTranslation(Entity.ID, &translation); }
+				InternalCalls.RigidBody2DComponent_GetTranslation(Entity.ID, out Vector2 translation);
 				return translation;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetTranslation(Entity.ID, &value); }
-			}
+			set => InternalCalls.RigidBody2DComponent_SetTranslation(Entity.ID, ref value);
 		}
 
 		public float Rotation
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBody2DComponent_GetRotation(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetRotation(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBody2DComponent_GetRotation(Entity.ID);
+			set => InternalCalls.RigidBody2DComponent_SetRotation(Entity.ID, value);
 		}
 
 		public float Mass
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBody2DComponent_GetMass(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetMass(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBody2DComponent_GetMass(Entity.ID);
+			set => InternalCalls.RigidBody2DComponent_SetMass(Entity.ID, value);
 		}
 
 		public Vector2 LinearVelocity
 		{
 			get
 			{
-				Vector2 velocity;
-				unsafe { InternalCalls.RigidBody2DComponent_GetLinearVelocity(Entity.ID, &velocity); }
+				InternalCalls.RigidBody2DComponent_GetLinearVelocity(Entity.ID, out Vector2 velocity);
 				return velocity;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetLinearVelocity(Entity.ID, &value); }
-			}
+			set => InternalCalls.RigidBody2DComponent_SetLinearVelocity(Entity.ID, ref value);
 		}
 
 		public float GravityScale
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBody2DComponent_GetGravityScale(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBody2DComponent_SetGravityScale(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBody2DComponent_GetGravityScale(Entity.ID);
+			set => InternalCalls.RigidBody2DComponent_SetGravityScale(Entity.ID, value);
 		}
 
 		public void ApplyLinearImpulse(Vector2 impulse, Vector2 offset, bool wake)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBody2DComponent_ApplyLinearImpulse(Entity.ID, &impulse, &offset, wake);
-			}
-		}
+			=> InternalCalls.RigidBody2DComponent_ApplyLinearImpulse(Entity.ID, ref impulse, ref offset, wake);
 
 		public void ApplyAngularImpulse(float impulse, bool wake)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBody2DComponent_ApplyAngularImpulse(Entity.ID, impulse, wake);
-			}
-		}
+			=> InternalCalls.RigidBody2DComponent_ApplyAngularImpulse(Entity.ID, impulse, wake);
 
 		public void AddForce(Vector2 force, Vector2 offset, bool wake)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBody2DComponent_AddForce(Entity.ID, &force, &offset, wake);
-			}
-		}
+			=> InternalCalls.RigidBody2DComponent_AddForce(Entity.ID, ref force, ref offset, wake);
 
 		public void AddTorque(float torque, bool wake)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBody2DComponent_AddTorque(Entity.ID, torque, wake);
-			}
-		}
+			=> InternalCalls.RigidBody2DComponent_AddTorque(Entity.ID, torque, wake);
 	}
 
 	public class BoxCollider2DComponent : Component
@@ -1068,212 +571,119 @@ namespace Hazel
 
 		public EBodyType BodyType
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetBodyType(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetBodyType(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetBodyType(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetBodyType(Entity.ID, value);
 		}
 		
 		public float Mass
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetMass(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetMass(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetMass(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetMass(Entity.ID, value);
 		}
 
 		public Vector3 LinearVelocity
 		{
 			get
 			{
-				Vector3 velocity;
-				unsafe { InternalCalls.RigidBodyComponent_GetLinearVelocity(Entity.ID, &velocity); }
+				InternalCalls.RigidBodyComponent_GetLinearVelocity(Entity.ID, out Vector3 velocity);
 				return velocity;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetLinearVelocity(Entity.ID, &value); }
-			}
+			set => InternalCalls.RigidBodyComponent_SetLinearVelocity(Entity.ID, ref value);
 		}
 
 		public Vector3 AngularVelocity
 		{
 			get
 			{
-				Vector3 velocity;
-				unsafe { InternalCalls.RigidBodyComponent_GetAngularVelocity(Entity.ID, &velocity); }
+				InternalCalls.RigidBodyComponent_GetAngularVelocity(Entity.ID, out Vector3 velocity);
 				return velocity;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetAngularVelocity(Entity.ID, &value); }
-			}
+			set => InternalCalls.RigidBodyComponent_SetAngularVelocity(Entity.ID, ref value);
 		}
 
 		public bool IsTrigger
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_IsTrigger(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetTrigger(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_IsTrigger(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetTrigger(Entity.ID, value);
 		}
 
 		public float MaxLinearVelocity
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetMaxLinearVelocity(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetMaxLinearVelocity(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetMaxLinearVelocity(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetMaxLinearVelocity(Entity.ID, value);
 		}
 
 		public float MaxAngularVelocity
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetMaxAngularVelocity(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetMaxAngularVelocity(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetMaxAngularVelocity(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetMaxAngularVelocity(Entity.ID, value);
 		}
 
 		public float LinearDrag
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetLinearDrag(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetLinearDrag(Entity.ID, value); }
-			}
+			get { return InternalCalls.RigidBodyComponent_GetLinearDrag(Entity.ID); }
+			set { InternalCalls.RigidBodyComponent_SetLinearDrag(Entity.ID, value); }
 		}
 
 		public float AngularDrag
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetAngularDrag(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetAngularDrag(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetAngularDrag(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetAngularDrag(Entity.ID, value);
 		}
 
 		public uint Layer
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetLayer(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetLayer(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetLayer(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetLayer(Entity.ID, value);
 		}
 
 		public string LayerName
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_GetLayerName(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetLayerByName(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_GetLayerName(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetLayerByName(Entity.ID, value);
 		}
 
 		public bool IsSleeping
 		{
-			get
-			{
-				unsafe { return InternalCalls.RigidBodyComponent_IsSleeping(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.RigidBodyComponent_SetIsSleeping(Entity.ID, value); }
-			}
+			get => InternalCalls.RigidBodyComponent_IsSleeping(Entity.ID);
+			set => InternalCalls.RigidBodyComponent_SetIsSleeping(Entity.ID, value);
 		}
 
 		public void MoveKinematic(Vector3 targetPosition, Vector3 targetRotation, float deltaSeconds)
-		{
-			unsafe { InternalCalls.RigidBodyComponent_MoveKinematic(Entity.ID, &targetPosition, &targetRotation, deltaSeconds); }
-		}
+			=> InternalCalls.RigidBodyComponent_MoveKinematic(Entity.ID, ref targetPosition, ref targetRotation, deltaSeconds);
 
 		public void AddForce(Vector3 force, EForceMode forceMode = EForceMode.Force)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBodyComponent_AddForce(Entity.ID, &force, forceMode);
-			}
-		}
+			=> InternalCalls.RigidBodyComponent_AddForce(Entity.ID, ref force, forceMode);
 
 		public void AddForceAtLocation(Vector3 force, Vector3 location, EForceMode forceMode = EForceMode.Force)
 		{
-			unsafe
-			{
-				InternalCalls.RigidBodyComponent_AddForceAtLocation(Entity.ID, &force, &location, forceMode);
-			}
+			InternalCalls.RigidBodyComponent_AddForceAtLocation(Entity.ID, ref force, ref location, forceMode);
 		}
 
 		public void AddTorque(Vector3 torque, EForceMode forceMode = EForceMode.Force)
-		{
-			unsafe
-			{
-				InternalCalls.RigidBodyComponent_AddTorque(Entity.ID, &torque, forceMode);
-			}
-		}
+			=> InternalCalls.RigidBodyComponent_AddTorque(Entity.ID, ref torque, forceMode);
 
 		// Rotation should be in radians
 		public void Rotate(Vector3 rotation)
-		{
-			unsafe { InternalCalls.RigidBodyComponent_Rotate(Entity.ID, &rotation); }
-		}
+			=> InternalCalls.RigidBodyComponent_Rotate(Entity.ID, ref rotation);
 
 		public void SetAxisLock(EActorAxis axis, bool value, bool forceWake = false)
-		{
-			unsafe { InternalCalls.RigidBodyComponent_SetAxisLock(Entity.ID, axis, value, forceWake); }
-		}
-
+			=> InternalCalls.RigidBodyComponent_SetAxisLock(Entity.ID, axis, value, forceWake);
 		public bool IsAxisLocked(EActorAxis axis)
+			=> InternalCalls.RigidBodyComponent_IsAxisLocked(Entity.ID, axis);
+
+		public uint GetLockedAxes() => InternalCalls.RigidBodyComponent_GetLockedAxes(Entity.ID);
+
+		public void Teleport(Vector3 targetPosition, bool force = false)
 		{
-			unsafe { return InternalCalls.RigidBodyComponent_IsAxisLocked(Entity.ID, axis); }
+			Teleport(targetPosition, Entity.Rotation, force);
 		}
 
-		public uint GetLockedAxes()
+		public void Teleport(Vector3 targetPosition, Vector3 targetRotation, bool force = false)
 		{
-			unsafe { return InternalCalls.RigidBodyComponent_GetLockedAxes(Entity.ID); }
+			InternalCalls.RigidBodyComponent_Teleport(Entity.ID, ref targetPosition, ref targetRotation, force);
 		}
 	}
 
@@ -1286,97 +696,84 @@ namespace Hazel
 	{
 		public bool IsGravityEnabled
 		{
-			get
-			{
-				unsafe { return InternalCalls.CharacterControllerComponent_GetIsGravityEnabled(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CharacterControllerComponent_SetIsGravityEnabled(Entity.ID, value); }
-			}
+			get => InternalCalls.CharacterControllerComponent_GetIsGravityEnabled(Entity.ID);
+			set => InternalCalls.CharacterControllerComponent_SetIsGravityEnabled(Entity.ID, value);
 		}
 
 		public float SlopeLimit
 		{
-			get
-			{
-				unsafe { return InternalCalls.CharacterControllerComponent_GetSlopeLimit(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CharacterControllerComponent_SetSlopeLimit(Entity.ID, value); }
-			}
+			get => InternalCalls.CharacterControllerComponent_GetSlopeLimit(Entity.ID);
+			set => InternalCalls.CharacterControllerComponent_SetSlopeLimit(Entity.ID, value);
 		}
 
 		public float StepOffset
 		{
-			get
-			{
-				unsafe { return InternalCalls.CharacterControllerComponent_GetStepOffset(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.CharacterControllerComponent_SetStepOffset(Entity.ID, value); }
-			}
+			get => InternalCalls.CharacterControllerComponent_GetStepOffset(Entity.ID);
+			set => InternalCalls.CharacterControllerComponent_SetStepOffset(Entity.ID, value);
 		}
 
 		public Vector3 LinearVelocity
 		{
 			get
 			{
-				Vector3 velocity;
-				unsafe { InternalCalls.CharacterControllerComponent_GetLinearVelocity(Entity.ID, &velocity); }
+				InternalCalls.CharacterControllerComponent_GetLinearVelocity(Entity.ID, out Vector3 velocity);
 				return velocity;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.CharacterControllerComponent_SetLinearVelocity(Entity.ID, &value); }
-			}
+			set => InternalCalls.CharacterControllerComponent_SetLinearVelocity(Entity.ID, ref value);
+		}
+		public bool IsGrounded => InternalCalls.CharacterControllerComponent_IsGrounded(Entity.ID);
+		public ECollisionFlags CollisionFlags => InternalCalls.CharacterControllerComponent_GetCollisionFlags(Entity.ID);
+
+		public void SetTranslation(Vector3 translation) => InternalCalls.CharacterControllerComponent_SetTranslation(Entity.ID, ref translation);
+		public void SetRotation(Quaternion rotation) => InternalCalls.CharacterControllerComponent_SetRotation(Entity.ID, ref rotation);
+
+		public void Move(Vector3 displacement) => InternalCalls.CharacterControllerComponent_Move(Entity.ID, ref displacement);
+		public void Jump(float jumpPower) => InternalCalls.CharacterControllerComponent_Jump(Entity.ID, jumpPower);
+	}
+
+	public class FixedJointComponent : Component
+	{
+
+		public Entity ConnectedEntity
+		{
+			get => new Entity(InternalCalls.FixedJointComponent_GetConnectedEntity(Entity.ID));
+			set => InternalCalls.FixedJointComponent_SetConnectedEntity(Entity.ID, value.ID);
 		}
 
-		public bool IsGrounded
+		public bool IsBreakable
 		{
-			get
-			{
-				unsafe { return InternalCalls.CharacterControllerComponent_IsGrounded(Entity.ID); }
-			}
+			get => InternalCalls.FixedJointComponent_IsBreakable(Entity.ID);
+			set => InternalCalls.FixedJointComponent_SetIsBreakable(Entity.ID, value);
 		}
 
-		public ECollisionFlags CollisionFlags
+		public bool IsBroken => InternalCalls.FixedJointComponent_IsBroken(Entity.ID);
+
+		public float BreakForce
 		{
-			get
-			{
-				unsafe { return InternalCalls.CharacterControllerComponent_GetCollisionFlags(Entity.ID); }
-			}
+			get => InternalCalls.FixedJointComponent_GetBreakForce(Entity.ID);
+			set => InternalCalls.FixedJointComponent_SetBreakForce(Entity.ID, value);
 		}
 
-		public void SetTranslation(Vector3 translation)
+		public float BreakTorque
 		{
-			unsafe { InternalCalls.CharacterControllerComponent_SetTranslation(Entity.ID, &translation); }
+			get => InternalCalls.FixedJointComponent_GetBreakTorque(Entity.ID);
+			set => InternalCalls.FixedJointComponent_SetBreakTorque(Entity.ID, value);
 		}
 
-		public void SetRotation(Quaternion rotation)
+		public bool IsCollisionEnabled
 		{
-			unsafe { InternalCalls.CharacterControllerComponent_SetRotation(Entity.ID, &rotation); }
+			get => InternalCalls.FixedJointComponent_IsCollisionEnabled(Entity.ID);
+			set => InternalCalls.FixedJointComponent_SetCollisionEnabled(Entity.ID, value);
 		}
 
-		public void Move(Vector3 displacement)
+		public bool IsPreProcessingEnabled
 		{
-			unsafe { InternalCalls.CharacterControllerComponent_Move(Entity.ID, &displacement); }
-		}
-		public void Rotate(Quaternion rotation)
-		{
-			unsafe { InternalCalls.CharacterControllerComponent_Rotate(Entity.ID, &rotation); }
+			get => InternalCalls.FixedJointComponent_IsPreProcessingEnabled(Entity.ID);
+			set => InternalCalls.FixedJointComponent_SetPreProcessingEnabled(Entity.ID, value);
 		}
 
-		public void Jump(float jumpPower)
-		{
-			unsafe { InternalCalls.CharacterControllerComponent_Jump(Entity.ID, jumpPower); }
-		}
+		public void Break() => InternalCalls.FixedJointComponent_Break(Entity.ID);
 	}
 
 	public class BoxColliderComponent : Component
@@ -1385,8 +782,7 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 halfSize;
-				unsafe { InternalCalls.BoxColliderComponent_GetHalfSize(Entity.ID, &halfSize); }
+				InternalCalls.BoxColliderComponent_GetHalfSize(Entity.ID, out Vector3 halfSize);
 				return halfSize;
 			}
 		}
@@ -1395,8 +791,7 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 offset;
-				unsafe { InternalCalls.BoxColliderComponent_GetOffset(Entity.ID, &offset); }
+				InternalCalls.BoxColliderComponent_GetOffset(Entity.ID, out Vector3 offset);
 				return offset;
 			}
 		}
@@ -1405,35 +800,24 @@ namespace Hazel
 		{
 			get
 			{
-				PhysicsMaterial material;
-				unsafe { InternalCalls.BoxColliderComponent_GetMaterial(Entity.ID, &material); }
+				InternalCalls.BoxColliderComponent_GetMaterial(Entity.ID, out PhysicsMaterial material);
 				return material;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.BoxColliderComponent_SetMaterial(Entity.ID, &value); }
-			}
+			set => InternalCalls.BoxColliderComponent_SetMaterial(Entity.ID, ref value);
 		}
 	}
 
 	public class SphereColliderComponent : Component
 	{
 
-		public float Radius
-		{
-			get
-			{
-				unsafe { return InternalCalls.SphereColliderComponent_GetRadius(Entity.ID); }
-			}
-		}
+		public float Radius => InternalCalls.SphereColliderComponent_GetRadius(Entity.ID);
 
 		public Vector3 Offset
 		{
 			get
 			{
-				Vector3 offset;
-				unsafe { InternalCalls.SphereColliderComponent_GetOffset(Entity.ID, &offset); }
+				InternalCalls.SphereColliderComponent_GetOffset(Entity.ID, out Vector3 offset);
 				return offset;
 			}
 		}
@@ -1442,43 +826,25 @@ namespace Hazel
 		{
 			get
 			{
-				PhysicsMaterial material;
-				unsafe { InternalCalls.SphereColliderComponent_GetMaterial(Entity.ID, &material); }
+				InternalCalls.SphereColliderComponent_GetMaterial(Entity.ID, out PhysicsMaterial material);
 				return material;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.SphereColliderComponent_SetMaterial(Entity.ID, &value); }
-			}
+			set => InternalCalls.SphereColliderComponent_SetMaterial(Entity.ID, ref value);
 		}
 	}
 
 	public class CapsuleColliderComponent : Component
 	{
 
-		public float Radius
-		{
-			get
-			{
-				unsafe { return InternalCalls.CapsuleColliderComponent_GetRadius(Entity.ID); }
-			}
-		}
-
-		public float HalfHeight
-		{
-			get
-			{
-				unsafe { return InternalCalls.CapsuleColliderComponent_GetHeight(Entity.ID); }
-			}
-		}
+		public float Radius => InternalCalls.CapsuleColliderComponent_GetRadius(Entity.ID);
+		public float HalfHeight => InternalCalls.CapsuleColliderComponent_GetHeight(Entity.ID);
 
 		public Vector3 Offset
 		{
 			get
 			{
-				Vector3 offset;
-				unsafe { InternalCalls.CapsuleColliderComponent_GetOffset(Entity.ID, &offset); }
+				InternalCalls.CapsuleColliderComponent_GetOffset(Entity.ID, out Vector3 offset);
 				return offset;
 			}
 		}
@@ -1487,54 +853,33 @@ namespace Hazel
 		{
 			get
 			{
-				PhysicsMaterial material;
-				unsafe { InternalCalls.CapsuleColliderComponent_GetMaterial(Entity.ID, &material); }
+				InternalCalls.CapsuleColliderComponent_GetMaterial(Entity.ID, out PhysicsMaterial material);
 				return material;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.CapsuleColliderComponent_SetMaterial(Entity.ID, &value); }
-			}
+			set => InternalCalls.CapsuleColliderComponent_SetMaterial(Entity.ID, ref value);
 		}
 	}
 
 	public class MeshColliderComponent : Component
 	{
-		public bool IsStaticMesh
-		{
-			get
-			{
-				unsafe { return InternalCalls.MeshColliderComponent_IsMeshStatic(Entity.ID); }
-			}
-		}
+		public bool IsStaticMesh => InternalCalls.MeshColliderComponent_IsMeshStatic(Entity.ID);
 
 		public AssetHandle ColliderMeshHandle
 		{
-			get
-			{
-				AssetHandle colliderHandle;
-				unsafe
-				{
-					bool result = InternalCalls.MeshColliderComponent_GetColliderMesh(Entity.ID, &colliderHandle);
-					return result ? colliderHandle : AssetHandle.Invalid;
-				}
-			}
+			get => InternalCalls.MeshColliderComponent_GetColliderMesh(Entity.ID, out AssetHandle colliderHandle)
+				? colliderHandle : AssetHandle.Invalid;
 		}
 
 		public PhysicsMaterial Material
 		{
 			get
 			{
-				PhysicsMaterial material;
-				unsafe { InternalCalls.MeshColliderComponent_GetMaterial(Entity.ID, &material); }
+				InternalCalls.MeshColliderComponent_GetMaterial(Entity.ID, out PhysicsMaterial material);
 				return material;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.MeshColliderComponent_SetMaterial(Entity.ID, &value); }
-			}
+			set => InternalCalls.MeshColliderComponent_SetMaterial(Entity.ID, ref value);
 		}
 
 		private Mesh m_ColliderMesh;
@@ -1549,7 +894,7 @@ namespace Hazel
 				return null;
 
 			if (m_ColliderMesh == null || m_ColliderMesh.Handle != ColliderMeshHandle)
-				m_ColliderMesh = new Mesh(ColliderMeshHandle.m_Handle);
+				m_ColliderMesh = new Mesh(ColliderMeshHandle);
 
 			return m_ColliderMesh;
 		}
@@ -1563,7 +908,7 @@ namespace Hazel
 				return null;
 
 			if (m_ColliderMesh == null || m_StaticColliderMesh.Handle != ColliderMeshHandle)
-				m_StaticColliderMesh = new StaticMesh(ColliderMeshHandle.m_Handle);
+				m_StaticColliderMesh = new StaticMesh(ColliderMeshHandle);
 
 			return m_StaticColliderMesh;
 		}
@@ -1575,66 +920,26 @@ namespace Hazel
 
 	public class AudioComponent : Component
 	{
-		public bool IsPlaying()
-		{
-			unsafe { return InternalCalls.AudioComponent_IsPlaying(Entity.ID); }
-		}
-
-		public bool Play(float startTime = 0.0f)
-		{
-			unsafe { return InternalCalls.AudioComponent_Play(Entity.ID, startTime); }
-		}
-		
-		public bool Stop()
-		{
-			unsafe { return InternalCalls.AudioComponent_Stop(Entity.ID); }
-		}
-
-		public bool Pause()
-		{
-			unsafe { return InternalCalls.AudioComponent_Pause(Entity.ID); }
-		}
-
-		public bool Resume()
-		{
-			unsafe { return InternalCalls.AudioComponent_Resume(Entity.ID); }
-		}
+		public bool IsPlaying() => InternalCalls.AudioComponent_IsPlaying(Entity.ID);
+		public bool Play(float startTime = 0.0f) => InternalCalls.AudioComponent_Play(Entity.ID, startTime);
+		public bool Stop() => InternalCalls.AudioComponent_Stop(Entity.ID);
+		public bool Pause() => InternalCalls.AudioComponent_Pause(Entity.ID);
+		public bool Resume() => InternalCalls.AudioComponent_Resume(Entity.ID);
 
 		public float VolumeMultiplier
 		{
-			get
-			{
-				unsafe { return InternalCalls.AudioComponent_GetVolumeMult(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.AudioComponent_SetVolumeMult(Entity.ID, value); }
-			}
+			get => InternalCalls.AudioComponent_GetVolumeMult(Entity.ID);
+			set => InternalCalls.AudioComponent_SetVolumeMult(Entity.ID, value);
 		}
 
 		public float PitchMultiplier
 		{
-			get
-			{
-				unsafe { return InternalCalls.AudioComponent_GetPitchMult(Entity.ID); }
-			}
-
-			set
-			{
-				unsafe { InternalCalls.AudioComponent_SetPitchMult(Entity.ID, value); }
-			}
+			get => InternalCalls.AudioComponent_GetPitchMult(Entity.ID);
+			set => InternalCalls.AudioComponent_SetPitchMult(Entity.ID, value);
 		}
 
-		public void SetEvent(AudioCommandID eventID)
-		{
-			unsafe { InternalCalls.AudioComponent_SetEvent(Entity.ID, eventID); }
-		}
-
-		public void SetEvent(string eventName)
-		{
-			unsafe { InternalCalls.AudioComponent_SetEvent(Entity.ID, new AudioCommandID(eventName)); }
-		}
+		public void SetEvent(AudioCommandID eventID) => InternalCalls.AudioComponent_SetEvent(Entity.ID, eventID);
+		public void SetEvent(string eventName) => InternalCalls.AudioComponent_SetEvent(Entity.ID, new AudioCommandID(eventName));
 	}
 
 	public class TextComponent : Component
@@ -1646,38 +951,28 @@ namespace Hazel
 		{
 			get
 			{
-				unsafe
+				ulong internalHash = InternalCalls.TextComponent_GetHash(Entity.ID);
+				if (m_Hash != internalHash)
 				{
-					ulong internalHash = InternalCalls.TextComponent_GetHash(Entity.ID);
-					if (m_Hash != internalHash)
-					{
-						m_Text = InternalCalls.TextComponent_GetText(Entity.ID);
-						m_Hash = internalHash;
-					}
+					m_Text = InternalCalls.TextComponent_GetText(Entity.ID);
+					m_Hash = internalHash;
 				}
 
 				return m_Text;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TextComponent_SetText(Entity.ID, value); }
-			}
+			set => InternalCalls.TextComponent_SetText(Entity.ID, value);
 		}
 
 		public Vector4 Color
 		{
 			get
 			{
-				Vector4 color;
-				unsafe { InternalCalls.TextComponent_GetColor(Entity.ID, &color); }
+				InternalCalls.TextComponent_GetColor(Entity.ID, out Vector4 color);
 				return color;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.TextComponent_SetColor(Entity.ID, &value); }
-			}
+			set => InternalCalls.TextComponent_SetColor(Entity.ID, ref value);
 		}
 	}
 

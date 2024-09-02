@@ -33,7 +33,7 @@ namespace Hazel {
 			out << YAML::Key << "Skeleton" << YAML::Value;
 			out << YAML::BeginMap;
 			{
-				out << YAML::Key << "MeshSource" << YAML::Value << skeleton->GetMeshSource();
+				out << YAML::Key << "MeshSource" << YAML::Value << skeleton->GetMeshSource()->Handle;
 			}
 			out << YAML::EndMap;
 		}
@@ -77,7 +77,7 @@ namespace Hazel {
 
 	bool SkeletonAssetSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		auto filepath = Project::GetActiveAssetDirectory() / metadata.FilePath;
+		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
 		HZ_CORE_ASSERT(stream);
 		std::stringstream strStream;
@@ -133,9 +133,9 @@ namespace Hazel {
 			out << YAML::Key << "Animation" << YAML::Value;
 			out << YAML::BeginMap;
 			{
-				out << YAML::Key << "AnimationSource" << YAML::Value << animationAsset->GetAnimationSource();
-				out << YAML::Key << "SkeletonSource" << YAML::Value << animationAsset->GetSkeletonSource();
-				out << YAML::Key << "AnimationName" << YAML::Value << animationAsset->GetAnimationName();
+				out << YAML::Key << "AnimationSource" << YAML::Value << animationAsset->GetAnimationSource()->Handle;
+				out << YAML::Key << "SkeletonSource" << YAML::Value << animationAsset->GetSkeletonSource()->Handle;
+				out << YAML::Key << "AnimationIndex" << YAML::Value << animationAsset->GetAnimationIndex();
 				out << YAML::Key << "FilterRootMotion" << YAML::Value << animationAsset->IsMaskedRootMotion();
 				out << YAML::Key << "RootTranslationMask" << YAML::Value << animationAsset->GetRootTranslationMask();
 				out << YAML::Key << "RootRotationMask" << YAML::Value << animationAsset->GetRootTranslationMask();
@@ -174,27 +174,16 @@ namespace Hazel {
 		Ref<MeshSource> animationSource = AssetManager::GetAsset<MeshSource>(animationHandle);
 		Ref<MeshSource> skeletonSource = AssetManager::GetAsset<MeshSource>(skeletonHandle);
 
-		if (!animationSource || !skeletonSource)
+		if (!animationSource || !animationSource->IsValid() || !skeletonSource || !skeletonSource->IsValid())
 			return false;
 
-		auto sourceAnimationNames = animationSource->GetAnimationNames();
-		std::string animationName = rootNode["AnimationName"].as<std::string>("");
-		if (animationName.empty())
-		{
-			if (uint32_t animationIndex = rootNode["AnimationIndex"].as<uint32_t>(~0); animationIndex != ~0)
-			{
-				if (animationIndex < sourceAnimationNames.size())
-					animationName = sourceAnimationNames[animationIndex];
-			}
-		}
-		if (animationName.empty())
-			return false;
-
+		uint32_t animationIndex = 0;
+		animationIndex = rootNode["AnimationIndex"].as<uint32_t>(animationIndex);
 		auto filterRootMotion = rootNode["FilterRootMotion"].as<bool>(true);
 		auto rootTranslationMask = rootNode["RootTranslationMask"].as<glm::vec3>(glm::vec3{ 0.0f });
 		auto rootRotationMask = rootNode["RootRotationMask"].as<float>(0.0f);
 
-		animationAsset = Ref<AnimationAsset>::Create(animationHandle, skeletonHandle, animationName, filterRootMotion, rootTranslationMask, rootRotationMask);
+		animationAsset = Ref<AnimationAsset>::Create(animationSource, skeletonSource, animationIndex, filterRootMotion, rootTranslationMask, rootRotationMask);
 		return true;
 	}
 
@@ -212,7 +201,7 @@ namespace Hazel {
 
 	bool AnimationAssetSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		auto filepath = Project::GetActiveAssetDirectory() / metadata.FilePath;
+		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
 		HZ_CORE_ASSERT(stream);
 		std::stringstream strStream;
@@ -279,19 +268,7 @@ namespace Hazel {
 				out << YAML::Key << id << YAML::Value;
 				out << YAML::BeginMap;
 				{
-					DefaultGraphSerializer::SerializeNodes(out, nodes, [](YAML::Emitter& out, const Node* node) {
-						if (node->Name.starts_with("Blend Space"))
-						{
-							const auto* agNode = static_cast<const AG::Types::Node*>(node);
-							out << YAML::Key << "Offset" << YAML::Value << glm::vec2(agNode->Offset.x, agNode->Offset.y);
-							if (node->Name == "Blend Space")
-							{
-								out << YAML::Key << "Scale" << YAML::Value << glm::vec2(agNode->Scale.x, agNode->Scale.y);
-								out << YAML::Key << "LerpSecondsPerUnit" << YAML::Value << glm::vec2(agNode->LerpSecondsPerUnit.x, agNode->LerpSecondsPerUnit.y);
-								out << YAML::Key << "ShowDetails" << YAML::Value << agNode->ShowDetails;
-							}
-						}
-					});
+					DefaultGraphSerializer::SerializeNodes(out, nodes);
 					DefaultGraphSerializer::SerializeLinks(out, graph->m_Links.at(id));
 					HZ_SERIALIZE_PROPERTY(GraphState, graph->m_GraphState.at(id), out);
 				}
@@ -385,11 +362,7 @@ namespace Hazel {
 				}
 				else
 				{
-					if (candidate.Category == "BlendSpace")
-					{
-						newNode = AG::BlendSpaceNodeFactory::SpawnNodeStatic(candidate.Category, candidate.Name);
-					}
-					else if (candidate.Category == "Transition")
+					if (candidate.Category == "Transition")
 					{
 						newNode = AG::TransitionGraphNodeFactory::SpawnNodeStatic(candidate.Category, candidate.Name);
 					}
@@ -462,25 +435,25 @@ namespace Hazel {
 				const std::string_view candidateTypeStr = magic_enum::enum_name<AG::Types::EPinType>(candidateType);
 				const std::string_view factoryPinTypeStr = factoryPin->GetTypeString();
 
-				HZ_CONSOLE_LOG_WARN(
+				HZ_CONSOLE_LOG_ERROR(
 					"Pin type of the deserialized Node Pin ({0} - '{1}' ({2})) does not match the Pin type of the factory Node Pin ({0} - '{3}' ({4})).",
 					node.Name, candidate.Name, candidateTypeStr, factoryPin->Name, factoryPinTypeStr
 				);
-				return true;
+				return false;
+			}
+			else if (candidate.Name != factoryPin->Name)
+			{
+				// TODO: JP. this may not be correct when/if we change the Comment node to use Pin to display text instead of Node name
+				HZ_CONSOLE_LOG_ERROR(
+					"Pin name of the deserialized Node Pin ({0} - '{1}') does not match the Pin name of the factory Node Pin ({0} - '{2}').",
+					node.Name, candidate.Name, factoryPin->Name
+				);
+				return false;
 			}
 
 			// Flow types are not serialized
 			if (factoryPin->IsType(AG::Types::Flow))
 				return true;
-
-			//? Warn if name does not match
-			if (candidate.Name != factoryPin->Name)
-			{
-				HZ_CONSOLE_LOG_WARN(
-					"Pin name of the deserialized Node Pin ({0} - '{1}') does not match the Pin name of the factory Node Pin ({0} - '{2}').",
-					node.Name, candidate.Name, factoryPin->Name
-				);
-			}
 
 			// TODO: JP. for now we use 'void' and 'string' for connected pins (this is needed for graph parsing,
 			//           but perhaps we could assign 'void' type for the compilation step only?)
@@ -490,44 +463,26 @@ namespace Hazel {
 				factoryPin->Value = candidate.Value;
 				return true;
 			}
-
-			// Can get here for local variable nodes with array values if the value was set via the model API (e.g. model->GetLocalVariables().Set("thing", value) after the graph was created.
-			// (in this case the factory pin value might have a different number of elements to the candidate pin, and so fails the value type check.  It does not matter, so ignore it here)
-			if (node.Category == "Local Variable" && node.NumInputs == 0 && node.NumOutputs == 1)
+			else
 			{
-				return true;
-			}
-
-			// This can trigger if we've trying to load old version of a Node.
-			HZ_CONSOLE_LOG_WARN(
-				"Value type of the deserialized Node Pin ({0} - '{1}') does not match the Value type of the factory Node Pin ({0} - '{2}').",
-				node.Name, candidate.Name, factoryPin->Name
-			);
-
-			return true;
-		};
-
-		auto nodeCallback = [](YAML::Node& node, Node* newNode) {
-			if (newNode->Name.starts_with("Blend Space"))
-			{
-				auto* agNode = static_cast<AG::Types::Node*>(newNode);
-				glm::vec2 offset;
-				HZ_DESERIALIZE_PROPERTY(Offset, offset, node, glm::vec2(agNode->Offset.x, agNode->Offset.y));
-				agNode->Offset = { offset.x, offset.y };
-				if (newNode->Name == "Blend Space")
+				// This can trigger for local variable nodes with array values if the value was set via the model API (e.g. model->GetLocalVariables().Set("thing", value) after the graph was created.
+				// (in this case the factory pin value might have a different number of elements to the candidate pin, and so fails the value type check.  It does not matter, so ignore it here)
+				if (node.Category == "Local Variable" && node.NumInputs == 0 && node.NumOutputs == 1)
 				{
-					glm::vec2 scale;
-					HZ_DESERIALIZE_PROPERTY(Scale, scale, node, glm::vec2(agNode->Scale.x, agNode->Scale.y));
-					agNode->Scale = { scale.x, scale.y };
-					glm::vec2 lerpSecondsPerUnit;
-					HZ_DESERIALIZE_PROPERTY(LerpSecondsPerUnit, lerpSecondsPerUnit, node, glm::vec2(agNode->LerpSecondsPerUnit.x, agNode->LerpSecondsPerUnit.y));
-					agNode->LerpSecondsPerUnit = { lerpSecondsPerUnit.x, lerpSecondsPerUnit.y };
-					HZ_DESERIALIZE_PROPERTY(ShowDetails, agNode->ShowDetails, node, false);
+					return true;
 				}
+
+				// This can trigger if we've trying to load old version of a Node.
+				// TODO (0x): make better...  Instead of failing to load, just set some sensible default value and carry on.
+				HZ_CONSOLE_LOG_ERROR(
+					"Value type of the deserialized Node Pin ({0} - '{1}') does not match the Value type of the factory Node Pin ({0} - '{2}').",
+					node.Name, candidate.Name, factoryPin->Name
+				);
+				return false;
 			}
 		};
-		
-		DefaultGraphSerializer::DeserializationFactory factory{ constructNode, deserializePin, nodeCallback };
+
+		DefaultGraphSerializer::DeserializationFactory factory{ constructNode, deserializePin };
 
 		auto deserializeGraph = [&graph, &factory](UUID id, YAML::Node& node) {
 			if (!node["Nodes"] || !node["Links"]) return false;

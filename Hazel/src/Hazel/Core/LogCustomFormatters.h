@@ -1,35 +1,10 @@
 #pragma once
 
-#include "UUID.h"
-
 #include <glm/glm.hpp>
 
-#include <filesystem>
-#include <format>
+#include <spdlog/fmt/fmt.h>
 
-namespace std {
-
-	template <>
-	struct formatter<Hazel::UUID> : formatter<uint64_t>
-	{
-		template <typename FormatContext>
-		FormatContext::iterator format(const Hazel::UUID id, FormatContext& ctx) const
-		{
-			return formatter<uint64_t>::format(static_cast<uint64_t>(id), ctx);
-		}
-	};
-
-
-	template <>
-	struct formatter<filesystem::path> : formatter<string>
-	{
-		template <typename FormatContext>
-		FormatContext::iterator format(const filesystem::path& path, FormatContext& ctx) const
-		{
-			return formatter<string>::format(path.string(), ctx);
-		}
-	};
-
+namespace fmt {
 
 	template<>
 	struct formatter<glm::vec2>
@@ -50,8 +25,8 @@ namespace std {
 		auto format(const glm::vec2& vec, FormatContext& ctx) const -> decltype(ctx.out())
 		{
 			return presentation == 'f'
-				? format_to(ctx.out(), "({:.3f}, {:.3f})", vec.x, vec.y)
-				: format_to(ctx.out(), "({:.3e}, {:.3e})", vec.x, vec.y);
+				? fmt::format_to(ctx.out(), "({:.3f}, {:.3f})", vec.x, vec.y)
+				: fmt::format_to(ctx.out(), "({:.3e}, {:.3e})", vec.x, vec.y);
 		}
 	};
 
@@ -74,8 +49,8 @@ namespace std {
 		auto format(const glm::vec3& vec, FormatContext& ctx) const -> decltype(ctx.out())
 		{
 			return presentation == 'f'
-				? format_to(ctx.out(), "({:.3f}, {:.3f}, {:.3f})", vec.x, vec.y, vec.z)
-				: format_to(ctx.out(), "({:.3e}, {:.3e}, {:.3e})", vec.x, vec.y, vec.z);
+				? fmt::format_to(ctx.out(), "({:.3f}, {:.3f}, {:.3f})", vec.x, vec.y, vec.z)
+				: fmt::format_to(ctx.out(), "({:.3e}, {:.3e}, {:.3e})", vec.x, vec.y, vec.z);
 		}
 	};
 
@@ -98,8 +73,8 @@ namespace std {
 		auto format(const glm::vec4& vec, FormatContext& ctx) const -> decltype(ctx.out())
 		{
 			return presentation == 'f'
-				? format_to(ctx.out(), "({:.3f}, {:.3f}, {:.3f}, {:.3f})", vec.x, vec.y, vec.z, vec.w)
-				: format_to(ctx.out(), "({:.3e}, {:.3e}, {:.3e}, {:.3e})", vec.x, vec.y, vec.z, vec.w);
+				? fmt::format_to(ctx.out(), "({:.3f}, {:.3f}, {:.3f}, {:.3f})", vec.x, vec.y, vec.z, vec.w)
+				: fmt::format_to(ctx.out(), "({:.3e}, {:.3e}, {:.3e}, {:.3e})", vec.x, vec.y, vec.z, vec.w);
 		}
 	};
 

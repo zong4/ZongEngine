@@ -1,36 +1,40 @@
 #include "hzpch.h"
 #include "VulkanRenderer.h"
 
+#include "imgui.h"
+
 #include "Vulkan.h"
-#include "VulkanAPI.h"
-#include "VulkanComputePass.h"
 #include "VulkanContext.h"
-#include "VulkanFramebuffer.h"
-#include "VulkanIndexBuffer.h"
+
+#include "Hazel/Renderer/Renderer.h"
+#include "Hazel/Renderer/SceneRenderer.h"
+
+#include "Hazel/Asset/AssetManager.h"
+
 #include "VulkanPipeline.h"
+#include "VulkanVertexBuffer.h"
+#include "VulkanIndexBuffer.h"
+#include "VulkanFramebuffer.h"
 #include "VulkanRenderCommandBuffer.h"
 #include "VulkanRenderPass.h"
+#include "VulkanComputePass.h"
+
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
-#include "VulkanVertexBuffer.h"
+#include "VulkanAPI.h"
+
+#include "backends/imgui_impl_glfw.h"
+#include "examples/imgui_impl_vulkan_with_textures.h"
+
+#include "Hazel/Core/Timer.h"
+#include "Hazel/Debug/Profiler.h"
 
 #if HZ_HAS_SHADER_COMPILER
 #include "ShaderCompiler/VulkanShaderCompiler.h"
 #endif
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Core/Timer.h"
-#include "Hazel/Debug/Profiler.h"
-#include "Hazel/Renderer/Renderer.h"
-#include "Hazel/Renderer/SceneRenderer.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/examples/imgui_impl_vulkan_with_textures.h>
-
-#include <format>
 
 namespace Hazel {
 	struct VulkanRendererData
@@ -243,13 +247,12 @@ namespace Hazel {
 		return s_Data->SelectedDrawCall;
 	}
 
-	void VulkanRenderer::RenderStaticMesh(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount)
+	void VulkanRenderer::RenderStaticMesh(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount)
 	{
 		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(meshSource);
 		HZ_CORE_VERIFY(materialTable);
 
-		Renderer::Submit([renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, materialTable = Ref<MaterialTable>::Create(materialTable), transformBuffer, transformOffset, instanceCount]() mutable
+		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable = Ref<MaterialTable>::Create(materialTable), transformBuffer, transformOffset, instanceCount]() mutable
 		{
 			HZ_PROFILE_FUNC("VulkanRenderer::RenderMesh");
 			HZ_SCOPE_PERF("VulkanRenderer::RenderMesh");
@@ -260,6 +263,7 @@ namespace Hazel {
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
 
+			Ref<MeshSource> meshSource = mesh->GetMeshSource();
 			Ref<VulkanVertexBuffer> vulkanMeshVB = meshSource->GetVertexBuffer().As<VulkanVertexBuffer>();
 			VkBuffer vbMeshBuffer = vulkanMeshVB->GetVulkanBuffer();
 			VkDeviceSize offsets[1] = { 0 };
@@ -282,16 +286,24 @@ namespace Hazel {
 			const Submesh& submesh = submeshes[submeshIndex];
 			Ref<MaterialTable> meshMaterialTable = mesh->GetMaterials();
 			uint32_t materialCount = meshMaterialTable->GetMaterialCount();
-			
 			// NOTE(Yan): probably should not involve Asset Manager at this stage
 			AssetHandle materialHandle = materialTable->HasMaterial(submesh.MaterialIndex) ? materialTable->GetMaterial(submesh.MaterialIndex) : meshMaterialTable->GetMaterial(submesh.MaterialIndex);
 			Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(materialHandle);
 			Ref<VulkanMaterial> vulkanMaterial = material->GetMaterial().As<VulkanMaterial>();
+			//RT_UpdateMaterialForRendering(vulkanMaterial, uniformBufferSet, storageBufferSet);
 
 			if (s_Data->SelectedDrawCall != -1 && s_Data->DrawCallCount > s_Data->SelectedDrawCall)
 				return;
 
+			// NOTE: Descriptor Set 1 is owned by the renderer
+			std::array<VkDescriptorSet, 2> descriptorSets = {
+				vulkanMaterial->GetDescriptorSet(frameIndex),
+				s_Data->ActiveRendererDescriptorSet
+			};
+
 			VkPipelineLayout layout = vulkanPipeline->GetVulkanPipelineLayout();
+			//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, (uint32_t)descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+
 			VkDescriptorSet descriptorSet = vulkanMaterial->GetDescriptorSet(frameIndex);
 			if (descriptorSet)
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSet, 0, nullptr);
@@ -304,13 +316,12 @@ namespace Hazel {
 		});
 	}
 
-	void VulkanRenderer::RenderSubmeshInstanced(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount)
+	void VulkanRenderer::RenderSubmeshInstanced(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount)
 	{
 		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(meshSource);
 		HZ_CORE_VERIFY(materialTable);
 
-		Renderer::Submit([renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, materialTable, transformBuffer, transformOffset, boneTransformsOffset, instanceCount]() mutable
+		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable, transformBuffer, transformOffset, boneTransformsOffset, instanceCount]() mutable
 		{
 			HZ_PROFILE_FUNC("VulkanRenderer::RenderMesh");
 			HZ_SCOPE_PERF("VulkanRenderer::RenderMesh");
@@ -321,6 +332,7 @@ namespace Hazel {
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
 
+			Ref<MeshSource> meshSource = mesh->GetMeshSource();
 			Ref<VulkanVertexBuffer> vulkanMeshVB = meshSource->GetVertexBuffer().As<VulkanVertexBuffer>();
 			VkBuffer vbMeshBuffer = vulkanMeshVB->GetVulkanBuffer();
 			VkDeviceSize vertexOffsets[1] = { 0 };
@@ -382,14 +394,13 @@ namespace Hazel {
 		});
 	}
 
-	void VulkanRenderer::RenderMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount, Buffer additionalUniforms)
+	void VulkanRenderer::RenderMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount, Buffer additionalUniforms)
 	{
-		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(meshSource);
-		HZ_CORE_VERIFY(material);
+		HZ_CORE_ASSERT(mesh);
+		HZ_CORE_ASSERT(mesh->GetMeshSource());
 
 		Buffer pushConstantBuffer;
-		bool isRigged = meshSource->IsSubmeshRigged(submeshIndex);
+		bool isRigged = mesh->GetMeshSource()->IsSubmeshRigged(submeshIndex);
 
 		if (additionalUniforms.Size || isRigged)
 		{
@@ -402,7 +413,7 @@ namespace Hazel {
 		}
 
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
-		Renderer::Submit([renderCommandBuffer, pipeline, mesh, meshSource, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
+		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
 		{
 			HZ_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
 			HZ_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
@@ -410,6 +421,7 @@ namespace Hazel {
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
 
+			Ref<MeshSource> meshSource = mesh->GetMeshSource();
 			VkBuffer meshVB = meshSource->GetVertexBuffer().As<VulkanVertexBuffer>()->GetVulkanBuffer();
 			VkDeviceSize vertexOffsets[1] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, &meshVB, vertexOffsets);
@@ -464,11 +476,10 @@ namespace Hazel {
 		});
 	}
 
-	void VulkanRenderer::RenderStaticMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount, Buffer additionalUniforms /*= Buffer()*/)
+	void VulkanRenderer::RenderStaticMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> staticMesh, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount, Buffer additionalUniforms /*= Buffer()*/)
 	{
 		HZ_CORE_ASSERT(staticMesh);
-		HZ_CORE_ASSERT(meshSource);
-		HZ_CORE_ASSERT(material);
+		HZ_CORE_ASSERT(staticMesh->GetMeshSource());
 
 		Buffer pushConstantBuffer;
 		if (additionalUniforms.Size)
@@ -479,7 +490,7 @@ namespace Hazel {
 		}
 
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
-		Renderer::Submit([renderCommandBuffer, pipeline, staticMesh, meshSource, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
+		Renderer::Submit([renderCommandBuffer, pipeline, staticMesh, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
 		{
 			HZ_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
 			HZ_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
@@ -487,6 +498,7 @@ namespace Hazel {
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
 
+			Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 			auto vulkanMeshVB = meshSource->GetVertexBuffer().As<VulkanVertexBuffer>();
 			VkBuffer vbMeshBuffer = vulkanMeshVB->GetVulkanBuffer();
 			VkDeviceSize vertexOffsets[1] = { 0 };
@@ -675,9 +687,6 @@ namespace Hazel {
 
 	void VulkanRenderer::CopyImage(Ref<RenderCommandBuffer> commandBuffer, Ref<Image2D> sourceImage, Ref<Image2D> destinationImage)
 	{
-		HZ_CORE_VERIFY(sourceImage);
-		HZ_CORE_VERIFY(destinationImage);
-
 		Renderer::Submit([commandBuffer, src = sourceImage.As<VulkanImage2D>(), dst = destinationImage.As<VulkanImage2D>()]
 		{
 			const auto vulkanCommandBuffer = commandBuffer.As<VulkanRenderCommandBuffer>()->GetCommandBuffer(Renderer::RT_GetCurrentFrameIndex());
@@ -791,144 +800,6 @@ namespace Hazel {
 			}
 		});
 	}
-
-	void VulkanRenderer::BlitImage(Ref<RenderCommandBuffer> commandBuffer, Ref<Image2D> sourceImage, Ref<Image2D> destinationImage)
-	{
-		HZ_CORE_VERIFY(sourceImage);
-		HZ_CORE_VERIFY(destinationImage);
-
-		Renderer::Submit([commandBuffer, src = sourceImage.As<VulkanImage2D>(), dst = destinationImage.As<VulkanImage2D>()]
-		{
-			const auto vulkanCommandBuffer = commandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
-
-			VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
-
-			VkImage srcImage = src->GetImageInfo().Image;
-			VkImage dstImage = dst->GetImageInfo().Image;
-
-			if (!srcImage || !dstImage)
-			{
-				// Can't blit if either image is null
-				HZ_CORE_ERROR_TAG("Renderer", "[VulkanRenderer::BlitImage] Invalid images for blitting! srcImage={} dstImage={}", (uint64_t)srcImage, (uint64_t)dstImage);
-				return;
-			}
-
-			glm::uvec2 srcSize = src->GetSize();
-			glm::uvec2 dstSize = dst->GetSize();
-			int srcMip = 0;
-			                                    
-			if (src->HasMips())
-			{
-				// Select lower mip to sample from if we can
-				srcMip = src->GetClosestMipLevel(dstSize.x, dstSize.y);
-				auto [mipWidth, mipHeight] = src->GetMipLevelSize(srcMip);
-				srcSize = { mipWidth, mipHeight };
-			}
-
-			VkImageBlit region;
-			region.srcOffsets[0] = { 0, 0, 0 };
-			region.srcOffsets[1] = { (int)srcSize.x, (int)srcSize.y, 1 };
-			region.dstOffsets[0] = { 0, 0, 0 };
-			region.dstOffsets[1] = { (int)dstSize.x, (int)dstSize.y, 1 };
-			region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.srcSubresource.baseArrayLayer = 0;
-			region.srcSubresource.mipLevel = srcMip;
-			region.srcSubresource.layerCount = 1;
-			region.dstSubresource = region.srcSubresource;
-			region.dstSubresource.mipLevel = 0;
-
-			VkImageLayout srcImageLayout = src->GetDescriptorInfoVulkan().imageLayout;
-			VkImageLayout dstImageLayout = dst->GetDescriptorInfoVulkan().imageLayout;
-
-			{
-				VkImageMemoryBarrier imageMemoryBarrier{};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.oldLayout = srcImageLayout;
-				imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-				imageMemoryBarrier.image = srcImage;
-
-				imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-				imageMemoryBarrier.subresourceRange.baseMipLevel = srcMip;
-				imageMemoryBarrier.subresourceRange.layerCount = 1;
-				imageMemoryBarrier.subresourceRange.levelCount = 1;
-
-				vkCmdPipelineBarrier(vulkanCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
-			}
-
-			{
-				VkImageMemoryBarrier imageMemoryBarrier{};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.oldLayout = dstImageLayout;
-				imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				imageMemoryBarrier.image = dstImage;
-
-				imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-				imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-				imageMemoryBarrier.subresourceRange.layerCount = 1;
-				imageMemoryBarrier.subresourceRange.levelCount = 1;
-
-				vkCmdPipelineBarrier(vulkanCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
-			}
-
-			vkCmdBlitImage(vulkanCommandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-				dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_LINEAR);
-
-			{
-				VkImageMemoryBarrier imageMemoryBarrier{};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-				imageMemoryBarrier.newLayout = srcImageLayout;
-				imageMemoryBarrier.image = srcImage;
-
-				imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-				imageMemoryBarrier.subresourceRange.baseMipLevel = srcMip;
-				imageMemoryBarrier.subresourceRange.layerCount = 1;
-				imageMemoryBarrier.subresourceRange.levelCount = 1;
-
-				vkCmdPipelineBarrier(vulkanCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
-			}
-
-			{
-				VkImageMemoryBarrier imageMemoryBarrier{};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				imageMemoryBarrier.newLayout = dstImageLayout;
-				imageMemoryBarrier.image = dstImage;
-
-				imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-				imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-				imageMemoryBarrier.subresourceRange.layerCount = 1;
-				imageMemoryBarrier.subresourceRange.levelCount = 1;
-
-				vkCmdPipelineBarrier(vulkanCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
-			}
-		});
-	}
-
 
 	void VulkanRenderer::LightCulling(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<ComputePass> computePass, Ref<Material> material, const glm::uvec3& workGroups)
 	{
@@ -1241,7 +1112,7 @@ namespace Hazel {
 	{
 		Renderer::Submit([renderCommandBuffer, renderPass, explicitClear]()
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(std::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
+			HZ_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
 			HZ_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
@@ -1369,7 +1240,7 @@ namespace Hazel {
 	{
 		Renderer::Submit([renderCommandBuffer, renderPass, explicitClear]()
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(std::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
+			HZ_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
 			HZ_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
@@ -1609,7 +1480,7 @@ namespace Hazel {
 		HZ_CORE_ASSERT(envEquirect->GetFormat() == ImageFormat::RGBA32F, "Texture is not HDR!");
 
 		TextureSpecification cubemapSpec;
-		cubemapSpec.Format = ImageFormat::RGBA16F;
+		cubemapSpec.Format = ImageFormat::RGBA32F;
 		cubemapSpec.Width = cubemapSize;
 		cubemapSpec.Height = cubemapSize;
 
@@ -1627,10 +1498,10 @@ namespace Hazel {
 
 			std::array<VkWriteDescriptorSet, 2> writeDescriptors;
 			auto descriptorSet = shader->CreateDescriptorSets();
-			Ref<VulkanTextureCube> envUnfilteredVK = envUnfiltered.As<VulkanTextureCube>();
+			Ref<VulkanTextureCube> envUnfilteredCubemap = envUnfiltered.As<VulkanTextureCube>();
 			writeDescriptors[0] = *shader->GetDescriptorSet("o_CubeMap");
 			writeDescriptors[0].dstSet = descriptorSet.DescriptorSets[0]; // Should this be set inside the shader?
-			writeDescriptors[0].pImageInfo = &envUnfilteredVK->GetDescriptorInfoVulkan();
+			writeDescriptors[0].pImageInfo = &envUnfilteredCubemap->GetDescriptorInfoVulkan();
 
 			Ref<VulkanTexture2D> envEquirectVK = envEquirect.As<VulkanTexture2D>();
 			writeDescriptors[1] = *shader->GetDescriptorSet("u_EquirectangularTex");
@@ -1640,29 +1511,7 @@ namespace Hazel {
 			vkUpdateDescriptorSets(device, (uint32_t)writeDescriptors.size(), writeDescriptors.data(), 0, NULL);
 			equirectangularConversionPipeline->Execute(descriptorSet.DescriptorSets.data(), (uint32_t)descriptorSet.DescriptorSets.size(), cubemapSize / 32, cubemapSize / 32, 6);
 
-			envUnfilteredVK->GenerateMips(true);
-		});
-
-		// Copy environment map as-is to filtered mip level 0.  This level is used for perfectly reflective materials
-		Renderer::Submit([equirectangularConversionPipeline, envEquirect, envFiltered, cubemapSize]() mutable
-		{
-			VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
-			Ref<VulkanShader> shader = equirectangularConversionPipeline->GetShader();
-		
-			std::array<VkWriteDescriptorSet, 2> writeDescriptors;
-			auto descriptorSet = shader->CreateDescriptorSets();
-			Ref<VulkanTextureCube> envFilteredVK = envFiltered.As<VulkanTextureCube>();
-			writeDescriptors[0] = *shader->GetDescriptorSet("o_CubeMap");
-			writeDescriptors[0].dstSet = descriptorSet.DescriptorSets[0]; // Should this be set inside the shader?
-			writeDescriptors[0].pImageInfo = &envFilteredVK->GetDescriptorInfoVulkan();
-		
-			Ref<VulkanTexture2D> envEquirectVK = envEquirect.As<VulkanTexture2D>();
-			writeDescriptors[1] = *shader->GetDescriptorSet("u_EquirectangularTex");
-			writeDescriptors[1].dstSet = descriptorSet.DescriptorSets[0]; // Should this be set inside the shader?
-			writeDescriptors[1].pImageInfo = &envEquirectVK->GetDescriptorInfoVulkan();
-		
-			vkUpdateDescriptorSets(device, (uint32_t)writeDescriptors.size(), writeDescriptors.data(), 0, NULL);
-			equirectangularConversionPipeline->Execute(descriptorSet.DescriptorSets.data(), (uint32_t)descriptorSet.DescriptorSets.size(), cubemapSize / 32, cubemapSize / 32, 6);
+			envUnfilteredCubemap->GenerateMips(true);
 		});
 
 		Ref<Shader> environmentMipFilterShader = Renderer::GetShaderLibrary()->Get("EnvironmentMipFilter");
@@ -1680,7 +1529,7 @@ namespace Hazel {
 
 			std::vector<VkWriteDescriptorSet> writeDescriptors(mipCount * 2);
 			std::vector<VkDescriptorImageInfo> mipImageInfos(mipCount);
-			auto descriptorSet = shader->CreateDescriptorSets(0, mipCount);
+			auto descriptorSet = shader->CreateDescriptorSets(0, 12);
 			for (uint32_t i = 0; i < mipCount; i++)
 			{
 				VkDescriptorImageInfo& mipImageInfo = mipImageInfos[i];
@@ -1701,13 +1550,11 @@ namespace Hazel {
 
 			environmentMipFilterPipeline->RT_Begin(); // begin compute pass
 			const float deltaRoughness = 1.0f / glm::max((float)envFiltered->GetMipLevelCount() - 1.0f, 1.0f);
-
-			// note: mip level 0 is a copy of the unfiltered env map (see above)
-			for (uint32_t i = 1, size = cubemapSize; i < mipCount; i++, size /= 2)
+			for (uint32_t i = 0, size = cubemapSize; i < mipCount; i++, size /= 2)
 			{
 				uint32_t numGroups = glm::max(1u, size / 32);
 				float roughness = i * deltaRoughness;
-				//roughness = glm::max(roughness, 0.05f);  // not needed, since roughness is always > 0.0f
+				roughness = glm::max(roughness, 0.05f);
 				vkCmdBindDescriptorSets(environmentMipFilterPipeline->GetActiveCommandBuffer(), VK_PIPELINE_BIND_POINT_COMPUTE, environmentMipFilterPipeline->GetLayout(), 0, 1, &descriptorSet.DescriptorSets[i], 0, nullptr);
 				environmentMipFilterPipeline->SetPushConstants({ &roughness, sizeof(float) });
 				environmentMipFilterPipeline->Dispatch({ numGroups, numGroups, 6 });
@@ -1759,7 +1606,6 @@ namespace Hazel {
 		const uint32_t irradianceMapSize = 32;
 	
 		TextureSpecification cubemapSpec;
-		cubemapSpec.DebugName = "PreethamSky";
 		cubemapSpec.Format = ImageFormat::RGBA32F;
 		cubemapSpec.Width = cubemapSize;
 		cubemapSpec.Height = cubemapSize;

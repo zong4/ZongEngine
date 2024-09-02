@@ -10,8 +10,6 @@
 #include "VulkanUniformBufferSet.h"
 #include "VulkanTexture.h"
 
-#include "Hazel/Debug/Profiler.h"
-
 namespace Hazel {
 	
 	namespace Utils {
@@ -289,14 +287,14 @@ namespace Hazel {
 				if (setInputResources.find(binding) == setInputResources.end())
 				{
 					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] No input resource for {}.{}", m_Specification.DebugName, set, binding);
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is {} ({})", m_Specification.DebugName, name, (int)wd.descriptorType);
+					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is {} ({})", m_Specification.DebugName, name, wd.descriptorType);
 					return false;
 				}
 
 				const auto& resource = setInputResources.at(binding);
 				if (!IsCompatibleInput(resource.Type, wd.descriptorType))
 				{
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is wrong type! {} but needs {}", m_Specification.DebugName, (uint16_t)resource.Type, (int)wd.descriptorType);
+					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is wrong type! {} but needs {}", m_Specification.DebugName, resource.Type, wd.descriptorType);
 					return false;
 				}
 
@@ -591,11 +589,7 @@ namespace Hazel {
 					{
 						for (size_t i = 0; i < input.Input.size(); i++)
 						{
-							Ref<VulkanTexture2D> vulkanTexture = input.Input[i].As<VulkanTexture2D>();
-							if (vulkanTexture == nullptr)
-								vulkanTexture = Renderer::GetWhiteTexture().As<VulkanTexture2D>(); // TODO(Yan): error texture
-
-							const VkDescriptorImageInfo& imageInfo = vulkanTexture->GetDescriptorInfoVulkan();
+							const VkDescriptorImageInfo& imageInfo = input.Input[i].As<VulkanTexture2D>()->GetDescriptorInfoVulkan();
 							if (imageInfo.imageView != WriteDescriptorMap[currentFrameIndex].at(set).at(binding).ResourceHandles[i])
 							{
 								InvalidatedInputResources[set][binding] = input;

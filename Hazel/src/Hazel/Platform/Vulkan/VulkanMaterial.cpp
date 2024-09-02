@@ -1,18 +1,17 @@
 #include "hzpch.h"
 #include "VulkanMaterial.h"
 
-#include "VulkanAPI.h"
-#include "VulkanContext.h"
-#include "VulkanImage.h"
-#include "VulkanPipeline.h"
-#include "VulkanRenderer.h"
-#include "VulkanTexture.h"
-#include "VulkanUniformBuffer.h"
-
-#include "Hazel/Core/Timer.h"
 #include "Hazel/Renderer/Renderer.h"
 
-#include <format>
+#include "Hazel/Platform/Vulkan/VulkanContext.h"
+#include "Hazel/Platform/Vulkan/VulkanRenderer.h"
+#include "Hazel/Platform/Vulkan/VulkanTexture.h"
+#include "Hazel/Platform/Vulkan/VulkanImage.h"
+#include "Hazel/Platform/Vulkan/VulkanPipeline.h"
+#include "Hazel/Platform/Vulkan/VulkanUniformBuffer.h"
+#include "Hazel/Platform/Vulkan/VulkanAPI.h"
+
+#include "Hazel/Core/Timer.h"
 
 namespace Hazel {
 
@@ -50,7 +49,7 @@ namespace Hazel {
 		m_MaterialFlags |= (uint32_t)MaterialFlag::Blend;
 
 		DescriptorSetManagerSpecification dmSpec;
-		dmSpec.DebugName = m_Name.empty() ? std::format("{} (Material)", m_Shader->GetName()) : m_Name;
+		dmSpec.DebugName = m_Name.empty() ? fmt::format("{} (Material)", m_Shader->GetName()) : m_Name;
 		dmSpec.Shader = m_Shader.As<VulkanShader>();
 		dmSpec.StartSet = 0;
 		dmSpec.EndSet = 0;
@@ -66,11 +65,13 @@ namespace Hazel {
 				{
 					for (uint32_t i = 0; i < decl.Count; i++)
 						m_DescriptorSetManager.SetInput(name, Renderer::GetWhiteTexture(), i);
+					HZ_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to white 2D texture", name);
 					break;
 				}
 				case RenderPassInputType::ImageSampler3D:
 				{
 					m_DescriptorSetManager.SetInput(name, Renderer::GetBlackCubeTexture());
+					HZ_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to black cube texture", name);
 					break;
 				}
 			}

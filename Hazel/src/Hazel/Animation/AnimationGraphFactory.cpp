@@ -3,11 +3,13 @@
 #include "AnimationGraphPrototype.h"
 #include "AnimationGraph.h"
 
-#include "Nodes/AllNodes.h"
+#include "Nodes/NodeDescriptors.h"
+#include "Nodes/ArrayNodesImpl.h"
+#include "Nodes/MathNodesImpl.h"
+#include "Nodes/LogicNodesImpl.h"
 
 #include "Hazel/Utilities/StringUtils.h"
 
-#include <CDT/CDT.h>
 
 // Using the same string transformation here as in the editor nodes factory
 // to translate NodeProcessor type to friendly name ensures that they are going to match.
@@ -24,56 +26,30 @@ namespace Hazel::AnimationGraph {
 	{
 		// Animation nodes
 		NODE(AnimationPlayer),
-		NODE(SampleAnimation),
+		NODE(StateMachine),
+		NODE(State),
+		NODE(QuickState),
+		NODE_ALIAS(Alias::Transition, TransitionNode),
 
 		// Array nodes
 		NODE_ALIAS(Alias::GetAnimation, Get<int64_t>),
-		NODE_ALIAS(Alias::GetRandomAnimation, GetRandom<int64_t>),
 		NODE(Get<float>),
 		NODE(Get<int>),
-		
-		// Blend nodes
-		NODE(BlendSpace),
-		NODE(BlendSpaceVertex),
-		NODE(ConditionalBlend),
-		NODE(OneShot),
-		NODE(PoseBlend),
-		NODE(RangedBlend),
-
-		// Inverse Kinematics nodes
-		NODE(AimIK),
-
-		// Logic nodes
-		NODE(And),
-		NODE(CheckEqual<float>),
-		NODE(CheckEqual<int>),
-		NODE(CheckGreater<float>),
-		NODE(CheckGreater<int>),
-		NODE(CheckGreaterEqual<float>),
-		NODE(CheckGreaterEqual<int>),
-		NODE(CheckLess<float>),
-		NODE(CheckLess<int>),
-		NODE(CheckLessEqual<float>),
-		NODE(CheckLessEqual<int>),
-		NODE(CheckNotEqual<float>),
-		NODE(CheckNotEqual<int>),
-		NODE(Not),
-		NODE(Or),
 
 		// Math nodes
 		NODE(Add<float>),
 		NODE(Add<int>),
-		NODE(Clamp<float>),
-		NODE(Clamp<int>),
 		NODE(Divide<float>),
 		NODE(Divide<int>),
 		NODE(Log),
 		NODE(MapRange<float>),
 		NODE(MapRange<int>),
-		NODE(Max<float>),
-		NODE(Max<int>),
 		NODE(Min<float>),
 		NODE(Min<int>),
+		NODE(Max<float>),
+		NODE(Max<int>),
+		NODE(Clamp<float>),
+		NODE(Clamp<int>),
 		NODE(Modulo),
 		NODE(Multiply<float>),
 		NODE(Multiply<int>),
@@ -81,11 +57,25 @@ namespace Hazel::AnimationGraph {
 		NODE(Subtract<float>),
 		NODE(Subtract<int>),
 
-		// State machine nodes
-		NODE(QuickState),
-		NODE(State),
-		NODE(StateMachine),
-		NODE_ALIAS(Alias::Transition, TransitionNode),
+		// Blend nodes
+		NODE(RangedBlend),
+
+		// Logic nodes
+		NODE(CheckEqual<float>),
+		NODE(CheckEqual<int>),
+		NODE(CheckNotEqual<float>),
+		NODE(CheckNotEqual<int>),
+		NODE(CheckLess<float>),
+		NODE(CheckLess<int>),
+		NODE(CheckLessEqual<float>),
+		NODE(CheckLessEqual<int>),
+		NODE(CheckGreater<float>),
+		NODE(CheckGreater<int>),
+		NODE(CheckGreaterEqual<float>),
+		NODE(CheckGreaterEqual<int>),
+		NODE(And),
+		NODE(Or),
+		NODE(Not),
 
 		// Trigger nodes
 		NODE(BoolTrigger),
@@ -134,6 +124,26 @@ namespace Hazel::AnimationGraph {
 			return true;
 		};
 
+		// 1. Graph ProcessorNode
+		{
+			bool pass = true;
+			// can never fail, since we always set a default value
+			//if (!validateElements(animationGraph->Ins, [](const std::pair<const Identifier, const choc::value::ValueView>& in) { return (bool)in.second.getRawData(); })) pass = false;
+
+			// this will not work unless you make sure Outs are not cleared in NodeEditorModel::CreateLink()
+			//if (!validateElements(animationGraph->Outs, [](const std::pair<const Identifier, const choc::value::ValueView>& out) { return (bool)out.second.getRawData(); })) pass = false;
+
+			// It's OK for input events to not be connected (e.g. a graph which does nothing)
+			//if (!validateElements(animationGraph->InEvs, [](const std::pair<const Identifier, const Nodes::NodeProcessor::InputEvent>& inEv) { return (bool)inEv.second.Event; })) pass = false;
+
+			// We probably don't need to test output events, they use vectors of destinations internally, which may be empty
+			//if (!validateElements(graph->OutEvs, [](const std::pair<const Identifier, const NodeProcessor::OutputEvent>& outEv) { return !outEv.second.DestinationEvs.empty(); })) pass = false;
+
+			HZ_CORE_ASSERT(pass);
+			if (!pass)
+				return false;
+		}
+
 		using EndpointStream = std::unique_ptr<StreamWriter>;
 
 		const auto validateEndpoints = [](const EndpointStream& endpointStream)
@@ -151,12 +161,31 @@ namespace Hazel::AnimationGraph {
 			}
 		};
 
+		//! 2. Graph endpoints (?)
+		{
+			bool pass = validateElements(graph.EndpointInputStreams, validateEndpoints);
+
+			HZ_CORE_ASSERT(pass);
+			if (!pass)
+				return false;
+		}
+
+		//! 2.2. Local variables (?)
+		{
+			bool pass = validateElements(graph.LocalVariables, validateEndpoints);
+
+			HZ_CORE_ASSERT(pass);
+			if (!pass)
+				return false;
+		}
+
 		if (!validateElements(graph.EndpointOutputStreams.Ins, [](const std::pair<const Identifier, const choc::value::ValueView>& in) { return (bool)in.second.getRawData(); }))
 		{
 			HZ_CORE_ASSERT(false);
 			return false;
 		}
 
+		// 3. Nodes
 		for (auto& node : graph.Nodes)
 		{
 			bool pass = true;
@@ -187,7 +216,7 @@ namespace Hazel::AnimationGraph {
 		size_t numStates = 0;
 		for (auto& node : prototype.Nodes)
 		{
-			if ((node.TypeID == IDs::StateMachine) || (node.TypeID == IDs::State) || (node.TypeID == IDs::QuickState))
+			if ((node.TypeID != IDs::StateMachine) || (node.TypeID == IDs::State) || (node.TypeID == IDs::QuickState))
 			{
 				++numStates;
 			}
@@ -203,7 +232,6 @@ namespace Hazel::AnimationGraph {
 		{
 			if (subnode.TypeID == IDs::StateMachine)
 			{
-				HZ_CORE_ASSERT(subnode.Subroutine, "State Machine node has no subroutine! (check graph compilation)");
 				if (!stateMachine->m_States.emplace_back(CreateStateMachineInstance(root, subnode.ID, *subnode.Subroutine)))
 				{
 					return false;
@@ -211,7 +239,6 @@ namespace Hazel::AnimationGraph {
 			}
 			else if (subnode.TypeID == IDs::State)
 			{
-				HZ_CORE_ASSERT(subnode.Subroutine, "State node has no subroutine! (check graph compilation)");
 				if (!stateMachine->m_States.emplace_back(CreateStateInstance(root, subnode.ID, *subnode.Subroutine)))
 				{
 					return false;
@@ -274,36 +301,6 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	Scope<BlendSpaceVertex> CreateBlendSpaceVertexInstance(const Prototype::Node& subnode);
-
-	bool InitBlendSpace(BlendSpace* blendSpace, const float lerpSecondsPerUnitX, const float lerpSecondsPerUnitY, const Prototype& prototype)
-	{
-		blendSpace->m_LerpSecondsPerUnitX = lerpSecondsPerUnitX;
-		blendSpace->m_LerpSecondsPerUnitY = lerpSecondsPerUnitY;
-		size_t numVertices = 0;
-		for (auto& node : prototype.Nodes)
-		{
-			++numVertices;
-		}
-
-		if (numVertices == 0)
-		{
-			return false;
-		}
-
-		blendSpace->m_Vertices.reserve(numVertices);
-		for (auto& subnode : prototype.Nodes)
-		{
-			if (!blendSpace->m_Vertices.emplace_back(CreateBlendSpaceVertexInstance(subnode)))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-
 	bool InitInstance(Ref<Graph> instance, Ref<AnimationGraph> root, const Prototype& prototype)
 	{
 		// Construct IO
@@ -329,53 +326,16 @@ namespace Hazel::AnimationGraph {
 			instance->AddNode(Factory::Create(pnode.TypeID, pnode.ID));
 			auto& node = instance->Nodes.back();
 
-			float lerpSecondsPerUnitX = 0.0f;
-			float lerpSecondsPerUnitY = 0.0f;
 			for (const Prototype::Endpoint& defaultValuePlug : pnode.DefaultValuePlugs)
 			{
-				if (defaultValuePlug.ID == IDs::LerpSecondsPerUnitX)
-				{
-					lerpSecondsPerUnitX = defaultValuePlug.DefaultValue.getFloat32();
-				}
-				else if (defaultValuePlug.ID == IDs::LerpSecondsPerUnitY)
-				{
-					lerpSecondsPerUnitY = defaultValuePlug.DefaultValue.getFloat32();
-				}
-				else
-				{
-					node->DefaultValuePlugs.emplace_back(new StreamWriter{ defaultValuePlug.DefaultValue, defaultValuePlug.ID });
-					node->InValue(defaultValuePlug.ID) = node->DefaultValuePlugs.back()->outV;
-				}
+				node->DefaultValuePlugs.emplace_back(new StreamWriter{ defaultValuePlug.DefaultValue, defaultValuePlug.ID });
+				node->InValue(defaultValuePlug.ID) = node->DefaultValuePlugs.back()->outV;
 			}
 
 			if (pnode.TypeID == IDs::StateMachine)
 			{
 				StateMachine* stateMachine = static_cast<StateMachine*>(node.get());
 				if (!InitStateMachine(root, stateMachine, *pnode.Subroutine))
-				{
-					return false;
-				}
-			}
-			else if (pnode.TypeID == IDs::BlendSpace)
-			{
-				BlendSpace* blendSpace = static_cast<BlendSpace*>(node.get());
-				if(!InitBlendSpace(blendSpace, lerpSecondsPerUnitX, lerpSecondsPerUnitY, *pnode.Subroutine))
-				{
-					return false;
-				}
-			}
-			else if (pnode.TypeID == IDs::ConditionalBlend)
-			{
-				ConditionalBlend* conditionalBlend = static_cast<ConditionalBlend*>(node.get());
-				if (!InitConditionalBlend(root, conditionalBlend, *pnode.Subroutine))
-				{
-					return false;
-				}
-			}
-			else if (pnode.TypeID == IDs::OneShot)
-			{
-				OneShot* oneShot = static_cast<OneShot*>(node.get());
-				if (!InitOneShot(root, oneShot, *pnode.Subroutine))
 				{
 					return false;
 				}
@@ -398,28 +358,23 @@ namespace Hazel::AnimationGraph {
 					if (!instance->AddEventConnection(source.NodeID, source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::GraphValue_NodeValue:
-					if (!instance->AddInputValueRoute(root, source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
+					if (!instance->AddInputValueRoute(root->EndpointInputStreams, source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::GraphValue_GraphValue:
-					if (!instance->AddInputValueRouteToGraphOutput(root, source.EndpointID, dest.EndpointID)) return false;
+					if (!instance->AddInputValueRouteToGraphOutput(root->EndpointInputStreams, source.EndpointID, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::GraphEvent_NodeEvent:
-					if (!instance->AddInputValueRouteToEvent(root, source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
+					HZ_CORE_ASSERT(false, "GraphEvent_NodeEvent not implemented");
+					//					if (!instance->AddInputEventsRoute(source.EndpointID, dest.NodeID, dest.EndpointID)) return nullptr;
 					break;
 				case Prototype::Connection::NodeValue_GraphValue:
 					if (!instance->AddToGraphOutputConnection(source.NodeID, source.EndpointID, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::NodeEvent_GraphEvent:
-					if (!instance->AddToGraphOutEventConnection(source.NodeID, source.EndpointID, root, IDs::Event, dest.EndpointID)) return false;
-					break;
-				case Prototype::Connection::GraphEvent_GraphEvent:
-					if (!instance->AddInputValueRouteToGraphOutEventConnection(root, source.EndpointID, dest.EndpointID)) return false;
+					if (!instance->AddToGraphOutEventConnection(source.NodeID, source.EndpointID, root, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::LocalVariable_NodeValue:
 					if (!instance->AddLocalVariableRoute(source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
-					break;
-				case Prototype::Connection::LocalVariable_GraphValue:
-					if (!instance->AddLocalVariableRouteToGraphOutput(source.EndpointID, dest.EndpointID)) return false;
 					break;
 				default: HZ_CORE_ASSERT(false);
 					return false;
@@ -483,44 +438,6 @@ namespace Hazel::AnimationGraph {
 			return nullptr;
 		}
 		return instance;
-	}
-
-
-	Scope<BlendSpaceVertex> CreateBlendSpaceVertexInstance(const Prototype::Node& subnode)
-	{
-		auto instance = CreateScope<BlendSpaceVertex>("BlendSpaceVertex", subnode.ID);
-
-		for (const Prototype::Endpoint& defaultValuePlug : subnode.DefaultValuePlugs)
-		{
-			if (defaultValuePlug.ID == IDs::X)
-			{
-				instance->X = defaultValuePlug.DefaultValue.getFloat32();
-			}
-			else if (defaultValuePlug.ID == IDs::Y)
-			{
-				instance->Y = defaultValuePlug.DefaultValue.getFloat32();
-			}
-			else
-			{
-				instance->DefaultValuePlugs.emplace_back(new StreamWriter{ defaultValuePlug.DefaultValue, defaultValuePlug.ID });
-				instance->InValue(defaultValuePlug.ID) = instance->DefaultValuePlugs.back()->outV;
-			}
-		}
-		return instance;
-	}
-
-
-	bool InitConditionalBlend(Ref<AnimationGraph> root, ConditionalBlend* conditionalBlend, const Prototype& prototype)
-	{
-		conditionalBlend->m_AnimationGraph = Ref<AnimationGraph>::Create(prototype.DebugName, prototype.ID, root->GetSkeleton());
-		return InitInstance(conditionalBlend->m_AnimationGraph, root, prototype);
-	}
-
-
-	bool InitOneShot(Ref<AnimationGraph> root, OneShot* oneShot, const Prototype& prototype)
-	{
-		oneShot->m_AnimationGraph = Ref<AnimationGraph>::Create(prototype.DebugName, prototype.ID, root->GetSkeleton());
-		return InitInstance(oneShot->m_AnimationGraph, root, prototype);
 	}
 
 

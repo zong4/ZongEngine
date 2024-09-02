@@ -9,16 +9,13 @@ namespace Hazel
 	/// </summary>
 	public class AudioEntity : Entity
 	{
-		public AudioEntity() { }
-
 		internal protected AudioEntity(ulong entityID) : base(entityID)
 		{
-			if (!HasComponent<AudioComponent>())
-				m_AudioComponent = CreateComponent<AudioComponent>();
-			else
-				m_AudioComponent = GetComponent<AudioComponent>();
+			if (!m_Entity.HasComponent<AudioComponent>())
+				m_AudioComponent = m_Entity.CreateComponent<AudioComponent>();
 		}
 
+		protected Entity m_Entity;
 		private AudioComponent m_AudioComponent;
 
 		public float VolumeMultiplier
@@ -47,12 +44,12 @@ namespace Hazel
 
 		public AudioCommandID(string commandName)
 		{
-			unsafe { ID = InternalCalls.AudioCommandID_Constructor(commandName); }
+			ID = InternalCalls.AudioCommandID_Constructor(commandName);
 		}
 
 		public static bool operator ==(AudioCommandID c1, AudioCommandID c2) => c1.ID == c2.ID;
 		public static bool operator !=(AudioCommandID c1, AudioCommandID c2) => c1.ID != c2.ID;
-		public override bool Equals(object? c) => ID == ((AudioCommandID)c).ID;
+		public override bool Equals(object c) => ID == ((AudioCommandID)c).ID;
 		public override int GetHashCode() => ID.GetHashCode();
 		public static implicit operator uint(AudioCommandID commandID) => commandID.ID;
 	}
@@ -62,10 +59,7 @@ namespace Hazel
 		/// <summary> Post event on an object.
 		/// <returns>Returns active Event ID
 		/// </returns></summary>
-		public static uint PostEvent(AudioCommandID id, ulong objectID)
-		{
-			unsafe { return InternalCalls.Audio_PostEvent(id, objectID); }
-		}
+		public static uint PostEvent(AudioCommandID id, ulong objectID) => InternalCalls.Audio_PostEvent(id, objectID);
 
 		/// <summary> Post event by name. Prefer overload that takes CommandID for speed and initialize CommandIDs once.
 		/// This creates new CommandID object from eventName, which has to hash the string.
@@ -77,10 +71,7 @@ namespace Hazel
 		/// <summary> Post event on AudioComponent.
 		/// <returns>Returns active Event ID
 		/// </returns></summary>
-		public static uint PostEvent(AudioCommandID id, ref AudioComponent audioComponent)
-		{
-			unsafe { return InternalCalls.Audio_PostEventFromAC(id, audioComponent.Entity.ID); }
-		}
+		public static uint PostEvent(AudioCommandID id, ref AudioComponent audioComponent) => InternalCalls.Audio_PostEventFromAC(id, audioComponent.Entity.ID);
 
 		/// <summary> Post event on at location creating temporary <c>Audio Object</c>.
 		/// <returns>Returns active Event ID
@@ -90,91 +81,54 @@ namespace Hazel
 			var spawnLocation = new Transform { Position = location,
 												Rotation = rotation,
 												Scale = new Vector3(1.0f, 1.0f, 1.0f) };
-
-			unsafe { return InternalCalls.Audio_PostEventAtLocation(id, &spawnLocation); }
+			return InternalCalls.Audio_PostEventAtLocation(id, ref spawnLocation);
 		}
 
 		/// <summary> Stop playing audio sources associated to active event.
 		/// <returns>Returns true - if event has playing audio soruces to stop.
 		/// </returns></summary>
-		public static bool StopEventID(uint eventID)
-		{
-			unsafe { return InternalCalls.Audio_StopEventID(eventID); }
-		}
+		public static bool StopEventID(uint eventID) => InternalCalls.Audio_StopEventID(eventID);
 
 		/// <summary> Pause playing audio sources associated to active event.
 		/// <returns>Returns true - if event has playing audio soruces to pause.
 		/// </returns></summary>
-		public static bool PauseEventID(uint eventID)
-		{
-			unsafe { return InternalCalls.Audio_PauseEventID(eventID); }
-		}
+		public static bool PauseEventID(uint eventID) => InternalCalls.Audio_PauseEventID(eventID);
 
-		/// <summary> Resume playing audio sources associated to active event.
-		/// <returns>Returns true - if event has playing audio soruces to resume.
-		/// </returns></summary>
-		public static bool ResumeEventID(uint eventID)
-		{
-			unsafe { return InternalCalls.Audio_ResumeEventID(eventID); }
-		}
+        /// <summary> Resume playing audio sources associated to active event.
+        /// <returns>Returns true - if event has playing audio soruces to resume.
+        /// </returns></summary>
+        public static bool ResumeEventID(uint eventID) => InternalCalls.Audio_ResumeEventID(eventID);
+        
 
+        //============================================================================================
+        /// Audio Parameters Interface
+        
+        /// <summary> Set parameter on an object.
+        /// <returns>Returns nothing yet.
+        /// </returns></summary>
+        public static void SetParameter(ParameterID id, ulong objectID, float value) => InternalCalls.Audio_SetParameterFloat((uint)id.GetHashCode(), objectID, value);
+        
+        public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, float value) => InternalCalls.Audio_SetParameterFloatForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value);
 
-		//============================================================================================
-		/// Audio Parameters Interface
+        public static void SetParameter(ParameterID id, ulong objectID, int value) => InternalCalls.Audio_SetParameterInt((uint)id.GetHashCode(), objectID, value);
 
-		/// <summary> Set parameter on an object.
-		/// <returns>Returns nothing yet.
-		/// </returns></summary>
-		public static void SetParameter(ParameterID id, ulong objectID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterFloat((uint)id.GetHashCode(), objectID, value); }
-		}
+        public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, int value) => InternalCalls.Audio_SetParameterIntForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value);
 
-		public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, float value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterFloatForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value); }
-		}
+        public static void SetParameter(ParameterID id, ulong objectID, bool value) => InternalCalls.Audio_SetParameterBool((uint)id.GetHashCode(), objectID, value);
 
-		public static void SetParameter(ParameterID id, ulong objectID, int value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterInt((uint)id.GetHashCode(), objectID, value); }
-		}
+        public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, bool value) => InternalCalls.Audio_SetParameterBoolForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value);
 
-		public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, int value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterIntForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value); }
-		}
+        public static void SetParameter(ParameterID id, uint eventID, float value) => InternalCalls.Audio_SetParameterFloatForEvent((uint)id.GetHashCode(), eventID, value);
 
-        public static void SetParameter(ParameterID id, ulong objectID, bool value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterBool((uint)id.GetHashCode(), objectID, value); }
-		}
+        public static void SetParameter(ParameterID id, uint eventID, int value) => InternalCalls.Audio_SetParameterIntForEvent((uint)id.GetHashCode(), eventID, value);
 
-        public static void SetParameterForAC(ParameterID id, ref AudioComponent audioComponent, bool value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterBoolForAC((uint)id.GetHashCode(), audioComponent.Entity.ID, value); }
-		}
-
-        public static void SetParameter(ParameterID id, uint eventID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterFloatForEvent((uint)id.GetHashCode(), eventID, value); }
-		}
-
-        public static void SetParameter(ParameterID id, uint eventID, int value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterIntForEvent((uint)id.GetHashCode(), eventID, value); }
-		}
-
-        public static void SetParameter(ParameterID id, uint eventID, bool value)
-		{
-			unsafe { InternalCalls.Audio_SetParameterBoolForEvent((uint)id.GetHashCode(), eventID, value); }
-		}
+        public static void SetParameter(ParameterID id, uint eventID, bool value) => InternalCalls.Audio_SetParameterBoolForEvent((uint)id.GetHashCode(), eventID, value);
 
         //============================================================================================
 
 		public static AudioEntity CreateAudioEntity(AudioCommandID triggerEventID, Transform location, float volume = 1.0f, float pitch = 1.0f)
 		{
-			unsafe { return new AudioEntity(InternalCalls.Audio_CreateAudioEntity(triggerEventID, &location, volume, pitch)); }
+			return new AudioEntity(InternalCalls.Audio_CreateAudioEntity(triggerEventID, ref location, volume, pitch));
 		}
 		 
 		public static AudioEntity CreateAudioEntity(string triggerEventName, Transform location, float volume = 1.0f, float pitch = 1.0f)
@@ -183,44 +137,18 @@ namespace Hazel
 		}
 
 		//============================================================================================
-		public static void PreloadEventSources(AudioCommandID eventID)
-		{
-			unsafe { InternalCalls.Audio_PreloadEventSources(eventID); }
-		}
+		public static void PreloadEventSources(AudioCommandID eventID ) => InternalCalls.Audio_PreloadEventSources(eventID);
+		public static void UnloadEventSources(AudioCommandID eventID) => InternalCalls.Audio_UnloadEventSources(eventID);
 
-		public static void UnloadEventSources(AudioCommandID eventID)
-		{
-			unsafe { InternalCalls.Audio_UnloadEventSources(eventID); }
-		}
 
-		public static void SetLowPassFilterValueObj(ulong objectID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetLowPassFilterValue(objectID, value); }
-		}
+		public static void SetLowPassFilterValueObj(ulong objectID, float value) => InternalCalls.Audio_SetLowPassFilterValue(objectID, value);
+		public static void SetHighPassFilterValueObj(ulong objectID, float value) => InternalCalls.Audio_SetHighPassFilterValue(objectID, value);
 
-		public static void SetHighPassFilterValueObj(ulong objectID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetHighPassFilterValue(objectID, value); }
-		}
 
-		public static void SetLowPassFilterValue(ref AudioComponent audioComponent, float value)
-		{
-			unsafe { InternalCalls.Audio_SetLowPassFilterValue_AC(audioComponent.Entity.ID, value); }
-		}
+		public static void SetLowPassFilterValue(ref AudioComponent audioComponent, float value) => InternalCalls.Audio_SetLowPassFilterValue_AC(audioComponent.Entity.ID, value);
+		public static void SetHighPassFilterValue(ref AudioComponent audioComponent, float value) => InternalCalls.Audio_SetHighPassFilterValue_AC(audioComponent.Entity.ID, value);
 
-		public static void SetHighPassFilterValue(ref AudioComponent audioComponent, float value)
-		{
-			unsafe { InternalCalls.Audio_SetHighPassFilterValue_AC(audioComponent.Entity.ID, value); }
-		}
-
-		public static void SetLowPassFilterValue(uint eventID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetLowPassFilterValue_Event(eventID, value); }
-		}
-
-		public static void SetHighPassFilterValue(uint eventID, float value)
-		{
-			unsafe { InternalCalls.Audio_SetLowPassFilterValue_Event(eventID, value); }
-		}
+		public static void SetLowPassFilterValue(uint eventID, float value) => InternalCalls.Audio_SetLowPassFilterValue_Event(eventID, value);
+		public static void SetHighPassFilterValue(uint eventID, float value) => InternalCalls.Audio_SetLowPassFilterValue_Event(eventID, value);
 	}
 }

@@ -9,8 +9,6 @@
 
 namespace Hazel {
 
-	class Scene;
-
 	class JoltContactListener : public JPH::ContactListener
 	{
 	public:
@@ -49,10 +47,10 @@ namespace Hazel {
 		virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair);
 
 	private:
-		void OnCollisionBegin(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings);
-		void OnCollisionEnd(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2);
-		void OnTriggerBegin(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings);
-		void OnTriggerEnd(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2);
+		void OnCollisionBegin(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings);
+		void OnCollisionEnd(const JPH::Body& inBody1, const JPH::Body& inBody2);
+		void OnTriggerBegin(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings);
+		void OnTriggerEnd(const JPH::Body& inBody1, const JPH::Body& inBody2);
 
 	private:
 		void OverrideFrictionAndRestitution(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings);

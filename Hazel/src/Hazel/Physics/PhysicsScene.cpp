@@ -18,10 +18,15 @@ namespace Hazel {
 		m_FixedTimeStep = PhysicsSystem::GetSettings().FixedTimestep;
 
 		m_OverlapHitBuffer.reserve(s_OverlapHitBufferSize);
+
+		if (PhysicsSystem::GetSettings().CaptureOnPlay)
+			PhysicsSystem::GetAPI()->GetCaptureManager()->BeginCapture();
 	}
 
 	PhysicsScene::~PhysicsScene()
 	{
+		PhysicsSystem::GetAPI()->GetCaptureManager()->EndCapture();
+
 		m_EntityScene = nullptr;
 	}
 
@@ -64,7 +69,7 @@ namespace Hazel {
 		}
 	}
 
-	void PhysicsScene::OnContactEvent(ContactType type, UUID entityA, UUID entityB)
+	void PhysicsScene::OnContactEvent(ContactType type, Entity entityA, Entity entityB)
 	{
 		size_t index = m_NextContactEventIndex.load();
 
@@ -76,8 +81,8 @@ namespace Hazel {
 
 		auto& contactEvent = m_ContactEvents[index];
 		contactEvent.Type = type;
-		contactEvent.EntityA = entityA;
-		contactEvent.EntityB = entityB;
+		contactEvent.EntityA = entityA.GetUUID();
+		contactEvent.EntityB = entityB.GetUUID();
 
 		m_NextContactEventIndex++;
 	}
@@ -87,14 +92,12 @@ namespace Hazel {
 		if (!entityA.HasComponent<ScriptComponent>())
 			return;
 
-		auto& sc = entityA.GetComponent<ScriptComponent>();
+		const auto& sc = entityA.GetComponent<ScriptComponent>();
 
-		const auto& scriptEngine = ScriptEngine::GetInstance();
-
-		if (!scriptEngine.IsValidScript(sc.ScriptID) || !sc.Instance.IsValid())
+		if (!ScriptEngine::IsModuleValid(sc.ScriptClassHandle) || !ScriptEngine::IsEntityInstantiated(entityA))
 			return;
 
-		sc.Instance.Invoke(methodName, uint64_t(entityB.GetUUID()));
+		ScriptEngine::CallMethod(sc.ManagedInstance, methodName, entityB.GetUUID());
 	}
 
 	void PhysicsScene::SubStepStrategy(float ts)
@@ -123,65 +126,18 @@ namespace Hazel {
 
 		auto view = m_EntityScene->GetAllEntitiesWith<RigidBodyComponent, ScriptComponent>();
 
-		const auto& scriptEngine = ScriptEngine::GetInstance();
-
 		for (auto enttID : view)
 		{
-			auto& scriptComponent = view.get<ScriptComponent>(enttID);
-
-			if (!scriptComponent.Instance.IsValid() || !scriptEngine.IsValidScript(scriptComponent.ScriptID))
-				continue;
-
-			scriptComponent.Instance.Invoke("OnPhysicsUpdate", 0.0f);
+			const auto& scriptComponent = view.get<ScriptComponent>(enttID);
+			ScriptEngine::CallMethod(scriptComponent.ManagedInstance, "OnPhysicsUpdate", 0.0f);
 		}
 
 		for (auto& [entityID, characterController] : m_CharacterControllers)
 			characterController->PreSimulate(ts);
 
-		// Synchronize transforms for (static) bodies that have been moved by gameplay
 		SynchronizePendingBodyTransforms();
 
-		// For each kinematic body, call MoveKinematic() so that the kinematic body will end up at the Hazel Entity's position and rotation.
-		// Note that kinematic bodies will always move the requisite amount.  They are _not_ stopped by collisions (even with immovable objects).
-		// They will, however, push other (dynamic) bodies out of the way.
-		for (auto& [entityID, body] : m_RigidBodies)
-		{
-			if (body->IsKinematic())
-			{
-				Entity entity = m_EntityScene->GetEntityWithUUID(entityID);
-				auto tc = m_EntityScene->GetWorldSpaceTransform(entity);
-
-				// moving physics bodies is expensive.  make sure its worth it.
-				glm::vec3 currentBodyTranslation = body->GetTranslation();
-				glm::quat currentBodyRotation = body->GetRotation();
-				if (glm::any(glm::epsilonNotEqual(currentBodyTranslation, tc.Translation, 0.00001f)) || glm::any(glm::epsilonNotEqual(currentBodyRotation, tc.GetRotation(), 0.00001f)))
-				{
-					// Note (0x): Jolt does not awaken sleeping kinematic bodies when they are moved.  Wake them up (otherwise the body will not move).
-					if (body->IsSleeping())
-					{
-						body->SetSleepState(false);
-					}
-
-					glm::vec3 targetTranslation = tc.Translation;
-					glm::quat targetRotation = tc.GetRotation();
-					if (glm::dot(currentBodyRotation, targetRotation) < 0.0f)
-					{
-						targetRotation = -targetRotation;
-					}
-
-					if (glm::any(glm::epsilonNotEqual(currentBodyRotation, targetRotation, 0.000001f)))
-					{
-						glm::vec3 currentBodyEuler = glm::eulerAngles(currentBodyRotation);
-						glm::vec3 targetBodyEuler = glm::eulerAngles(tc.GetRotation());
-
-						glm::quat rotation = tc.GetRotation() * glm::conjugate(currentBodyRotation);
-						glm::vec3 rotationEuler = glm::eulerAngles(rotation);
-					}
-
-					body->MoveKinematic(tc.Translation, targetRotation, ts);
-				}
-			}
-		}
+		m_BodiesScheduledForSync.clear();
 	}
 
 	void PhysicsScene::SynchronizePendingBodyTransforms()
@@ -194,16 +150,11 @@ namespace Hazel {
 
 			SynchronizeBodyTransform(body);
 		}
-
-		m_BodiesScheduledForSync.clear();
 	}
 
 	void PhysicsScene::PostSimulate()
 	{
 		HZ_PROFILE_FUNC("PhysicsScene::PostSimulate");
-
-		for (auto& [entityID, characterController] : m_CharacterControllers)
-			characterController->PostSimulate();
 
 		PhysicsSystem::GetAPI()->GetCaptureManager()->CaptureFrame();
 

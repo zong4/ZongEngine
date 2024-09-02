@@ -80,21 +80,21 @@ namespace Hazel::Serialization
 		*/
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool SerializeImpl(StreamWriter* writer, const UUID& v)
+		static inline bool SerializeImpl(StreamWriter* writer, const UUID& v)
 		{
 			writer->WriteRaw((uint64_t)v);
 			return true;
 		}
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool SerializeImpl(StreamWriter* writer, const Identifier& v)
+		static inline bool SerializeImpl(StreamWriter* writer, const Identifier& v)
 		{
 			writer->WriteRaw((uint32_t)v);
 			return true;
 		}
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool SerializeImpl(StreamWriter* writer, const std::string& v)
+		static inline bool SerializeImpl(StreamWriter* writer, const std::string& v)
 		{
 			writer->WriteString(v);
 			return true;
@@ -102,7 +102,7 @@ namespace Hazel::Serialization
 		
 		//=============================================================================
 		template<typename T>
-		HZ_EXPLICIT_STATIC bool SerializeVec(StreamWriter* writer, const std::vector<T>& vec)
+		static bool SerializeVec(StreamWriter* writer, const std::vector<T>& vec)
 		{
 			//if (writeSize)
 			writer->WriteRaw<uint32_t>((uint32_t)vec.size());
@@ -115,7 +115,7 @@ namespace Hazel::Serialization
 
 		//=============================================================================
 		template<typename T>
-		HZ_EXPLICIT_STATIC bool SerializeByType(StreamWriter* writer, const T& v)
+		static bool SerializeByType(StreamWriter* writer, const T& v)
 		{
 			if constexpr (Type::Described<T>::value)
 			{
@@ -168,14 +168,14 @@ namespace Hazel::Serialization
 		*/
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool DeserializeImpl(StreamReader * reader, UUID & v)
+		static inline bool DeserializeImpl(StreamReader * reader, UUID & v)
 		{
 			reader->ReadRaw((uint64_t&)v);
 			return true;
 		}
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool DeserializeImpl(StreamReader * reader, Identifier & v)
+		static inline bool DeserializeImpl(StreamReader * reader, Identifier & v)
 		{
 			uint32_t data;
 			reader->ReadRaw(data);
@@ -184,7 +184,7 @@ namespace Hazel::Serialization
 		}
 
 		template<>
-		HZ_EXPLICIT_STATIC inline bool DeserializeImpl(StreamReader * reader, std::string & v)
+		static inline bool DeserializeImpl(StreamReader * reader, std::string & v)
 		{
 			reader->ReadString(v);
 			return true;
@@ -192,7 +192,7 @@ namespace Hazel::Serialization
 
 		//=============================================================================
 		template<typename T>
-		HZ_EXPLICIT_STATIC bool DeserializeVec(StreamReader * reader, std::vector<T>&vec)
+		static bool DeserializeVec(StreamReader * reader, std::vector<T>&vec)
 		{
 			uint32_t size = 0;
 			//if (size == 0)
@@ -208,7 +208,7 @@ namespace Hazel::Serialization
 
 		//=============================================================================
 		template<typename T>
-		HZ_EXPLICIT_STATIC bool DeserializeByType(StreamReader * reader, T & v)
+		static bool DeserializeByType(StreamReader * reader, T & v)
 		{
 			if constexpr (Type::Described<T>::value)
 			{

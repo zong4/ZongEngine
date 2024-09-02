@@ -21,78 +21,38 @@ namespace Hazel {
 
 		template <class Type>
 		static bool AddNewCommand(const char* uniqueName) = delete;
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::TriggerCommand>)
-		static bool AddNewCommand(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Trigger, uniqueName);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::SwitchCommand>)
-		static bool AddNewCommand(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Switch, uniqueName);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::StateCommand>)
-		static bool AddNewCommand(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::State, uniqueName);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::ParameterCommand>)
-		static bool AddNewCommand(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Parameter, uniqueName);}
+		template<> static bool AddNewCommand<Audio::TriggerCommand>		(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Trigger, uniqueName);}
+		template<> static bool AddNewCommand<Audio::SwitchCommand>		(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Switch, uniqueName);}
+		template<> static bool AddNewCommand<Audio::StateCommand>		(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::State, uniqueName);}
+		template<> static bool AddNewCommand<Audio::ParameterCommand>	(const char* uniqueName) { return AddNewCommand(Audio::ECommandType::Parameter, uniqueName);}
 
 		template <class Type>
 		static bool DoesCommandExist(const Audio::CommandID& commandID) = delete;
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::TriggerCommand>)
-		static bool DoesCommandExist(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Trigger, commandID); }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::SwitchCommand>)
-		static bool DoesCommandExist(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Switch, commandID); }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::StateCommand>)
-		static bool DoesCommandExist(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::State, commandID); }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::ParameterCommand>)
-		static bool DoesCommandExist(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Parameter, commandID); }
+		template<> static bool DoesCommandExist<Audio::TriggerCommand>		(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Trigger, commandID); }
+		template<> static bool DoesCommandExist<Audio::SwitchCommand>		(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Switch, commandID); }
+		template<> static bool DoesCommandExist<Audio::StateCommand>		(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::State, commandID); }
+		template<> static bool DoesCommandExist<Audio::ParameterCommand>	(const Audio::CommandID& commandID) { return DoesCommandExist(Audio::ECommandType::Parameter, commandID); }
 
 		template <class Type>
 		static bool RemoveCommand(const Audio::CommandID& ID) = delete;
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::TriggerCommand>)
-		static bool RemoveCommand(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Triggers.erase(ID);	OnRegistryChange(); return result;}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::SwitchCommand>)
-		static bool RemoveCommand(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Switches.erase(ID);	OnRegistryChange(); return result;}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::StateCommand>)
-		static bool RemoveCommand(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_States.erase(ID);		OnRegistryChange(); return result;}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::ParameterCommand>)
-		static bool RemoveCommand(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Parameters.erase(ID);	OnRegistryChange(); return result;}
+		template<> static bool RemoveCommand<Audio::TriggerCommand>		(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Triggers.erase(ID);	OnRegistryChange(); return result;}
+		template<> static bool RemoveCommand<Audio::SwitchCommand>		(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Switches.erase(ID);	OnRegistryChange(); return result;}
+		template<> static bool RemoveCommand<Audio::StateCommand>		(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_States.erase(ID);		OnRegistryChange(); return result;}
+		template<> static bool RemoveCommand<Audio::ParameterCommand>	(const Audio::CommandID& ID) { bool result = s_ActiveRegistry->m_Parameters.erase(ID);	OnRegistryChange(); return result;}
 
 		template <class Type>
 		static Type& GetCommand(const Audio::CommandID& ID) = delete;
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::TriggerCommand>)
-		static Audio::TriggerCommand&   GetCommand(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Triggers.at(ID);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::SwitchCommand>)
-		static Audio::SwitchCommand&    GetCommand(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Switches.at(ID);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::StateCommand>)
-		static Audio::StateCommand&     GetCommand(const Audio::CommandID& ID) { return s_ActiveRegistry->m_States.at(ID);}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::ParameterCommand>)
-		static Audio::ParameterCommand&	GetCommand(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Parameters.at(ID);}
+		template<> static Audio::TriggerCommand&	GetCommand<Audio::TriggerCommand>		(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Triggers.at(ID);}
+		template<> static Audio::SwitchCommand&		GetCommand<Audio::SwitchCommand>		(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Switches.at(ID);}
+		template<> static Audio::StateCommand&		GetCommand<Audio::StateCommand>			(const Audio::CommandID& ID) { return s_ActiveRegistry->m_States.at(ID);}
+		template<> static Audio::ParameterCommand&	GetCommand<Audio::ParameterCommand>		(const Audio::CommandID& ID) { return s_ActiveRegistry->m_Parameters.at(ID);}
 
 		template <class Type>
 		static const Registry<Type>& GetRegistry() {}
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::TriggerCommand>)
-		static const Registry<Audio::TriggerCommand>&	GetRegistry() { return s_ActiveRegistry->m_Triggers; }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::SwitchCommand>)
-		static const Registry<Audio::SwitchCommand>&	GetRegistry() { return s_ActiveRegistry->m_Switches; }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::StateCommand>)
-		static const Registry<Audio::StateCommand>&		GetRegistry() { return s_ActiveRegistry->m_States; }
-		template<class Type>
-		requires(std::is_same_v<Type, Audio::ParameterCommand>)
-		static const Registry<Audio::ParameterCommand>&	GetRegistry() { return s_ActiveRegistry->m_Parameters; }
+		template<> static const Registry<Audio::TriggerCommand>&	GetRegistry<Audio::TriggerCommand>()	{ return s_ActiveRegistry->m_Triggers; }
+		template<> static const Registry<Audio::SwitchCommand>&		GetRegistry<Audio::SwitchCommand>()		{ return s_ActiveRegistry->m_Switches; }
+		template<> static const Registry<Audio::StateCommand>&		GetRegistry<Audio::StateCommand>()		{ return s_ActiveRegistry->m_States; }
+		template<> static const Registry<Audio::ParameterCommand>&	GetRegistry<Audio::ParameterCommand>()	{ return s_ActiveRegistry->m_Parameters; }
 
 		static void Serialize();
 		static WeakRef<AudioCommandRegistry>& GetActive() { return s_ActiveRegistry; }

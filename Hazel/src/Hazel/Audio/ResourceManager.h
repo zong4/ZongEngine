@@ -21,7 +21,7 @@ namespace Hazel::Audio
 		void Initialize();
 		void ReleaseResources();
 
-		Ref<SoundBank> BuildSoundBank(const std::filesystem::path& bankPath);
+		Ref<SoundBank> BuildSoundBank();
 		Ref<SoundBank> GetSoundBank() { return m_SoundBank; };
 
 		//? JP. Should we just pass Ref<AudioFile> to ensure the correct type and have all the data ready?

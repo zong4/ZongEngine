@@ -2,8 +2,6 @@
 
 #include "Hazel/Core/Buffer.h"
 
-#include <map>
-
 namespace Hazel
 {
 	class StreamWriter
@@ -107,15 +105,14 @@ namespace Hazel
 			}
 		}
 
+		template<>
+		void WriteArray(const std::vector<std::string>& array, bool writeSize)
+		{
+			if (writeSize)
+				WriteRaw<uint32_t>((uint32_t)array.size());
+
+			for (const auto& element : array)
+				WriteString(element);
+		}
 	};
-
-	template<>
-	inline void StreamWriter::WriteArray(const std::vector<std::string>& array, bool writeSize)
-	{
-		if (writeSize)
-			WriteRaw<uint32_t>((uint32_t)array.size());
-
-		for (const auto& element : array)
-			WriteString(element);
-	}
 } // namespace Hazel

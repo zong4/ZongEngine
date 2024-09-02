@@ -1,6 +1,8 @@
 #include "hzpch.h"
 #include "TriggerNodes.h"
 
+#include "NodeDescriptors.h"
+
 namespace Hazel::AnimationGraph {
 
 	BoolTrigger::BoolTrigger(const char* dbgName, UUID id)
@@ -10,7 +12,7 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void BoolTrigger::Init(const Skeleton*)
+	void BoolTrigger::Init()
 	{
 		EndpointUtilities::InitializeInputs(this);
 	}
@@ -18,10 +20,11 @@ namespace Hazel::AnimationGraph {
 
 	float BoolTrigger::Process(float ts)
 	{
-		if ((*in_Value && *in_TriggerIfTrue) || (!*in_Value && *in_TriggerIfFalse))
-		{
-			out_OnTrigger(IDs::Trigger);
-		}
+		if (*in_Value)
+			out_OnTrue(IDs::True);
+		else
+			out_OnFalse(IDs::False);
+
 		return ts;
 	}
 

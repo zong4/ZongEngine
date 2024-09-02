@@ -10,7 +10,6 @@
 #include "Hazel/Editor/EditorResources.h"
 #include "Hazel/ImGui/Colors.h"
 #include "Hazel/ImGui/ImGuiUtilities.h"
-#include "Hazel/ImGui/ImGuiWidgets.h"
 #include "Hazel/Vendor/imgui-node-editor/widgets.h"
 
 #include <choc/text/choc_StringUtilities.h>
@@ -43,11 +42,7 @@ namespace Hazel
 	static EnumPinContext s_SelectedEnumContext;
 
 
-	//=================================================================
-	/// NodeEditor Draw Utilities
-#pragma region Node Editor Draw Utilities
-
-	float NodeEditorDraw::GetBestWidthForEnumCombo(const std::vector<Token>& enumTokens)
+	float GetBestWidthForEnumCombo(const std::vector<Token>& enumTokens)
 	{
 		float width = 40.0f;
 		for (const auto& token : enumTokens)
@@ -60,94 +55,89 @@ namespace Hazel
 	}
 
 
+	//=================================================================
+	/// NodeEditor Draw Utilities
+#pragma region Node Editor Draw Utilities
+
+	void DrawItemActivityOutline(float rounding = 0.0f)
+	{
+		auto* drawList = ImGui::GetWindowDrawList();
+		if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		{
+			drawList->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(),
+				ImColor(60, 60, 60), rounding, 0, 1.5f);
+		}
+		if (ImGui::IsItemActive())
+		{
+			drawList->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(),
+				ImColor(50, 50, 50), rounding, 0, 1.0f);
+		}
+	}
+
+
 	bool NodeEditorDraw::PropertyBool(choc::value::Value& value)
 	{
 		bool modified = false;
 
 		bool pinValue = !value.isVoid() ? value.get<bool>() : false;
 
-		if (UI::Checkbox("##bool", &pinValue))
+		if (ImGui::Checkbox("##bool", &pinValue))
 		{
 			value = choc::value::createBool(pinValue);
 			modified = true;
 		}
 
+		DrawItemActivityOutline(2.5f);
+
 		return modified;
 	}
 
 
-	bool NodeEditorDraw::PropertyFloat(choc::value::Value& value, const char* format)
+	bool NodeEditorDraw::PropertyFloat(choc::value::Value& value)
 	{
 		bool modified = false;
 
 		float pinValue = !value.isVoid() ? value.get<float>() : 0.0f;
 
-		char v_str[64];
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, pinValue);
-		const float valueWidth = ImGui::CalcTextSize(v_str).x + GImGui->Style.FramePadding.y * 2.0f;
+		const float valueWidth = ImGui::CalcTextSize(std::to_string(pinValue).c_str()).x + GImGui->Style.FramePadding.y * 2.0f;
 		ImGui::PushItemWidth(glm::max(valueWidth, 40.0f));
 
-		if (UI::DragFloat("##floatIn", &pinValue, 0.01f, 0.0f, 0.0f, format))
+		if (ImGui::DragFloat("##floatIn", &pinValue, 0.01f, 0.0f, 0.0f, "%g"))
 		{
 			value = choc::value::createFloat32(pinValue);
 			modified = true;
 		}
 
+		DrawItemActivityOutline(2.5f);
+
 		ImGui::PopItemWidth();
 
 		return modified;
 	}
 
 
-	bool NodeEditorDraw::PropertyInt(choc::value::Value& value, const char* format)
+	bool NodeEditorDraw::PropertyInt(choc::value::Value& value)
 	{
 		bool modified = false;
 
 		int pinValue = !value.isVoid() ? value.get<int>() : 0;
 
-		char v_str[64];
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, pinValue);
-		const float valueWidth = ImGui::CalcTextSize(v_str).x + GImGui->Style.FramePadding.y * 2.0f;
+		const float valueWidth = ImGui::CalcTextSize(std::to_string(pinValue).c_str()).x + GImGui->Style.FramePadding.y * 2.0f;
 		ImGui::PushItemWidth(glm::max(valueWidth, 30.0f));
 
-		if (UI::DragInt32("##int", &pinValue, 1.0f, 0, 0, format))
+		if (ImGui::DragInt("##int", &pinValue, 0.1f))
 		{
 			value = choc::value::createInt32(pinValue);
 			modified = true;
 		}
+
+		DrawItemActivityOutline(2.5f);
 
 		ImGui::PopItemWidth();
 
 		return modified;
 	}
 
-
-	bool NodeEditorDraw::PropertyVec3(std::string_view label, choc::value::Value& value, const char* format)
-	{
-		bool modified = false;
-		bool manuallyEdited = false;
-
-		glm::vec3 pinValue = CustomValueTo<glm::vec3>(value).value_or(glm::vec3{});
-
-		char v_str[64];
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, 9999.99f);
-		float valueWidth = ImGui::CalcTextSize(v_str).x;
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, pinValue.x);
-		valueWidth = glm::max(valueWidth, ImGui::CalcTextSize(v_str).x);
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, pinValue.y);
-		valueWidth = glm::max(valueWidth, ImGui::CalcTextSize(v_str).x);
-		ImFormatString(v_str, IM_ARRAYSIZE(v_str), format, pinValue.z);
-		valueWidth = glm::max(valueWidth, ImGui::CalcTextSize(v_str).x);
-		valueWidth = (valueWidth + 4.0f + GImGui->Font->FontSize + 6.0f) * 3.0f;
-
-		if (UI::Widgets::EditVec3(label, ImVec2(valueWidth, ImGui::GetFrameHeightWithSpacing() + 8.0f), 0.0f, manuallyEdited, pinValue, UI::VectorAxis::None, 1.0f, glm::zero<glm::vec3>(), glm::zero<glm::vec3>(), format))
-		{
-			value = ValueFrom(pinValue);
-			modified = true;
-		}
-
-		return modified;
-	}
 
 	bool NodeEditorDraw::PropertyString(choc::value::Value& value)
 	{
@@ -163,7 +153,9 @@ namespace Hazel
 		ImGui::PushItemWidth(100.0f);
 
 		const auto inputTextFlags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
-		UI::InputText("##edit", &valueStr, inputTextFlags);
+		ImGui::InputText("##edit", &valueStr, inputTextFlags);
+
+		DrawItemActivityOutline(2.5f);
 
 		ImGui::PopItemWidth();
 
@@ -575,7 +567,32 @@ namespace Hazel
 			ImGui::SetCursorScreenPos(cursorTopLeft);
 
 			ed::Suspend();
-			CheckContextMenus();
+			if (ed::ShowNodeContextMenu(&m_State->ContextNodeId))
+			{
+				if (!ed::IsNodeSelected(m_State->ContextNodeId))
+				{
+					ed::SelectNode(m_State->ContextNodeId, ImGui::IsKeyDown(ImGuiKey_LeftCtrl));
+				}
+				ImGui::OpenPopup("Node Context Menu");
+			}
+			else if (ed::ShowPinContextMenu(&m_State->ContextPinId))
+			{
+				ImGui::OpenPopup("Pin Context Menu");
+			}
+			else if (ed::ShowLinkContextMenu(&m_State->ContextLinkId))
+			{
+				if (!ed::IsLinkSelected(m_State->ContextLinkId))
+				{
+					ed::SelectLink(m_State->ContextLinkId, ImGui::IsKeyDown(ImGuiKey_LeftCtrl));
+				}
+				ImGui::OpenPopup("Link Context Menu");
+			}
+			else if (ed::ShowBackgroundContextMenu())
+			{
+				ImGui::OpenPopup("Create New Node");
+				m_State->NewNodePopupOpening = true;
+				m_State->NewNodeLinkPinId = 0;
+			}
 			ed::Resume();
 
 			ed::Suspend();
@@ -619,9 +636,121 @@ namespace Hazel
 				UI::ScopedStyle scrollListStyle(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
 				if (UI::BeginPopup("Create New Node"))
 				{
-					DrawBackgroundContextMenu(isNewNodePoppedUp, newNodePostion);
+					isNewNodePoppedUp = true;
+					newNodePostion = ed::ScreenToCanvas(ImGui::GetMousePosOnOpeningCurrentPopup());
+					Node* node = nullptr;
+
+					// Search widget
+					static bool grabFocus = true;
+					static std::string searchString;
+					if (ImGui::GetCurrentWindow()->Appearing)
+					{
+						grabFocus = true;
+						searchString.clear();
+					}
+					UI::ShiftCursorX(4.0f);
+					UI::ShiftCursorY(2.0f);
+					UI::Widgets::SearchWidget(searchString, "Search nodes...", &grabFocus);
+					const bool searching = !searchString.empty();
+					{
+						UI::ScopedColourStack headerColours(
+							ImGuiCol_Header, IM_COL32(255, 255, 255, 0),
+							ImGuiCol_HeaderActive, IM_COL32(45, 46, 51, 255),
+							ImGuiCol_HeaderHovered, IM_COL32(0, 0, 0, 80)
+						);
+
+						//UI::ScopedColour scrollList(ImGuiCol_ChildBg, IM_COL32(255, 255, 255, 0));
+						//UI::ScopedStyle scrollListStyle(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+						UI::ShiftCursorY(GImGui->Style.WindowPadding.y + 2.0f);
+						if (ImGui::BeginChild("##new_node_scroll_list", ImVec2(0.0f, 350.0f)))
+						{
+							// If subclass graph editor has any custom nodes,
+							// the popup items for them can be added here
+							if (onNodeListPopup)
+								node = onNodeListPopup(searching, searchString);
+
+							const auto& nodeRegistry = GetModel()->GetNodeTypes();
+							for (const auto& [categoryName, category] : nodeRegistry)
+							{
+								// Can use this instead of the collapsing header
+								//UI::PopupMenuHeader(categoryName, true, false);
+								if (searching)
+									ImGui::SetNextItemOpen(true);
+
+								ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(140, 140, 140, 255));
+								if (UI::ContextMenuHeader(categoryName.c_str()))
+								{
+									ImGui::PopStyleColor(); // header Text
+									//ImGui::Separator();
+
+									ImGui::Indent();
+									//-------------------------------------------------
+									if (searching)
+									{
+										for (const auto& [nodeType, spawnFunction] : category)
+										{
+											if (UI::IsMatchingSearch(categoryName, searchString)
+												|| UI::IsMatchingSearch(nodeType, searchString))
+											{
+												if (ImGui::MenuItem(nodeType.c_str()))
+													node = GetModel()->CreateNode(categoryName, nodeType);
+											}
+										}
+									}
+									else
+									{
+										for (const auto& [nodeType, spawnFunction] : category)
+										{
+											if (ImGui::MenuItem(nodeType.c_str()))
+												node = GetModel()->CreateNode(categoryName, nodeType);
+										}
+									}
+
+									if (nodeRegistry.find(categoryName) != nodeRegistry.end())
+										ImGui::Spacing();
+									ImGui::Unindent();
+								}
+								else
+								{
+									ImGui::PopStyleColor(); // header Text
+								}
+							}
+						}
+						ImGui::EndChild();
+					}
+
+					if (node)
+					{
+						m_State->CreateNewNode = false;
+						ed::SetNodePosition(ed::NodeId(node->ID), newNodePostion);
+						if (auto* startPin = GetModel()->FindPin(m_State->NewNodeLinkPinId))
+						{
+							auto& pins = startPin->Kind == PinKind::Input ? node->Outputs : node->Inputs;
+							HZ_CORE_ASSERT(!pins.empty());
+							for (auto& pin : pins)
+							{
+								if (GetModel()->CanCreateLink(startPin, pin))
+								{
+									auto endPin = pin;
+									if (startPin->Kind == PinKind::Input)
+										std::swap(startPin, endPin);
+
+									GetModel()->CreateLink(startPin, endPin);
+									break;
+								}
+							}
+						}
+
+						if (onNewNodeFromPopup)
+							onNewNodeFromPopup(node);
+
+						ImGui::CloseCurrentPopup();
+					}
 					auto* popupWindow = ImGui::GetCurrentWindow();
 					auto shadowRect = ImRect(popupWindow->Pos, popupWindow->Pos + popupWindow->Size);
+
+					m_State->NewNodePopupOpening = false;
+
 					UI::EndPopup();
 					UI::DrawShadow(EditorResources::ShadowTexture, 14, shadowRect, 1.3f);
 				}
@@ -1268,39 +1397,6 @@ namespace Hazel
 	}
 
 
-	void NodeGraphEditorBase::CheckContextMenus()
-	{
-		// Check whether any context menus should be shown.
-
-		if (ed::ShowNodeContextMenu(&m_State->ContextNodeId))
-		{
-			if (!ed::IsNodeSelected(m_State->ContextNodeId))
-			{
-				ed::SelectNode(m_State->ContextNodeId, ImGui::IsKeyDown(ImGuiKey_LeftCtrl));
-			}
-			ImGui::OpenPopup("Node Context Menu");
-		}
-		else if (ed::ShowPinContextMenu(&m_State->ContextPinId))
-		{
-			ImGui::OpenPopup("Pin Context Menu");
-		}
-		else if (ed::ShowLinkContextMenu(&m_State->ContextLinkId))
-		{
-			if (!ed::IsLinkSelected(m_State->ContextLinkId))
-			{
-				ed::SelectLink(m_State->ContextLinkId, ImGui::IsKeyDown(ImGuiKey_LeftCtrl));
-			}
-			ImGui::OpenPopup("Link Context Menu");
-		}
-		else if (ed::ShowBackgroundContextMenu())
-		{
-			ImGui::OpenPopup("Create New Node");
-			m_State->NewNodePopupOpening = true;
-			m_State->NewNodeLinkPinId = 0;
-		}
-	}
-
-
 	void NodeGraphEditorBase::DrawNodeContextMenu(Node* node)
 	{
 		ImGui::TextUnformatted("Node Context Menu");
@@ -1359,122 +1455,6 @@ namespace Hazel
 	}
 
 
-	void NodeGraphEditorBase::DrawBackgroundContextMenu(bool& isNewNodePoppedUp, ImVec2& newNodePostion)
-	{
-		isNewNodePoppedUp = true;
-		newNodePostion = ed::ScreenToCanvas(ImGui::GetMousePosOnOpeningCurrentPopup());
-		Node* node = nullptr;
-
-		// Search widget
-		static bool grabFocus = true;
-		static std::string searchString;
-		if (ImGui::GetCurrentWindow()->Appearing)
-		{
-			grabFocus = true;
-			searchString.clear();
-		}
-		UI::ShiftCursorX(4.0f);
-		UI::ShiftCursorY(2.0f);
-		UI::Widgets::SearchWidget(searchString, "Search nodes...", &grabFocus);
-		const bool searching = !searchString.empty();
-		{
-			UI::ScopedColourStack headerColours(
-				ImGuiCol_Header, IM_COL32(255, 255, 255, 0),
-				ImGuiCol_HeaderActive, IM_COL32(45, 46, 51, 255),
-				ImGuiCol_HeaderHovered, IM_COL32(0, 0, 0, 80)
-			);
-
-			//UI::ScopedColour scrollList(ImGuiCol_ChildBg, IM_COL32(255, 255, 255, 0));
-			//UI::ScopedStyle scrollListStyle(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			UI::ShiftCursorY(GImGui->Style.WindowPadding.y + 2.0f);
-			if (ImGui::BeginChild("##new_node_scroll_list", ImVec2(0.0f, 350.0f)))
-			{
-				// If subclass graph editor has any custom nodes,
-				// the popup items for them can be added here
-				if (onNodeListPopup)
-					node = onNodeListPopup(searching, searchString);
-
-				const auto& nodeRegistry = GetModel()->GetNodeTypes();
-				for (const auto& [categoryName, category] : nodeRegistry)
-				{
-					// Can use this instead of the collapsing header
-					//UI::PopupMenuHeader(categoryName, true, false);
-					if (searching)
-						ImGui::SetNextItemOpen(true);
-
-					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(140, 140, 140, 255));
-					if (UI::ContextMenuHeader(categoryName.c_str()))
-					{
-						ImGui::PopStyleColor(); // header Text
-						//ImGui::Separator();
-
-						ImGui::Indent();
-						//-------------------------------------------------
-						if (searching)
-						{
-							for (const auto& [nodeType, spawnFunction] : category)
-							{
-								if (UI::IsMatchingSearch(categoryName, searchString)
-									|| UI::IsMatchingSearch(nodeType, searchString))
-								{
-									if (ImGui::MenuItem(nodeType.c_str()))
-										node = GetModel()->CreateNode(categoryName, nodeType);
-								}
-							}
-						}
-						else
-						{
-							for (const auto& [nodeType, spawnFunction] : category)
-							{
-								if (ImGui::MenuItem(nodeType.c_str()))
-									node = GetModel()->CreateNode(categoryName, nodeType);
-							}
-						}
-
-						if (nodeRegistry.find(categoryName) != nodeRegistry.end())
-							ImGui::Spacing();
-						ImGui::Unindent();
-					}
-					else
-					{
-						ImGui::PopStyleColor(); // header Text
-					}
-				}
-			}
-			ImGui::EndChild();
-		}
-
-		if (node)
-		{
-			m_State->CreateNewNode = false;
-			ed::SetNodePosition(ed::NodeId(node->ID), newNodePostion);
-			if (auto* startPin = GetModel()->FindPin(m_State->NewNodeLinkPinId))
-			{
-				auto& pins = startPin->Kind == PinKind::Input ? node->Outputs : node->Inputs;
-				HZ_CORE_ASSERT(!pins.empty());
-				for (auto& pin : pins)
-				{
-					if (GetModel()->CanCreateLink(startPin, pin))
-					{
-						auto endPin = pin;
-						if (startPin->Kind == PinKind::Input)
-							std::swap(startPin, endPin);
-
-						GetModel()->CreateLink(startPin, endPin);
-						break;
-					}
-				}
-			}
-
-			if (onNewNodeFromPopup)
-				onNewNodeFromPopup(node);
-
-			ImGui::CloseCurrentPopup();
-		}
-		m_State->NewNodePopupOpening = false;
-	}
-
-
 	void NodeGraphEditorBase::DrawDeferredComboBoxes(PinPropertyContext& pinContext)
 	{
 		ed::Suspend();
@@ -1515,7 +1495,7 @@ namespace Hazel
 					HZ_CORE_ASSERT(pin->EnumTokens.has_value() && pin->EnumTokens.value() != nullptr);
 					const auto& tokens = **pin->EnumTokens;
 
-					ImGui::SetNextWindowSize({ NodeEditorDraw::GetBestWidthForEnumCombo(tokens), 0.0f });
+					ImGui::SetNextWindowSize({ GetBestWidthForEnumCombo(tokens), 0.0f });
 					if (UI::BeginPopup("##EnumPopup", ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 					{
 						for (int i = 0; i < tokens.size(); ++i)
@@ -2333,12 +2313,6 @@ namespace Hazel
 				else if (Utils::IsAssetHandle<AssetType::Audio>(valueView))     changed = EditAssetField<AudioFile, AssetType::Audio>(id, valueView, changed);
 				else if (Utils::IsAssetHandle<AssetType::Animation>(valueView)) changed = EditAssetField<AnimationAsset, AssetType::Animation>(id, valueView, changed);
 				else if (Utils::IsAssetHandle<AssetType::Skeleton>(valueView))  changed = EditAssetField<SkeletonAsset, AssetType::Skeleton>(id, valueView, changed);
-				else if (valueView.isObjectWithClassName(type::type_name<glm::vec3>()))
-				{
-					auto v = static_cast<glm::vec3*>(valueView.getRawData());
-					bool manuallyEdited = false;
-					changed = UI::Widgets::EditVec3(id.c_str(), ImVec2(ImGui::GetContentRegionAvail().x  - ImGui::GetFrameHeight() - 8.0f, ImGui::GetFrameHeightWithSpacing()), 0.0f, manuallyEdited, *v);
-				}
 				else
 				{
 					HZ_CORE_ERROR("Invalid type of Graph Input!");
@@ -2524,14 +2498,7 @@ namespace Hazel
 				ImGui::TreeNodeEx(input.c_str(), flags);
 				ImGui::PopStyleColor();
 
-				if (ImGui::BeginDragDropSource())
-				{
-					ImGui::TextUnformatted(input.c_str());
-					ImGui::SetDragDropPayload("input_payload", input.c_str(), input.size() + 1);
-					ImGui::EndDragDropSource();
-				}
-
-				if (ImGui::IsItemClicked())
+				if (ImGui::IsItemClicked()) 
 					m_SelectedItem->Select(EPropertyType::Input, input);
 
 				// Remove button
@@ -2617,15 +2584,6 @@ namespace Hazel
 		ImGui::PushStyleColor(ImGuiCol_Text, textColor.Value);
 		ImGui::TreeNodeEx(input.c_str(), flags);
 		ImGui::PopStyleColor();
-
-		if (ImGui::BeginDragDropSource())
-		{
-			ImGui::TextUnformatted(input.c_str());
-			ImGui::SameLine();
-			ImGui::TextUnformatted((ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift)) ? "(set)" : "(get)");
-			ImGui::SetDragDropPayload("localvar_payload", input.c_str(), input.size() + 1);
-			ImGui::EndDragDropSource();
-		}
 
 		if (ImGui::IsItemClicked())
 			m_SelectedItem->Select(EPropertyType::LocalVariable, input);

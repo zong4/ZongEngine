@@ -25,10 +25,6 @@ namespace Hazel
 		bool ShowGrid = true;
 		bool ShowSelectedInWireframe = false;
 
-		bool ShowAnimationDebug = false;
-		glm::vec4 BoneColor = { 0.325f, 0.909f, 0.996f, 1.0f };
-		glm::vec4 SelectedBoneColor = { 1.0f, 0.5f, 0.0f, 1.0f };
-
 		enum class PhysicsColliderView
 		{
 			SelectedEntity = 0, All = 1
@@ -37,8 +33,8 @@ namespace Hazel
 		bool ShowPhysicsColliders = false;
 		PhysicsColliderView PhysicsColliderMode = PhysicsColliderView::SelectedEntity;
 		bool ShowPhysicsCollidersOnTop = false;
-		glm::vec4 SimplePhysicsCollidersColor = { 0.2f, 1.0f, 0.2f, 1.0f };
-		glm::vec4 ComplexPhysicsCollidersColor = { 0.5f, 0.5f, 1.0f, 1.0f };
+		glm::vec4 SimplePhysicsCollidersColor = glm::vec4{ 0.2f, 1.0f, 0.2f, 1.0f };
+		glm::vec4 ComplexPhysicsCollidersColor = glm::vec4{ 0.5f, 0.5f, 1.0f, 1.0f };
 
 		// General AO
 		float AOShadowTolerance = 1.0f;
@@ -103,8 +99,6 @@ namespace Hazel
 
 		bool EnableEdgeOutlineEffect = false;
 		bool JumpFloodPass = true;
-
-		uint32_t ViewportWidth = 0, ViewportHeight = 0; // 0 means application window size
 	};
 
 	class SceneRenderer : public RefCounted
@@ -143,18 +137,14 @@ namespace Hazel
 		static void BeginGPUPerfMarker(Ref<RenderCommandBuffer> renderCommandBuffer, const std::string& label, const glm::vec4& markerColor = {});
 		static void EndGPUPerfMarker(Ref<RenderCommandBuffer> renderCommandBuffer);
 
-		void SubmitMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), const std::vector<glm::mat4>& boneTransforms = {}, Ref<Material> overrideMaterial = nullptr);
-		void SubmitStaticMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), Ref<Material> overrideMaterial = nullptr);
+		void SubmitMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), const std::vector<glm::mat4>& boneTransforms = {}, Ref<Material> overrideMaterial = nullptr);
+		void SubmitStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), Ref<Material> overrideMaterial = nullptr);
 
-		void SubmitSelectedMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), const std::vector<glm::mat4>& boneTransforms = {}, Ref<Material> overrideMaterial = nullptr);
-		void SubmitSelectedStaticMesh(Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), Ref<Material> overrideMaterial = nullptr);
+		void SubmitSelectedMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), const std::vector<glm::mat4>& boneTransforms = {}, Ref<Material> overrideMaterial = nullptr);
+		void SubmitSelectedStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform = glm::mat4(1.0f), Ref<Material> overrideMaterial = nullptr);
 
-		Ref<StaticMesh> GetBoneDebugMesh() { return m_BoneMesh; }
-		Ref<MeshSource> GetBoneDebugMeshSource() { return m_BoneMeshSource; }
-		void SubmitAnimationDebugMesh(Ref<StaticMesh> mesh, Ref<MeshSource> meshSource, const glm::mat4& transform = glm::mat4(1.0f), const bool isSelected = false);
-
-		void SubmitPhysicsDebugMesh(Ref<Mesh> mesh, Ref<MeshSource> meshSource, uint32_t submeshIndex, const glm::mat4& transform = glm::mat4(1.0f), const bool isSimpleCollider = true);
-		void SubmitPhysicsStaticDebugMesh(Ref<StaticMesh> mesh, Ref<MeshSource> meshSource, const glm::mat4& transform = glm::mat4(1.0f), const bool isSimpleCollider = true);
+		void SubmitPhysicsDebugMesh(Ref<Mesh> mesh, uint32_t submeshIndex, const glm::mat4& transform = glm::mat4(1.0f));
+		void SubmitPhysicsStaticDebugMesh(Ref<StaticMesh> mesh, const glm::mat4& transform = glm::mat4(1.0f), const bool isPrimitiveCollider = true);
 
 		Ref<Pipeline> GetFinalPipeline();
 		Ref<RenderPass> GetFinalRenderPass();
@@ -203,9 +193,6 @@ namespace Hazel
 		const glm::mat4& GetScreenSpaceProjectionMatrix() const { return m_ScreenSpaceProjectionMatrix; }
 
 		const Statistics& GetStatistics() const { return m_Statistics; }
-
-		bool IsReady() const { return m_ResourcesCreatedGPU; }
-
 	private:
 		void FlushDrawList();
 
@@ -247,32 +234,6 @@ namespace Hazel
 
 			}
 		};
-
-		struct DrawCommand
-		{
-			Ref<Mesh> Mesh;
-			Ref<MeshSource> MeshSource;
-			uint32_t SubmeshIndex;
-			Ref<MaterialTable> MaterialTable;
-			Ref<Material> OverrideMaterial;
-
-			uint32_t InstanceCount = 0;
-			uint32_t InstanceOffset = 0;
-			bool IsRigged = false;
-		};
-
-		struct StaticDrawCommand
-		{
-			Ref<StaticMesh> StaticMesh;
-			Ref<MeshSource> MeshSource;
-			uint32_t SubmeshIndex;
-			Ref<MaterialTable> MaterialTable;
-			Ref<Material> OverrideMaterial;
-
-			uint32_t InstanceCount = 0;
-		};
-
-		void SubmitStaticDebugMesh(std::map<SceneRenderer::MeshKey, SceneRenderer::StaticDrawCommand>& drawList, Ref<StaticMesh> staticMesh, Ref<MeshSource> meshSource, const glm::mat4& transform, Ref<Material> material);
 
 		void CopyToBoneTransformStorage(const MeshKey& meshKey, const Ref<MeshSource>& meshSource, const std::vector<glm::mat4>& boneTransforms);
 
@@ -318,7 +279,6 @@ namespace Hazel
 		void CalculateCascadesManualSplit(CascadeData* cascades, const SceneRendererCamera& sceneCamera, const glm::vec3& lightDirection) const;
 
 		void UpdateStatistics();
-
 	private:
 		Ref<Scene> m_Scene;
 		SceneRendererSpecification m_Specification;
@@ -626,6 +586,29 @@ namespace Hazel
 
 		std::vector<Ref<Framebuffer>> m_TempFramebuffers;
 
+		struct DrawCommand
+		{
+			Ref<Mesh> Mesh;
+			uint32_t SubmeshIndex;
+			Ref<MaterialTable> MaterialTable;
+			Ref<Material> OverrideMaterial;
+
+			uint32_t InstanceCount = 0;
+			uint32_t InstanceOffset = 0;
+			bool IsRigged = false;
+		};
+
+		struct StaticDrawCommand
+		{
+			Ref<StaticMesh> StaticMesh;
+			uint32_t SubmeshIndex;
+			Ref<MaterialTable> MaterialTable;
+			Ref<Material> OverrideMaterial;
+
+			uint32_t InstanceCount = 0;
+			uint32_t InstanceOffset = 0;
+		};
+
 		struct TransformMapData
 		{
 			std::vector<TransformVertexData> Transforms;
@@ -655,19 +638,14 @@ namespace Hazel
 		// Debug
 		std::map<MeshKey, StaticDrawCommand> m_StaticColliderDrawList;
 		std::map<MeshKey, DrawCommand> m_ColliderDrawList;
-		std::map<MeshKey, StaticDrawCommand> m_AnimationDebugDrawList;
-		Ref<Material> m_SimpleColliderMaterial;
-		Ref<Material> m_ComplexColliderMaterial;
-		Ref<Material> m_SelectedBoneMaterial;
-		Ref<Material> m_BoneMaterial;
-		Ref<StaticMesh> m_BoneMesh;
-		Ref<MeshSource> m_BoneMeshSource;
 
 		// Grid
 		Ref<RenderPass> m_GridRenderPass;
 		Ref<Material> m_GridMaterial;
 
 		Ref<Material> m_OutlineMaterial;
+		Ref<Material> m_SimpleColliderMaterial;
+		Ref<Material> m_ComplexColliderMaterial;
 
 		Ref<Framebuffer> m_CompositingFramebuffer;
 

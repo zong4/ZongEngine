@@ -72,6 +72,11 @@ Dependencies = {
 		Linux = { LibName = "assimp", LibDir = "%{wks.location}/Hazel/vendor/assimp/bin/linux/" },
 		Configurations = "Debug,Release"
 	},
+	Mono = {
+		IncludeDir = "%{wks.location}/Hazel/vendor/mono/include",
+		Windows = { LibName = "mono-2.0-sgen", LibDir = "%{wks.location}/Hazel/vendor/mono/lib/windows/%{cfg.buildcfg}/" },
+		Linux = { LibName = "monosgen-2.0", LibDir = "%{wks.location}/Hazel/vendor/mono/lib/linux/" },
+	},
 	ShaderC = {
 		LibName = "shaderc_shared",
 		Windows = { DebugLibName = "shaderc_sharedd", },
@@ -110,10 +115,6 @@ Dependencies = {
 	EnTT = {
 		IncludeDir = "%{wks.location}/Hazel/vendor/entt/include",
 	},
-    Coral = {
-		LibName = "Coral.Native",
-        IncludeDir = "%{wks.location}/Hazel/vendor/Coral/Coral.Native/Include"
-    },
 	ImGui = {
 		LibName = "ImGui",
 		IncludeDir = "%{wks.location}/Hazel/vendor/imgui",
@@ -178,15 +179,6 @@ Dependencies = {
 	FileWatch = {
 		IncludeDir = "%{wks.location}/Hazel/vendor/filewatch/include"
 	},
-	CDT = {
-		IncludeDir = "%{wks.location}/Hazel/vendor/CDT"
-	},
-	RTM = {
-		IncludeDir = "%{wks.location}/Hazel/vendor/rtm/include"
-	},	
-	ACL = {
-		IncludeDir = "%{wks.location}/Hazel/vendor/acl/include"
-	},	
 }
 
 -- NOTE(Peter): Probably don't touch these functions unless you know what you're doing (or just ask me if you need help extending them)

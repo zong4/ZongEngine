@@ -16,9 +16,8 @@ namespace Hazel {
 
 		virtual void OnImGuiRender(bool& isOpen) override;
 		virtual void OnProjectChanged(const Ref<Project>& project) override;
-	private:
-		void OnClose();
 
+	private:
 		void RenderGeneralSettings();
 		void RenderRendererSettings();
 		void RenderAudioSettings();

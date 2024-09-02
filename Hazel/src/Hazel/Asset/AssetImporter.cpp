@@ -5,8 +5,6 @@
 #include "MeshSerializer.h"
 #include "SoundGraphSerializer.h"
 
-#include "Hazel/Debug/Profiler.h"
-
 namespace Hazel {
 
 	void AssetImporter::Init()
@@ -50,8 +48,6 @@ namespace Hazel {
 
 	bool AssetImporter::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset)
 	{
-		HZ_PROFILE_FUNC("AssetImporter::TryLoadData");
-
 		if (s_Serializers.find(metadata.Type) == s_Serializers.end())
 		{
 			HZ_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
@@ -64,20 +60,17 @@ namespace Hazel {
 
 	bool AssetImporter::SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo)
 	{
-		outInfo.Size = 0;
-
 		if (!AssetManager::IsAssetHandleValid(handle))
 			return false;
 
-		AssetType type = AssetManager::GetAssetType(handle);
-		if (s_Serializers.find(type) == s_Serializers.end())
+		const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
+		if (s_Serializers.find(metadata.Type) == s_Serializers.end())
 		{
-			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
-			HZ_CORE_WARN("There's currently no serializer for assets of type {0}", metadata.FilePath.stem().string());
+			HZ_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
 			return false;
 		}
 
-		return s_Serializers[type]->SerializeToAssetPack(handle, stream, outInfo);
+		return s_Serializers[metadata.Type]->SerializeToAssetPack(handle, stream, outInfo);
 	}
 
 	Ref<Asset> AssetImporter::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo)

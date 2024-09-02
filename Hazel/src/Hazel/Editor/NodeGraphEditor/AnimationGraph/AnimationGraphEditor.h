@@ -27,16 +27,11 @@ namespace Hazel {
 		void OnRender() override;
 
 		void DrawNodes(PinPropertyContext& pinContext) override;
-		void DrawNode(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext) override;
-		void DrawNodeForStateMachine(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext);
 		void DrawStateNode(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext);
-		void DrawNodeForBlendSpace(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext);
-		void DrawBlendSpaceTriangles();
-
+		void DrawNode(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext) override;
 
 		void DrawGraphIO() override;
 
-		bool PropertyBone(Pin* pin, bool& openBonePopup);
 		bool DrawPinPropertyEdit(PinPropertyContext& context) override;
 		void DrawPinIcon(const Pin* pin, bool connected, int alpha) override;
 
@@ -48,30 +43,17 @@ namespace Hazel {
 
 		Node* CreateTransition(UUID startNodeID, UUID endNodeID);
 
-		// Track selection of custom-drawn blend space vertices
-		void SelectBlendSpaceVertex(UUID id, bool append = false) { if (append) m_SelectedBlendSpaceVertices.emplace(id); else m_SelectedBlendSpaceVertices = { id }; static_cast<AnimationGraphNodeEditorModel*>(GetModel())->InvalidateSubGraphState(); }
-		void ClearSelectedBlendSpaceVertices() { m_SelectedBlendSpaceVertices.clear(); }
-		bool IsAnyBlendSpaceVertexSelected() const { return !m_SelectedBlendSpaceVertices.empty(); }
-		bool IsBlendSpaceVertexSelected(UUID id) const { return std::find(m_SelectedBlendSpaceVertices.begin(), m_SelectedBlendSpaceVertices.end(), id) != m_SelectedBlendSpaceVertices.end(); }
-
 		void DeleteSelection();
 		void CopySelection();
 		std::vector<UUID> PasteSelection(const std::vector<UUID>& selectedNodeIDs, ImVec2 position);
 
-		void CheckContextMenus() override;
 		void DrawNodeContextMenu(Node* node) override;
-		void DrawBackgroundContextMenu(bool& isNewNodePoppedUp, ImVec2& newNodePosition) override;
-		void DrawDeferredComboBoxes(PinPropertyContext& pinContext) override;
+
 
 	private:
-		constexpr static float s_BlendSpaceVertexRadius = 5.0f;
-
 		ax::NodeEditor::EditorContext* m_SubGraph = nullptr; // lifetime controlled by imgui_node_editor
 		std::unordered_set<UUID> m_SelectedTransitionNodes;
 		std::unordered_set<UUID> m_TransitionsToDelete;
-
-		std::unordered_set<UUID> m_SelectedBlendSpaceVertices;
-		std::unordered_set<UUID> m_BlendSpaceVerticesToDelete;
 
 		std::function<Node* (bool searching, std::string_view searchedString)> baseOnNodeListPopup = nullptr;
 

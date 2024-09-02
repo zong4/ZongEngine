@@ -10,31 +10,40 @@
 #include "Hazel/Audio/AudioEngine.h"
 #include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
 #include "Hazel/Audio/Editor/AudioEventsEditor.h"
-#include "Hazel/Core/Events/EditorEvents.h"
 
-#include "Hazel/Debug/Profiler.h"
+#include "Hazel/Core/Events/EditorEvents.h"
 
 #include "Hazel/Editor/AssetEditorPanel.h"
 #include "Hazel/Editor/EditorApplicationSettings.h"
 #include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h"
 #include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodeEditorModel.h"
+#include "Hazel/Editor/ScriptEngineDebugPanel.h"
 #include "Hazel/Editor/SelectionManager.h"
+
 #include "Hazel/ImGui/ImGui.h"
 #include "Hazel/ImGui/ImGuizmo.h"
+
 #include "Hazel/Math/Math.h"
+
 #include "Hazel/Physics/PhysicsLayer.h"
 #include "Hazel/Physics/PhysicsSystem.h"
+
 #include "Hazel/Project/Project.h"
 #include "Hazel/Project/ProjectSerializer.h"
+
 #include "Hazel/Renderer/Renderer2D.h"
 #include "Hazel/Renderer/RendererAPI.h"
-#include "Hazel/Renderer/RendererStats.h"
 #include "Hazel/Renderer/ShaderPack.h"
+#include "Hazel/Renderer/RendererStats.h"
+
 #include "Hazel/Scene/Prefab.h"
+
 #include "Hazel/Script/ScriptBuilder.h"
 #include "Hazel/Script/ScriptEngine.h"
+
 #include "Hazel/Serialization/AssetPack.h"
 #include "Hazel/Serialization/TextureRuntimeSerializer.h"
+
 #include "Hazel/Utilities/FileSystem.h"
 
 #include <GLFW/include/GLFW/glfw3.h>
@@ -48,7 +57,6 @@
 #include <imgui/imgui_internal.h>
 
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <future>
 
@@ -89,18 +97,17 @@ namespace Hazel {
 				it++;
 		}
 
-		m_TitleBarActiveColor = m_TitleBarTargetColor = Colors::Theme::titlebarGreen;
 	}
 
 	EditorLayer::~EditorLayer()
 	{
 	}
-	
+
 	auto operator < (const ImVec2& lhs, const ImVec2& rhs)
 	{
 		return lhs.x < rhs.x && lhs.y < rhs.y;
 	}
-	
+
 	void EditorLayer::OnAttach()
 	{
 		using namespace glm;
@@ -149,10 +156,11 @@ namespace Hazel {
 		m_PanelManager->AddPanel<AudioEventsEditor>(PanelCategory::Edit, AUDIO_EVENTS_EDITOR_PANEL_ID, "Audio Events", false);
 		m_PanelManager->AddPanel<ApplicationSettingsPanel>(PanelCategory::Edit, APPLICATION_SETTINGS_PANEL_ID, "Application Settings", false);
 		m_PanelManager->AddPanel<ECSDebugPanel>(PanelCategory::View, ECS_DEBUG_PANEL_ID, "ECS Debug", false, m_EditorScene);
-		m_ConsolePanel = m_PanelManager->AddPanel<EditorConsolePanel>(PanelCategory::View, CONSOLE_PANEL_ID, "Log", true);
+		m_PanelManager->AddPanel<EditorConsolePanel>(PanelCategory::View, CONSOLE_PANEL_ID, "Log", true);
 		m_PanelManager->AddPanel<MaterialsPanel>(PanelCategory::View, MATERIALS_PANEL_ID, "Materials", true);
 		m_PanelManager->AddPanel<PhysicsStatsPanel>(PanelCategory::View, PHYSICS_DEBUG_PANEL_ID, "Physics Stats", false);
 		m_PanelManager->AddPanel<AssetManagerPanel>(PanelCategory::View, ASSET_MANAGER_PANEL_ID, "Asset Manager", false);
+		m_PanelManager->AddPanel<ScriptEngineDebugPanel>(PanelCategory::View, SCRIPT_ENGINE_DEBUG_PANEL_ID, "Script Engine Debug", false);
 		m_PanelManager->AddPanel<PhysicsCapturesPanel>(PanelCategory::View, PHYSICS_CAPTURES_PANEL_ID, "Physics Captures", false);
 
 		Ref<SceneRendererPanel> sceneRendererPanel = m_PanelManager->AddPanel<SceneRendererPanel>(PanelCategory::View, SCENE_RENDERER_PANEL_ID, "Scene Renderer", true);
@@ -176,13 +184,11 @@ namespace Hazel {
 			m_CurrentScene = scene;
 			m_EditorScene = scene;
 			// NOTE(Peter): We set the scene context to nullptr here to make sure all old script entities have been destroyed
-			ScriptEngine::GetMutable().SetCurrentScene(nullptr);
-			ScriptEngine::GetMutable().SetSceneRenderer(nullptr);
+			ScriptEngine::SetSceneContext(nullptr, nullptr);
 
 			UpdateWindowTitle(scene->GetName());
 			m_PanelManager->SetSceneContext(m_EditorScene);
-			ScriptEngine::GetMutable().SetCurrentScene(m_EditorScene);
-			ScriptEngine::GetMutable().SetSceneRenderer(m_ViewportRenderer);
+			ScriptEngine::SetSceneContext(m_EditorScene, m_ViewportRenderer);
 			MiniAudioEngine::SetSceneContext(m_EditorScene);
 			AssetEditorPanel::SetSceneContext(m_EditorScene);
 		}
@@ -223,8 +229,7 @@ namespace Hazel {
 		m_RuntimeScene = Ref<Scene>::Create();
 		m_EditorScene->CopyTo(m_RuntimeScene);
 		m_RuntimeScene->SetSceneTransitionCallback([this](AssetHandle scene) { QueueSceneTransition(scene); });
-		ScriptEngine::GetMutable().SetCurrentScene(m_RuntimeScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_ViewportRenderer);
+		ScriptEngine::SetSceneContext(m_RuntimeScene, m_ViewportRenderer);
 		AssetEditorPanel::SetSceneContext(m_RuntimeScene);
 		m_ViewportRenderer->GetOptions().ShowGrid = false;
 		m_RuntimeScene->OnRuntimeStart();
@@ -247,13 +252,11 @@ namespace Hazel {
 		// Unload runtime scene
 		m_RuntimeScene = nullptr;
 
-		ScriptEngine::GetMutable().SetCurrentScene(m_EditorScene);
+		ScriptEngine::SetSceneContext(m_EditorScene, m_ViewportRenderer);
 		AssetEditorPanel::SetSceneContext(m_EditorScene);
 		MiniAudioEngine::SetSceneContext(m_EditorScene);
 		m_PanelManager->SetSceneContext(m_EditorScene);
 		m_CurrentScene = m_EditorScene;
-
-		ReloadCSharp();
 	}
 
 	void EditorLayer::OnSceneStartSimulation()
@@ -289,45 +292,13 @@ namespace Hazel {
 		m_PostSceneUpdateQueue.emplace_back([this, scene]() { OnSceneTransition(scene); });
 	}
 
-	void EditorLayer::BuildProjectData()
-	{
-		if (!Project::GetActive())
-			HZ_CORE_VERIFY(false); // TODO
-
-		HZ_CONSOLE_LOG_INFO("Building Project Data...");
-
-		Ref<Project> project = Project::GetActive();
-		ProjectSerializer serializer(project);
-		std::filesystem::path path = Project::GetActiveAssetDirectory() / "Project.hdat";
-		if (serializer.SerializeRuntime(path))
-		{
-			HZ_CONSOLE_LOG_INFO("Successfully built Project Data ({})", path.string());
-		}
-		else
-		{
-			HZ_CONSOLE_LOG_ERROR("Failed to build Project Data.");
-		}
-	}
-
 	void EditorLayer::BuildShaderPack()
 	{
-		HZ_CONSOLE_LOG_INFO("Building Shader Pack...");
-		const char* ShaderPackPath = "Resources/ShaderPack.hsp";
-		ShaderPack::CreateFromLibrary(Renderer::GetShaderLibrary(), ShaderPackPath);
-		HZ_CONSOLE_LOG_INFO("Successfully built Shader Pack ({})", ShaderPackPath);
-	}
-
-	void EditorLayer::BuildSoundBank()
-	{
-		const std::filesystem::path SoundBankPath = Project::GetActiveAssetDirectory() / "SoundBank.hsb";
-		if (MiniAudioEngine::BuildSoundBank(SoundBankPath))
-		{
-			HZ_CONSOLE_LOG_INFO("Successfully built Sound Bank ({})", SoundBankPath);
-		}
-		else
-		{
-			HZ_CONSOLE_LOG_ERROR("Failed to build Sound Bank.");
-		}
+		ShaderPack::CreateFromLibrary(Renderer::GetShaderLibrary(), "Resources/ShaderPack.hsp");
+		UI::ShowSimpleMessageBox<HZ_MESSAGE_BOX_OK_BUTTON>(
+			"Created ShaderPack!",
+			"Successfully created shader pack. File Path: {0}", std::filesystem::absolute("Resources/ShaderPack.hsp").string()
+		);
 	}
 
 	static Ref<AssetPack> CreateAssetPack(std::atomic<float>& progress)
@@ -337,6 +308,9 @@ namespace Hazel {
 
 	void EditorLayer::BuildAssetPack()
 	{
+		if (m_AssetPackBuildInProgress)
+			return;
+
 		HZ_CONSOLE_LOG_INFO("Building Asset Pack...");
 
 		m_AssetPackBuildProgress = 0.0f;
@@ -348,23 +322,7 @@ namespace Hazel {
 		m_AssetPackFuture = task.get_future();
 		m_AssetPackThread = std::thread(std::move(task));
 
-		m_ConsolePanel->SetProgress("Building Asset Pack", 0.0f);
-	}
-
-	void EditorLayer::BuildAll()
-	{
-		HZ_CONSOLE_LOG_INFO("Build All started...");
-		m_BuildAllInProgress = true;
-		BuildProjectData();
-		BuildShaderPack();
-		BuildSoundBank();
-		BuildAssetPack();
-
-		if (!m_AssetPackThread.joinable())
-		{
-			HZ_CONSOLE_LOG_INFO("Build All complete.");
-			m_BuildAllInProgress = false;
-		}
+		m_OpenAssetPackDialog = true;
 	}
 
 	void EditorLayer::RegenerateProjectScriptSolution(const std::filesystem::path& projectPath)
@@ -375,25 +333,26 @@ namespace Hazel {
 		system(batchFilePath.c_str());
 	}
 
-	void EditorLayer::ReloadCSharp()
+	void EditorLayer::SerializeEnvironmentMap()
 	{
-		ScriptStorage tempStorage;
-
-		auto& scriptStorage = m_CurrentScene->GetScriptStorage();
-		scriptStorage.CopyTo(tempStorage);
-		scriptStorage.Clear();
-
-		Project::GetActive()->ReloadScriptEngine();
-
-		tempStorage.CopyTo(scriptStorage);
-		tempStorage.Clear();
-
-		scriptStorage.SynchronizeStorage();
-	}
-
-	void EditorLayer::FocusLogPanel()
-	{
-		m_ConsolePanel->Focus();
+		auto skyLights = m_EditorScene->GetAllEntitiesWith<SkyLightComponent>();
+		for (auto e : skyLights)
+		{
+			auto& skyLight = skyLights.get<SkyLightComponent>(e);
+			if (!skyLight.DynamicSky && skyLight.SceneEnvironment)
+			{
+				if (AssetManager::IsAssetHandleValid(skyLight.SceneEnvironment))
+				{
+					Ref<Environment> environment = AssetManager::GetAsset<Environment>(skyLight.SceneEnvironment);
+					if (environment->RadianceMap)
+					{
+						Ref<TextureCube> radianceMap = environment->RadianceMap;
+						FileStreamWriter writer("RadianceMap.textureCube");
+						TextureRuntimeSerializer::SerializeToFile(radianceMap, writer);
+					}
+				}
+			}
+		}
 	}
 
 	void EditorLayer::OnSceneTransition(AssetHandle scene)
@@ -403,7 +362,7 @@ namespace Hazel {
 
 		std::filesystem::path scenePath = Project::GetEditorAssetManager()->GetMetadata(scene).FilePath;
 
-		if (serializer.Deserialize((Project::GetActiveAssetDirectory() / scenePath).string()))
+		if (serializer.Deserialize((Project::GetAssetDirectory() / scenePath).string()))
 		{
 			newScene->SetViewportSize(m_ViewportRenderer->GetViewportWidth(), m_ViewportRenderer->GetViewportHeight());
 
@@ -413,12 +372,14 @@ namespace Hazel {
 
 			m_RuntimeScene = newScene;
 			m_RuntimeScene->SetSceneTransitionCallback([this](AssetHandle scene) { QueueSceneTransition(scene); });
-			ScriptEngine::GetMutable().SetCurrentScene(m_RuntimeScene);
+			ScriptEngine::SetSceneContext(m_RuntimeScene, m_ViewportRenderer);
 			AssetEditorPanel::SetSceneContext(m_RuntimeScene);
 			//ScriptEngine::ReloadAppAssembly();
 			m_RuntimeScene->OnRuntimeStart();
 			m_PanelManager->SetSceneContext(m_RuntimeScene);
 			m_CurrentScene = m_RuntimeScene;
+
+			
 		}
 		else
 		{
@@ -428,7 +389,9 @@ namespace Hazel {
 
 	void EditorLayer::UpdateWindowTitle(const std::string& sceneName)
 	{
-		const std::string title = std::format("{0} ({1}) - Hazelnut {2}", sceneName, Project::GetActive()->GetConfig().Name, HZ_VERSION);
+		HZ_CORE_VERIFY(RendererAPI::Current() == RendererAPIType::Vulkan, "Only Vulkan is supported!");
+		const std::string rendererAPI = "Vulkan";
+		const std::string title = fmt::format("{0} ({1}) - Hazelnut - {2} ({3}) Renderer: {4}", sceneName, Project::GetActive()->GetConfig().Name, Application::GetPlatformName(), Application::GetConfigurationName(), rendererAPI);
 		Application::Get().GetWindow().SetTitle(title);
 	}
 
@@ -527,41 +490,21 @@ namespace Hazel {
 						SaveSceneAs();
 
 					ImGui::Separator();
-
-					if (ImGui::MenuItem("Build All"))
+					if (ImGui::MenuItem("Build Shader Pack"))
+						BuildShaderPack();
+					if (ImGui::MenuItem("Build Sound Bank"))
 					{
-						FocusLogPanel();
-						BuildAll();
+						if (!MiniAudioEngine::BuildSoundBank())
+							UI::ShowSimpleMessageBox<HZ_MESSAGE_BOX_OK_BUTTON>(":[", "Failed to build Sound Bank.");
 					}
-
-					if (ImGui::BeginMenu("Build"))
+					if (ImGui::MenuItem("Unload Current Sound Bank"))
 					{
-						if (ImGui::MenuItem("Build Project Data"))
-						{
-							FocusLogPanel();
-							BuildProjectData();
-						}
-
-						if (ImGui::MenuItem("Build Shader Pack"))
-						{
-							FocusLogPanel();
-							BuildShaderPack();
-						}
-
-						if (ImGui::MenuItem("Build Sound Bank"))
-						{
-							FocusLogPanel();
-							BuildSoundBank();
-						}
-
-						if (ImGui::MenuItem("Build Asset Pack"))
-						{
-							FocusLogPanel();
-							BuildAssetPack();
-						}
-
-						ImGui::EndMenu();
+						MiniAudioEngine::UnloadCurrentSoundBank();
 					}
+					if (ImGui::MenuItem("Build Asset Pack"))
+						BuildAssetPack();
+					if (ImGui::MenuItem("Serialize Environment Map"))
+						SerializeEnvironmentMap();
 
 					ImGui::Separator();
 					if (ImGui::MenuItem("Exit", "Alt + F4"))
@@ -602,7 +545,8 @@ namespace Hazel {
 					ImGui::MenuItem("Second Viewport", nullptr, &m_ShowSecondViewport);
 					if (ImGui::MenuItem("Reload C# Assembly"))
 					{
-						ReloadCSharp();
+						ScriptEngine::ReloadAppAssembly();
+
 					}
 
 					ImGui::PopStyleColor();
@@ -656,11 +600,6 @@ namespace Hazel {
 					ImGui::MenuItem("ImGui Metrics Tool", nullptr, &m_ShowMetricsTool);
 					ImGui::MenuItem("ImGui Stack Tool", nullptr, &m_ShowStackTool);
 					ImGui::MenuItem("ImGui Style Editor", nullptr, &m_ShowStyleEditor);
-					
-					ImGui::Separator();
-				
-					if (ImGui::MenuItem("Unload Current Sound Bank"))
-						MiniAudioEngine::UnloadCurrentSoundBank();
 
 					ImGui::PopStyleColor();
 					ImGui::EndMenu();
@@ -711,33 +650,8 @@ namespace Hazel {
 		auto* drawList = ImGui::GetWindowDrawList();
 		drawList->AddRectFilled(titlebarMin, titlebarMax, Colors::Theme::titlebar);
 
-		const float c_AnimationTime = 0.15f;
-		static float s_CurrentAnimationTimer = c_AnimationTime;
-
-		if (m_AnimateTitleBarColor)
-		{
-			float animationPercentage = 1.0f - (s_CurrentAnimationTimer / c_AnimationTime);
-
-			s_CurrentAnimationTimer -= Application::Get().GetTimestep();
-
-			auto activeColor = ImColor(m_TitleBarTargetColor).Value;
-			auto prevColor = ImColor(m_TitleBarPreviousColor).Value;
-
-			float r = std::lerp(prevColor.x, activeColor.x, animationPercentage);
-			float g = std::lerp(prevColor.y, activeColor.y, animationPercentage);
-			float b = std::lerp(prevColor.z, activeColor.z, animationPercentage);
-
-			m_TitleBarActiveColor = IM_COL32(r * 255.0f, g * 255.0f, b * 255.0f, 255.0f);
-
-			if (s_CurrentAnimationTimer <= 0.0f)
-			{
-				s_CurrentAnimationTimer = c_AnimationTime;
-				m_TitleBarActiveColor = m_TitleBarTargetColor;
-				m_AnimateTitleBarColor = false;
-			}
-		}
-
-		drawList->AddRectFilledMultiColor(titlebarMin, ImVec2(titlebarMin.x + 380.0f, titlebarMax.y), m_TitleBarActiveColor, Colors::Theme::titlebar, Colors::Theme::titlebar, m_TitleBarActiveColor);
+		uint32_t titlebarColor = m_SceneState == SceneState::Edit ? Colors::Theme::titlebarGreen : Colors::Theme::titlebarOrange;
+		drawList->AddRectFilledMultiColor(titlebarMin, ImVec2(titlebarMin.x + 380.0f, titlebarMax.y), titlebarColor, Colors::Theme::titlebar, Colors::Theme::titlebar, titlebarColor);
 
 		// Logo
 		{
@@ -853,7 +767,7 @@ namespace Hazel {
 		{
 			// Centered Window title
 			ImVec2 currentCursorPos = ImGui::GetCursorPos();
-			const char* title = "Hazelnut " HZ_VERSION;
+			const char* title = "Hazelnut 2023.2";
 			ImVec2 textSize = ImGui::CalcTextSize(title);
 			ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() * 0.5f - textSize.x * 0.5f, 2.0f + windowPadding.y + 6.0f));
 			UI::ScopedFont titleBoldFont(UI::Fonts::Get("BoldTitle"));
@@ -1129,19 +1043,10 @@ namespace Hazel {
 			Ref<Texture2D> buttonTex = m_SceneState == SceneState::Play ? EditorResources::StopIcon : EditorResources::PlayIcon;
 			if (toolbarButton(buttonTex, c_ButtonTint))
 			{
-				m_TitleBarPreviousColor = m_TitleBarActiveColor;
 				if (m_SceneState == SceneState::Edit)
-				{
-					m_TitleBarTargetColor = Colors::Theme::titlebarOrange;
 					OnScenePlay();
-				}
 				else if (m_SceneState != SceneState::Simulate)
-				{
-					m_TitleBarTargetColor = Colors::Theme::titlebarGreen;
 					OnSceneStop();
-				}
-
-				m_AnimateTitleBarColor = true;
 			}
 			UI::SetTooltip(m_SceneState == SceneState::Edit ? "Play" : "Stop");
 
@@ -1376,8 +1281,6 @@ namespace Hazel {
 
 					checkbox("Show Grid", viewportRenderOptions.ShowGrid);
 					checkbox("Show Selected Wireframe", viewportRenderOptions.ShowSelectedInWireframe);
-
-					checkbox("Show Animation Debug", viewportRenderOptions.ShowAnimationDebug);
 
 					static const char* physicsColliderViewOptions[] = { "Selected Entity", "All" };
 					checkbox("Show Physics Colliders", viewportRenderOptions.ShowPhysicsColliders);
@@ -1637,24 +1540,24 @@ namespace Hazel {
 					}
 					else if (asset->GetAssetType() == AssetType::Mesh)
 					{
-						auto mesh = asset.As<Mesh>();
-						auto rootEntity = m_EditorScene->InstantiateMesh(mesh);
-						SelectionManager::DeselectAll();
+						Ref<Mesh> mesh = asset.As<Mesh>();
+						const auto& submeshIndices = mesh->GetSubmeshes();
+						const auto& submeshes = mesh->GetMeshSource()->GetSubmeshes();
+						Entity rootEntity = m_EditorScene->InstantiateMesh(mesh, true);
 						SelectionManager::Select(SelectionContext::Scene, rootEntity.GetUUID());
 					}
 					else if (asset->GetAssetType() == AssetType::StaticMesh)
 					{
-						auto staticMesh = asset.As<StaticMesh>();
-						auto rootEntity = m_EditorScene->InstantiateStaticMesh(staticMesh);
-						SelectionManager::DeselectAll();
-						SelectionManager::Select(SelectionContext::Scene, rootEntity.GetUUID());
+						Ref<StaticMesh> staticMesh = asset.As<StaticMesh>();
+						auto& assetData = Project::GetEditorAssetManager()->GetMetadata(staticMesh->Handle);
+						Entity entity = m_EditorScene->CreateEntity(assetData.FilePath.stem().string());
+						entity.AddComponent<StaticMeshComponent>(staticMesh->Handle);
+						SelectionManager::Select(SelectionContext::Scene, entity.GetUUID());
 					}
 					else if (asset->GetAssetType() == AssetType::Prefab)
 					{
 						Ref<Prefab> prefab = asset.As<Prefab>();
-						auto rootEntity = m_EditorScene->Instantiate(prefab);
-						SelectionManager::DeselectAll();
-						SelectionManager::Select(SelectionContext::Scene, rootEntity.GetUUID());
+						m_EditorScene->Instantiate(prefab);
 					}
 				}
 				else
@@ -1781,14 +1684,6 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNC();
 
-		AssetManager::SyncWithAssetThread();
-
-		if (m_ShouldReloadCSharp)
-		{
-			ReloadCSharp();
-			m_ShouldReloadCSharp = false;
-		}
-
 		switch (m_SceneState)
 		{
 			case SceneState::Edit:
@@ -1868,8 +1763,8 @@ namespace Hazel {
 
 		SceneRenderer::WaitForThreads();
 
-		//if (ScriptEngine::ShouldReloadAppAssembly())
-		//	ScriptEngine::ReloadAppAssembly();
+		if (ScriptEngine::ShouldReloadAppAssembly())
+			ScriptEngine::ReloadAppAssembly();
 	}
 
 	void EditorLayer::OnEntityDeleted(Entity e)
@@ -1894,56 +1789,57 @@ namespace Hazel {
 				{
 					Entity entity = m_CurrentScene->GetEntityWithUUID(entityID);
 
-					if (const auto mc = entity.TryGetComponent<SubmeshComponent>(); mc)
+					if (entity.HasComponent<MeshComponent>())
 					{
-						if(auto mesh = AssetManager::GetAsset<Mesh>(mc->Mesh); mesh)
-						{
-							if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-							{
-								if (m_ShowBoundingBoxSubmeshes)
-								{
-									const auto& submeshIndices = mesh->GetSubmeshes();
-									const auto& submeshes = meshSource->GetSubmeshes();
+						auto mesh = AssetManager::GetAsset<Mesh>(entity.GetComponent<MeshComponent>().Mesh);
 
-									for (uint32_t submeshIndex : submeshIndices)
-									{
-										glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-										const AABB& aabb = submeshes[submeshIndex].BoundingBox;
-										m_Renderer2D->DrawAABB(aabb, transform * submeshes[submeshIndex].Transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
-									}
-								}
-								else
+						if (mesh)
+						{
+							if (m_ShowBoundingBoxSubmeshes)
+							{
+								const auto& submeshIndices = mesh->GetSubmeshes();
+								const auto& meshAsset = mesh->GetMeshSource();
+								const auto& submeshes = meshAsset->GetSubmeshes();
+
+								for (uint32_t submeshIndex : submeshIndices)
 								{
 									glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-									const AABB& aabb = meshSource->GetBoundingBox();
-									m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
+									const AABB& aabb = submeshes[submeshIndex].BoundingBox;
+									m_Renderer2D->DrawAABB(aabb, transform * submeshes[submeshIndex].Transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 								}
+							}
+							else
+							{
+								glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
+								const AABB& aabb = mesh->GetMeshSource()->GetBoundingBox();
+								m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 							}
 						}
 					}
 					else if (entity.HasComponent<StaticMeshComponent>())
 					{
-						if (auto mesh = AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh); mesh)
+						auto mesh = AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh);
+
+						if (mesh)
 						{
-							if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
+							if (m_ShowBoundingBoxSubmeshes)
 							{
-								if (m_ShowBoundingBoxSubmeshes)
-								{
-									const auto& submeshIndices = mesh->GetSubmeshes();
-									const auto& submeshes = meshSource->GetSubmeshes();
-									for (uint32_t submeshIndex : submeshIndices)
-									{
-										glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-										const AABB& aabb = submeshes[submeshIndex].BoundingBox;
-										m_Renderer2D->DrawAABB(aabb, transform * submeshes[submeshIndex].Transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
-									}
-								}
-								else
+								const auto& submeshIndices = mesh->GetSubmeshes();
+								const auto& meshAsset = mesh->GetMeshSource();
+								const auto& submeshes = meshAsset->GetSubmeshes();
+
+								for (uint32_t submeshIndex : submeshIndices)
 								{
 									glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-									const AABB& aabb = meshSource->GetBoundingBox();
-									m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
+									const AABB& aabb = submeshes[submeshIndex].BoundingBox;
+									m_Renderer2D->DrawAABB(aabb, transform * submeshes[submeshIndex].Transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 								}
+							}
+							else
+							{
+								glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
+								const AABB& aabb = mesh->GetMeshSource()->GetBoundingBox();
+								m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 							}
 						}
 					}
@@ -1951,18 +1847,16 @@ namespace Hazel {
 			}
 			else
 			{
-				auto dynamicMeshEntities = m_CurrentScene->GetAllEntitiesWith<SubmeshComponent>();
+				auto dynamicMeshEntities = m_CurrentScene->GetAllEntitiesWith<MeshComponent>();
 				for (auto e : dynamicMeshEntities)
 				{
 					Entity entity = { e, m_CurrentScene.Raw() };
 					glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-					if(auto mesh = AssetManager::GetAsset<Mesh>(entity.GetComponent<SubmeshComponent>().Mesh); mesh)
+					auto mesh = AssetManager::GetAsset<Mesh>(entity.GetComponent<MeshComponent>().Mesh);
+					if (mesh)
 					{
-						if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-						{
-							const AABB& aabb = meshSource->GetBoundingBox();
-							m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
-						}
+						const AABB& aabb = mesh->GetMeshSource()->GetBoundingBox();
+						m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 					}
 				}
 
@@ -1971,13 +1865,11 @@ namespace Hazel {
 				{
 					Entity entity = { e, m_CurrentScene.Raw() };
 					glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-					if(auto mesh = AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh); mesh)
+					auto mesh = AssetManager::GetAsset<StaticMesh>(entity.GetComponent<StaticMeshComponent>().StaticMesh);
+					if (mesh)
 					{
-						if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-						{
-							const AABB& aabb = meshSource->GetBoundingBox();
-							m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
-						}
+						const AABB& aabb = mesh->GetMeshSource()->GetBoundingBox();
+						m_Renderer2D->DrawAABB(aabb, transform, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 					}
 				}
 			}
@@ -2105,7 +1997,6 @@ namespace Hazel {
 		std::filesystem::create_directories(projectPath / "Assets" / "Meshes" / "Default" / "Source");
 		std::filesystem::create_directories(projectPath / "Assets" / "Scenes");
 		std::filesystem::create_directories(projectPath / "Assets" / "Scripts" / "Source");
-		std::filesystem::create_directories(projectPath / "Assets" / "Scripts" / "Binaries");
 		std::filesystem::create_directories(projectPath / "Assets" / "Textures");
 
 		//NOTE (Tim) : Copying meshes from resources, change this in the future to just a vertex buffer thats built into 
@@ -2131,16 +2022,7 @@ namespace Hazel {
 		}
 
 		RegenerateProjectScriptSolution(projectPath);
-		Log::SetDefaultTagSettings();
 		OpenProject(projectPath.string() + "/" + std::string(s_ProjectNameBuffer) + ".hproj");
-
-		// Create and open start scene
-		Project::GetEditorAssetManager()->CreateNewAsset<Scene>("Main.hscene", "Scenes");
-		OpenScene((Project::GetActiveAssetDirectory() / Project::GetActive()->GetConfig().StartScene).string(), true);
-
-		// Force refresh
-		m_PanelManager->OnProjectChanged(Project::GetActive());
-		SaveProject();
 	}
 
 	void EditorLayer::EmptyProject()
@@ -2234,23 +2116,34 @@ namespace Hazel {
 		Ref<Project> project = Ref<Project>::Create();
 		ProjectSerializer serializer(project);
 		serializer.Deserialize(filepath);
-
-		RegenerateProjectScriptSolution(project->GetConfig().ProjectDirectory);
-		ScriptBuilder::BuildScriptAssembly(project);
-
 		Project::SetActive(project);
 
 		auto appAssemblyPath = Project::GetScriptModuleFilePath();
 		if (!appAssemblyPath.empty())
 		{
-			ScriptEngine::GetMutable().LoadProjectAssembly();
+			/*if (!FileSystem::Exists(appAssemblyPath))
+			{*/
+				RegenerateProjectScriptSolution(project->GetProjectDirectory());
+				ScriptBuilder::BuildScriptAssembly(project);
+			//}
+
+			ScriptEngine::OnProjectChanged(project);
+			ScriptEngine::LoadAppAssembly();
+		}
+		else
+		{
+			HZ_CONSOLE_LOG_WARN("No C# assembly has been provided in the Project Settings, or it wasn't found. Please make sure to build the Visual Studio Solution for this project if you want to use C# scripts!");
+			std::string path = appAssemblyPath.string();
+			if (path.empty())
+				path = "<empty>";
+			HZ_CONSOLE_LOG_WARN("App Assembly Path = {}", path);
 		}
 
 		m_PanelManager->OnProjectChanged(project);
 
 		bool hasScene = !project->GetConfig().StartScene.empty();
 		if (hasScene)
-			hasScene = OpenScene((Project::GetActiveAssetDirectory() / project->GetConfig().StartScene).string(), true);
+			hasScene = OpenScene((Project::GetAssetDirectory() / project->GetConfig().StartScene).string(), true);
 
 		if (!hasScene)
 			NewScene();
@@ -2272,22 +2165,6 @@ namespace Hazel {
 			UpdateCurrentProject();
 			m_ShowProjectUpdatedPopup = true;
 		}
-
-#ifdef HZ_PLATFORM_WINDOWS
-		m_ScriptFileWatcher = std::make_unique<filewatch::FileWatch<WatcherString>>(Project::GetScriptModulePath().wstring(), filewatch::ChangeLastWrite, [this](const auto& file, filewatch::Event eventType)
-#else
-		m_ScriptFileWatcher = std::make_unique<filewatch::FileWatch<WatcherString>>(Project::GetScriptModulePath().string(), filewatch::ChangeLastWrite, [this](const auto& file, filewatch::Event eventType)
-#endif
-		{
-			std::filesystem::path filePath = file;
-			if (eventType != filewatch::Event::modified)
-				return;
-
-			if (filePath.extension().string() != ".dll")
-				return;
-
-			m_ShouldReloadCSharp = true;
-		});
 	}
 
 	void EditorLayer::SaveProject()
@@ -2315,8 +2192,8 @@ namespace Hazel {
 		// finally decref'd to zero it will be destroyed.  However, that will be after the project has been closed, and the new project has
 		// been opened, which is out of order.  Seems safter to make sure the old scene is cleaned up before closing project.
 		m_PanelManager->SetSceneContext(nullptr);
-		ScriptEngine::GetMutable().SetCurrentScene(nullptr);
-		ScriptEngine::GetMutable().SetSceneRenderer(nullptr);
+		ScriptEngine::UnloadAppAssembly();
+		ScriptEngine::SetSceneContext(nullptr, nullptr);
 		MiniAudioEngine::SetSceneContext(nullptr);
 		AssetEditorPanel::SetSceneContext(nullptr);
 		m_ViewportRenderer->SetScene(nullptr);
@@ -2338,11 +2215,10 @@ namespace Hazel {
 	{
 		SelectionManager::DeselectAll();
 
-		//ScriptEngine::SetSceneContext(nullptr, nullptr);
+		ScriptEngine::SetSceneContext(nullptr, nullptr);
 		m_EditorScene = Ref<Scene>::Create(name, true);
 		m_PanelManager->SetSceneContext(m_EditorScene);
-		ScriptEngine::GetMutable().SetCurrentScene(m_EditorScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_ViewportRenderer);
+		ScriptEngine::SetSceneContext(m_EditorScene, m_ViewportRenderer);
 		MiniAudioEngine::SetSceneContext(m_EditorScene);
 		AssetEditorPanel::SetSceneContext(m_EditorScene);
 		UpdateWindowTitle(name);
@@ -2393,8 +2269,7 @@ namespace Hazel {
 			OnSceneStopSimulation();
 
 		// NOTE(Peter): We set the scene context to nullptr here to make sure all old script entities have been destroyed
-		ScriptEngine::GetMutable().SetCurrentScene(nullptr);
-		ScriptEngine::GetMutable().SetSceneRenderer(nullptr);
+		ScriptEngine::SetSceneContext(nullptr, nullptr);
 
 		Ref<Scene> newScene = Ref<Scene>::Create("New Scene", true);
 		SceneSerializer serializer(newScene);
@@ -2405,10 +2280,9 @@ namespace Hazel {
 		if ((m_SceneFilePath.size() >= 5) && (m_SceneFilePath.substr(m_SceneFilePath.size() - 5) == ".auto"))
 			m_SceneFilePath = m_SceneFilePath.substr(0, m_SceneFilePath.size() - 5);
 
-		UpdateWindowTitle(newScene->GetName());
+		UpdateWindowTitle(filepath.filename().string());
 		m_PanelManager->SetSceneContext(m_EditorScene);
-		ScriptEngine::GetMutable().SetCurrentScene(m_EditorScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_ViewportRenderer);
+		ScriptEngine::SetSceneContext(m_EditorScene, m_ViewportRenderer);
 		MiniAudioEngine::SetSceneContext(m_EditorScene);
 		AssetEditorPanel::SetSceneContext(m_EditorScene);
 
@@ -2426,7 +2300,7 @@ namespace Hazel {
 
 	bool EditorLayer::OpenScene(const AssetMetadata& assetMetadata)
 	{
-		std::filesystem::path workingDirPath = Project::GetActiveAssetDirectory() / assetMetadata.FilePath;
+		std::filesystem::path workingDirPath = Project::GetAssetDirectory() / assetMetadata.FilePath;
 		return OpenScene(workingDirPath.string(), true);
 	}
 
@@ -2471,7 +2345,7 @@ namespace Hazel {
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::filesystem::path filepath = FileSystem::SaveFileDialog({ { "Hazel Scene (*.hscene)", "hscene" } });
+		std::filesystem::path filepath = FileSystem::SaveFileDialog({ { "Hazel Scene (*.hscene)", "*.hscene" } });
 
 		if (filepath.empty())
 			return;
@@ -2517,23 +2391,21 @@ namespace Hazel {
 		UI::ShowMessageBox("About Hazel", []()
 		{
 			UI::Fonts::PushFont("Large");
-			ImGui::Text("Hazel Engine " HZ_VERSION);
+			ImGui::Text("Hazel Engine");
 			UI::Fonts::PopFont();
 
 			ImGui::Separator();
-			ImGui::TextWrapped("Hazel is an interactive 3D development platform made by Studio Cherno and community volunteers.");
+			ImGui::TextWrapped("Hazel is an early-stage interactive application and rendering engine for Windows.");
 			ImGui::Separator();
 
 			UI::Fonts::PushFont("Bold");
 			ImGui::Text("Hazel Core Team");
 			UI::Fonts::PopFont();
 			ImGui::Text("Yan Chernikov");
+			ImGui::Text("Peter Nilsson");
 			ImGui::Text("Jim Waite");
 			ImGui::Text("Jaroslav Pevno");
 			ImGui::Text("Emily Banerjee");
-			ImGui::Separator();
-			ImGui::Text("Peter Nilsson");
-			ImGui::Text("Tim Kireenko");
 			ImGui::Separator();
 
 			ImGui::TextUnformatted("For more info, visit: https://hazelengine.com/");
@@ -2548,8 +2420,8 @@ namespace Hazel {
 			ImGui::TextColored(ImVec4{ 0.7f, 0.7f, 0.7f, 1.0f }, "This software contains source code provided by NVIDIA Corporation.");
 
 			ImGui::Separator();
-			//const auto coreAssemblyInfo = ScriptEngine::GetCoreAssemblyInfo();
-			//ImGui::Text("Script Library Version: %d.%d.%d.%d", coreAssemblyInfo->Metadata.MajorVersion, coreAssemblyInfo->Metadata.MinorVersion, coreAssemblyInfo->Metadata.BuildVersion, coreAssemblyInfo->Metadata.RevisionVersion);
+			const auto coreAssemblyInfo = ScriptEngine::GetCoreAssemblyInfo();
+			ImGui::Text("Script Library Version: %d.%d.%d.%d", coreAssemblyInfo->Metadata.MajorVersion, coreAssemblyInfo->Metadata.MinorVersion, coreAssemblyInfo->Metadata.BuildVersion, coreAssemblyInfo->Metadata.RevisionVersion);
 
 			if (ImGui::Button("OK"))
 				ImGui::CloseCurrentPopup();
@@ -2568,34 +2440,20 @@ namespace Hazel {
 				{
 					// note: result is currently always nullptr, but the point is that if there was an exception during asset pack build, get() propagates that exception.
 					auto result = m_AssetPackFuture.get();
-
-					const std::filesystem::path assetPackPath = Project::GetActiveAssetDirectory() / "AssetPack.hap";
-					m_AssetPackBuildMessage = std::format("Successfully built Asset Pack ({})", assetPackPath.string());
+					m_AssetPackBuildMessage = "Asset Pack build done!";
 					HZ_CONSOLE_LOG_INFO(m_AssetPackBuildMessage);
 				}
 				catch (...) {
-					m_AssetPackBuildMessage = "Failed to build Asset Pack.";
+					m_AssetPackBuildMessage = "Asset pack build failed!";
 					HZ_CONSOLE_LOG_ERROR(m_AssetPackBuildMessage);
 				}
 				if (m_AssetPackThread.joinable())
 					m_AssetPackThread.join();
 
-				m_ConsolePanel->SetProgress(m_AssetPackBuildMessage, m_AssetPackBuildProgress);
 				m_AssetPackFuture = {};
-
-				if (m_BuildAllInProgress)
-				{
-					HZ_CONSOLE_LOG_INFO("Build All complete.");
-					m_BuildAllInProgress = false;
-				}
-			}
-			else
-			{
-				m_ConsolePanel->SetProgress("Building Asset Pack", m_AssetPackBuildProgress);
 			}
 		}
 
-#if 0
 		if (m_OpenAssetPackDialog)
 		{
 			ImGui::OpenPopup("Building Asset Pack");
@@ -2616,1095 +2474,344 @@ namespace Hazel {
 			}
 			ImGui::EndPopup();
 		}
-#endif
 	}
 
-
-	void EditorLayer::UI_ShowCreateAssetsFromMeshSourcePopup()
+	void EditorLayer::UI_ShowCreateNewMeshPopup()
 	{
+		static std::vector<int> gridColumn0Widths;
+
+		const std::string meshAssetPathLabel = fmt::format("path: {0}/", Project::GetActive()->GetConfig().MeshPath);
+		const std::string skeletonAssetPathLabel = fmt::format("path: {0}/", Project::GetActive()->GetConfig().AnimationPath);
+		const std::string animationAssetPathLabel = fmt::format("path: {0}/", Project::GetActive()->GetConfig().AnimationPath);
+		const std::string graphAssetPathLabel = fmt::format("path: {0}/", Project::GetActive()->GetConfig().AnimationPath);
+		int maxAssetPathWidth = (int)std::max({
+			160.0f,
+			ImGui::CalcTextSize(meshAssetPathLabel.c_str()).x,
+			ImGui::CalcTextSize(skeletonAssetPathLabel.c_str()).x,
+			ImGui::CalcTextSize(animationAssetPathLabel.c_str()).x,
+			ImGui::CalcTextSize(graphAssetPathLabel.c_str()).x,
+			ImGui::CalcTextSize("Create Animation Graph (?)").x  // this is the longest name of properties that can go in the first column
+		}) + 30;
+
+		gridColumn0Widths.clear();
+		gridColumn0Widths.resize(4 + m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames().size(), maxAssetPathWidth);
+
 		HZ_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate);
 
-		UI::ShowMessageBox("Create Assets From Mesh Source", [this]()
+		UI::ShowMessageBox("Create New Mesh", [this, meshAssetPathLabel, skeletonAssetPathLabel, animationAssetPathLabel, graphAssetPathLabel]()
 		{
-			static bool includeAssetTypeInPaths = true;
-			static bool includeSceneNameInPaths = false;
-			static bool includeAssetNameInAnimationNames = false;
-			static bool useAssetNameAsAnimationNames = false;
-			static bool overwriteExistingFiles = false;
+			ImGui::TextWrapped("This file must be converted into Hazel assets before it can be added to the scene.");
+			ImGui::AlignTextToFramePadding();
+
+			// Import settings
+			enum MeshType
+			{
+				Static,
+				Dynamic
+			};
+			static bool includeSceneNameInPathsStatic = false;
 			static AssetHandle dccHandle = 0;
-			static bool doImportStaticMesh = false;
-			static bool isStaticMeshPathOK = true;
-			static bool doImportDynamicMesh = false;
-			static bool isDynamicMeshPathOK = true;
+			static int meshType = MeshType::Static;
+			static bool doImportMesh = true;
 			static bool doImportSkeleton = false;
-			static bool isSkeletonPathOK = true;
-			static std::vector<std::string> animationNames;
 			static std::vector<bool> doImportAnimations;
-			static std::vector<bool> isAnimationPathOK;
-			static std::vector<bool> isAnimationSkeletonOK;
 			static std::vector<AssetHandle> skeletonAssets;
 			static std::vector<bool> rootMotionMasks;
 			static std::vector<glm::bvec3> rootTranslationMasks;
 			static std::vector<bool> rootRotationMasks;
 			static bool doCreateAnimationGraph = false;
-			static bool isAnimationGraphPathOK = true;
-			static bool doGenerateStaticMeshColliders = true;
-			static bool doGenerateDynamciMeshColliders = false;
-			static bool activateSearchWidget = false;
-
-			static int32_t firstSelectedRowLeft = -1;
-			static int32_t lastSelectedRowLeft = -1;
-			static bool shiftSelectionRunningLeft = false;
-			static ImVector<int> selectedIDsLeft;
-			static std::string searchedStringLeft;
-
-			static int32_t firstSelectedRowRight = -1;
-			static int32_t lastSelectedRowRight = -1;
-			static bool shiftSelectionRunningRight = false;
-			static ImVector<int> selectedIDsRight;
-			static std::string searchedStringRight;
+			static bool doGenerateColliders = true;
 
 			const AssetMetadata& assetData = Project::GetEditorAssetManager()->GetMetadata(m_CreateNewMeshPopupData.MeshToCreate->Handle);
+			const auto& animationNames = m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames();
 
-			// note: This is inadequate to 100% guarantee a valid filename.
-			//       However doing so (and in a way portable between Windows/Linux) is a bit of a rabbit hole.
-			//       This will do for now.
-			auto sanitiseFileName = [](std::string filename)
+			if (UI::Checkbox("Include scene name in asset paths", &includeSceneNameInPathsStatic))
 			{
-				std::string invalidChars = "/:?\"<>|\\";
-				filename = Utils::String::TrimWhitespace(filename);
-				for (char& c : filename)
-				{
-					if (invalidChars.find(c) != std::string::npos)
-					{
-						c = '_';
-					}
-				}
+				m_CreateNewMeshPopupData.CreateMeshFilenameBuffer = "";
+				m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer = "";
+				m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer = std::vector<std::string>(animationNames.size(), "");
+				m_CreateNewMeshPopupData.CreateGraphFilenameBuffer = "";
+			}
 
-				return filename;
-			};
-
-			auto makeAssetFileName = [&](int itemID, std::string_view name)
-			{
-				std::string filename;
-				switch (itemID)
-				{
-					case -1:
-					case -2:
-					case -3:
-					case -4: filename = assetData.FilePath.stem().string(); break;
-					default:
-						if(name.empty())
-						{
-							filename = std::format("{} - {}", assetData.FilePath.stem().string(), itemID);
-						}
-						else
-						{
-							filename = name;
-						}
-						filename = sanitiseFileName(name.empty()? std::format("{} - {}", assetData.FilePath.stem().string(), itemID) : name.data());
-						if (includeAssetNameInAnimationNames)
-						{
-							filename = std::format("{} - {}", assetData.FilePath.stem().string(), filename);
-						}
-				}
-
-				AssetType assetType = AssetType::None;
-				switch (itemID)
-				{
-					case -1: assetType = AssetType::StaticMesh; break;
-					case -2: assetType = AssetType::Mesh; break;
-					case -3: assetType = AssetType::Skeleton; break;
-					case -4: assetType = AssetType::AnimationGraph; break;
-					default: assetType = AssetType::Animation;
-				}
-				filename += Project::GetEditorAssetManager()->GetDefaultExtensionForAssetType(assetType);
-
-				return filename;
-			};
-
-			// reset everything for import of new DCC
 			if (assetData.Handle != dccHandle)
 			{
+				// reset everything for import of new DCC
 				dccHandle = assetData.Handle;
-				doImportStaticMesh = false;
-				isStaticMeshPathOK = true;
-				doImportDynamicMesh = false;
+				meshType = MeshType::Static;
+				//includeSceneNameInPaths = false;   // remember this setting regardless of DCC
+				doImportMesh = true;
 				doImportSkeleton = false;
-				animationNames = m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames();
 				doImportAnimations = std::vector<bool>(animationNames.size(), false);
-				isAnimationPathOK = std::vector<bool>(animationNames.size(), true);
-				isAnimationSkeletonOK = std::vector<bool>(animationNames.size(), m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton());
 				skeletonAssets = std::vector<AssetHandle>(animationNames.size(), 0);
 				rootMotionMasks = std::vector<bool>(animationNames.size(), false);
 				rootTranslationMasks = std::vector<glm::bvec3>(animationNames.size(), glm::bvec3{ false, false, false });
 				rootRotationMasks = std::vector<bool>(animationNames.size(), false);
 				doCreateAnimationGraph = false;
-				isAnimationGraphPathOK = true;
-				doGenerateStaticMeshColliders = true;
-				doGenerateDynamciMeshColliders = false;
+				doGenerateColliders = true;
 				m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer = std::vector<std::string>(animationNames.size(), "");
+			}
 
-				m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer = makeAssetFileName(-1, "");
-				m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer = makeAssetFileName(-2, "");
-				m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer = makeAssetFileName(-3, "");
-				m_CreateNewMeshPopupData.CreateGraphFilenameBuffer = makeAssetFileName(-4, "");
-				for (int i = 0; i < animationNames.size(); ++i)
+
+			if (m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().size() == 0)
+			{
+				meshType = MeshType::Dynamic;
+			}
+
+			int grid = 0;
+			if (UI::PropertyGridHeader("Import:"))
+			{
+				UI::ScopedID gridId(grid);
+				UI::BeginPropertyGrid();
+				if (gridColumn0Widths[grid])
 				{
-					m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = makeAssetFileName(i, animationNames[i]);
+					ImGui::SetColumnWidth(0, (float)gridColumn0Widths[grid]);
+					gridColumn0Widths[grid] = 0;
 				}
-				selectedIDsLeft.clear();
-				selectedIDsRight.clear();
-				shiftSelectionRunningLeft = false;
-				shiftSelectionRunningRight = false;
-				firstSelectedRowLeft = -1;
-				lastSelectedRowLeft = -1;
-				firstSelectedRowRight = -1;
-				lastSelectedRowRight = -1;
-			}
-
-			ImGui::TextWrapped(
-				"This file must be converted into Hazel assets before it can be added to the scene.  "
-				"Items that can be converted into Hazel assets are listed on the left.  Select the items you want, then click the 'Add' "
-				"button to move them into the list on the right.  "
-				"The list on the right shows the Hazel assets that will be created.  You can select items in that list to further edit "
-				"settings (or 'Remove' them from the list).  If there are any problems, they will be highlighted in red.  "
-				"When you are ready, click 'Create' to create the assets."
-			);
-
-			ImGui::AlignTextToFramePadding();
-
-			ImGui::Spacing();
-
-			bool checkFilePaths = false;
-			if (UI::Checkbox("Include asset type in asset paths", &includeAssetTypeInPaths))
-			{
-				checkFilePaths = true;
-			}
-			if (UI::Checkbox("Include scene name in asset paths", &includeSceneNameInPaths))
-			{
-				checkFilePaths = true;
-			}
-			if (UI::Checkbox("Include asset name in animation names", &includeAssetNameInAnimationNames))
-			{
-				if (includeAssetNameInAnimationNames)
-				{
-					// Prepend asset name to animation names)
-					for (int i = 0; i < m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer.size(); ++i)
+				if (UI::PropertyRadio(
+					"Import as",
+					meshType,
 					{
-						m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = std::format("{} - {}", assetData.FilePath.stem().string(), m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i]);
+						{MeshType::Static, "Static Mesh"},
+						{MeshType::Dynamic, "Dynamic Mesh"}
+					},
+					"",
+					{
+						{MeshType::Static, "Everything in the source asset will be imported into a single mesh.  Static is good for things like scene background entities where you do not need be able to manipulate parts of the source asset independently."},
+						{MeshType::Dynamic, "The structure of the source asset will be preserved.  Adding a dynamic mesh to a scene will result in multiple entities with hierarchy mirroring the structure of the source asset.  Dynamic is needed for rigged or animated entities, or where you need to be able to manipulate individual parts of the source asset independently."}
 					}
+				))
+				{
+					// Force re-creation of file paths when user changes static/dynamic choice
+					m_CreateNewMeshPopupData.CreateMeshFilenameBuffer = "";
+					m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer = "";
+					m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer = std::vector<std::string>(animationNames.size(), "");
+					m_CreateNewMeshPopupData.CreateGraphFilenameBuffer = "";
+					if (meshType == MeshType::Static)
+					{
+						doImportMesh = true;
+						doImportSkeleton = false;
+						doImportAnimations = std::vector<bool>(animationNames.size(), false);
+						doCreateAnimationGraph = false;
+					}
+				}
+				UI::EndPropertyGrid();
+				ImGui::TreePop();
+			}
+			++grid;
+
+			bool includeSceneNameInPaths = includeSceneNameInPathsStatic;
+			auto makeAssetPath = [this, includeSceneNameInPaths](const std::string& filename, const std::string& extension)
+			{
+				std::string path = filename;
+				if (includeSceneNameInPaths)
+				{
+					path = fmt::format("{0}/{1}.{2}", m_CurrentScene->GetName(), filename, extension);
 				}
 				else
 				{
-					// Remove asset name prefix from animation names (if user hasn't already edited it away)
-					for (int i = 0; i < m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer.size(); ++i)
-					{
-						std::string filename = m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i];
-						std::string assetName = assetData.FilePath.stem().string();
-						if (filename.find(assetName) == 0)
-						{
-							filename = filename.substr(assetName.size());
-							filename = Utils::String::TrimWhitespace(filename);
-							if (!filename.empty() && filename[0] == '-')
-							{
-								filename = filename.substr(1);
-							}
-							filename = Utils::String::TrimWhitespace(filename);
-						}
-						m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = filename;
-					}
+					path = fmt::format("{0}.{1}", filename, extension);
 				}
-				checkFilePaths = true;
-			}
-
-			{
-				UI::ScopedDisable disable(includeAssetNameInAnimationNames);
-				if (UI::Checkbox("Use asset name as animation names", &useAssetNameAsAnimationNames))
-				{
-					if (useAssetNameAsAnimationNames)
-					{
-						// Set animation names to asset name
-						if (m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer.size() == 1)
-						{
-							m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[0] = assetData.FilePath.stem().string() + Project::GetEditorAssetManager()->GetDefaultExtensionForAssetType(AssetType::Animation);
-						}
-						else
-						{
-							for (int i = 0; i < m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer.size(); ++i)
-							{
-								m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = std::format("{} - {}", assetData.FilePath.stem().string() + Project::GetEditorAssetManager()->GetDefaultExtensionForAssetType(AssetType::Animation), i);
-							}
-						}
-					}
-					else
-					{
-						// Reset animation names to original
-						for (int i = 0; i < m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer.size(); ++i)
-						{
-							m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = makeAssetFileName(i, animationNames[i]);
-						}
-					}
-					checkFilePaths = true;
-				}
-			}
-
-			if (UI::Checkbox("Overwrite existing files", &overwriteExistingFiles))
-			{
-				checkFilePaths = true;
-			}
-
-			auto makeAssetPath = [&](int itemID)
-			{
-				std::string assetTypePath;
-				std::string sceneNamePath;
-
-				if (includeAssetTypeInPaths)
-				{
-					switch (itemID)
-					{
-						case -1:
-						case -2: assetTypePath = Project::GetActive()->GetMeshPath().lexically_relative(Project::GetActive()->GetAssetDirectory()).string(); break;
-						default: assetTypePath = Project::GetActive()->GetAnimationPath().lexically_relative(Project::GetActive()->GetAssetDirectory()).string(); break;
-					}
-				}
-
-				if (includeSceneNameInPaths)
-				{
-					sceneNamePath = m_CurrentScene->GetName();
-				}
-
-				return std::format("{0}{1}{2}", assetTypePath, assetTypePath.empty() || sceneNamePath.empty() ? "" : "/", sceneNamePath);
+				return path;
 			};
-
-			std::unordered_set<std::string> paths;
-			auto checkPath = [&](bool doImport, int itemID, const std::string& filename, bool& isPathOK) {
-				if (doImport)
-				{
-					auto assetDir = makeAssetPath(itemID);
-					auto assetPath = assetDir + "/" + filename;
-					isPathOK = !FileSystem::Exists(Project::GetActive()->GetAssetDirectory() / assetPath);
-
-					// asset path must be unique over all assets that are going to be created
-					if (paths.contains(assetPath))
-					{
-						isPathOK = false;
-					}
-					else
-					{
-						paths.insert(assetPath);
-					}
-				}
-			};
-
-			if (checkFilePaths)
+			
+			if (m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().size() == 0)
 			{
-				paths.clear();
-				checkPath(doImportStaticMesh, -1, m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer, isStaticMeshPathOK);
-				checkPath(doImportDynamicMesh, -2, m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer, isDynamicMeshPathOK);
-				checkPath(doImportSkeleton, -3, m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer, isSkeletonPathOK);
-				checkPath(doCreateAnimationGraph, -4, m_CreateNewMeshPopupData.CreateGraphFilenameBuffer, isAnimationGraphPathOK);
-
-				for (int i = 0; i < animationNames.size(); ++i)
+				doImportMesh = false;
+				if (UI::PropertyGridHeader("No meshes were found in the source asset."))
 				{
-					bool temp = isAnimationPathOK[i];
-					checkPath(doImportAnimations[i], i, m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i], temp);
-					isAnimationPathOK[i] = temp;
+					ImGui::TreePop();
 				}
 			}
-
-			ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable
-				| ImGuiTableFlags_SizingFixedFit
-				| ImGuiTableFlags_PadOuterX
-				| ImGuiTableFlags_NoHostExtendY
-				| ImGuiTableFlags_NoBordersInBodyUntilResize
-				;
-
-			UI::ScopedColour tableBg(ImGuiCol_ChildBg, Colors::Theme::backgroundDark);
-			auto tableSizeOuter = ImVec2{ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 50.0f};
-			if (ImGui::BeginTable("##CreateNewAssets-Layout", 3, tableFlags, tableSizeOuter))
+			else if (UI::PropertyGridHeader("Mesh:"))
 			{
-				ImGui::TableSetupColumn("Items", ImGuiTableColumnFlags_NoHeaderLabel, 300.0f);
-				ImGui::TableSetupColumn("Buttons", ImGuiTableColumnFlags_NoHeaderLabel | ImGuiTableColumnFlags_NoResize, 100);
-				ImGui::TableSetupColumn("Create", ImGuiTableColumnFlags_NoHeaderLabel | ImGuiTableColumnFlags_WidthStretch);
-
-				ImGui::TableNextRow();
-
-				auto itemTable = [&](std::string_view tableName, ImVec2 tableSize, bool isAssetList, std::string& searchedString, ImVector<int>& selectedIDs, int32_t& firstSelectedRow, int32_t& lastSelectedRow, bool& shiftSelectionRunning) {
-
-					UI::ScopedID id(tableName.data());
-
-					auto addItem = [&](int itemID, std::string_view name, const std::string& searchedString, bool isAsset, ImVector<int>& selectedIDs, int32_t& firstSelectedRow, int32_t& lastSelectedRow, bool& shiftSelectionRunning, std::string_view errorMessage)
-					{
-						bool checkPaths = false;
-
-						if (!UI::IsMatchingSearch(name.data(), searchedString))
-						{
-							return checkPaths;
-						}
-
-						const float edgeOffset = 4.0f;
-						const float rowHeight = 21.0f;
-						const float iconSize = 16.0f;
-
-						UI::ScopedID id(itemID);
-
-						// ImGui item height tweaks
-						auto* window = ImGui::GetCurrentWindow();
-						window->DC.CurrLineSize.y = rowHeight;
-						//---------------------------------------------
-
-						ImGui::TableNextRow(0, rowHeight);
-						ImGui::TableNextColumn();
-
-						window->DC.CurrLineTextBaseOffset = 3.0f;
-
-						const ImVec2 rowAreaMin = ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), 0).Min;
-						const ImVec2 rowAreaMax = { ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), ImGui::TableGetColumnCount() - 1).Max.x, rowAreaMin.y + rowHeight };
-
-						const bool isSelected = selectedIDs.contains(itemID);
-
-						ImGuiTreeNodeFlags flags = (isSelected ? ImGuiTreeNodeFlags_Selected : 0) | (isAsset ? 0 : ImGuiTreeNodeFlags_SpanAvailWidth) | ImGuiTreeNodeFlags_Leaf;
-
-						auto assetPath = makeAssetPath(itemID);
-						auto toAssetText = std::format("--> {}/", assetPath);
-						auto textSize = ImGui::CalcTextSize((std::string(name) + toAssetText).data());
-
-						auto buttonMin = rowAreaMin;
-						auto buttonMax = isAsset ? ImVec2{ buttonMin.x + textSize.x + iconSize + 8.0f, buttonMin.y + rowHeight } : rowAreaMax;
-
-						bool isRowHovered, held;
-						bool isRowClicked = ImGui::ButtonBehavior(ImRect{ buttonMin, buttonMax }, ImGui::GetID("button"), &isRowHovered, &held, ImGuiButtonFlags_AllowItemOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft);
-						//ImGui::SetItemAllowOverlap();
-
-						// Row colouring
-						//--------------
-						auto fillRowWithColour = [rowAreaMin, rowAreaMax](const ImColor& color)
-						{
-							ImGui::RenderFrame(rowAreaMin, rowAreaMax, color, false, 0.0f);
-						};
-
-						if (isSelected)
-						{
-							fillRowWithColour(Colors::Theme::selection);
-						}
-						else if (isRowHovered)
-						{
-							fillRowWithColour(Colors::Theme::groupHeader);
-						}
-
-						// Row content
-						// -----------
-						Ref<Texture2D> icon = (itemID == -1) ? EditorResources::StaticMeshIcon : (itemID == -2) ? EditorResources::MeshIcon : (itemID == -3) ? EditorResources::SkeletonIcon : EditorResources::AnimationIcon;
-
-						ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), 0);
-						UI::ShiftCursorX(edgeOffset);
-						UI::Image(icon, { 16, 16 });
-						ImGui::SameLine();
-						UI::ShiftCursorY(-2.0f);
-
-						if (!errorMessage.empty())
-						{
-							ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::textError);
-						}
-						else if (isSelected)
-						{
-							ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::backgroundDark);   // TODO: selected text color!
-						}
-
-						ImGui::TextUnformatted(name.data());
-
-						if(!errorMessage.empty() && ImGui::IsItemHovered()) {
-							ImGui::SetTooltip(errorMessage.data());
-						}
-
-						if (!errorMessage.empty()|| isSelected)
-						{
-							ImGui::PopStyleColor();
-						}
-
-						if (isAsset)
-						{
-							ImGui::SameLine();
-							ImGui::TextDisabled(toAssetText.c_str());
-
-							std::string fileName;
-							bool isPathOK = true;
-							switch (itemID)
-							{
-								case -1:
-									fileName = m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer;
-									isPathOK = isStaticMeshPathOK;
-									break;
-								case -2:
-									fileName = m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer;
-									isPathOK = isDynamicMeshPathOK;
-									break;
-								case -3:
-									fileName = m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer;
-									isPathOK = isSkeletonPathOK;
-									break;
-								case -4:
-									fileName = m_CreateNewMeshPopupData.CreateGraphFilenameBuffer;
-									isPathOK = isAnimationGraphPathOK;
-									break;
-								default:
-									fileName = m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[itemID];
-									isPathOK = isAnimationPathOK[itemID];
-							}
-
-							if (!isPathOK)
-							{
-								ImGui::PushStyleColor(ImGuiCol_Text, Colors::Theme::textError);
-							}
-
-							ImGui::SameLine();
-							ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - edgeOffset);
-							if (UI::InputText("##AssetFileName", &fileName))
-							{
-								fileName = sanitiseFileName(fileName);
-								switch (itemID)
-								{
-									case -1:
-										m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer = fileName;
-										checkPaths = true;
-										break;
-									case -2:
-										m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer = fileName;
-										checkPaths = true;
-										break;
-									case -3:
-										m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer = fileName;
-										checkPaths = true;
-										break;
-									case -4:
-										m_CreateNewMeshPopupData.CreateGraphFilenameBuffer = fileName;
-										checkPaths = true;
-										break;
-									default:
-										m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[itemID] = fileName;
-										checkPaths = true;
-								}
-							}
-
-							if (!isPathOK)
-							{
-								if (errorMessage.empty())
-								{
-									if (ImGui::IsItemHovered())
-									{
-										ImGui::SetTooltip("Already existing file will be overwritten.");
-									}
-								}
-
-								ImGui::PopStyleColor();
-							}
-						}
-
-						// Row selection
-						// -------------
-						int32_t rowIndex = ImGui::TableGetRowIndex();
-						if (rowIndex >= firstSelectedRow && rowIndex <= lastSelectedRow && !isSelected && shiftSelectionRunning)
-						{
-							selectedIDs.push_back(itemID);
-
-							if (selectedIDs.size() == (lastSelectedRow - firstSelectedRow) + 1)
-							{
-								shiftSelectionRunning = false;
-							}
-						}
-
-						if (isRowClicked)
-						{
-							bool ctrlDown = Input::IsKeyDown(KeyCode::LeftControl) || Input::IsKeyDown(KeyCode::RightControl);
-							bool shiftDown = Input::IsKeyDown(KeyCode::LeftShift) || Input::IsKeyDown(KeyCode::RightShift);
-							if (shiftDown && selectedIDs.size() > 0)
-							{
-								selectedIDs.clear();
-
-								if (rowIndex < firstSelectedRow)
-								{
-									lastSelectedRow = firstSelectedRow;
-									firstSelectedRow = rowIndex;
-								}
-								else
-								{
-									lastSelectedRow = rowIndex;
-								}
-
-								shiftSelectionRunning = true;
-							}
-							else if (!ctrlDown || shiftDown)
-							{
-								selectedIDs.clear();
-								selectedIDs.push_back(itemID);
-								firstSelectedRow = rowIndex;
-								lastSelectedRow = -1;
-							}
-							else
-							{
-								if (isSelected)
-								{
-									selectedIDs.find_erase_unsorted(itemID);
-								}
-								else
-								{
-									selectedIDs.push_back(itemID);
-								}
-							}
-
-							ImGui::FocusWindow(ImGui::GetCurrentWindow());
-						}
-
-						// TODO
-						//if (isStaticMesh)
-						//{
-						//	ImGui::SameLine();
-						//	UI::HelpMarker("Import the entire asset as a single static mesh.  This is good for things like scene background entities where you do not need be able to manipulate parts of the source asset independently.");
-						//}
-
-						//if (isDynamicMesh)
-						//{
-						//	ImGui::SameLine();
-						//	UI::HelpMarker("The structure of the source asset will be preserved.  Adding a dynamic mesh to a scene will result in multiple entities with hierarchy mirroring the structure of the source asset.  Dynamic is needed for rigged or animated entities, or where you need to be able to manipulate individual parts of the source asset independently.");
-						//}
-
-						return checkPaths;
-					};
-
-					const float edgeOffset = 4.0f;
-					const float rowHeight = 21.0f;
-
-					UI::ShiftCursorX(edgeOffset * 3.0f);
-					UI::ShiftCursorY(edgeOffset * 2.0f);
-
-					tableSize = ImVec2{ tableSize.x - edgeOffset * 3.0f, tableSize.y - edgeOffset * 2.0f };
-
-					if (ImGui::BeginTable("##Items", 1, ImGuiTableFlags_NoPadInnerX |ImGuiTableFlags_ScrollY, tableSize))
-					{
-						ImGui::TableSetupScrollFreeze(0, 2);
-						ImGui::TableSetupColumn(tableName.data());
-
-						// Header
-						ImGui::TableNextRow(ImGuiTableRowFlags_Headers, 22.0f);
-						{
-							const ImU32 colActive = UI::ColourWithMultipliedValue(Colors::Theme::groupHeader, 1.2f);
-							UI::ScopedColourStack headerColours(
-								ImGuiCol_HeaderHovered, colActive,
-								ImGuiCol_HeaderActive, colActive
-							);
-
-							ImGui::TableSetColumnIndex(0);
-							{
-								const char* columnName = ImGui::TableGetColumnName(0);
-								UI::ScopedID columnID(columnName);
-
-								UI::ShiftCursor(edgeOffset, edgeOffset * 2.0f);
-								ImVec2 cursorPos = ImGui::GetCursorPos();
-
-								UI::ShiftCursorY(-edgeOffset);
-								ImGui::BeginHorizontal(columnName, ImVec2{ ImGui::GetContentRegionAvail().x - edgeOffset * 3.0f, 0.0f });
-								ImGui::Spring();
-								ImVec2 cursorPos2 = ImGui::GetCursorPos();
-								if (ImGui::Button("All"))
-								{
-									// Could consider only adding one of static/dynamic mesh here.
-									// But for now "All" means all!
-									selectedIDs.clear();
-									if (UI::IsMatchingSearch("Static Mesh", searchedString))
-									{
-										selectedIDs.push_back(-1);
-									}
-									if (UI::IsMatchingSearch("Dynamic Mesh", searchedString))
-									{
-										selectedIDs.push_back(-2);
-									}
-									if (UI::IsMatchingSearch("Skeleton", searchedString))
-									{
-										selectedIDs.push_back(-3);
-									}
-									if(UI::IsMatchingSearch("Default Animation Graph", searchedString))
-									{
-										selectedIDs.push_back(-4);
-									}
-									for (int i = 0; i < (int)animationNames.size(); ++i)
-									{
-										if (UI::IsMatchingSearch(animationNames[i], searchedString))
-										{
-											selectedIDs.push_back(i);
-										}
-									}
-								}
-								ImGui::Spacing();
-								if (ImGui::Button("None"))
-								{
-									selectedIDs.clear();
-								}
-								ImGui::EndHorizontal();
-
-								ImGui::SetCursorPos(cursorPos);
-								const ImRect bb = ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), 0);
-								ImGui::PushClipRect(bb.Min, ImVec2{ bb.Min.x + cursorPos2.x, bb.Max.y + edgeOffset * 2 }, false);
-								ImGui::TableHeader(columnName);
-								ImGui::PopClipRect();
-								UI::ShiftCursor(-edgeOffset, -edgeOffset * 2.0f);
-							}
-							ImGui::SetCursorPosX(ImGui::GetCurrentTable()->OuterRect.Min.x);
-							UI::Draw::Underline(true, 0.0f, 5.0f);
-						}
-
-						// Search Widget
-						// -------------
-						ImGui::TableNextRow();
-						ImGui::TableNextColumn();
-						UI::ShiftCursorX(edgeOffset);
-						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - edgeOffset);
-
-						UI::Widgets::SearchWidget(searchedString);
-
-						// List
-						// ----
-						{
-							UI::ScopedColourStack itemSelection(
-								ImGuiCol_Header, IM_COL32_DISABLE,
-								ImGuiCol_HeaderHovered, IM_COL32_DISABLE,
-								ImGuiCol_HeaderActive, IM_COL32_DISABLE
-							);
-
-							bool checkPaths = false;
-							auto alreadyExistsMessage = "This file either already exists, or the filename is a duplicate of one of the other assets to be created.";
-
-							if (!m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().empty())
-							{
-								if (doImportStaticMesh == isAssetList)
-								{
-									auto errorMessage = isAssetList && (!overwriteExistingFiles && !isStaticMeshPathOK) ? alreadyExistsMessage : "";
-									checkPaths = addItem(-1, "Static Mesh", searchedString, isAssetList, selectedIDs, firstSelectedRow, lastSelectedRow, shiftSelectionRunning, errorMessage);
-								}
-								if (doImportDynamicMesh == isAssetList)
-								{
-									auto errorMessage = isAssetList && (!overwriteExistingFiles && !isDynamicMeshPathOK) ? alreadyExistsMessage : "";
-									checkPaths = addItem(-2, "Dynamic Mesh", searchedString, isAssetList, selectedIDs, firstSelectedRow, lastSelectedRow, shiftSelectionRunning, errorMessage);
-								}
-							}
-
-							if (m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
-							{
-								if (doImportSkeleton == isAssetList)
-								{
-									auto errorMessage = isAssetList && (!overwriteExistingFiles && !isSkeletonPathOK) ? alreadyExistsMessage : "";
-									checkPaths = addItem(-3, "Skeleton", searchedString, isAssetList, selectedIDs, firstSelectedRow, lastSelectedRow, shiftSelectionRunning, errorMessage);
-								}
-							}
-
-							for (uint32_t i = 0; i < (uint32_t)animationNames.size(); ++i)
-							{
-								if (doImportAnimations[i] == isAssetList)
-								{
-									auto errorMessage = "";
-									if (isAssetList)
-									{
-										if (!overwriteExistingFiles && !isAnimationPathOK[i])
-										{
-											errorMessage = alreadyExistsMessage;
-										}
-										else if (!isAnimationSkeletonOK[i])
-										{
-											errorMessage = "This animation requires a skeleton.  Please select skeleton in 'Settings' section.";
-										}
-									}
-									checkPaths = addItem(i, animationNames[i], searchedString, isAssetList, selectedIDs, firstSelectedRow, lastSelectedRow, shiftSelectionRunning, errorMessage);
-								}
-							}
-
-							if (!m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().empty() && !animationNames.empty())
-							{
-								if (doCreateAnimationGraph == isAssetList)
-								{
-									auto errorMessage = isAssetList && (!overwriteExistingFiles && !isAnimationGraphPathOK) ? alreadyExistsMessage : "";
-									checkPaths = addItem(-4, "Default Animation Graph", searchedString, isAssetList, selectedIDs, firstSelectedRow, lastSelectedRow, shiftSelectionRunning, errorMessage);
-								}
-							}
-
-							if(checkPaths) {
-								paths.clear();
-								checkPath(doImportStaticMesh, -1, m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer, isStaticMeshPathOK);
-								checkPath(doImportDynamicMesh, -2, m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer, isDynamicMeshPathOK);
-								checkPath(doImportSkeleton, -3, m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer, isSkeletonPathOK);
-								checkPath(doCreateAnimationGraph, -4, m_CreateNewMeshPopupData.CreateGraphFilenameBuffer, isAnimationGraphPathOK);
-
-								for (int i = 0; i < animationNames.size(); ++i)
-								{
-									bool temp = isAnimationPathOK[i];
-									checkPath(doImportAnimations[i], i, m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i], temp);
-									isAnimationPathOK[i] = temp;
-								}
-							}
-						}
-						ImGui::EndTable();
-					}
-				};
-
-				// Items in file
-				// -------------
-				ImGui::TableSetColumnIndex(0);
-				itemTable(std::format("ITEMS IN: {}", assetData.FilePath.filename().string()), { ImGui::GetContentRegionAvail().x, tableSizeOuter.y }, false, searchedStringLeft, selectedIDsLeft, firstSelectedRowLeft, lastSelectedRowLeft, shiftSelectionRunningLeft);
-
-				// Add/Remove Buttons
-				// ------------------
-				ImGui::TableSetColumnIndex(1);
-
-				ImGui::BeginVertical("##Buttons", ImVec2(100.0f, ImGui::GetContentRegionAvail().y));
-				ImGui::Spring(0.25f);
-				if (UI::Button("Add -->"))
+				UI::ScopedID gridId(grid);
+				UI::BeginPropertyGrid();
+				if (gridColumn0Widths[grid])
 				{
-					for (int i = 0; i < selectedIDsLeft.size(); ++i)
+					ImGui::SetColumnWidth(0, (float)gridColumn0Widths[grid]);
+					gridColumn0Widths[grid] = 0;
+				}
+				{
 					{
-						paths.clear();
-						int id = selectedIDsLeft[i];
-						if (id == -1)
-						{
-							doImportStaticMesh = true;
-						}
-						else if (id == -2)
-						{
-							doImportDynamicMesh = true;
-						}
-						else if (id == -3)
-						{
-							doImportSkeleton = true;
-						}
-						else if (id == -4) {
-							doCreateAnimationGraph = true;
-						}
-						else if (id >= 0 && id < (int)animationNames.size())
-						{
-							doImportAnimations[id] = true;
-							bool temp = isAnimationPathOK[id];
-							checkPath(doImportAnimations[id], id, m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[id], temp);
-							isAnimationPathOK[id] = temp;
-						}
+						UI::ScopedDisable disable(meshType == MeshType::Static);
+						UI::Property("Import Mesh", doImportMesh, "Controls whether mesh(es) will be imported from source asset.");
 					}
-					selectedIDsLeft.clear();
-
-					// Check that paths of all assets we are going to create are unique
-					paths.clear();
-					checkPath(doImportStaticMesh, -1, m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer, isStaticMeshPathOK);
-					checkPath(doImportDynamicMesh, -2, m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer, isDynamicMeshPathOK);
-					checkPath(doImportSkeleton, -3, m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer, isSkeletonPathOK);
-					checkPath(doCreateAnimationGraph, -4, m_CreateNewMeshPopupData.CreateGraphFilenameBuffer, isAnimationGraphPathOK);
-
-					for (int i = 0; i < animationNames.size(); ++i)
 					{
-						bool temp = isAnimationPathOK[i];
-						checkPath(doImportAnimations[i], i, m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i], temp);
-						isAnimationPathOK[i] = temp;
+						UI::ScopedDisable disable(!doImportMesh);
+						if (m_CreateNewMeshPopupData.CreateMeshFilenameBuffer.empty())
+						{
+							m_CreateNewMeshPopupData.CreateMeshFilenameBuffer = makeAssetPath(assetData.FilePath.stem().string(), meshType == MeshType::Static ? "hsmesh" : "hmesh");
+						}
+						UI::Property(meshAssetPathLabel.c_str(), m_CreateNewMeshPopupData.CreateMeshFilenameBuffer);
+						UI::Property("Generate Colliders", doGenerateColliders, "Controls whether physics components (collider and rigid body) will be added to the newly created entity.");
 					}
 				}
-				ImGui::Spacing();
-				ImGui::Spacing();
-				if (UI::Button("<-- Remove"))
-				{
-					for (int i = 0; i < selectedIDsRight.size(); ++i)
-					{
-						int id = selectedIDsRight[i];
-						if (id == -1)
-						{
-							doImportStaticMesh = false;
-						}
-						else if (id == -2)
-						{
-							doImportDynamicMesh = false;
-						}
-						else if (id == -3)
-						{
-							doImportSkeleton = false;
-						}
-						else if (id == -4)
-						{
-							doCreateAnimationGraph = false;
-						}
-						else if (id >= 0 && id < (int)animationNames.size())
-						{
-							doImportAnimations[id] = false;
-						}
-					}
-					selectedIDsRight.clear();
-				}
-				ImGui::Spring(1.0f);
-				ImGui::EndVertical();
+				UI::EndPropertyGrid();
+				ImGui::TreePop();
+			}
+			++grid;
 
-				// Skeletons OK?
-				// ------------
-				bool skeletonOK = true;
-				if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
+			if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
+			{
+				doImportSkeleton = false;
+				if (UI::PropertyGridHeader("No skeleton was found in the source asset."))
 				{
-					for (uint32_t i = 0; i < (uint32_t)animationNames.size(); ++i)
+					ImGui::TreePop();
+				}
+			}
+			else if (UI::PropertyGridHeader("Skeleton:"))
+			{
+				UI::ScopedDisable disable(meshType == MeshType::Static);
+				UI::ScopedID gridId(grid);
+				UI::BeginPropertyGrid();
+				if (gridColumn0Widths[grid])
+				{
+					ImGui::SetColumnWidth(0, (float)gridColumn0Widths[grid]);
+					gridColumn0Widths[grid] = 0;
+				}
+				UI::Property("Import Skeleton", doImportSkeleton, "Controls whether skeletal animation rig (if present) will be imported from source asset.");
+				{
+					UI::ScopedDisable disable(!doImportSkeleton);
+					if (m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer.empty())
 					{
-						isAnimationSkeletonOK[i] = true;
-						if (doImportAnimations[i])
+						m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer = makeAssetPath(assetData.FilePath.stem().string(), "hskel");
+					}
+					UI::Property(skeletonAssetPathLabel.c_str(), m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer);
+				}
+				UI::EndPropertyGrid();
+				ImGui::TreePop();
+			}
+			++grid;
+
+			if (animationNames.empty())
+			{
+				doImportAnimations.clear();
+				if (UI::PropertyGridHeader("No animations were found in the source asset."))
+				{
+					ImGui::TreePop();
+				}
+			}
+			else
+			{
+				for (uint32_t i = 0; i < (uint32_t)animationNames.size(); ++i)
+				{
+					if (UI::PropertyGridHeader(fmt::format("Animation Index {}:", i).c_str()))
+					{
+						UI::ScopedDisable disable(meshType == MeshType::Static);
+						UI::ScopedID gridId(grid);
+						UI::BeginPropertyGrid();
+						if (gridColumn0Widths[grid] > 0)
+						{
+							ImGui::SetColumnWidth(0, (float)gridColumn0Widths[grid]);
+							gridColumn0Widths[grid] = 0;
+						}
+
+						// read-only name
+						UI::Property("Name", animationNames[i].c_str());
+
+						bool doImportAnimation = doImportAnimations[i];
+						bool skeletonOK = true;
+						if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
 						{
 							if (skeletonAssets[i] == 0)
 							{
 								skeletonOK = false;
-								isAnimationSkeletonOK[i] = false;
 							}
 							else
 							{
-								if (auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonAssets[i]); skeletonAsset)
+								auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonAssets[i]);
+								if (skeletonAsset && skeletonAsset->IsValid())
 								{
-									if (!m_CreateNewMeshPopupData.MeshToCreate->IsCompatibleSkeleton(animationNames[i], skeletonAsset->GetSkeleton()))
+									if (!m_CreateNewMeshPopupData.MeshToCreate->IsCompatibleSkeleton(i, skeletonAsset->GetSkeleton()))
 									{
 										skeletonOK = false;
-										isAnimationSkeletonOK[i] = false;
 									}
 								}
 								else
 								{
 									skeletonOK = false;
-									isAnimationSkeletonOK[i] = false;
+								}
+							}
+							UI::PropertyAssetReferenceSettings settings;
+							if (!skeletonOK)
+							{
+								doImportAnimations[i] = false;
+								settings.ButtonLabelColor = ImGui::ColorConvertU32ToFloat4(Colors::Theme::textError);
+							}
+							UI::PropertyAssetReferenceError error;
+							UI::PropertyAssetReference<SkeletonAsset>("Skeleton", skeletonAssets[i], "",  & error, settings);
+						}
+
+						{
+							UI::ScopedDisable disable(!skeletonOK);
+							doImportAnimation = doImportAnimations[i];
+							UI::Property("Import", doImportAnimation);
+							doImportAnimations[i] = doImportAnimation;
+
+							{
+								UI::ScopedDisable disable(!doImportAnimation);
+								if (m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i].empty())
+								{
+									// TODO: could try to use animation name in the path here rather than just 0, 1, ... index.  The trouble is there is no guarantee that the animation name is valid as a filename.
+									std::string filename = fmt::format("{0}-{1}", assetData.FilePath.stem().string(), i);
+									m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i] = makeAssetPath(filename, "hanim");
+								}
+								UI::Property(animationAssetPathLabel.c_str(), m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i]);
+
+								bool rootMotionMask = rootMotionMasks[i];
+								UI::Property("Create Root Bone", rootMotionMask, "If left unticked, the root bone in the asset will be used as-is for root motion.  If ticked, a new root bone at character origin will be created, and root motion will be extracted from the asset root bone per the following mask settings.  If your asset has properly authored root motion, then leave this unticked.  If you are unsure what to do, then tick this and leave all mask settings at zero (this will disable all root motion).");
+								rootMotionMasks[i] = rootMotionMask;
+								{
+									UI::ScopedDisable disable(!rootMotionMask);
+									bool rootRotationMask = rootRotationMasks[i];
+									UI::Property("Root Translation Mask", rootTranslationMasks[i], "These components of the root bone translation will be extracted as the root motion.  For example, if you only want to extract the forwards movement of root bone as root motion, then set Z to one, and X and Y to zero.");
+									UI::Property("Root Rotation Mask", rootRotationMask, "Set to one to extract root bone's rotation about Y-axis as root motion.  Set to zero to ignore rotation for root motion.");
+									rootRotationMasks[i] = rootRotationMask;
 								}
 							}
 						}
+						UI::EndPropertyGrid();
+						ImGui::TreePop();
 					}
+					++grid;
 				}
-
-				// Assets to create
-				// ----------------
-				ImGui::TableSetColumnIndex(2);
-				itemTable("ASSETS TO CREATE", { ImGui::GetContentRegionAvail().x, tableSizeOuter.y / 2.0f }, true, searchedStringRight, selectedIDsRight, firstSelectedRowRight, lastSelectedRowRight, shiftSelectionRunningRight);
-
-				// Settings section
-				// ----------------
-				ImGui::Spacing();
-				ImGui::Indent();
-
-				if (ImGui::BeginChild("Settings", { ImGui::GetContentRegionAvail().x, (tableSizeOuter.y / 2.0f) - ImGui::GetStyle().ItemSpacing.y * 2.0f }))
-				{
-
-					if (selectedIDsRight.contains(-1))
-					{
-						if (UI::PropertyGridHeader("Static Mesh Settings:"))
-						{
-							UI::BeginPropertyGrid();
-							UI::Property("Generate Colliders", doGenerateStaticMeshColliders);
-							UI::EndPropertyGrid();
-							ImGui::TreePop();
-						}
-					}
-
-					if (selectedIDsRight.contains(-2))
-					{
-						if (UI::PropertyGridHeader("Dynamic Mesh Settings:"))
-						{
-							UI::BeginPropertyGrid();
-							UI::Property("Generate Colliders", doGenerateDynamciMeshColliders);
-							UI::EndPropertyGrid();
-							ImGui::TreePop();
-						}
-					}
-
-					if (selectedIDsRight.contains(-3))
-					{
-						if (UI::PropertyGridHeader("Skeleton Settings:"))
-						{
-							UI::BeginPropertyGrid();
-
-							// There currently are no specific settings required for creation of skeleton assets.
-
-							UI::EndPropertyGrid();
-							ImGui::TreePop();
-						}
-					}
-
-					if (selectedIDsRight.contains(-4))
-					{
-						if (UI::PropertyGridHeader("Animation Graph Settings:"))
-						{
-							UI::BeginPropertyGrid();
-
-							// There currently are no specific settings required for creation of the default animation graph.
-
-							UI::EndPropertyGrid();
-							ImGui::TreePop();
-						}
-					}
-
-					bool gotAnimation = false;
-					AssetHandle skeletonAssetHandle = 0;
-					bool skeletonAssetHandleAllSame = true;
-					bool rootMotionMask = false;
-					bool rootMotionMaskAllSame = true;
-					bool rootRotationMask = false;
-					bool rootRotationMaskAllSame = true;
-					glm::bvec3 rootTranslationMask(false);
-					bool rootTranslationMaskAllSame = true;
-					std::string_view animationName;
-					bool animationNameAllSame = true;
-
-					for (auto selectedID : selectedIDsRight)
-					{
-						if (selectedID >= 0)
-						{
-							animationName = animationNames[selectedID];
-
-							if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
-							{
-								skeletonAssetHandle = skeletonAssets[selectedID];
-							}
-
-							rootMotionMask = rootMotionMasks[selectedID];
-							rootRotationMask = rootRotationMasks[selectedID];
-							rootTranslationMask = rootTranslationMasks[selectedID];
-							gotAnimation = true;
-							break;
-						}
-					}
-
-					if (gotAnimation)
-					{
-						// go through the animations again to see if they have same properties
-						for (auto selectedID : selectedIDsRight)
-						{
-							if(selectedID >=  0)
-							{
-								if (animationName != animationNames[selectedID])
-								{
-									animationNameAllSame = false;
-								}
-
-								if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
-								{
-									if (skeletonAssetHandle != skeletonAssets[selectedID])
-									{
-										skeletonAssetHandleAllSame = false;
-									}
-								}
-
-								if (rootMotionMask != rootMotionMasks[selectedID])
-								{
-									rootMotionMaskAllSame = false;
-								}
-
-								if (rootRotationMask != rootRotationMasks[selectedID])
-								{
-									rootRotationMaskAllSame = false;
-								}
-
-								if (rootTranslationMask != rootTranslationMasks[selectedID])
-								{
-									rootTranslationMaskAllSame = false;
-								}
-							}
-						}
-
-						if (UI::PropertyGridHeader(std::format("Animation Settings: {}", animationNameAllSame? animationName : "multiple selection")))
-						{
-							UI::BeginPropertyGrid();
-
-							if (!m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
-							{
-								UI::PropertyAssetReferenceSettings settings;
-								if (!skeletonOK)
-								{
-									settings.ButtonLabelColor = ImGui::ColorConvertU32ToFloat4(Colors::Theme::textError);
-								}
-								UI::PropertyAssetReferenceError error;
-								ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, !skeletonAssetHandleAllSame);
-								if (UI::PropertyAssetReference<SkeletonAsset>("Skeleton", skeletonAssetHandle, "", &error, settings))
-								{
-									for (auto selectedID : selectedIDsRight)
-									{
-										skeletonAssets[selectedID] = skeletonAssetHandle;
-									}
-								}
-								ImGui::PopItemFlag();
-							}
-
-							ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, !rootMotionMaskAllSame);
-							if(UI::Property("Create Root Bone", rootMotionMask, "If left unticked, the root bone in the asset will be used as-is for root motion.  If ticked, a new root bone at character origin will be created, and root motion will be extracted from the asset root bone per the following mask settings.  If your asset has properly authored root motion, then leave this unticked.  If you are unsure what to do, then tick this and leave all mask settings at zero (this will disable all root motion)."))
-							{
-								for (auto selectedID : selectedIDsRight)
-								{
-									rootMotionMasks[selectedID] = rootMotionMask;
-								}
-							}
-							ImGui::PopItemFlag();
-
-							{
-								UI::ScopedDisable disable(!rootMotionMask || !rootMotionMaskAllSame);
-								ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, !rootTranslationMaskAllSame);
-								if(UI::Property("Root Translation Mask", rootTranslationMask, "These components of the root bone translation will be extracted as the root motion.  For example, if you only want to extract the forwards movement of root bone as root motion, then set Z to one, and X and Y to zero."))
-								{
-									for (auto selectedID : selectedIDsRight)
-									{
-										rootTranslationMasks[selectedID] = rootTranslationMask;
-									}
-								}
-								ImGui::PopItemFlag();
-
-								ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, !rootRotationMaskAllSame);
-								if(UI::Property("Root Rotation Mask", rootRotationMask, "Set to one to extract root bone's rotation about Y-axis as root motion.  Set to zero to ignore rotation for root motion."))
-								{
-									for (auto selectedID : selectedIDsRight)
-									{
-										rootRotationMasks[selectedID] = rootRotationMask;
-									}
-								}
-								ImGui::PopItemFlag();
-							}
-
-							UI::EndPropertyGrid();
-							ImGui::TreePop();
-						}
-					}
-
-					ImGui::EndChild();
-				}
-
-				ImGui::EndTable();
 			}
-			ImGui::Spacing();
 
-			// Create / Cancel buttons
-			// -----------------------
-			ImGui::BeginHorizontal("##actions", { ImGui::GetContentRegionAvail().x, 0 });
-			ImGui::Spring();
+			if (UI::PropertyGridHeader("Animation Graph")) {
+				UI::ScopedDisable disable(meshType == MeshType::Static);
+				UI::ScopedID gridId(grid);
+				UI::BeginPropertyGrid();
+				if (gridColumn0Widths[grid])
+				{
+					ImGui::SetColumnWidth(0, (float)gridColumn0Widths[grid]);
+					gridColumn0Widths[grid] = 0;
+				}
+				UI::Property("Create Animation Graph", doCreateAnimationGraph, "Controls whether an animation graph will be created, and pre-populated with the imported asset(s).");
+				if (!m_CreateNewMeshPopupData.CreateGraphFilenameBuffer[0])
+				{
+					m_CreateNewMeshPopupData.CreateGraphFilenameBuffer = makeAssetPath(assetData.FilePath.stem().string(), "hanimgraph");
+				}
+				UI::Property(graphAssetPathLabel.c_str(), m_CreateNewMeshPopupData.CreateGraphFilenameBuffer.data(), 256);
+				UI::EndPropertyGrid();
+				ImGui::TreePop();
+			}
+
+			if (ImGui::Button("Create"))
 			{
-				UI::ScopedFont largeFont(ImGui::GetIO().Fonts->Fonts[1]);
-
-				bool isError = !overwriteExistingFiles && (!isStaticMeshPathOK || !isDynamicMeshPathOK || !isSkeletonPathOK || !isAnimationGraphPathOK);
-				for (size_t i = 0; !isError && (i < animationNames.size()); ++i)
+				SelectionManager::DeselectAll(SelectionContext::Scene);
+				Entity entity;
+				if (doImportMesh)
 				{
-					isError = isError || (!overwriteExistingFiles && !isAnimationPathOK[i]) || !isAnimationSkeletonOK[i];
-				}
-
-				bool isSomethingToImport = doImportStaticMesh || doImportDynamicMesh || doImportSkeleton || doCreateAnimationGraph;
-				for (size_t i = 0; i < animationNames.size(); ++i)
-				{
-					isSomethingToImport = isSomethingToImport || doImportAnimations[i];
-				}
-
-				{
-					UI::ScopedDisable disable(!isSomethingToImport || isError);
-
-					if (ImGui::Button("Create") && isSomethingToImport && !isError)
+					if (!m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().empty())
 					{
-						SelectionManager::DeselectAll(SelectionContext::Scene);
-						Entity entity;
+						std::string serializePath = m_CreateNewMeshPopupData.CreateMeshFilenameBuffer.data();
+						std::filesystem::path path = Project::GetActive()->GetMeshPath() / serializePath;
+						if (!FileSystem::Exists(path.parent_path()))
+							FileSystem::CreateDirectory(path.parent_path());
 
-						if (doImportStaticMesh)
+						if (meshType == MeshType::Static)
 						{
-							HZ_CORE_ASSERT(!m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().empty()); // should not be possible to have doImportStaticMesh = true if there are no submeshes in the mesh source
-
-							std::string serializePath = m_CreateNewMeshPopupData.CreateStaticMeshFilenameBuffer.data();
-							std::filesystem::path path = Project::GetActive()->GetAssetDirectory() / makeAssetPath(-1) / serializePath;
-							if (!FileSystem::Exists(path.parent_path()))
-							{
-								FileSystem::CreateDirectory(path.parent_path());
-							}
-
-							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate->Handle, doGenerateStaticMeshColliders);
+							Ref<StaticMesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<StaticMesh>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate);
 
 							entity = m_CreateNewMeshPopupData.TargetEntity;
 							if (entity)
@@ -3717,146 +2824,153 @@ namespace Hazel {
 							}
 							else
 							{
-								entity = m_EditorScene->InstantiateStaticMesh(mesh);
+								const auto& meshMetadata = Project::GetEditorAssetManager()->GetMetadata(mesh->Handle);
+								entity = m_EditorScene->CreateEntity(meshMetadata.FilePath.stem().string());
+								entity.AddComponent<StaticMeshComponent>(mesh->Handle);
 								SelectionManager::Select(SelectionContext::Scene, entity.GetUUID());
 							}
-						}
 
-						if (doImportDynamicMesh)
-						{
-							HZ_CORE_ASSERT(!m_CreateNewMeshPopupData.MeshToCreate->GetSubmeshes().empty()); // should not be possible to have doImportDynamicMesh = true if there are no submeshes in the mesh source
-							std::string serializePath = m_CreateNewMeshPopupData.CreateDynamicMeshFilenameBuffer.data();
-							std::filesystem::path path = Project::GetActive()->GetAssetDirectory() / makeAssetPath(-2) / serializePath;
-							if (!FileSystem::Exists(path.parent_path()))
+							if (doGenerateColliders && !entity.HasComponent<MeshColliderComponent>())
 							{
-								FileSystem::CreateDirectory(path.parent_path());
+								auto& colliderComponent = entity.AddComponent<MeshColliderComponent>();
+								Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(entity, colliderComponent);
+								colliderComponent.ColliderAsset = colliderAsset->Handle;
+								colliderComponent.SubmeshIndex = 0;
+								colliderComponent.UseSharedShape = colliderAsset->AlwaysShareShape;
 							}
 
-							Ref<Mesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<Mesh>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate->Handle, doGenerateDynamciMeshColliders);
+							if (doGenerateColliders && entity.HasComponent<RigidBodyComponent>())
+							{
+								entity.AddComponent<RigidBodyComponent>();
+							}
+						}
+						else
+						{
+							Ref<Mesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<Mesh>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate);
 
 							entity = m_CreateNewMeshPopupData.TargetEntity;
 							if (entity)
 							{
-								if (!entity.HasComponent<SubmeshComponent>())
-									entity.AddComponent<SubmeshComponent>();
+								if (!entity.HasComponent<MeshComponent>())
+									entity.AddComponent<MeshComponent>();
 
-								SubmeshComponent& mc = entity.GetComponent<SubmeshComponent>();
+								MeshComponent& mc = entity.GetComponent<MeshComponent>();
 								mc.Mesh = mesh->Handle;
 							}
 							else
 							{
-								entity = m_EditorScene->InstantiateMesh(mesh);
+								entity = m_EditorScene->InstantiateMesh(mesh, doGenerateColliders);
 								SelectionManager::Select(SelectionContext::Scene, entity.GetUUID());
 							}
 						}
-
-						Ref<SkeletonAsset> skeletonAsset;
-						if (doImportSkeleton)
-						{
-							HZ_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton()); // should not be possible to have doImportSkeleton = true if the mesh source has no skeleton
-							std::string serializePath = m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer.data();
-							std::filesystem::path path = Project::GetActive()->GetAssetDirectory() / makeAssetPath(-3) / serializePath;
-							if (!FileSystem::Exists(path.parent_path()))
-							{
-								FileSystem::CreateDirectory(path.parent_path());
-							}
-							skeletonAsset = Project::GetEditorAssetManager()->CreateNewAsset<SkeletonAsset>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate->Handle);
-						}
-
-						std::vector<Ref<AnimationAsset>> animationAssets;
-						animationAssets.reserve(doImportAnimations.size());
-						for (size_t i = 0; i < doImportAnimations.size(); ++i)
-						{
-							if (doImportAnimations[i])
-							{
-								HZ_CORE_ASSERT(animationNames.size() > i);
-								std::string serializePath = m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i].data();
-								std::filesystem::path path = Project::GetActive()->GetAssetDirectory() / makeAssetPath((int)i) / serializePath;
-								if (!FileSystem::Exists(path.parent_path()))
-								{
-									FileSystem::CreateDirectory(path.parent_path());
-								}
-
-								if (m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
-								{
-									skeletonAssets[i] = assetData.Handle;
-								}
-								else
-								{
-									auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonAssets[i]);
-									HZ_CORE_ASSERT(skeletonAsset);
-									skeletonAssets[i] = skeletonAsset->GetMeshSource();
-								}
-								glm::vec3 rootTranslationMask = { rootTranslationMasks[i].x ? 1.0f : 0.0f, rootTranslationMasks[i].y ? 1.0f : 0.0f, rootTranslationMasks[i].z ? 1.0f : 0.0f };
-								float rootRotationMask = rootRotationMasks[i] ? 1.0f : 0.0f;
-								animationAssets.emplace_back(Project::GetEditorAssetManager()->CreateNewAsset<AnimationAsset>(path.filename().string(), path.parent_path().string(), assetData.Handle, skeletonAssets[i], animationNames[i], rootMotionMasks[i], rootTranslationMask, rootRotationMask));
-							}
-						}
-
-						if (doCreateAnimationGraph)
-						{
-							// Create new animation graph by copying the default one from Resources
-							std::string serializePath = m_CreateNewMeshPopupData.CreateGraphFilenameBuffer.data();
-							std::filesystem::path path = Project::GetActive()->GetAssetDirectory() / makeAssetPath(-4) / serializePath;
-							if (!FileSystem::Exists(path.parent_path()))
-							{
-								FileSystem::CreateDirectory(path.parent_path());
-							}
-							auto animationGraphAsset = Project::GetEditorAssetManager()->CreateNewAsset<AnimationGraphAsset>(path.filename().string(), path.parent_path().string());
-							AnimationGraphAssetSerializer::TryLoadData("Resources/Animation/DefaultAnimationGraph.hanimgraph", animationGraphAsset);
-							Project::GetEditorAssetManager()->ReplaceLoadedAsset(animationGraphAsset->Handle, animationGraphAsset);
-
-							// Fill in new animation graph with the Skeleton and Animation assets created (or not) above
-							AnimationGraphNodeEditorModel model(animationGraphAsset);
-							if (skeletonAsset)
-							{
-								model.SetSkeletonHandle(skeletonAsset->Handle);
-							}
-							if (!animationAssets.empty())
-							{
-								auto animations = choc::value::createArray((uint32_t)animationAssets.size(), [&animationAssets](uint32_t i) { return Utils::CreateAssetHandleValue<AssetType::Animation>(animationAssets[i]->Handle); });
-								model.GetLocalVariables().Set("Animations", animations);
-							}
-
-							AssetImporter::Serialize(animationGraphAsset);
-							model.CompileGraph();
-
-							// Add animation graph to entity
-							if (entity)
-							{
-								if (!entity.HasComponent<AnimationComponent>())
-									entity.AddComponent<AnimationComponent>();
-
-								auto& anim = entity.GetComponent<AnimationComponent>();
-								anim.AnimationGraphHandle = animationGraphAsset->Handle;
-								anim.AnimationGraph = animationGraphAsset->CreateInstance();
-								HZ_CORE_ASSERT(anim.AnimationGraph); // this is Hazel's internal animation graph for playing a simple asset. It should not fail to instantiate
-								anim.BoneEntityIds = m_CurrentScene->FindBoneEntityIds(entity, entity, anim.AnimationGraph->GetSkeleton());
-							}
-						}
-
-						m_CreateNewMeshPopupData = {};
-						dccHandle = 0;
-						ImGui::CloseCurrentPopup();
+					}
+					else
+					{
+						UI_ShowNoMeshPopup();
 					}
 				}
 
-				ImGui::Spacing();
-
-				if (ImGui::Button("Cancel"))
+				Ref<SkeletonAsset> skeletonAsset;
+				if (doImportSkeleton)
 				{
-					m_CreateNewMeshPopupData = {};
-					dccHandle = 0;
-					ImGui::CloseCurrentPopup();
+					if (m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
+					{
+						std::string serializePath = m_CreateNewMeshPopupData.CreateSkeletonFilenameBuffer.data();
+						std::filesystem::path path = Project::GetActive()->GetAnimationPath() / serializePath;
+						if (!FileSystem::Exists(path.parent_path()))
+							FileSystem::CreateDirectory(path.parent_path());
+
+						skeletonAsset = Project::GetEditorAssetManager()->CreateNewAsset<SkeletonAsset>(path.filename().string(), path.parent_path().string(), m_CreateNewMeshPopupData.MeshToCreate);
+					}
+					else
+					{
+						UI_ShowNoSkeletonPopup();
+					}
 				}
+
+				std::vector<Ref<AnimationAsset>> animationAssets;
+				animationAssets.reserve(doImportAnimations.size());
+				for(size_t i = 0; i < doImportAnimations.size(); ++i)
+				{
+					if (doImportAnimations[i])
+					{
+						HZ_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames().size() > i);
+						std::string serializePath = m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i].data();
+						std::filesystem::path path = Project::GetActive()->GetAnimationPath() / serializePath;
+						if (!FileSystem::Exists(path.parent_path()))
+							FileSystem::CreateDirectory(path.parent_path());
+
+						if (m_CreateNewMeshPopupData.MeshToCreate->HasSkeleton())
+						{
+							skeletonAssets[i] = assetData.Handle;
+						}
+						else
+						{
+							auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonAssets[i]);
+							HZ_CORE_ASSERT(skeletonAsset && skeletonAsset->IsValid());
+							skeletonAssets[i] = skeletonAsset->GetMeshSource()->Handle;
+						}
+						auto animationSource = AssetManager::GetAsset<MeshSource>(assetData.Handle);
+						auto skeletonSource = AssetManager::GetAsset<MeshSource>(skeletonAssets[i]);
+						glm::vec3 rootTranslationMask = {rootTranslationMasks[i].x? 1.0f : 0.0f, rootTranslationMasks[i].y? 1.0f : 0.0f, rootTranslationMasks[i].z? 1.0f : 0.0f};
+						float rootRotationMask = rootRotationMasks[i]? 1.0f : 0.0f;
+						animationAssets.emplace_back(Project::GetEditorAssetManager()->CreateNewAsset<AnimationAsset>(path.filename().string(), path.parent_path().string(), animationSource, skeletonSource, (uint32_t)i, rootMotionMasks[i], rootTranslationMask, rootRotationMask));
+					}
+				}
+
+				if (doCreateAnimationGraph)
+				{
+					// Create new animation graph by copying the default one from Resources
+					std::string serializePath = m_CreateNewMeshPopupData.CreateGraphFilenameBuffer.data();
+					std::filesystem::path path = Project::GetActive()->GetAnimationPath() / serializePath;
+					if (!FileSystem::Exists(path.parent_path()))
+						FileSystem::CreateDirectory(path.parent_path());
+
+					auto animationGraphAsset = Project::GetEditorAssetManager()->CreateNewAsset<AnimationGraphAsset>(path.filename().string(), path.parent_path().string());
+					AnimationGraphAssetSerializer::TryLoadData("Resources/Animation/DefaultAnimationGraph.hanimgraph", animationGraphAsset);
+
+					// Fill in new animation graph with the Skeleton and Animation assets created (or not) above
+					AnimationGraphNodeEditorModel model(animationGraphAsset);
+					if (skeletonAsset)
+					{
+						model.SetSkeletonHandle(skeletonAsset->Handle);
+					}
+					if(!animationAssets.empty())
+					{
+						auto animations = choc::value::createArray((uint32_t)animationAssets.size(), [&animationAssets](uint32_t i) { return Utils::CreateAssetHandleValue<AssetType::Animation>(animationAssets[i]->Handle); });
+						model.GetLocalVariables().Set("Animations", animations);
+					}
+
+					AssetImporter::Serialize(animationGraphAsset);
+					model.CompileGraph();
+
+					// Add animation graph to entity
+					if (entity)
+					{
+						if (!entity.HasComponent<AnimationComponent>())
+							entity.AddComponent<AnimationComponent>();
+
+						auto& anim = entity.GetComponent<AnimationComponent>();
+						anim.AnimationGraphHandle = animationGraphAsset->Handle;
+						anim.AnimationGraph = animationGraphAsset->CreateInstance();
+						anim.BoneEntityIds = m_CurrentScene->FindBoneEntityIds(entity, entity, anim.AnimationGraph);
+					}
+				}
+				m_CreateNewMeshPopupData = {};
+				dccHandle = 0;
+				ImGui::CloseCurrentPopup();
 			}
 
-			ImGui::Spacing();
-			ImGui::EndHorizontal();
+			ImGui::SameLine();
 
-		}, 1200, 900, 400, 400, -1, -1, 0);
+			if (ImGui::Button("Cancel"))
+			{
+				m_CreateNewMeshPopupData = {};
+				dccHandle = 0;
+				ImGui::CloseCurrentPopup();
+			}
+		}, 600, 900, 400, 400, 1000, 1000, 0);
 	}
-
 
 	void EditorLayer::UI_ShowInvalidAssetMetadataPopup()
 	{
@@ -3869,7 +2983,7 @@ namespace Hazel {
 			UI::BeginPropertyGrid();
 			const auto& filepath = metadata.FilePath.string();
 			UI::Property("Asset Filepath", filepath);
-			UI::Property("Asset ID", std::format("{0}", (uint64_t)metadata.Handle));
+			UI::Property("Asset ID", fmt::format("{0}", (uint64_t)metadata.Handle));
 			UI::EndPropertyGrid();
 
 			if (ImGui::Button("OK"))
@@ -4040,13 +3154,10 @@ namespace Hazel {
 				if (ImGui::BeginTabItem("Performance"))
 				{
 					ImGui::Text("Frame Time: %.2fms\n", app.GetTimestep().GetMilliseconds());
-					ImGui::Text("AssetUpdate took: %.3fms\n", m_AssetUpdatePerf);
-					ImGui::Text("(%d loaded assets)\n", (int)AssetManager::GetLoadedAssets().size());
-					const auto& prevFrameData = app.GetProfilerPreviousFrameData();
-
-					for (const auto& [name, perFrameData] : prevFrameData)
+					const auto& perFrameData = app.GetPerformanceProfiler()->GetPerFrameData();
+					for (auto&& [name, time] : perFrameData)
 					{
-						ImGui::Text("%.3fms [%d] - %s\n", perFrameData.Time, perFrameData.Samples, name);
+						ImGui::Text("%s: %.3fms\n", name, time);
 					}
 					ImGui::EndTabItem();
 				}
@@ -4130,7 +3241,8 @@ namespace Hazel {
 	{
 		m_CreateNewMeshPopupData.MeshToCreate = meshSource;
 		m_CreateNewMeshPopupData.TargetEntity = entity;
-		UI_ShowCreateAssetsFromMeshSourcePopup();
+		m_CreateNewMeshPopupData.CreateMeshFilenameBuffer = "";
+		UI_ShowCreateNewMeshPopup();
 	}
 
 	void EditorLayer::SceneHierarchyInvalidMetadataCallback(Entity entity, AssetHandle handle)
@@ -4265,21 +3377,21 @@ namespace Hazel {
 
 #if CameraDebug
 		ImGui::Begin("Camera Debug");
-		ImGui::Text(std::format("Distance: {}", m_EditorCamera.m_Distance).c_str());
-		ImGui::Text(std::format("Focal Point: {}, {}, {}", m_EditorCamera.m_FocalPoint.x, m_EditorCamera.m_FocalPoint.y, m_EditorCamera.m_FocalPoint.z).c_str());
-		ImGui::Text(std::format("Rotation: {}, {}, {}", m_EditorCamera.m_WorldRotation.x, m_EditorCamera.m_WorldRotation.y, m_EditorCamera.m_WorldRotation.z).c_str());
-		ImGui::Text(std::format("Up Dir: {}, {}, {}", m_EditorCamera.GetUpDirection().x, m_EditorCamera.GetUpDirection().y, m_EditorCamera.GetUpDirection().z).c_str());
-		ImGui::Text(std::format("Strafe Dir: {}, {}, {}", m_EditorCamera.GetRightDirection().x, m_EditorCamera.GetRightDirection().y, m_EditorCamera.GetRightDirection().z).c_str());
-		ImGui::Text(std::format("Yaw: {}", m_EditorCamera.m_Yaw).c_str());
-		ImGui::Text(std::format("Yaw Delta: {}", m_EditorCamera.m_YawDelta).c_str());
-		ImGui::Text(std::format("Pitch: {}", m_EditorCamera.m_Pitch).c_str());
-		ImGui::Text(std::format("Pitch Delta: {}", m_EditorCamera.m_PitchDelta).c_str());
-		ImGui::Text(std::format("Position: ({}, {}, {})", m_EditorCamera.m_Position.x, m_EditorCamera.m_Position.y, m_EditorCamera.m_Position.z).c_str());
-		ImGui::Text(std::format("Position Delta: ({}, {}, {})", m_EditorCamera.m_PositionDelta.x, m_EditorCamera.m_PositionDelta.y, m_EditorCamera.m_PositionDelta.z).c_str());
-		ImGui::Text(std::format("View matrix: [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[0].x, m_EditorCamera.m_ViewMatrix[0].y, m_EditorCamera.m_ViewMatrix[0].z, m_EditorCamera.m_ViewMatrix[0].w).c_str());
-		ImGui::Text(std::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[1].x, m_EditorCamera.m_ViewMatrix[1].y, m_EditorCamera.m_ViewMatrix[1].z, m_EditorCamera.m_ViewMatrix[1].w).c_str());
-		ImGui::Text(std::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[2].x, m_EditorCamera.m_ViewMatrix[2].y, m_EditorCamera.m_ViewMatrix[2].z, m_EditorCamera.m_ViewMatrix[2].w).c_str());
-		ImGui::Text(std::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[3].x, m_EditorCamera.m_ViewMatrix[3].y, m_EditorCamera.m_ViewMatrix[3].z, m_EditorCamera.m_ViewMatrix[3].w).c_str());
+		ImGui::Text(fmt::format("Distance: {}", m_EditorCamera.m_Distance).c_str());
+		ImGui::Text(fmt::format("Focal Point: {}, {}, {}", m_EditorCamera.m_FocalPoint.x, m_EditorCamera.m_FocalPoint.y, m_EditorCamera.m_FocalPoint.z).c_str());
+		ImGui::Text(fmt::format("Rotation: {}, {}, {}", m_EditorCamera.m_WorldRotation.x, m_EditorCamera.m_WorldRotation.y, m_EditorCamera.m_WorldRotation.z).c_str());
+		ImGui::Text(fmt::format("Up Dir: {}, {}, {}", m_EditorCamera.GetUpDirection().x, m_EditorCamera.GetUpDirection().y, m_EditorCamera.GetUpDirection().z).c_str());
+		ImGui::Text(fmt::format("Strafe Dir: {}, {}, {}", m_EditorCamera.GetRightDirection().x, m_EditorCamera.GetRightDirection().y, m_EditorCamera.GetRightDirection().z).c_str());
+		ImGui::Text(fmt::format("Yaw: {}", m_EditorCamera.m_Yaw).c_str());
+		ImGui::Text(fmt::format("Yaw Delta: {}", m_EditorCamera.m_YawDelta).c_str());
+		ImGui::Text(fmt::format("Pitch: {}", m_EditorCamera.m_Pitch).c_str());
+		ImGui::Text(fmt::format("Pitch Delta: {}", m_EditorCamera.m_PitchDelta).c_str());
+		ImGui::Text(fmt::format("Position: ({}, {}, {})", m_EditorCamera.m_Position.x, m_EditorCamera.m_Position.y, m_EditorCamera.m_Position.z).c_str());
+		ImGui::Text(fmt::format("Position Delta: ({}, {}, {})", m_EditorCamera.m_PositionDelta.x, m_EditorCamera.m_PositionDelta.y, m_EditorCamera.m_PositionDelta.z).c_str());
+		ImGui::Text(fmt::format("View matrix: [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[0].x, m_EditorCamera.m_ViewMatrix[0].y, m_EditorCamera.m_ViewMatrix[0].z, m_EditorCamera.m_ViewMatrix[0].w).c_str());
+		ImGui::Text(fmt::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[1].x, m_EditorCamera.m_ViewMatrix[1].y, m_EditorCamera.m_ViewMatrix[1].z, m_EditorCamera.m_ViewMatrix[1].w).c_str());
+		ImGui::Text(fmt::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[2].x, m_EditorCamera.m_ViewMatrix[2].y, m_EditorCamera.m_ViewMatrix[2].z, m_EditorCamera.m_ViewMatrix[2].w).c_str());
+		ImGui::Text(fmt::format("		      [{}, {}, {}, {}]", m_EditorCamera.m_ViewMatrix[3].x, m_EditorCamera.m_ViewMatrix[3].y, m_EditorCamera.m_ViewMatrix[3].z, m_EditorCamera.m_ViewMatrix[3].w).c_str());
 		ImGui::End();
 #endif
 
@@ -4401,12 +3513,12 @@ namespace Hazel {
 				OnSceneStop();
 			return true;
 		});
-
-		dispatcher.Dispatch<AssetReloadedEvent>([this](AssetReloadedEvent& event)
+		
+		dispatcher.Dispatch<AnimationGraphCompiledEvent>([this](AnimationGraphCompiledEvent& event)
 		{
-			if (m_EditorScene) m_EditorScene->OnAssetReloaded(event.AssetHandle);
-			if (m_RuntimeScene) m_RuntimeScene->OnAssetReloaded(event.AssetHandle);
-			if (m_SimulationScene) m_SimulationScene->OnAssetReloaded(event.AssetHandle);
+			if(m_EditorScene) m_EditorScene->OnAnimationGraphCompiled(event.AnimationGraphHandle);
+			if(m_RuntimeScene) m_RuntimeScene->OnAnimationGraphCompiled(event.AnimationGraphHandle);
+			if(m_SimulationScene) m_SimulationScene->OnAnimationGraphCompiled(event.AnimationGraphHandle);
 			return false;
 		});
 	}
@@ -4467,14 +3579,7 @@ namespace Hazel {
 					// NOTE(Peter): Intentional copy since DeleteEntity modifies the selection map
 					auto selectedEntities = SelectionManager::GetSelections(SelectionContext::Scene);
 					for (auto entityID : selectedEntities)
-					{
-						// Can only delete entities that are not child of (dynamic) mesh
-						auto entity = m_CurrentScene->TryGetEntityWithUUID(entityID);
-						if(!entity.HasComponent<MeshTagComponent>())
-						{
-							DeleteEntity(entity);
-						}
-					}
+						DeleteEntity(m_CurrentScene->TryGetEntityWithUUID(entityID));
 					break;
 				}
 			}
@@ -4609,36 +3714,34 @@ namespace Hazel {
 			const auto& camera = m_ViewportPanelMouseOver ? m_EditorCamera : m_SecondEditorCamera;
 			auto [origin, direction] = CastRay(camera, mouseX, mouseY);
 
-			auto meshEntities = m_CurrentScene->GetAllEntitiesWith<SubmeshComponent>();
+			auto meshEntities = m_CurrentScene->GetAllEntitiesWith<MeshComponent>();
 			for (auto e : meshEntities)
 			{
 				Entity entity = { e, m_CurrentScene.Raw() };
-				auto& mc = entity.GetComponent<SubmeshComponent>();
-				if (auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh); mesh)
-				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-					{
-						auto& submeshes = meshSource->GetSubmeshes();
-						auto& submesh = submeshes[mc.SubmeshIndex];
-						glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-						Ray ray = {
-							glm::inverse(transform) * glm::vec4(origin, 1.0f),
-							glm::inverse(glm::mat3(transform)) * direction
-						};
+				auto& mc = entity.GetComponent<MeshComponent>();
+				auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh);
+				if (!mesh || mesh->IsFlagSet(AssetFlag::Missing))
+					continue;
 
-						float t;
-						bool intersects = ray.IntersectsAABB(submesh.BoundingBox, t);
-						if (intersects)
+				auto& submeshes = mesh->GetMeshSource()->GetSubmeshes();
+				auto& submesh = submeshes[mc.SubmeshIndex];
+				glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
+				Ray ray = {
+					glm::inverse(transform) * glm::vec4(origin, 1.0f),
+					glm::inverse(glm::mat3(transform)) * direction
+				};
+
+				float t;
+				bool intersects = ray.IntersectsAABB(submesh.BoundingBox, t);
+				if (intersects)
+				{
+					const auto& triangleCache = mesh->GetMeshSource()->GetTriangleCache(mc.SubmeshIndex);
+					for (const auto& triangle : triangleCache)
+					{
+						if (ray.IntersectsTriangle(triangle.V0.Position, triangle.V1.Position, triangle.V2.Position, t))
 						{
-							const auto& triangleCache = meshSource->GetTriangleCache(mc.SubmeshIndex);
-							for (const auto& triangle : triangleCache)
-							{
-								if (ray.IntersectsTriangle(triangle.V0.Position, triangle.V1.Position, triangle.V2.Position, t))
-								{
-									selectionData.push_back({ entity, &submesh, t });
-									break;
-								}
-							}
+							selectionData.push_back({ entity, &submesh, t });
+							break;
 						}
 					}
 				}
@@ -4649,33 +3752,31 @@ namespace Hazel {
 			{
 				Entity entity = { e, m_CurrentScene.Raw() };
 				auto& smc = entity.GetComponent<StaticMeshComponent>();
-				if (auto staticMesh = AssetManager::GetAsset<StaticMesh>(smc.StaticMesh); staticMesh)
-				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(staticMesh->GetMeshSource()); meshSource)
-					{
-						auto& submeshes = meshSource->GetSubmeshes();
-						for (uint32_t i = 0; i < submeshes.size(); i++)
-						{
-							auto& submesh = submeshes[i];
-							glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
-							Ray ray = {
-								glm::inverse(transform * submesh.Transform) * glm::vec4(origin, 1.0f),
-								glm::inverse(glm::mat3(transform * submesh.Transform)) * direction
-							};
+				auto staticMesh = AssetManager::GetAsset<StaticMesh>(smc.StaticMesh);
+				if (!staticMesh || staticMesh->IsFlagSet(AssetFlag::Missing))
+					continue;
 
-							float t;
-							bool intersects = ray.IntersectsAABB(submesh.BoundingBox, t);
-							if (intersects)
+				auto& submeshes = staticMesh->GetMeshSource()->GetSubmeshes();
+				for (uint32_t i = 0; i < submeshes.size(); i++)
+				{
+					auto& submesh = submeshes[i];
+					glm::mat4 transform = m_CurrentScene->GetWorldSpaceTransformMatrix(entity);
+					Ray ray = {
+						glm::inverse(transform * submesh.Transform) * glm::vec4(origin, 1.0f),
+						glm::inverse(glm::mat3(transform * submesh.Transform)) * direction
+					};
+
+					float t;
+					bool intersects = ray.IntersectsAABB(submesh.BoundingBox, t);
+					if (intersects)
+					{
+						const auto& triangleCache = staticMesh->GetMeshSource()->GetTriangleCache(i);
+						for (const auto& triangle : triangleCache)
+						{
+							if (ray.IntersectsTriangle(triangle.V0.Position, triangle.V1.Position, triangle.V2.Position, t))
 							{
-								const auto& triangleCache = meshSource->GetTriangleCache(i);
-								for (const auto& triangle : triangleCache)
-								{
-									if (ray.IntersectsTriangle(triangle.V0.Position, triangle.V1.Position, triangle.V2.Position, t))
-									{
-										selectionData.push_back({ entity, &submesh, t });
-										break;
-									}
-								}
+								selectionData.push_back({ entity, &submesh, t });
+								break;
 							}
 						}
 					}

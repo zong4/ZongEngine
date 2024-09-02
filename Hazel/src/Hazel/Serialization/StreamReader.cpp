@@ -7,7 +7,7 @@ namespace Hazel
 	{
 		buffer.Size = size;
 		if (size == 0)
-			ReadData((char*)&buffer.Size, sizeof(uint64_t));
+			ReadData((char*)&buffer.Size, sizeof(uint32_t));
 
 		buffer.Allocate(buffer.Size);
 		ReadData((char*)buffer.Data, buffer.Size);

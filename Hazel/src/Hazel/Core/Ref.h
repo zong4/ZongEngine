@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Memory.h"
-
+#include <stdint.h>
 #include <atomic>
-#include <cstddef>
-#include <type_traits>
+#include "Memory.h"
 
 namespace Hazel {
 

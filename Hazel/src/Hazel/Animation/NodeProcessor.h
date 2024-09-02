@@ -1,6 +1,5 @@
 #pragma once
 #include "Animation.h"
-#include "Skeleton.h"
 
 #include "Hazel/Core/Identifier.h"
 #include "Hazel/Core/UUID.h"
@@ -32,9 +31,9 @@ namespace Hazel::AnimationGraph {
 
 		inline static choc::value::Value IdentityTransform = [] {
 			choc::value::Value transform(TransformType);
-			*static_cast<glm::vec3*>(transform[0].getRawData()) = glm::vec3{ 0.0f, 0.0f, 0.0f };
-			*static_cast<glm::quat*>(transform[1].getRawData()) = glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f };
-			*static_cast<glm::vec3*>(transform[2].getRawData()) = glm::vec3{ 1.0f, 1.0f, 1.0f };
+			*reinterpret_cast<glm::vec3*>(transform[0].getRawData()) = glm::vec3{ 0.0f, 0.0f, 0.0f };
+			*reinterpret_cast<glm::quat*>(transform[1].getRawData()) = glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f };
+			*reinterpret_cast<glm::vec3*>(transform[2].getRawData()) = glm::vec3{ 1.0f, 1.0f, 1.0f };
 			return transform;
 		}();
 
@@ -131,7 +130,7 @@ namespace Hazel::AnimationGraph {
 			}
 		}
 
-		virtual void Init(const Skeleton*) {}
+		virtual void Init() {}
 		virtual float Process(float timestep) { return 0.0; }
 
 		// duration in seconds
@@ -186,6 +185,18 @@ namespace Hazel::AnimationGraph {
 			*(T*)outV.getRawData() = value;
 		}
 
+		template<>
+		inline void operator<<(const choc::value::ValueView& value) noexcept
+		{
+			outV = value;
+		}
+
+		template<>
+		inline void operator<<(const choc::value::ValueView value) noexcept
+		{
+			outV = value;
+		}
+
 		// TODO: Stream Writer if used to write from Graph's Input can refer to an external variable.
 		//		This would be useful to have a direct connection between the Graph and a wrapper object.
 		//		Also passing Graph Input Arrays and other heavy types by copy is not very efficient
@@ -194,18 +205,5 @@ namespace Hazel::AnimationGraph {
 		Identifier DestinationID;
 		choc::value::Value outV;
 	};
-
-	template<>
-	inline void StreamWriter::operator<<(const choc::value::ValueView& value) noexcept
-	{
-		outV = value;
-	}
-
-	template<>
-	inline void StreamWriter::operator<<(const choc::value::ValueView value) noexcept
-	{
-		outV = value;
-	}
-
 
 } // namespace Hazel::AnimationGraph

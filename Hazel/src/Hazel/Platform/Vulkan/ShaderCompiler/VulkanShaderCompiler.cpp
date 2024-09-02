@@ -1,26 +1,28 @@
 #include "hzpch.h"
 #include "VulkanShaderCompiler.h"
 
-#include "VulkanShaderCache.h"
+#include "Hazel/Utilities/StringUtils.h"
 
 #include "ShaderPreprocessing/GlslIncluder.h"
 #include "ShaderPreprocessing/HlslIncluder.h"
 
-#include "Hazel/Core/Hash.h"
-#include "Hazel/Platform/Vulkan/VulkanContext.h"
-#include "Hazel/Platform/Vulkan/VulkanShader.h"
-#include "Hazel/Serialization/FileStream.h"
-#include "Hazel/Utilities/StringUtils.h"
-#include "Hazel/Utilities/FileSystem.h"
+#include "VulkanShaderCache.h"
 
-#include <dxc/dxcapi.h>
-#include <libshaderc_util/file_finder.h>
-#include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_glsl.hpp>
 #include <spirv-tools/libspirv.h>
 
+#include <dxc/dxcapi.h>
+#include <shaderc/shaderc.hpp>
+#include <libshaderc_util/file_finder.h>
+
+#include "Hazel/Core/Hash.h"
+
+#include "Hazel/Platform/Vulkan/VulkanShader.h"
+#include "Hazel/Platform/Vulkan/VulkanContext.h"
+
+#include "Hazel/Serialization/FileStream.h"
+
 #include <cstdlib>
-#include <format>
 
 #if defined(HZ_PLATFORM_LINUX)
 #include <spawn.h>
@@ -28,7 +30,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #endif
-
 
 namespace Hazel {
 
@@ -159,7 +160,7 @@ namespace Hazel {
 			options.SetIncluder(std::unique_ptr<GlslIncluder>(includer));
 			const auto preProcessingResult = compiler.PreprocessGlsl(shaderSource, ShaderUtils::ShaderStageToShaderC(stage), m_ShaderSourcePath.string().c_str(), options);
 			if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
-				HZ_CORE_ERROR_TAG("Renderer", std::format("Failed to pre-process \"{}\"'s {} shader.\nError: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage), preProcessingResult.GetErrorMessage()));
+				HZ_CORE_ERROR_TAG("Renderer", fmt::format("Failed to pre-process \"{}\"'s {} shader.\nError: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage), preProcessingResult.GetErrorMessage()));
 
 			m_StagesMetadata[stage].HashValue = Hash::GenerateFNVHash(shaderSource);
 			m_StagesMetadata[stage].Headers = std::move(includer->GetIncludeData());
@@ -196,7 +197,7 @@ namespace Hazel {
 			arguments.push_back(nullptr);
 			std::string def;
 			if (value.size())
-				def = std::format("{}={}", name, value);
+				def = fmt::format("{}={}", name, value);
 			else
 				def = name;
 
@@ -233,11 +234,11 @@ namespace Hazel {
 			std::string error;
 			const bool failed = FAILED(err);
 			if (failed)
-				error = std::format("Failed to pre-process, Error: {}\n", err);
+				error = fmt::format("Failed to pre-process, Error: {}\n", err);
 			IDxcBlobEncoding* pErrors = nullptr;
 			pCompileResult->GetErrorBuffer(&pErrors);
 			if (pErrors->GetBufferPointer() && pErrors->GetBufferSize())
-				error.append(std::format("{}\nWhile pre-processing shader file: {} \nAt stage: {}", (char*)pErrors->GetBufferPointer(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage)));
+				error.append(fmt::format("{}\nWhile pre-processing shader file: {} \nAt stage: {}", (char*)pErrors->GetBufferPointer(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage)));
 
 			if (error.empty())
 			{
@@ -285,7 +286,7 @@ namespace Hazel {
 			const shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(stageSource, ShaderUtils::ShaderStageToShaderC(stage), m_ShaderSourcePath.string().c_str(), shaderCOptions);
 
 			if (module.GetCompilationStatus() != shaderc_compilation_status_success)
-				return std::format("{}While compiling shader file: {} \nAt stage: {}", module.GetErrorMessage(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
+				return fmt::format("{}While compiling shader file: {} \nAt stage: {}", module.GetErrorMessage(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
 
 			outputBinary = std::vector<uint32_t>(module.begin(), module.end());
 			return {}; // Success
@@ -327,11 +328,11 @@ namespace Hazel {
 			// Error Handling
 			const bool failed = FAILED(err);
 			if (failed)
-				error = std::format("Failed to compile, Error: {}\n", err);
+				error = fmt::format("Failed to compile, Error: {}\n", err);
 			IDxcBlobUtf8* pErrors;
 			pCompileResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), NULL);
 			if (pErrors && pErrors->GetStringLength() > 0)
-				error.append(std::format("{}\nWhile compiling shader file: {} \nAt stage: {}", (char*)pErrors->GetBufferPointer(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage)));
+				error.append(fmt::format("{}\nWhile compiling shader file: {} \nAt stage: {}", (char*)pErrors->GetBufferPointer(), m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage)));
 
 			if (error.empty())
 			{
@@ -355,7 +356,7 @@ namespace Hazel {
 			char tempfileName[] = "hazel-hlsl-XXXXXX.spv";
 			int outfile = mkstemps(tempfileName, 4);
 
-			std::string dxc = std::format("{}/bin/dxc", FileSystem::GetEnvironmentVariable("VULKAN_SDK"));
+			std::string dxc = fmt::format("{}/bin/dxc", FileSystem::GetEnvironmentVariable("VULKAN_SDK"));
 			std::string sourcePath = m_ShaderSourcePath.string();
 
 			std::vector<const char*> exec{
@@ -391,18 +392,18 @@ namespace Hazel {
 			posix_spawnattr_t attr;
 			posix_spawnattr_init(&attr);
 
-			std::string ld_lib_path = std::format("LD_LIBRARY_PATH={}", getenv("LD_LIBRARY_PATH"));
+			std::string ld_lib_path = fmt::format("LD_LIBRARY_PATH={}", getenv("LD_LIBRARY_PATH"));
 			char* env[] = { ld_lib_path.data(), NULL };
 			if (posix_spawn(&pid, exec[0], NULL, &attr, (char**)exec.data(), env))
 			{
-				return std::format("Could not execute `{}` for shader compilation: {} {}", exec[0], m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
+				return fmt::format("Could not execute `dxc` for shader compilation", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
 			}
 			int status;
 			waitpid(pid, &status, 0);
 
 			if (WEXITSTATUS(status))
 			{
-				return std::format("Compilation failed\nWhile compiling shader file: {} \nAt stage: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
+				return fmt::format("Compilation failed\nWhile compiling shader file: {} \nAt stage: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
 			}
 
 			off_t size = lseek(outfile, 0, SEEK_END);
@@ -782,7 +783,7 @@ namespace Hazel {
 				auto size = (uint32_t)compiler.get_declared_struct_member_size(bufferType, i);
 				auto offset = compiler.type_struct_member_offset(bufferType, i) - bufferOffset;
 
-				std::string uniformName = std::format("{}.{}", bufferName, memberName);
+				std::string uniformName = fmt::format("{}.{}", bufferName, memberName);
 				buffer.Uniforms[uniformName] = ShaderUniform(uniformName, Utils::SPIRTypeToShaderUniformType(type), size, offset);
 			}
 		}
@@ -796,7 +797,7 @@ namespace Hazel {
 			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 			uint32_t descriptorSet = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
 			uint32_t dimension = baseType.image.dim;
-			uint32_t arraySize = type.array.size() > 0 ? type.array[0] : 1;
+			uint32_t arraySize = type.array[0];
 			if (arraySize == 0)
 				arraySize = 1;
 			if (descriptorSet >= m_ReflectionData.ShaderDescriptorSets.size())
@@ -825,7 +826,7 @@ namespace Hazel {
 			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 			uint32_t descriptorSet = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
 			uint32_t dimension = baseType.image.dim;
-			uint32_t arraySize = type.array.size() > 0 ? type.array[0] : 1;
+			uint32_t arraySize = type.array[0];
 			if (arraySize == 0)
 				arraySize = 1;
 			if (descriptorSet >= m_ReflectionData.ShaderDescriptorSets.size())
@@ -854,7 +855,7 @@ namespace Hazel {
 			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 			uint32_t descriptorSet = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
 			uint32_t dimension = baseType.image.dim;
-			uint32_t arraySize = type.array.size() > 0 ? type.array[0] : 1;
+			uint32_t arraySize = type.array[0];
 			if (arraySize == 0)
 				arraySize = 1;
 			if (descriptorSet >= m_ReflectionData.ShaderDescriptorSets.size())
@@ -882,7 +883,7 @@ namespace Hazel {
 			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 			uint32_t descriptorSet = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
 			uint32_t dimension = type.image.dim;
-			uint32_t arraySize = type.array.size() > 0 ? type.array[0] : 1;
+			uint32_t arraySize = type.array[0];
 			if (arraySize == 0)
 				arraySize = 1;
 			if (descriptorSet >= m_ReflectionData.ShaderDescriptorSets.size())

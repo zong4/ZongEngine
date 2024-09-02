@@ -1,10 +1,9 @@
 #include "hzpch.h"
 #include "VulkanFramebuffer.h"
-#include "VulkanContext.h"
 
 #include "Hazel/Renderer/Renderer.h"
 
-#include <format>
+#include "VulkanContext.h"
 
 namespace Hazel {
 
@@ -68,7 +67,7 @@ namespace Hazel {
 					spec.Transfer = m_Specification.Transfer;
 					spec.Width = (uint32_t)(m_Width * m_Specification.Scale);
 					spec.Height = (uint32_t)(m_Height * m_Specification.Scale);
-					spec.DebugName = std::format("{0}-DepthAttachment{1}", m_Specification.DebugName.empty() ? "Unnamed FB" : m_Specification.DebugName, attachmentIndex);
+					spec.DebugName = fmt::format("{0}-DepthAttachment{1}", m_Specification.DebugName.empty() ? "Unnamed FB" : m_Specification.DebugName, attachmentIndex);
 					m_DepthAttachmentImage = Image2D::Create(spec);
 				}
 				else
@@ -79,7 +78,7 @@ namespace Hazel {
 					spec.Transfer = m_Specification.Transfer;
 					spec.Width = (uint32_t)(m_Width * m_Specification.Scale);
 					spec.Height = (uint32_t)(m_Height * m_Specification.Scale);
-					spec.DebugName = std::format("{0}-ColorAttachment{1}", m_Specification.DebugName.empty() ? "Unnamed FB" : m_Specification.DebugName, attachmentIndex);
+					spec.DebugName = fmt::format("{0}-ColorAttachment{1}", m_Specification.DebugName.empty() ? "Unnamed FB" : m_Specification.DebugName, attachmentIndex);
 					m_AttachmentImages.emplace_back(Image2D::Create(spec));
 				}
 				attachmentIndex++;

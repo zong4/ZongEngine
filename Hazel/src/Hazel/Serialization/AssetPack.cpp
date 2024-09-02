@@ -127,54 +127,13 @@ namespace Hazel {
 		stream.SetStreamPosition(m_File.Index.PackedAppBinaryOffset);
 		Buffer buffer;
 		stream.ReadBuffer(buffer);
-		HZ_CORE_VERIFY(m_File.Index.PackedAppBinarySize == (buffer.Size + sizeof(uint64_t)));
+		HZ_CORE_VERIFY(m_File.Index.PackedAppBinarySize == (buffer.Size + sizeof(uint32_t)));
 		return buffer;
 	}
 
 	uint64_t AssetPack::GetBuildVersion()
 	{
 		return m_File.Header.BuildVersion;
-	}
-
-	AssetType AssetPack::GetAssetType(AssetHandle sceneHandle, AssetHandle assetHandle) const
-	{
-		const AssetPackFile::AssetInfo* assetInfo = nullptr;
-
-		bool foundAsset = false;
-		if (sceneHandle)
-		{
-			// Fast(er) path
-			auto it = m_File.Index.Scenes.find(sceneHandle);
-			if (it != m_File.Index.Scenes.end())
-			{
-				const AssetPackFile::SceneInfo& sceneInfo = it->second;
-				auto assetIt = sceneInfo.Assets.find(assetHandle);
-				if (assetIt != sceneInfo.Assets.end())
-				{
-					foundAsset = true;
-					assetInfo = &assetIt->second;
-				}
-			}
-		}
-
-		if (!foundAsset)
-		{
-			// Slow(er) path
-			for (const auto& [handle, sceneInfo] : m_File.Index.Scenes)
-			{
-				auto assetIt = sceneInfo.Assets.find(assetHandle);
-				if (assetIt != sceneInfo.Assets.end())
-				{
-					assetInfo = &assetIt->second;
-					break;
-				}
-			}
-
-			if (!assetInfo)
-				return AssetType::None;
-		}
-
-		return (AssetType)assetInfo->Type;
 	}
 
 	Ref<AssetPack> AssetPack::CreateFromActiveProject(std::atomic<float>& progress)
@@ -189,21 +148,19 @@ namespace Hazel {
 		progress = 0.0f;
 
 		std::unordered_set<AssetHandle> fullAssetList;
+		const AssetRegistry& registry = Project::GetEditorAssetManager()->GetAssetRegistry();
 
-		// Note: user could create more scenes on main thread while asset pack thread is busy serializing these ones!
-		std::unordered_set<AssetHandle> sceneHandles = AssetManager::GetAllAssetsWithType<Scene>();
-		uint32_t sceneCount = (uint32_t)sceneHandles.size();
-
-		if (sceneCount == 0)
+		uint32_t sceneCount = 0;
+		for (const auto& [handle, metadata] : registry)
 		{
-			HZ_CONSOLE_LOG_ERROR("There are no scenes in the project.  Nothing to serialize to asset pack!");
-			return nullptr;
+			if (metadata.Type == AssetType::Scene)
+				sceneCount++;
 		}
 
 		float progressIncrement = 0.5f / (float)sceneCount;
 
 		// Audio Command Registry
-		std::unordered_set<AssetHandle> audioAssets = AudioCommandRegistry::GetAllAssets(); // Note: not thread-safe!
+		std::unordered_set<AssetHandle> audioAssets = AudioCommandRegistry::GetAllAssets();
 		fullAssetList.insert(audioAssets.begin(), audioAssets.end());
 
 		// Sound Graphs
@@ -214,48 +171,50 @@ namespace Hazel {
 		std::unordered_set<AssetHandle> audioFiles = AssetManager::GetAllAssetsWithType<AudioFile>();
 		fullAssetList.insert(audioFiles.begin(), audioFiles.end());
 
-		for (const auto sceneHandle : sceneHandles)
+		for (const auto& [handle, metadata] : registry)
 		{
-			const auto metadata = Project::GetEditorAssetManager()->GetMetadata(sceneHandle);
-
-			Ref<Scene> scene = Ref<Scene>::Create("AssetPack", true, false);
-			SceneSerializer serializer(scene);
-			HZ_CORE_TRACE("Deserializing Scene: {}", metadata.FilePath);
-			if (serializer.Deserialize(Project::GetActiveAssetDirectory() / metadata.FilePath))
+			if (metadata.Type == AssetType::Scene)
 			{
-				std::unordered_set<AssetHandle> sceneAssetList = scene->GetAssetList();
-				HZ_CORE_TRACE("  Scene has {} used assets", sceneAssetList.size());
-
-				std::unordered_set<AssetHandle> sceneAssetListWithoutPrefabs = sceneAssetList;
-				for (AssetHandle assetHandle : sceneAssetListWithoutPrefabs)
+				Ref<Scene> scene = Ref<Scene>::Create("AssetPack", true, false);
+				SceneSerializer serializer(scene);
+				HZ_CORE_TRACE("Deserializing Scene: {}", metadata.FilePath);
+				if (serializer.Deserialize(Project::GetAssetDirectory() / metadata.FilePath))
 				{
-					AssetType type = AssetManager::GetAssetType(assetHandle);
-					if (type == AssetType::Prefab)
+					std::unordered_set<AssetHandle> sceneAssetList = scene->GetAssetList();
+					HZ_CORE_TRACE("  Scene has {} used assets", sceneAssetList.size());
+
+					std::unordered_set<AssetHandle> sceneAssetListWithoutPrefabs = sceneAssetList;
+					for (AssetHandle assetHandle : sceneAssetListWithoutPrefabs)
 					{
-						Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(assetHandle);
-						std::unordered_set<AssetHandle> childPrefabAssetList = prefab->GetAssetList(true);  // Note: not thread-safe!
-						sceneAssetList.insert(childPrefabAssetList.begin(), childPrefabAssetList.end());
+						const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(assetHandle);
+						if (metadata.Type == AssetType::Prefab)
+						{
+							Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(assetHandle);
+							std::unordered_set<AssetHandle> childPrefabAssetList = prefab->GetAssetList(true);
+							sceneAssetList.insert(childPrefabAssetList.begin(), childPrefabAssetList.end());
+						}
 					}
+
+					sceneAssetList.insert(audioAssets.begin(), audioAssets.end());
+					sceneAssetList.insert(soundGraphs.begin(), soundGraphs.end());
+					sceneAssetList.insert(audioFiles.begin(), audioFiles.end());
+
+					AssetPackFile::SceneInfo& sceneInfo = assetPackFile.Index.Scenes[handle];
+					for (AssetHandle assetHandle : sceneAssetList)
+					{
+						AssetPackFile::AssetInfo& assetInfo = sceneInfo.Assets[assetHandle];
+						const auto& assetMetadata = Project::GetEditorAssetManager()->GetMetadata(assetHandle);
+						assetInfo.Type = (uint16_t)assetMetadata.Type;
+					}
+
+					fullAssetList.insert(sceneAssetList.begin(), sceneAssetList.end());
 				}
-
-				sceneAssetList.insert(audioAssets.begin(), audioAssets.end());
-				sceneAssetList.insert(soundGraphs.begin(), soundGraphs.end());
-				sceneAssetList.insert(audioFiles.begin(), audioFiles.end());
-
-				AssetPackFile::SceneInfo& sceneInfo = assetPackFile.Index.Scenes[sceneHandle];
-				for (AssetHandle assetHandle : sceneAssetList)
+				else
 				{
-					AssetPackFile::AssetInfo& assetInfo = sceneInfo.Assets[assetHandle];
-					assetInfo.Type = (uint16_t)AssetManager::GetAssetType(assetHandle);
+					HZ_CONSOLE_LOG_ERROR("Failed to deserialize Scene: {} ({})", metadata.FilePath, handle);
 				}
-
-				fullAssetList.insert(sceneAssetList.begin(), sceneAssetList.end());
+				progress = progress + progressIncrement;
 			}
-			else
-			{
-				HZ_CONSOLE_LOG_ERROR("Failed to deserialize Scene: {} ({})", metadata.FilePath, sceneHandle);
-			}
-			progress = progress + progressIncrement;
 		}
 
 #if 0
@@ -279,11 +238,8 @@ namespace Hazel {
 
 		for (AssetHandle handle : fullAssetList)
 		{
-			const auto metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
-			
-			bool isMemory = AssetManager::IsMemoryAsset(handle);
-			HZ_CORE_TRACE("{}: {} ({}{})", Utils::AssetTypeToString(AssetManager::GetAssetType(handle)), handle,
-				isMemory ? "Memory" : "Physical: ", isMemory ? "" : metadata.FilePath);
+			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
+			HZ_CORE_TRACE("{}: {} ({})", Utils::AssetTypeToString(metadata.Type), metadata.FilePath, metadata.Handle);
 		}
 #endif
 
@@ -292,34 +248,14 @@ namespace Hazel {
 		if (std::filesystem::exists(Project::GetScriptModuleFilePath()))
 			appBinary = FileSystem::ReadBytes(Project::GetScriptModuleFilePath());
 
-		AssetPackSerializer::Serialize(Project::GetActiveAssetDirectory() / "AssetPack.hap", assetPackFile, appBinary, progress);
+		AssetPackSerializer::Serialize(Project::GetAssetDirectory() / "AssetPack.hap", assetPackFile, appBinary, progress);
 		progress = 1.0f;
-
-		std::unordered_map<AssetHandle, AssetPackFile::AssetInfo> serializedAssets;
-		for (auto& [sceneHandle, sceneInfo] : assetPackFile.Index.Scenes)
-		{
-			for (auto& [assetHandle, assetInfo] : sceneInfo.Assets)
-			{
-				if (serializedAssets.find(assetHandle) == serializedAssets.end())
-				{
-					serializedAssets[assetHandle] = assetInfo;
-				}
-			}
-		}
-
-		HZ_CORE_TRACE_TAG("Asset Pack", "Serialized Assets:");
-		for (const auto& [handle, info] : serializedAssets)
-		{
-			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
-			HZ_CORE_TRACE_TAG("Asset Pack", "{}: {} (offset = {}, size = {})", Utils::AssetTypeToString(metadata.Type), metadata.FilePath, info.PackedOffset, info.PackedSize);
-		}
-
 		return nullptr;
 	}
 
 	Ref<AssetPack> AssetPack::LoadActiveProject()
 	{
-		return Load(Project::GetActiveAssetDirectory() / "AssetPack.hap");
+		return Load(Project::GetAssetDirectory() / "AssetPack.hap");
 	}
 
 	Ref<AssetPack> AssetPack::Load(const std::filesystem::path& path)
@@ -345,17 +281,17 @@ namespace Hazel {
 		// Debug log
 #ifndef HZ_DIST
 		{
-			HZ_CORE_INFO_TAG("Asset Pack", "-----------------------------------------------------");
-			HZ_CORE_INFO_TAG("Asset Pack", "AssetPack Dump {}", assetPack->m_Path);
-			HZ_CORE_INFO_TAG("Asset Pack", "-----------------------------------------------------");
+			HZ_CORE_INFO("-----------------------------------------------------");
+			HZ_CORE_INFO("AssetPack Dump {}", assetPack->m_Path);
+			HZ_CORE_INFO("-----------------------------------------------------");
 			std::unordered_map<AssetType, uint32_t> typeCounts;
 			std::unordered_set<AssetHandle> duplicatePreventionSet;
 			for (const auto& [sceneHandle, sceneInfo] : index.Scenes)
 			{
-				HZ_CORE_INFO_TAG("Asset Pack", "Scene {}:", sceneHandle);
+				HZ_CORE_INFO("Scene {}:", sceneHandle);
 				for (const auto& [assetHandle, assetInfo] : sceneInfo.Assets)
 				{
-					HZ_CORE_INFO_TAG("Asset Pack", "  {} - {}", Utils::AssetTypeToString((AssetType)assetInfo.Type), assetHandle);
+					HZ_CORE_INFO("  {} - {}", Utils::AssetTypeToString((AssetType)assetInfo.Type), assetHandle);
 
 					if (duplicatePreventionSet.find(assetHandle) == duplicatePreventionSet.end())
 					{
@@ -364,16 +300,17 @@ namespace Hazel {
 					}
 				}
 			}
-			HZ_CORE_INFO_TAG("Asset Pack", "-----------------------------------------------------");
-			HZ_CORE_INFO_TAG("Asset Pack", "Summary:");
+			HZ_CORE_INFO("-----------------------------------------------------");
+			HZ_CORE_INFO("Summary:");
 			for (const auto& [type, count] : typeCounts)
 			{
-				HZ_CORE_INFO_TAG("Asset Pack", "  {} {}", count, Utils::AssetTypeToString(type));
+				HZ_CORE_INFO("  {} {}", count, Utils::AssetTypeToString(type));
 			}
-			HZ_CORE_INFO_TAG("Asset Pack", "-----------------------------------------------------");
+			HZ_CORE_INFO("-----------------------------------------------------");
 		}
 #endif
 
+		//__debugbreak();
 		return assetPack;
 	}
 

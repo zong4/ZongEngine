@@ -129,7 +129,7 @@ namespace Hazel {
 		m_Settings->mDensity = totalBodyMass / volume;
 		m_Settings->mMaterial = m_Material;
 
-		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(worldTransform.Scale * boxColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
+		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(boxColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
 
 		JPH::ShapeSettings::ShapeResult result = offsetShapeSettings.Create();
 
@@ -166,7 +166,7 @@ namespace Hazel {
 		m_Settings->mDensity = totalBodyMass / volume;
 		m_Settings->mMaterial = m_Material;
 		
-		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(worldTransform.Scale * sphereColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
+		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(sphereColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
 		JPH::ShapeSettings::ShapeResult result = offsetShapeSettings.Create();
 
 		if (result.HasError())
@@ -203,7 +203,7 @@ namespace Hazel {
 		m_Settings->mDensity = totalBodyMass / volume;
 		m_Settings->mMaterial = m_Material;
 
-		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(worldTransform.Scale * capsuleColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
+		JPH::RotatedTranslatedShapeSettings offsetShapeSettings(JoltUtils::ToJoltVector(capsuleColliderComponent.Offset), JPH::Quat::sIdentity(), m_Settings);
 		JPH::ShapeSettings::ShapeResult result = offsetShapeSettings.Create();
 
 		if (result.HasError())
@@ -298,7 +298,7 @@ namespace Hazel {
 				return;
 			}
 
-			compoundShapeSettings.AddShape(JoltUtils::ToJoltVector(submeshTranslation), JoltUtils::ToJoltQuat(submeshRotation), new JPH::ScaledShape(result.Get(), JoltUtils::ToJoltVector(submeshScale * worldTransform.Scale)));
+			compoundShapeSettings.AddShape(JPH::Vec3::sZero(), JPH::Quat::sIdentity(), new JPH::ScaledShape(result.Get(), JoltUtils::ToJoltVector(submeshScale * worldTransform.Scale)));
 		}
 
 		JPH::Shape::ShapeResult result = compoundShapeSettings.Create();

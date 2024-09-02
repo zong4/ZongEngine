@@ -36,7 +36,7 @@ struct VertexOutput
 	mat3 WorldTransform;
 	vec3 Binormal;
 
-	mat3 CameraView;
+	mat3 CameraView; 
 
 	vec4 ShadowMapCoords[4];
 	vec3 ViewPosition;
@@ -77,15 +77,17 @@ void main()
 }
 
 
+
 #version 450 core 
 
 #pragma stage : frag 
 
 #include <Buffers.glslh>
 #include <PBR.glslh>
-#include <PBR_Resources.glslh>
 #include <Lighting.glslh>
 #include <ShadowMapping.glslh>
+
+ 
 
 // Constant normal incidence Fresnel factor for all dielectrics.
 const vec3 Fdielectric = vec3(0.04);
@@ -111,6 +113,22 @@ layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 o_ViewNormalsLuminance;
 layout(location = 2) out vec4 o_MetalnessRoughness;
 
+// PBR texture inputs
+layout(set = 0, binding = 5) uniform sampler2D u_AlbedoTexture;
+
+// Environment maps
+layout(set = 1, binding = 0) uniform samplerCube u_EnvRadianceTex;
+layout(set = 1, binding = 1) uniform samplerCube u_EnvIrradianceTex;
+
+// TODO(Yan): move to header
+// BRDF LUT
+layout(set = 3, binding = 0) uniform sampler2D u_BRDFLUTTexture;
+
+// Shadow maps
+layout(set = 1, binding = 2) uniform sampler2DArray u_ShadowMapTexture;
+layout(set = 1, binding = 3) uniform sampler2D u_SpotShadowTexture;
+
+
 layout(push_constant) uniform Material
 {
 	vec3 AlbedoColor;
@@ -123,6 +141,7 @@ layout(push_constant) uniform Material
 	bool UseNormalMap;
 } u_MaterialUniforms;
 
+
 vec3 IBL(vec3 F0, vec3 Lr)
 {
 	vec3 irradiance = texture(u_EnvIrradianceTex, m_Params.Normal).rgb;
@@ -131,9 +150,13 @@ vec3 IBL(vec3 F0, vec3 Lr)
 	vec3 diffuseIBL = m_Params.Albedo * irradiance;
 
 	int envRadianceTexLevels = textureQueryLevels(u_EnvRadianceTex);
-	vec3 specularIrradiance = textureLod(u_EnvRadianceTex, RotateVectorAboutY(u_MaterialUniforms.EnvMapRotation, Lr), m_Params.Roughness * envRadianceTexLevels).rgb;
+	float NoV = clamp(m_Params.NdotV, 0.0, 1.0);
+	vec3 R = 2.0 * dot(m_Params.View, m_Params.Normal) * m_Params.Normal - m_Params.View;
+	vec3 specularIrradiance = textureLod(u_EnvRadianceTex, RotateVectorAboutY(u_MaterialUniforms.EnvMapRotation, Lr), (m_Params.Roughness) * envRadianceTexLevels).rgb;
+	//specularIrradiance = vec3(Convert_sRGB_FromLinear(specularIrradiance.r), Convert_sRGB_FromLinear(specularIrradiance.g), Convert_sRGB_FromLinear(specularIrradiance.b));
 
-	vec2 specularBRDF = texture(u_BRDFLUTTexture, vec2(m_Params.NdotV, m_Params.Roughness)).rg;
+	// Sample BRDF Lut, 1.0 - roughness for y-coord because texture was generated (in Sparky) for gloss model
+	vec2 specularBRDF = texture(u_BRDFLUTTexture, vec2(m_Params.NdotV, 1.0 - m_Params.Roughness)).rg;
 	vec3 specularIBL = specularIrradiance * (F0 * specularBRDF.x + specularBRDF.y);
 
 	return kd * diffuseIBL + specularIBL;
@@ -165,12 +188,11 @@ vec3 GetGradient(float value)
 	return color;
 }
 
-
 void main()
 {
 	// Standard PBR inputs
 	vec4 albedoTexColor = texture(u_AlbedoTexture, Input.TexCoord);
-	m_Params.Albedo = albedoTexColor.rgb * ToLinear(vec4(u_MaterialUniforms.AlbedoColor, 1.0)).rgb;   // MaterialUniforms.AlbedoColor is perceptual, must be converted to linear.
+	m_Params.Albedo = albedoTexColor.rgb * u_MaterialUniforms.AlbedoColor;
 	float alpha = albedoTexColor.a;
 	m_Params.Metalness = 0.0f;
 	m_Params.Roughness = 0.0f;
@@ -263,10 +285,7 @@ void main()
 
 	vec3 lightContribution = CalculateDirLights(F0) * shadowScale;
 	lightContribution += CalculatePointLights(F0, Input.WorldPosition);
-	lightContribution += CalculateSpotLights(F0, Input.WorldPosition) * SpotShadowCalculation(u_SpotShadowTexture, Input.WorldPosition);
 	lightContribution += m_Params.Albedo * u_MaterialUniforms.Emission;
-
-	// Indirect lighting
 	vec3 iblContribution = IBL(F0, Lr) * u_Scene.EnvironmentMapIntensity;
 
 	//color = vec4(iblContribution + lightContribution, 1.0);
@@ -278,16 +297,13 @@ void main()
 
 	// Shadow mask with respect to bright surfaces.
 	//o_ViewNormalsLuminance.a = clamp(shadowScale + dot(color.rgb, vec3(0.2125f, 0.7154f, 0.0721f)), 0.0f, 1.0f);
-
+	 
 	if (u_RendererData.ShowLightComplexity)
 	{
 		int pointLightCount = GetPointLightCount();
-		int spotLightCount = GetSpotLightCount();
-
-		float value = float(pointLightCount + spotLightCount);
+		float value = float(pointLightCount);
 		color.rgb = (color.rgb * 0.2) + GetGradient(value);
 	}
-
 	// TODO(Karim): Have a separate render pass for translucent and transparent objects.
 	// Because we use the pre-depth image for depth test.
 	// color.a = alpha; 

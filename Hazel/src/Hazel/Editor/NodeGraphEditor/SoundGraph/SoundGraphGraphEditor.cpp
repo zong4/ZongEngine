@@ -16,26 +16,7 @@ namespace Hazel {
 
 	//=============================================================================================
 	/// SoundGraph Node Graph Editor
-	SoundGraphNodeGraphEditor::SoundGraphNodeGraphEditor() : IONodeGraphEditor("SoundGraph Sound")
-	{
-		onDragDropOntoCanvas = [&]() {
-			auto model = static_cast<SoundGraphNodeEditorModel*>(GetModel());
-			Hazel::Node* node = nullptr;
-			if (auto data = ImGui::AcceptDragDropPayload("input_payload"); data != nullptr)
-			{
-				node = model->SpawnGraphInputNode((char*)data->Data);
-			}
-			if (auto data = ImGui::AcceptDragDropPayload("localvar_payload"); data != nullptr)
-			{
-				node = model->SpawnLocalVariableNode((char*)data->Data, !ImGui::IsKeyDown(ImGuiKey_LeftShift) && !ImGui::IsKeyDown(ImGuiKey_RightShift));
-			}
-			if (node)
-			{
-				// it can legitimately happen that the node is not created (e.g. user drops the payload into a completely different graph)
-				ed::SetNodePosition(ed::NodeId(node->ID), ed::ScreenToCanvas(ImGui::GetMousePos()));
-			}
-		};
-	}
+	SoundGraphNodeGraphEditor::SoundGraphNodeGraphEditor() : IONodeGraphEditor("SoundGraph Sound") {}
 
 	void SoundGraphNodeGraphEditor::SetAsset(const Ref<Asset>& asset)
 	{

@@ -8,6 +8,11 @@
 
 namespace Hazel {
 
+	// Events in Hazel are currently blocking, meaning when an event occurs it
+	// immediately gets dispatched and must be dealt with right then an there.
+	// For the future, a better strategy might be to buffer events in an event
+	// bus and process them during the "event" part of the update stage.
+
 	enum class EventType
 	{
 		None = 0,
@@ -18,7 +23,6 @@ namespace Hazel {
 		ScenePreStart, ScenePostStart, ScenePreStop, ScenePostStop,
 		EditorExitPlayMode,
 		SelectionChanged,
-		AssetReloaded,
 		AnimationGraphCompiled
 	};
 
@@ -44,7 +48,6 @@ namespace Hazel {
 	{
 	public:
 		bool Handled = false;
-		bool Synced = false; // Queued events are only processed if this is true.  It is set true when asset thread syncs with main thread.
 
 		virtual ~Event() {}
 		virtual EventType GetEventType() const = 0;

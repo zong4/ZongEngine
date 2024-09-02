@@ -1,5 +1,6 @@
 #include "hzpch.h"
 #include "AnimationGraph.h"
+#include "Nodes/NodeDescriptors.h"
 
 #include "Hazel/Asset/AssetManager.h"
 #include "Hazel/Debug/Profiler.h"
@@ -11,7 +12,15 @@
 namespace Hazel::AnimationGraph {
 
 	Graph::Graph(std::string_view dbgName, UUID id) : NodeProcessor(dbgName, id), EndpointOutputStreams(*this)
-	{}
+	{
+		out_Event.AddDestination(std::make_shared<InputEvent>([&](Identifier eventID)
+		{
+			OutgoingEvents.push(eventID);
+		}));
+
+		AddOutEvent(IDs::Event, out_Event);
+		OutgoingEvents.reset(1024);
+	}
 
 
 	NodeProcessor* Graph::FindNodeByID(UUID id)
@@ -74,15 +83,15 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	bool Graph::AddInputValueRoute(Ref<Graph> graph, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept
+	bool Graph::AddInputValueRoute(const std::vector<Scope<StreamWriter>>& endpointInputStreams, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept
 	{
 		auto* destinationNode = FindNodeByID(destinationNodeID);
-		auto endpoint = std::find_if(graph->EndpointInputStreams.begin(), graph->EndpointInputStreams.end(), [graphInputID](const Scope<StreamWriter>& endpoint)
+		auto endpoint = std::find_if(endpointInputStreams.begin(), endpointInputStreams.end(), [graphInputID](const Scope<StreamWriter>& endpoint)
 		{
 			return endpoint->DestinationID == graphInputID; // find EndpointInputStream thats pointing at runtime graphs input value
 		});
 
-		if (!destinationNode || endpoint == graph->EndpointInputStreams.end())
+		if (!destinationNode || endpoint == endpointInputStreams.end())
 		{
 			HZ_CORE_ASSERT(false);
 			return false;
@@ -92,14 +101,14 @@ namespace Hazel::AnimationGraph {
 		return true;
 	}
 
-	bool Graph::AddInputValueRouteToGraphOutput(Ref<Graph> graph, Identifier graphInputID, Identifier graphOutValueID) noexcept
+	bool Graph::AddInputValueRouteToGraphOutput(const std::vector<Scope<StreamWriter>>& endpointInputStreams, Identifier graphInputID, Identifier graphOutValueID) noexcept
 	{
-		auto endpoint = std::find_if(graph->EndpointInputStreams.begin(), graph->EndpointInputStreams.end(), [graphInputID](const Scope<StreamWriter>& endpoint)
+		auto endpoint = std::find_if(endpointInputStreams.begin(), endpointInputStreams.end(), [graphInputID](const Scope<StreamWriter>& endpoint)
 		{
 			return endpoint->DestinationID == graphInputID; // find EndpointInputStream thats pointing at runtime graphs input value
 		});
 
-		if (endpoint == graph->EndpointInputStreams.end())
+		if (endpoint == endpointInputStreams.end())
 		{
 			HZ_CORE_ASSERT(false);
 			return false;
@@ -110,7 +119,8 @@ namespace Hazel::AnimationGraph {
 		return true;
 	}
 
-	bool Graph::AddInputValueRouteToEvent(Ref<Graph> graph, Identifier graphInputID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept
+#if 0
+	bool Graph::AddInputEventsRoute(Identifier graphInputEventID, UUID destinationNodeID, Identifier destinationEndpointID) noexcept
 	{
 		auto* destinationNode = FindNodeByID(destinationNodeID);
 
@@ -120,10 +130,10 @@ namespace Hazel::AnimationGraph {
 			return false;
 		}
 
-		graph->AddInEvent(graphInputID);
-		graph->AddRoute(graph->InEvent(graphInputID), destinationNode->InEvent(destinationEndpointID));
+		AddRoute(InEvent(graphInputEventID), destinationNode->InEvent(destinationEndpointID));
 		return true;
 	}
+#endif
 
 	bool Graph::AddToGraphOutputConnection(UUID sourceNodeID, Identifier sourceEndpointID, Identifier graphOutValueID)
 	{
@@ -140,7 +150,7 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	bool Graph::AddToGraphOutEventConnection(UUID sourceNodeID, Identifier sourceEndpointID, Ref<Graph> graph, Identifier graphOutEventID, Identifier destinationEventID)
+	bool Graph::AddToGraphOutEventConnection(UUID sourceNodeID, Identifier sourceEndpointID, Ref<Graph> root, Identifier graphOutEventID)
 	{
 		auto* sourceNode = FindNodeByID(sourceNodeID);
 
@@ -150,15 +160,7 @@ namespace Hazel::AnimationGraph {
 			return false;
 		}
 
-		AddRoute(sourceNode->OutEvent(sourceEndpointID), graph->OutEvent(graphOutEventID), destinationEventID);
-		return true;
-	}
-
-
-	bool Graph::AddInputValueRouteToGraphOutEventConnection(Ref<Graph> graph, Identifier graphInputID, Identifier graphOutEventID) noexcept
-	{
-		graph->AddInEvent(graphInputID);
-		graph->AddRoute(graph->InEvent(graphInputID), graph->OutEvent(IDs::Event), graphOutEventID);
+		AddRoute(sourceNode->OutEvent(sourceEndpointID), root->OutEvent(IDs::Event), graphOutEventID);
 		return true;
 	}
 
@@ -179,30 +181,14 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	bool Graph::AddLocalVariableRouteToGraphOutput(Identifier graphLocalVariableID, Identifier graphOutValueID) noexcept
-	{
-		auto endpoint = std::find_if(LocalVariables.begin(), LocalVariables.end(), [graphLocalVariableID](const Scope<StreamWriter>& endpoint) { return endpoint->DestinationID == graphLocalVariableID; });
-
-		if (endpoint == LocalVariables.end())
-		{
-			HZ_CORE_ASSERT(false);
-			return false;
-		}
-
-		AddConnection((*endpoint)->outV.getViewReference(), EndpointOutputStreams.InValue(graphOutValueID));
-		return true;
-	}
-
-
-	void Graph::Init(const Skeleton* skeleton)
+	void Graph::Init()
 	{
 		for (auto& node : Nodes)
-			node->Init(skeleton);
+			node->Init();
 	}
 
 	float Graph::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
 		for (auto& node : Nodes)
 			node->Process(timestep);
 
@@ -229,13 +215,6 @@ namespace Hazel::AnimationGraph {
 	}
 
 
-	void Graph::AddRoute(InputEvent& source, OutputEvent& destination, Identifier eventID) noexcept
-	{
-		OutputEvent* dest = &destination;
-		source.Event = [dest](Identifier eventID) { (*dest)(eventID); };
-	}
-
-
 	void Graph::AddRoute(OutputEvent& source, OutputEvent& destination, Identifier eventID) noexcept
 	{
 		OutputEvent* dest = &destination;
@@ -244,23 +223,21 @@ namespace Hazel::AnimationGraph {
 	}
 
 
+	void Graph::HandleOutgoingEvents(void* userContext, HandleOutgoingEventFn* handleEvent)
+	{
+		Identifier eventID;
+		while (OutgoingEvents.pop(eventID))
+			if(handleEvent)
+				handleEvent(userContext, eventID);
+	}
+
+
 	AnimationGraph::AnimationGraph(std::string_view dbgName, UUID id, AssetHandle skeleton) : Graph(dbgName, id)
 	{
 		auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeleton);
 		
-		// Note (0x): We store raw skeleton pointer for performance (avoids asset manager lookup and chasing ref counts)
-		//            This means we must be careful to re-instantiate the AnimationGraph if anything (such as an asset reload)
-		//            happens to the skeleton.
-		m_Skeleton = skeletonAsset ? &skeletonAsset->GetSkeleton() : nullptr;
-
-		out_Event.AddDestination(std::make_shared<InputEvent>([&](Identifier eventID)
-		{
-			OutgoingEvents.push(eventID);
-		}));
-
-		AddOutEvent(IDs::Event, out_Event);
-		OutgoingEvents.reset(1024);
-
+		// TODO (0x): Storing raw skeleton pointer here is going to go badly if the skeleton asset is ever reloaded!
+		m_Skeleton = skeletonAsset && skeletonAsset->IsValid() ? &skeletonAsset->GetSkeleton() : nullptr;
 	}
 
 
@@ -275,7 +252,7 @@ namespace Hazel::AnimationGraph {
 
 	void AnimationGraph::Init()
 	{
-		Graph::Init(GetSkeleton());
+		Graph::Init();
 
 		auto& outputPose = EndpointOutputStreams.InValue(IDs::Pose);
 
@@ -286,7 +263,7 @@ namespace Hazel::AnimationGraph {
 			outputPose = choc::value::Value(PoseType);
 			if (m_Skeleton)
 			{
-				Pose* pose = static_cast<Pose*>(outputPose.getRawData());
+				Pose* pose = reinterpret_cast<Pose*>(outputPose.getRawData());
 
 				for (size_t i = 0, N = m_Skeleton->GetBoneNames().size(); i < N; ++i)
 				{
@@ -308,14 +285,16 @@ namespace Hazel::AnimationGraph {
 	float AnimationGraph::GetAnimationDuration() const
 	{
 		HZ_CORE_ASSERT(m_IsInitialized);
-		return GetPose()->AnimationDuration;
+		const Pose* pose = reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
+		return pose->AnimationDuration;
 	}
 
 
 	float AnimationGraph::GetAnimationTimePos() const
 	{
 		HZ_CORE_ASSERT(m_IsInitialized);
-		return GetPose()->AnimationTimePos;
+		const Pose* pose = reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
+		return pose->AnimationTimePos;
 	}
 
 
@@ -328,17 +307,7 @@ namespace Hazel::AnimationGraph {
 
 	const Pose* AnimationGraph::GetPose() const
 	{
-		return static_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
+		return reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
 	}
-
-
-	void AnimationGraph::HandleOutgoingEvents(void* userContext, HandleOutgoingEventFn* handleEvent)
-	{
-		Identifier eventID;
-		while (OutgoingEvents.pop(eventID))
-			if (handleEvent)
-				handleEvent(userContext, eventID);
-	}
-
 
 } // namespace Hazel::AnimationGraph

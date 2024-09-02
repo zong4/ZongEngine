@@ -29,7 +29,3 @@
 [submodule "Hazel/vendor/tracy/tracy"]
 	path = Hazel/vendor/tracy/tracy
 	url = https://github.com/wolfpld/tracy
-[submodule "Hazel/vendor/Coral"]
-	path = Hazel/vendor/Coral
-	url = https://github.com/StudioCherno/Coral
-	branch = dev

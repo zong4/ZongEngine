@@ -35,8 +35,7 @@ void main()
 		float cosTheta = max(0.0, dot(Li, N));
 
 		// PIs here cancel out because of division by pdf.
-		vec3 radianceSample = textureLod(u_RadianceMap, Li, 0).rgb;
-		irradiance += 2.0 * radianceSample * cosTheta;
+		irradiance += 2.0 * textureLod(u_RadianceMap, Li, 0).rgb * cosTheta;
 	}
 	irradiance /= vec3(samples);
 

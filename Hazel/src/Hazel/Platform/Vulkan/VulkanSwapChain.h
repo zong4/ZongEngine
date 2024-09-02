@@ -36,11 +36,11 @@ namespace Hazel {
 		VkRenderPass GetRenderPass() { return m_RenderPass; }
 
 		VkFramebuffer GetCurrentFramebuffer() { return GetFramebuffer(m_CurrentImageIndex); }
-		VkCommandBuffer GetCurrentDrawCommandBuffer() { return GetDrawCommandBuffer(m_CurrentFrameIndex); }
+		VkCommandBuffer GetCurrentDrawCommandBuffer() { return GetDrawCommandBuffer(m_CurrentBufferIndex); }
 
 		VkFormat GetColorFormat() { return m_ColorFormat; }
 
-		uint32_t GetCurrentBufferIndex() const { return m_CurrentFrameIndex; }
+		uint32_t GetCurrentBufferIndex() const { return m_CurrentBufferIndex; }
 
 		VkFramebuffer GetFramebuffer(uint32_t index)
 		{
@@ -53,6 +53,8 @@ namespace Hazel {
 			HZ_CORE_ASSERT(index < m_CommandBuffers.size());
 			return m_CommandBuffers[index].CommandBuffer;
 		}
+
+		VkSemaphore GetRenderCompleteSemaphore() { return m_Semaphores.RenderComplete; }
 
 		void SetVSync(const bool enabled) { m_VSync = enabled; }
 
@@ -95,16 +97,20 @@ namespace Hazel {
 		};
 		std::vector<SwapchainCommandBuffer> m_CommandBuffers;
 
-		// Semaphores to signal that images are available for rendering and that rendering has finished (one pair for each frame in flight)
-		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
-		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+		struct
+		{
+			// Swap chain
+			VkSemaphore PresentComplete = nullptr;
+			// Command buffer
+			VkSemaphore RenderComplete = nullptr;
+		} m_Semaphores;
+		VkSubmitInfo m_SubmitInfo;
 
-		// Fences to signal that command buffers are ready to be reused (one for each frame in flight)
 		std::vector<VkFence> m_WaitFences;
 
 		VkRenderPass m_RenderPass = nullptr;
-		uint32_t m_CurrentFrameIndex = 0;    // Index of the frame we are currently working on, up to max frames in flight
-		uint32_t m_CurrentImageIndex = 0;    // Index of the current swapchain image.  Can be different from frame index
+		uint32_t m_CurrentBufferIndex = 0;
+		uint32_t m_CurrentImageIndex = 0;
 
 		uint32_t m_QueueNodeIndex = UINT32_MAX;
 		uint32_t m_Width = 0, m_Height = 0;

@@ -23,7 +23,7 @@ namespace JPH {
 		if (Optick::IsActive(Optick::Mode::DEFAULT) || Optick::IsActive(Optick::Mode::TRACER))
 		{
 			std::thread::id threadID = std::this_thread::get_id();
-			std::string threadName = Hazel::Application::IsMainThread() ? "MainThread" : std::format("JoltThread-{}", threadID);
+			std::string threadName = threadID == Hazel::Application::GetMainThreadID() ? "MainThread" : fmt::format("JoltThread-{}", threadID);
 			Optick::ThreadScope threadScope(threadName.c_str());
 
 			s_Mutex.lock();

@@ -5,8 +5,6 @@
 #include "Hazel/Platform/Vulkan/VulkanTexture.h"
 #include "Hazel/Renderer/RendererAPI.h"
 
-#include "Hazel/ImGui/UICore.h"
-
 #include <imgui/examples/imgui_impl_vulkan_with_textures.h>
 
 namespace Hazel::UI {
@@ -682,31 +680,5 @@ namespace Hazel::UI {
 
 		return pressed;
 	}
-
-	void DrawButtonImage(Ref<Texture2D> imageNormal, Ref<Texture2D> imageHovered, Ref<Texture2D> imagePressed,
-	 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-	 ImVec2 rectMin, ImVec2 rectMax, ImVec2 uv0, ImVec2 uv1)
-	{
-		auto* drawList = ImGui::GetWindowDrawList();
-		if (ImGui::IsItemActive())
-			drawList->AddImage(GetTextureID(imagePressed), rectMin, rectMax, uv0, uv1, tintPressed);
-		else if (ImGui::IsItemHovered())
-			drawList->AddImage(GetTextureID(imageHovered), rectMin, rectMax, uv0, uv1, tintHovered);
-		else
-			drawList->AddImage(GetTextureID(imageNormal), rectMin, rectMax, uv0, uv1, tintNormal);
-	};
-
-	void DrawButtonImage(Ref<Image2D> imageNormal, Ref<Image2D> imageHovered, Ref<Image2D> imagePressed,
-		 ImU32 tintNormal, ImU32 tintHovered, ImU32 tintPressed,
-		 ImVec2 rectMin, ImVec2 rectMax, ImVec2 uv0, ImVec2 uv1)
-	{
-		auto* drawList = ImGui::GetWindowDrawList();
-		if (ImGui::IsItemActive())
-			drawList->AddImage(GetTextureID(imagePressed), rectMin, rectMax, uv0, uv1, tintPressed);
-		else if (ImGui::IsItemHovered())
-			drawList->AddImage(GetTextureID(imageHovered), rectMin, rectMax, uv0, uv1, tintHovered);
-		else
-			drawList->AddImage(GetTextureID(imageNormal), rectMin, rectMax, uv0, uv1, tintNormal);
-	};
 
 }

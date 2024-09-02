@@ -30,11 +30,9 @@ namespace Hazel {
 	class NodeEditorDraw
 	{
 	public:
-		static float GetBestWidthForEnumCombo(const std::vector<Token>& enumTokens);
 		static bool PropertyBool(choc::value::Value& value);
-		static bool PropertyFloat(choc::value::Value& value, const char* format = "%.2f");
-		static bool PropertyInt(choc::value::Value& value, const char* format = "%d");
-		static bool PropertyVec3(std::string_view label, choc::value::Value& value, const char* format = "%.2f");
+		static bool PropertyFloat(choc::value::Value& value);
+		static bool PropertyInt(choc::value::Value& value);
 		static bool PropertyString(choc::value::Value& value);
 		static bool PropertyEnum(int enumValue, Pin* pin, bool& openEnumPopup,
 			std::function<choc::value::Value(int)> constructValue = [](int selected) {return choc::value::createInt32(selected);});
@@ -143,7 +141,6 @@ namespace Hazel {
 		void EnsureWindowIsDocked(ImGuiWindow* childWindow);
 
 		std::pair<ImVec2, ImVec2> DrawGraph(const char* id);
-
 		virtual void DrawNodes(PinPropertyContext& pinContext);
 		virtual void DrawLinks();
 
@@ -156,11 +153,9 @@ namespace Hazel {
 		virtual void DrawNodeOutputs(Node* node, NodeBuilder& builder);
 		virtual void DrawPinIcon(const Pin* pin, bool connected, int alpha);
 
-		virtual void CheckContextMenus();
 		virtual void DrawNodeContextMenu(Node* node);
 		virtual void DrawPinContextMenu(Pin* pin);
 		virtual void DrawLinkContextMenu(Link* link);
-		virtual void DrawBackgroundContextMenu(bool& isNewNodePoppedUp, ImVec2& newNodePostion);
 
 		virtual void DrawDeferredComboBoxes(PinPropertyContext& pinContext);
 

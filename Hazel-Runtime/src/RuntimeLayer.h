@@ -64,12 +64,12 @@ namespace Hazel {
 
 		Ref<AssetPack> m_AssetPack;
 
-		std::filesystem::path m_ProjectPath;
+		std::string m_ProjectPath;
 		bool m_ReloadScriptOnPlay = true;
 
 		std::vector<std::function<void()>> m_PostSceneUpdateQueue;
 
-		glm::mat4 m_Renderer2DProj{ 1.0f };
+		glm::mat4 m_Renderer2DProj;
 
 		uint32_t m_Width = 0, m_Height = 0;
 		uint32_t m_FramesPerSecond = 0;

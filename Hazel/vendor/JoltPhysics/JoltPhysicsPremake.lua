@@ -22,9 +22,6 @@ project "JoltPhysics"
 
         files { "JoltPhysics/Jolt/Jolt.natvis" }
 
-    filter "not system:windows"
-        forceincludes { "stdint.h", "stdarg.h" }
-
     filter "configurations:Debug or configurations:Debug-AS"
         symbols "on"
         optimize "off"
@@ -34,8 +31,7 @@ project "JoltPhysics"
             "_DEBUG",
             "JPH_DEBUG_RENDERER",
             "JPH_FLOATING_POINT_EXCEPTIONS_ENABLED",
-            "JPH_EXTERNAL_PROFILE",
-			"JPH_ENABLE_ASSERTS"
+            "JPH_EXTERNAL_PROFILE"
         }
 
     filter { "system:windows", "configurations:Debug-AS" }

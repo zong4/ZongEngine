@@ -3,6 +3,8 @@
 #pragma stage : comp
 #include <EnvironmentMapping.glslh>
 
+
+
 layout(binding = 0, rgba16f) restrict writeonly uniform imageCube o_CubeMap;
 layout(binding = 1) uniform sampler2D u_EquirectangularTex;
 
@@ -18,6 +20,5 @@ void main()
     vec2 uv = vec2(phi / (2.0 * PI) + 0.5, theta / PI);
 
 	vec4 color = texture(u_EquirectangularTex, uv);
-	color = min(color, vec4(500.0));
 	imageStore(o_CubeMap, ivec3(gl_GlobalInvocationID), color);
 }

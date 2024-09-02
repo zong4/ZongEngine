@@ -1,0 +1,95 @@
+Skeleton: 17981031291280368062
+0:
+  Nodes:
+    - ID: 17234011670002181332
+      Category: Animation
+      Name: Output
+      Color: [1, 0.501960814, 0.501960814, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":856,\"y\":398}}"
+      Inputs:
+        - ID: 5928440281298659758
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: void, Value: "null"}
+      Outputs:
+        []
+    - ID: 7672797510112475068
+      Category: Animation
+      Name: Animation Player
+      Color: [0.211764723, 0.811764777, 0.568627477, 1]
+      Type: Blueprint
+      Size: [0, 0]
+      Location: "{\"location\":{\"x\":478,\"y\":395}}"
+      Inputs:
+        - ID: 9846181630005055271
+          Name: Animation
+          Type: AnimationAsset
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: AnimationAsset
+              Value: 6063903752390204307
+        - ID: 10342688481209038738
+          Name: Playback Speed
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 1}
+        - ID: 6859880585987872558
+          Name: Offset
+          Type: Float
+          Storage: Value
+          Value: {Type: float, Value: 0}
+        - ID: 15263634315435589510
+          Name: Loop
+          Type: Bool
+          Storage: Value
+          Value: {Type: bool, Value: true}
+      Outputs:
+        - ID: 3728595326917992225
+          Name: Pose
+          Type: Pose
+          Storage: Value
+          Value: {Type: int64, Value: 0}
+        - ID: 2936455273902182222
+          Name: On Finish
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+        - ID: 5484871204233362994
+          Name: On Loop
+          Type: Flow
+          Storage: Value
+          Value:
+            Type: Object
+            Value:
+              ClassName: TFlow
+              Members: ~
+  Links:
+    - ID: 13051250479996752392
+      StartPinID: 3728595326917992225
+      EndPinID: 5928440281298659758
+      Color: [1, 1, 0, 1]
+  GraphState: "{\"nodes\":{\"node:17234011670002181332\":{\"location\":{\"x\":856,\"y\":398}},\"node:7672797510112475068\":{\"location\":{\"x\":478,\"y\":395}}},\"selection\":null,\"view\":{\"scroll\":{\"x\":437.4300537109375,\"y\":139.100799560546875},\"visible_rect\":{\"max\":{\"x\":1222.343505859375,\"y\":836.28948974609375},\"min\":{\"x\":251.923385620117188,\"y\":80.110504150390625}},\"zoom\":1.73636150360107422}}"
+GraphInputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+GraphOutputs:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~
+LocalVariables:
+  Type: Object
+  Value:
+    ClassName: PropertySet
+    Members: ~

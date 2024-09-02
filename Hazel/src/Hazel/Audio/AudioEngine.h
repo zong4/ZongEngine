@@ -215,7 +215,7 @@ namespace Hazel
 
 		//==================================================================================
 		/// Packaging
-		static bool BuildSoundBank(const std::filesystem::path& path);
+		static bool BuildSoundBank();
 		static bool UnloadCurrentSoundBank();
 
 		//==================================================================================

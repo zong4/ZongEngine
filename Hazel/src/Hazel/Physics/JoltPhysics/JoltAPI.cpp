@@ -34,10 +34,7 @@ namespace Hazel {
 		char buffer[1024];
 		vsnprintf(buffer, sizeof(buffer), format, list);
 
-		if (s_JoltData)
-		{
-			s_JoltData->LastErrorMessage = buffer;
-		}
+		s_JoltData->LastErrorMessage = buffer;
 		HZ_CORE_TRACE_TAG("Physics", buffer);
 	}
 

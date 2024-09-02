@@ -28,7 +28,6 @@ namespace Hazel {
 		B10R11G11UF,
 
 		SRGB,
-		SRGBA,
 
 		DEPTH32FSTENCIL8UINT,
 		DEPTH32F,
@@ -110,7 +109,6 @@ namespace Hazel {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 		virtual glm::uvec2 GetSize() const = 0;
-		virtual bool HasMips() const = 0;
 
 		virtual float GetAspectRatio() const = 0;
 
@@ -120,14 +118,9 @@ namespace Hazel {
 		virtual Buffer GetBuffer() const = 0;
 		virtual Buffer& GetBuffer() = 0;
 
-		virtual uint64_t GetGPUMemoryUsage() const = 0;
-
 		virtual void CreatePerLayerImageViews() = 0;
 
 		virtual uint64_t GetHash() const = 0;
-
-		virtual void SetData(Buffer buffer) = 0;
-		virtual void CopyToHostBuffer(Buffer& buffer) const = 0;
 
 		// TODO: usage (eg. shader read)
 	};
@@ -135,9 +128,9 @@ namespace Hazel {
 	class Image2D : public Image
 	{
 	public:
-		static Ref<Image2D> Create(const ImageSpecification& specification, Buffer buffer = Buffer());
+		static Ref<Image2D> Create(const ImageSpecification& specification, Buffer buffer);
+		static Ref<Image2D> Create(const ImageSpecification& specification, const void* data = nullptr);
 		virtual void Resize(const glm::uvec2& size) = 0;
-		virtual bool IsValid() const = 0;
 	};
 
 	namespace Utils {
@@ -154,7 +147,6 @@ namespace Hazel {
 			case ImageFormat::RGB:
 			case ImageFormat::SRGB:    return 3;
 			case ImageFormat::RGBA:    return 4;
-			case ImageFormat::SRGBA:   return 4;
 			case ImageFormat::RGBA16F: return 2 * 4;
 			case ImageFormat::RGBA32F: return 4 * 4;
 			case ImageFormat::B10R11G11UF: return 4;
@@ -184,7 +176,6 @@ namespace Hazel {
 			case ImageFormat::RGBA16F:
 			case ImageFormat::RGB:
 			case ImageFormat::SRGB:
-			case ImageFormat::SRGBA:
 			case ImageFormat::DEPTH24STENCIL8:
 				return false;
 			}

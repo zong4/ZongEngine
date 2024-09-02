@@ -48,8 +48,6 @@ namespace Hazel {
 		bool IsSet(ContentBrowserAction flag) const { return (uint16_t)flag & Field; }
 	};
 
-	class ContentBrowserPanel;
-
 	class ContentBrowserItem : public RefCounted
 	{
 	public:
@@ -62,7 +60,7 @@ namespace Hazel {
 		virtual ~ContentBrowserItem() {}
 
 		void OnRenderBegin();
-		CBItemActionResult OnRender(Ref<ContentBrowserPanel> context);
+		CBItemActionResult OnRender();
 		void OnRenderEnd();
 
 		virtual void Delete() {}
@@ -72,7 +70,7 @@ namespace Hazel {
 		ItemType GetType() const { return m_Type; }
 		const std::string& GetName() const { return m_FileName; }
 
-		Ref<Texture2D> GetIcon() const { return m_Icon; }
+		const Ref<Texture2D>& GetIcon() const { return m_Icon; }
 
 		void StartRenaming();
 		void StopRenaming();

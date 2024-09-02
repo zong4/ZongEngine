@@ -28,36 +28,29 @@ private:
 
 Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 {
-	// Project path specified as root directory of project
-	std::string_view projectPath = "SandboxProject";
+	std::string_view projectPath = "SandboxProject/Sandbox.hproj";
 	if (argc > 1)
 	{
 		projectPath = argv[1];
 	}
 
-	Hazel::ApplicationSpecification specification;
+	//projectPath = "LD51/LD51.hproj";
+	//projectPath = "LD53/LD53.hproj";
 
-	/*
-	------------------------------
-	-- Tiering settings example --
-	------------------------------
+	Hazel::ApplicationSpecification specification;
+	specification.Fullscreen = true;
 
 	Tiering::TieringSettings ts;
-	if (TieringSerializer::Deserialize(ts, "Settings.yaml"))
+	if (TieringSerializer::Deserialize(ts, "LD53/Config/Settings.yaml"))
 	{
 		specification.Fullscreen = !ts.RendererTS.Windowed;
 		specification.VSync = ts.RendererTS.VSync;
 	}
-	*/
 
-#ifndef HZ_DIST
-	// NOTE: these overrides are for development, we normally want to take these
-	//       settings from launcher/tiering settings as above
-	// specification.VSync = false;
+	// REMOVE
 	specification.Fullscreen = false;
-#endif
 
-	specification.Name = "Hazel Runtime " HZ_VERSION " (" HZ_BUILD_PLATFORM_NAME " " HZ_BUILD_CONFIG_NAME ")";
+	specification.Name = "Saving Captain Cino";
 	specification.WindowWidth = 1920;
 	specification.WindowHeight = 1080;
 	specification.WindowDecorated = !specification.Fullscreen;
@@ -67,10 +60,13 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	specification.IconPath = "Resources/Icon.png";
 
 	// IMPORTANT: Disable for ACTUAL Dist builds
-	specification.WorkingDirectory = "../Hazelnut";
+#ifndef HZ_DIST
+	//specification.WorkingDirectory = "../Hazelnut";
+#endif
 
-	// specification.ScriptConfig.EnableDebugging = false;
-	// specification.ScriptConfig.EnableProfiling = false;
+	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Hazel-ScriptCore.dll";
+	specification.ScriptConfig.EnableDebugging = false;
+	specification.ScriptConfig.EnableProfiling = false;
 
 	specification.RenderConfig.ShaderPackPath = "Resources/ShaderPack.hsp";
 	specification.RenderConfig.FramesInFlight = 3;

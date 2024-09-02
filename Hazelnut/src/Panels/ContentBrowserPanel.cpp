@@ -21,8 +21,6 @@
 
 #include "Hazel/Project/Project.h"
 
-#include "Hazel/Script/ScriptAsset.h"
-
 #include "Hazel/Renderer/MaterialAsset.h"
 
 #include "Hazel/Scene/Entity.h"
@@ -33,23 +31,8 @@
 #include <filesystem>
 #include <imgui_internal.h>
 #include <stack>
-#include <set>
 
 namespace Hazel {
-
-	static const std::set<AssetType> s_SupportedThumbnailAssetTypes = {
-		AssetType::Texture,
-		AssetType::Material,
-		AssetType::Mesh,
-		AssetType::MeshSource,
-		AssetType::StaticMesh,
-		AssetType::EnvMap,
-	};
-
-	static bool IsThumbnailSupported(AssetType type)
-	{
-		return s_SupportedThumbnailAssetTypes.contains(type);
-	}
 
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_Project(nullptr)
@@ -173,7 +156,6 @@ namespace Hazel {
 		m_CurrentDirectory = directory;
 
 		ClearSelections();
-		GenerateThumbnails();
 	}
 
 	void ContentBrowserPanel::OnBrowseBack()
@@ -194,8 +176,6 @@ namespace Hazel {
 
 	void ContentBrowserPanel::OnImGuiRender(bool& isOpen)
 	{
-		GenerateThumbnails();
-
 		m_IsContentBrowserHovered = false;
 		m_IsContentBrowserFocused = false;
 		if (ImGui::Begin("Content Browser", &isOpen, ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar))
@@ -279,7 +259,7 @@ namespace Hazel {
 							{
 								if (ImGui::MenuItem("Folder"))
 								{
-									std::filesystem::path filepath = FileSystem::GetUniqueFileName(Project::GetActiveAssetDirectory() / m_CurrentDirectory->FilePath / "New Folder");
+									std::filesystem::path filepath = FileSystem::GetUniqueFileName(Project::GetAssetDirectory() / m_CurrentDirectory->FilePath / "New Folder");
 
 									// NOTE(Peter): For some reason creating new directories through code doesn't trigger a file system change?
 									bool created = FileSystem::CreateDirectory(filepath);
@@ -311,11 +291,11 @@ namespace Hazel {
 
 								if (ImGui::MenuItem("Animation Graph"))
 								{
-									auto extension = Project::GetEditorAssetManager()->GetDefaultExtensionForAssetType(AssetType::AnimationGraph);
-									auto animationGraphAsset = CreateAsset<AnimationGraphAsset>("New Animation Graph" + extension);
-									HZ_CORE_VERIFY(AnimationGraphAssetSerializer::TryLoadData("Resources/Animation/EmptyAnimationGraph" + extension, animationGraphAsset));
+									auto animationGraphAsset = CreateAsset<AnimationGraphAsset>("New Animation Graph.hanimgraph");
+									AnimationGraphAssetSerializer::TryLoadData("Resources/Animation/EmptyAnimationGraph.hanimgraph", animationGraphAsset);
 									AssetImporter::Serialize(animationGraphAsset);
 								}
+								
 
 								if (ImGui::MenuItem("Material"))
 									CreateAsset<MaterialAsset>("New Material.hmaterial");
@@ -342,7 +322,7 @@ namespace Hazel {
 								std::filesystem::path filepath = FileSystem::OpenFileDialog();
 								if (!filepath.empty())
 								{
-									FileSystem::CopyFile(filepath, Project::GetActiveAssetDirectory() / m_CurrentDirectory->FilePath);
+									FileSystem::CopyFile(filepath, Project::GetAssetDirectory() / m_CurrentDirectory->FilePath);
 									Refresh();
 								}
 							}
@@ -365,7 +345,7 @@ namespace Hazel {
 							ImGui::Separator();
 
 							if (ImGui::MenuItem("Show in Explorer"))
-								FileSystem::OpenDirectoryInExplorer(Project::GetActiveAssetDirectory() / m_CurrentDirectory->FilePath);
+								FileSystem::OpenDirectoryInExplorer(Project::GetAssetDirectory() / m_CurrentDirectory->FilePath);
 
 							ImGui::EndPopup();
 						}
@@ -456,9 +436,6 @@ namespace Hazel {
 
 		m_Project = project;
 
-		m_ThumbnailCache = Ref<ThumbnailCache>::Create();
-		m_ThumbnailGenerator = Ref<ThumbnailGenerator>::Create();
-
 		AssetHandle baseDirectoryHandle = ProcessDirectory(project->GetAssetDirectory().string(), nullptr);
 		m_BaseDirectory = m_Directories[baseDirectoryHandle];
 		ChangeDirectory(m_BaseDirectory);
@@ -510,7 +487,7 @@ namespace Hazel {
 				{
 					case KeyCode::N:
 					{
-						std::filesystem::path filepath = FileSystem::GetUniqueFileName(Project::GetActiveAssetDirectory() / m_CurrentDirectory->FilePath / "New Folder");
+						std::filesystem::path filepath = FileSystem::GetUniqueFileName(Project::GetAssetDirectory() / m_CurrentDirectory->FilePath / "New Folder");
 
 						// NOTE(Peter): For some reason creating new directories through code doesn't trigger a file system change?
 						bool created = FileSystem::CreateDirectory(filepath);
@@ -626,7 +603,7 @@ namespace Hazel {
 				continue;
 
 			const auto& item = m_CurrentItems[assetIndex];
-			auto originalFilePath = Project::GetActiveAssetDirectory();
+			auto originalFilePath = Project::GetAssetDirectory();
 
 			if (item->GetType() == ContentBrowserItem::ItemType::Asset)
 			{
@@ -771,7 +748,7 @@ namespace Hazel {
 			{
 				if (ImGui::MenuItem("Folder"))
 				{
-					bool created = FileSystem::CreateDirectory(Project::GetActiveAssetDirectory() / directory->FilePath / "New Folder");
+					bool created = FileSystem::CreateDirectory(Project::GetAssetDirectory() / directory->FilePath / "New Folder");
 					if (created)
 						Refresh();
 				}
@@ -791,7 +768,7 @@ namespace Hazel {
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Show in Explorer"))
-				FileSystem::OpenDirectoryInExplorer(Project::GetActiveAssetDirectory() / directory->FilePath);
+				FileSystem::OpenDirectoryInExplorer(Project::GetAssetDirectory() / directory->FilePath);
 
 			ImGui::EndPopup();
 		}
@@ -879,11 +856,6 @@ namespace Hazel {
 					Refresh();
 				}
 				UI::SetTooltip("Refresh");
-				if (contenBrowserButton("##clearThumbnailCache", EditorResources::ClearIcon))
-				{
-					m_ThumbnailCache->Clear();
-				}
-				UI::SetTooltip("Clear thumbnail cache");
 
 				ImGui::Spring(-1.0f, edgeOffset * 2.0f);
 			}
@@ -997,7 +969,7 @@ namespace Hazel {
 		{
 			item->OnRenderBegin();
 
-			CBItemActionResult result = item->OnRender(this);
+			CBItemActionResult result = item->OnRender();
 
 			if (result.IsSet(ContentBrowserAction::ClearSelections))
 				ClearSelections();
@@ -1125,12 +1097,12 @@ namespace Hazel {
 
 	void ContentBrowserPanel::RenderBottomBar(float height)
 	{
-		UI::ScopedStyle childBorderSize(ImGuiStyleVar_ChildBorderSize, 0.0f);
-		UI::ScopedStyle frameBorderSize(ImGuiStyleVar_FrameBorderSize, 0.0f);
-		UI::ScopedStyle itemSpacing(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-		UI::ScopedStyle framePadding(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+		UI::ScopedStyle childBorderSize(ImGuiStyleVar_ChildBorderSize, 0);
+		UI::ScopedStyle frameBorderSize(ImGuiStyleVar_FrameBorderSize, 0);
+		UI::ScopedStyle itemSpacing(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		UI::ScopedStyle framePadding(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
-		ImGui::BeginChild("##bottom_bar", ImVec2(0.0f, height));
+		ImGui::BeginChild("##bottom_bar", ImVec2(0, height));
 		ImGui::BeginHorizontal("##bottom_bar");
 		{
 			size_t selectionCount = SelectionManager::GetSelectionCount(SelectionContext::ContentBrowser);
@@ -1197,12 +1169,15 @@ namespace Hazel {
 		std::vector<AssetHandle> selectedItems = SelectionManager::GetSelections(SelectionContext::ContentBrowser);
 		for (AssetHandle itemHandle : selectedItems)
 		{
+			size_t index = m_CurrentItems.FindItem(itemHandle);
+
+			if (index == ContentBrowserItemList::InvalidItem)
+				continue;
+
 			SelectionManager::Deselect(SelectionContext::ContentBrowser, itemHandle);
-			if (size_t index = m_CurrentItems.FindItem(itemHandle); index != ContentBrowserItemList::InvalidItem)
-			{
-				if (m_CurrentItems[index]->IsRenaming())
-					m_CurrentItems[index]->StopRenaming();
-			}
+
+			if (m_CurrentItems[index]->IsRenaming())
+				m_CurrentItems[index]->StopRenaming();
 		}
 	}
 
@@ -1301,7 +1276,7 @@ namespace Hazel {
 
 			ImGui::Separator();
 
-			const bool fileAlreadyExists = FileSystem::Exists(Project::GetActiveAssetDirectory() / m_CurrentDirectory->FilePath / (std::string(s_ScriptNameBuffer) + ".cs"));
+			const bool fileAlreadyExists = FileSystem::Exists(Project::GetAssetDirectory() / m_CurrentDirectory->FilePath / (std::string(s_ScriptNameBuffer) + ".cs"));
 			ImGui::BeginDisabled(fileAlreadyExists);
 			if (ImGui::Button("Create"))
 			{
@@ -1385,46 +1360,6 @@ namespace Hazel {
 		});
 	}
 
-	void ContentBrowserPanel::GenerateThumbnails()
-	{
-		struct Thumbnail
-		{
-			Ref<ContentBrowserItem> Item;
-			AssetHandle Handle;
-		};
-
-		std::vector<Thumbnail> thumbnails;
-
-		for (const auto& item : m_CurrentItems)
-		{
-			if (item->GetType() == ContentBrowserItem::ItemType::Asset)
-			{
-				AssetHandle handle = item->GetID();
-				if (!AssetManager::IsAssetHandleValid(handle))
-					continue;
-
-				bool isThumbnailSupported = IsThumbnailSupported(AssetManager::GetAssetType(handle));
-				if (!isThumbnailSupported)
-					continue;
-
-				// NOTE(Yan): checking file timestamp every frame? Good idea?
-				if (!m_ThumbnailCache->IsThumbnailCurrent(handle))
-				{
-					// Queue thumbnail to be generated
-					thumbnails.emplace_back(Thumbnail{ item, handle });
-					break; // One thumbnail per frame
-				}
-			}
-		}
-
-		for (auto& thumbnail : thumbnails)
-		{
-			Ref<Image2D> thumbnailImage = m_ThumbnailGenerator->GenerateThumbnail(thumbnail.Handle);
-			if (thumbnailImage)
-				m_ThumbnailCache->SetThumbnailImage(thumbnail.Handle, thumbnailImage);
-		}
-	}
-
 	ContentBrowserItemList ContentBrowserPanel::Search(const std::string& query, const Ref<DirectoryInfo>& directoryInfo)
 	{
 		ContentBrowserItemList results;
@@ -1442,7 +1377,7 @@ namespace Hazel {
 
 		for (auto& assetHandle : directoryInfo->Assets)
 		{
-			auto asset = Project::GetEditorAssetManager()->GetMetadata(assetHandle);
+			auto& asset = Project::GetEditorAssetManager()->GetMetadata(assetHandle);
 			std::string filename = Utils::ToLower(asset.FilePath.filename().string());
 
 			if (filename.find(queryLowerCase) != std::string::npos)

@@ -9,8 +9,17 @@ namespace Hazel {
 
 	Ref<Image2D> Image2D::Create(const ImageSpecification& specification, Buffer buffer)
 	{
-		HZ_CORE_VERIFY(!buffer);
+		switch (RendererAPI::Current())
+		{
+			case RendererAPIType::None: return nullptr;
+			case RendererAPIType::Vulkan: return Ref<VulkanImage2D>::Create(specification);
+		}
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		return nullptr;
+	}
 
+	Ref<Image2D> Image2D::Create(const ImageSpecification& specification, const void* data)
+	{
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;

@@ -57,22 +57,6 @@ namespace Hazel {
 		UI::EndPropertyGrid();
 
 		ImGui::Text("Shader: %s", material->GetShader()->GetName().c_str());
-		
-		auto checkAndSetTexture = [&material, &needsSerialize](Ref<Texture2D>& texture2D) {
-			auto data = ImGui::AcceptDragDropPayload("asset_payload"); 
-			if (data && data->DataSize / sizeof(AssetHandle) == 1)
-			{
-				AssetHandle assetHandle = *(((AssetHandle*)data->Data));
-				Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
-				if (asset && asset->GetAssetType() == AssetType::Texture)
-				{
-					texture2D = asset.As<Texture2D>();
-					needsSerialize = true;
-				}
-				return true;
-			}
-			return false;
-		};
 
 		// Albedo
 		if (ImGui::CollapsingHeader("Albedo", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
@@ -88,10 +72,27 @@ namespace Hazel {
 			UI::Image(albedoUITexture, ImVec2(64, 64));
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (checkAndSetTexture(albedoMap))
+				auto data = ImGui::AcceptDragDropPayload("asset_payload");
+				if (data)
 				{
-					material->Set("u_AlbedoTexture", albedoMap);
+					int count = data->DataSize / sizeof(AssetHandle);
+
+					for (int i = 0; i < count; i++)
+					{
+						if (count > 1)
+							break;
+
+						AssetHandle assetHandle = *(((AssetHandle*)data->Data) + i);
+						Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+						if (!asset || asset->GetAssetType() != AssetType::Texture)
+							break;
+
+						albedoMap = asset.As<Texture2D>();
+						material->Set("u_AlbedoTexture", albedoMap);
+						needsSerialize = true;
+					}
 				}
+
 				ImGui::EndDragDropTarget();
 			}
 
@@ -150,8 +151,6 @@ namespace Hazel {
 
 			UI::BeginPropertyGrid();
 			UI::Property("Transparency", transparency, 0.01f, 0.0f, 1.0f);
-			if (ImGui::IsItemDeactivated())
-				needsSerialize = true;
 			UI::EndPropertyGrid();
 		}
 		else
@@ -171,11 +170,28 @@ namespace Hazel {
 
 					if (ImGui::BeginDragDropTarget())
 					{
-						if (checkAndSetTexture(normalMap))
+						auto data = ImGui::AcceptDragDropPayload("asset_payload");
+						if (data)
 						{
-							material->Set("u_NormalTexture", normalMap);
-							material->Set("u_MaterialUniforms.UseNormalMap", true);
+							int count = data->DataSize / sizeof(AssetHandle);
+
+							for (int i = 0; i < count; i++)
+							{
+								if (count > 1)
+									break;
+
+								AssetHandle assetHandle = *(((AssetHandle*)data->Data) + i);
+								Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+								if (!asset || asset->GetAssetType() != AssetType::Texture)
+									break;
+
+								normalMap = asset.As<Texture2D>();
+								material->Set("u_NormalTexture", normalMap);
+								material->Set("u_MaterialUniforms.UseNormalMap", true);
+								needsSerialize = true;
+							}
 						}
+
 						ImGui::EndDragDropTarget();
 					}
 
@@ -233,10 +249,27 @@ namespace Hazel {
 
 					if (ImGui::BeginDragDropTarget())
 					{
-						if (checkAndSetTexture(metalnessMap))
+						auto data = ImGui::AcceptDragDropPayload("asset_payload");
+						if (data)
 						{
-							material->Set("u_MetalnessTexture", metalnessMap);
+							int count = data->DataSize / sizeof(AssetHandle);
+
+							for (int i = 0; i < count; i++)
+							{
+								if (count > 1)
+									break;
+
+								AssetHandle assetHandle = *(((AssetHandle*)data->Data) + i);
+								Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+								if (!asset || asset->GetAssetType() != AssetType::Texture)
+									break;
+
+								metalnessMap = asset.As<Texture2D>();
+								material->Set("u_MetalnessTexture", metalnessMap);
+								needsSerialize = true;
+							}
 						}
+
 						ImGui::EndDragDropTarget();
 					}
 
@@ -291,10 +324,27 @@ namespace Hazel {
 
 					if (ImGui::BeginDragDropTarget())
 					{
-						if (checkAndSetTexture(roughnessMap))
+						auto data = ImGui::AcceptDragDropPayload("asset_payload");
+						if (data)
 						{
-							material->Set("u_RoughnessTexture", roughnessMap);
+							int count = data->DataSize / sizeof(AssetHandle);
+
+							for (int i = 0; i < count; i++)
+							{
+								if (count > 1)
+									break;
+
+								AssetHandle assetHandle = *(((AssetHandle*)data->Data) + i);
+								Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
+								if (!asset || asset->GetAssetType() != AssetType::Texture)
+									break;
+
+								roughnessMap = asset.As<Texture2D>();
+								material->Set("u_RoughnessTexture", roughnessMap);
+								needsSerialize = true;
+							}
 						}
+
 						ImGui::EndDragDropTarget();
 					}
 
@@ -519,6 +569,7 @@ namespace Hazel {
 			{
 				UI::PropertyAssetReferenceError error;
 				UI::PropertyAssetReferenceSettings settings;
+				settings.AllowMemoryOnlyAssets = false;
 				settings.ShowFullFilePath = false;
 				UI::PropertyMultiAssetReference<AssetType::Audio, AssetType::SoundGraphSound>("Source", soundConfig.DataSourceAsset, "", &error, settings);
 			}

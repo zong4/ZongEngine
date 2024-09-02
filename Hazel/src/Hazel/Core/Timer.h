@@ -26,7 +26,7 @@ namespace Hazel {
 		~ScopedTimer()
 		{
 			float time = m_Timer.ElapsedMillis();
-			HZ_CORE_TRACE_TAG("Timer", "{0} - {1}ms", m_Name, time);
+			HZ_CORE_TRACE_TAG("TIMER", "{0} - {1}ms", m_Name, time);
 		}
 	private:
 		std::string m_Name;

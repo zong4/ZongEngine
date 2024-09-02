@@ -9,8 +9,6 @@
 #include "AssimpMeshImporter.h"
 #include "MeshRuntimeSerializer.h"
 
-#include "Hazel/Debug/Profiler.h"
-
 namespace YAML {
 
 	template<>
@@ -57,8 +55,6 @@ namespace Hazel {
 
 	bool MeshSourceSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		HZ_PROFILE_FUNC("MeshSourceSerializer::TryLoadData");
-
 		AssimpMeshImporter importer(Project::GetEditorAssetManager()->GetFileSystemPathString(metadata));
 		Ref<MeshSource> meshSource = importer.ImportToMeshSource();
 		if (!meshSource)
@@ -110,7 +106,7 @@ namespace Hazel {
 
 	bool MeshSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		auto filepath = Project::GetActiveAssetDirectory() / metadata.FilePath;
+		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
 		HZ_CORE_ASSERT(stream);
 		std::stringstream strStream;
@@ -122,7 +118,6 @@ namespace Hazel {
 			return false;
 
 		mesh->Handle = metadata.Handle;
-		AssetManager::RegisterDependency(mesh->GetMeshSource(), mesh->Handle);
 		asset = mesh;
 		return true;
 	}
@@ -160,10 +155,10 @@ namespace Hazel {
 		{
 			out << YAML::BeginMap;
 			out << YAML::Key << "MeshSource";
-			out << YAML::Value << mesh->GetMeshSource();
+			out << YAML::Value << mesh->GetMeshSource()->Handle;
 			out << YAML::Key << "SubmeshIndices";
 			out << YAML::Flow;
-			if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource && meshSource->GetSubmeshes().size() == mesh->GetSubmeshes().size())
+			if (mesh->GetSubmeshes().size() == mesh->GetMeshSource()->GetSubmeshes().size())
 				out << YAML::Value << std::vector<uint32_t>();
 			else
 				out << YAML::Value << mesh->GetSubmeshes();
@@ -184,19 +179,18 @@ namespace Hazel {
 		if (!rootNode["MeshAsset"] && !rootNode["MeshSource"])
 			return false;
 
-		AssetHandle meshSource = 0;
+		AssetHandle meshSourceHandle = 0;
 		if (rootNode["MeshAsset"]) // DEPRECATED
-			meshSource = rootNode["MeshAsset"].as<uint64_t>();
+			meshSourceHandle = rootNode["MeshAsset"].as<uint64_t>();
 		else
-			meshSource = rootNode["MeshSource"].as<uint64_t>();
+			meshSourceHandle = rootNode["MeshSource"].as<uint64_t>();
 
-		if(!AssetManager::GetAsset<MeshSource>(meshSource))
+		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(meshSourceHandle);
+		if (!meshSource)
 			return false; // TODO(Yan): feedback to the user
 
 		auto submeshIndices = rootNode["SubmeshIndices"].as<std::vector<uint32_t>>();
-		auto generateColliders = rootNode["GenerateColliders"].as<bool>(false);
-
-		targetMesh = Ref<Mesh>::Create(meshSource, submeshIndices, generateColliders);
+		targetMesh = Ref<Mesh>::Create(meshSource, submeshIndices);
 		return true;
 	}
 
@@ -219,7 +213,9 @@ namespace Hazel {
 
 	bool StaticMeshSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		auto filepath = Project::GetActiveAssetDirectory() / metadata.FilePath;
+		// TODO: this needs to open up a Hazel Mesh file and make sure
+		//       the MeshAsset file is also loaded
+		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
 		HZ_CORE_ASSERT(stream);
 		std::stringstream strStream;
@@ -231,7 +227,6 @@ namespace Hazel {
 			return false;
 
 		staticMesh->Handle = metadata.Handle;
-		AssetManager::RegisterDependency(staticMesh->GetMeshSource(), staticMesh->Handle);
 		asset = staticMesh;
 		return true;
 	}
@@ -269,9 +264,13 @@ namespace Hazel {
 		{
 			out << YAML::BeginMap;
 			out << YAML::Key << "MeshSource";
-			out << YAML::Value << staticMesh->GetMeshSource();
+			out << YAML::Value << staticMesh->GetMeshSource()->Handle;
 			out << YAML::Key << "SubmeshIndices";
-			out << YAML::Flow << YAML::Value << staticMesh->GetSubmeshes();
+			out << YAML::Flow;
+			if (staticMesh->GetSubmeshes().size() == staticMesh->GetMeshSource()->GetSubmeshes().size())
+				out << YAML::Value << std::vector<uint32_t>();
+			else
+				out << YAML::Value << staticMesh->GetSubmeshes();
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -289,11 +288,14 @@ namespace Hazel {
 		if (!rootNode["MeshSource"] && !rootNode["MeshAsset"])
 			return false;
 
-		AssetHandle meshSource = rootNode["MeshSource"].as<uint64_t>();
-		auto submeshIndices = rootNode["SubmeshIndices"].as<std::vector<uint32_t>>();
-		auto generateColliders = rootNode["GenerateColliders"].as<bool>(true);
+		AssetHandle meshSourceHandle = rootNode["MeshSource"].as<uint64_t>();
+		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(meshSourceHandle);
+		if (!meshSource)
+			return false; // TODO(Yan): feedback to the user
 
-		targetStaticMesh = Ref<StaticMesh>::Create(meshSource, submeshIndices, generateColliders);
+		auto submeshIndices = rootNode["SubmeshIndices"].as<std::vector<uint32_t>>();
+		targetStaticMesh = Ref<StaticMesh>::Create(meshSource, submeshIndices);
+
 		return true;
 	}
 

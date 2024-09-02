@@ -4,6 +4,7 @@ include "./Hazelnut/Resources/LUA/Hazel.lua"
 
 workspace "Hazel"
 	configurations { "Debug", "Debug-AS", "Release", "Dist" }
+	targetdir "build"
 	startproject "Hazelnut"
     conformancemode "On"
 
@@ -13,13 +14,13 @@ workspace "Hazel"
 
 	solution_items { ".editorconfig" }
 
+	configurations { "Debug", "Release", "Dist" }
+
 	flags { "MultiProcessorCompile" }
 
 	-- NOTE(Peter): Don't remove this. Please never use Annex K functions ("secure", e.g _s) functions.
 	defines {
 		"_CRT_SECURE_NO_WARNINGS",
-		"NOMINMAX",
-		"SPDLOG_USE_STD_FORMAT",
 		"_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING",
 		"TRACY_ENABLE",
 		"TRACY_ON_DEMAND",
@@ -55,14 +56,12 @@ workspace "Hazel"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
-include "Hazel/vendor/Coral/Coral.Native"
-include "Hazel/vendor/Coral/Coral.Managed"
 include "Hazel/vendor/GLFW"
 include "Hazel/vendor/imgui"
 include "Hazel/vendor/Box2D"
 include "Hazel/vendor/tracy"
 include "Hazel/vendor/JoltPhysics/JoltPhysicsPremake.lua"
---include "Hazel/vendor/JoltPhysics/JoltViewerPremake.lua"
+include "Hazel/vendor/JoltPhysics/JoltViewerPremake.lua"
 include "Hazel/vendor/NFD-Extended"
 group "Dependencies/msdf"
 include "Hazel/vendor/msdf-atlas-gen"

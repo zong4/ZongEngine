@@ -21,9 +21,4 @@ namespace Hazel {
 	}
 
 	// TODO(Emily): `ThreadSignal`
-
-	std::thread::id Thread::GetID() const
-	{
-		return m_Thread.get_id();
-	}
 }

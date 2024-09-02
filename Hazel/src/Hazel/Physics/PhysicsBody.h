@@ -52,16 +52,13 @@ namespace Hazel {
 		virtual bool IsDynamic() const = 0;
 		virtual bool IsKinematic() const = 0;
 
-		// For kinematic bodies only.
-		virtual void MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds) = 0;
-		virtual void Rotate(const glm::vec3& inRotationTimesDeltaTime) = 0;
-
-		// For dynamic bodies only.
 		virtual void SetGravityEnabled(bool isEnabled) = 0;
+
+		virtual void MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds) = 0;
+
 		virtual void AddForce(const glm::vec3& force, EForceMode forceMode = EForceMode::Force, bool forceWake = true) = 0;
 		virtual void AddForce(const glm::vec3& force, const glm::vec3& location, EForceMode forceMode = EForceMode::Force, bool forceWake = true) = 0;
 		virtual void AddTorque(const glm::vec3& torque, bool forceWake = true) = 0;
-		virtual void AddRadialImpulse(const glm::vec3& origin, float radius, float strength, EFalloffMode falloff, bool velocityChange) = 0;
 
 		virtual void ChangeTriggerState(bool isTrigger) = 0;
 		virtual bool IsTrigger() const = 0;
@@ -87,6 +84,8 @@ namespace Hazel {
 		virtual bool IsSleeping() const = 0;
 		virtual void SetSleepState(bool inSleep) = 0;
 
+		virtual void AddRadialImpulse(const glm::vec3& origin, float radius, float strength, EFalloffMode falloff, bool velocityChange) = 0;
+
 		virtual void SetCollisionDetectionMode(ECollisionDetectionType collisionDetectionMode) = 0;
 
 		void SetAxisLock(EActorAxis axis, bool locked, bool forceWake);
@@ -94,12 +93,21 @@ namespace Hazel {
 		EActorAxis GetLockedAxes() const { return m_LockedAxes; }
 		bool IsAllRotationLocked() const { return IsAxisLocked(EActorAxis::RotationX) && IsAxisLocked(EActorAxis::RotationY) && IsAxisLocked(EActorAxis::RotationZ); }
 
+		/// <summary>
+		/// Sets the new position of the body. Only affects static bodies.
+		/// </summary>
+		/// <param name="translation">The new position of this body</param>
+		virtual void SetTranslation(const glm::vec3& translation) = 0;
 		virtual glm::vec3 GetTranslation() const = 0;
+
+		/// <summary>
+		/// Sets the new rotation of the body. Only affects static bodies.
+		/// </summary>
+		/// <param name="rotation">The new rotation of this body</param>
+		virtual void SetRotation(const glm::quat& rotation) = 0;
 		virtual glm::quat GetRotation() const = 0;
 
-		// For static bodies only
-		virtual void SetTranslation(const glm::vec3& translation) = 0;
-		virtual void SetRotation(const glm::quat& rotation) = 0;
+		virtual void Rotate(const glm::vec3& inRotationTimesDeltaTime) = 0;
 
 	private:
 		virtual void OnAxisLockUpdated(bool forceWake) = 0;

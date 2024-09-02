@@ -1,14 +1,12 @@
 #pragma once
 
+#include "Hazel/Core/Ref.h"
+#include "Hazel/Core/Log.h"
+#include "Hazel/Physics/PhysicsAPI.h"
 #include "Hazel/Asset/AssetManager/EditorAssetManager.h"
 #include "Hazel/Asset/AssetManager/RuntimeAssetManager.h"
-#include "Hazel/Core/Log.h"
-#include "Hazel/Core/Ref.h"
-#include "Hazel/Physics/PhysicsAPI.h"
 
 #include <filesystem>
-#include <format>
-
 
 namespace Hazel {
 
@@ -18,13 +16,13 @@ namespace Hazel {
 	{
 		std::string Name;
 
-		std::string AssetDirectory = "Assets";
-		std::string AssetRegistryPath = "Assets/AssetRegistry.hzr";
+		std::string AssetDirectory;
+		std::string AssetRegistryPath;
 
 		std::string AudioCommandsRegistryPath = "Assets/AudioCommandsRegistry.hzr";
 
-		std::string MeshPath = "Assets/Meshes";
-		std::string MeshSourcePath = "Assets/Meshes/Source";
+		std::string MeshPath;
+		std::string MeshSourcePath;
 
 		std::string AnimationPath;
 
@@ -43,9 +41,6 @@ namespace Hazel {
 		// Not serialized
 		std::string ProjectFileName;
 		std::string ProjectDirectory;
-
-		// Runtime only
-		AssetHandle StartSceneHandle;
 	};
 
 	class Project : public RefCounted
@@ -55,8 +50,6 @@ namespace Hazel {
 		~Project();
 
 		const ProjectConfig& GetConfig() const { return m_Config; }
-
-		void ReloadScriptEngine();
 
 		static Ref<Project> GetActive() { return s_ActiveProject; }
 		static void SetActive(Ref<Project> project);
@@ -78,15 +71,10 @@ namespace Hazel {
 			return s_ActiveProject->GetConfig().ProjectDirectory;
 		}
 
-		std::filesystem::path GetAssetDirectory() const
-		{
-			return std::filesystem::path(GetConfig().ProjectDirectory) / GetConfig().AssetDirectory;
-		}
-
-		static std::filesystem::path GetActiveAssetDirectory()
+		static std::filesystem::path GetAssetDirectory()
 		{
 			HZ_CORE_ASSERT(s_ActiveProject);
-			return s_ActiveProject->GetAssetDirectory();
+			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().AssetDirectory;
 		}
 
 		static std::filesystem::path GetAssetRegistryPath()
@@ -122,18 +110,7 @@ namespace Hazel {
 		static std::filesystem::path GetScriptModuleFilePath()
 		{
 			HZ_CORE_ASSERT(s_ActiveProject);
-			return GetScriptModulePath() / std::format("{0}.dll", GetProjectName());
-		}
-
-		std::filesystem::path GetScriptProjectPath() const
-		{
-			return GetAssetDirectory() / "Scripts" / (GetConfig().Name + ".csproj");
-		}
-
-		static std::filesystem::path GetActiveScriptProjectPath()
-		{
-			HZ_CORE_ASSERT(s_ActiveProject);
-			return s_ActiveProject->GetScriptProjectPath();
+			return GetScriptModulePath() / fmt::format("{0}.dll", GetProjectName());
 		}
 
 		static std::filesystem::path GetCacheDirectory()

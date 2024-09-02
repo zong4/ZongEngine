@@ -13,7 +13,6 @@ namespace Hazel::Utils {
 		void Erase(std::string& str, const std::string& chars);
 		std::string SubStr(const std::string& string, size_t offset, size_t count = std::string::npos);
 		std::string TrimWhitespace(const std::string& str);
-		std::string RemoveWhitespace(const std::string& str);
 		std::string GetCurrentTimeString(bool includeDate = false, bool useDashes = false);
 		int32_t CompareCase(std::string_view a, std::string_view b);
 	}

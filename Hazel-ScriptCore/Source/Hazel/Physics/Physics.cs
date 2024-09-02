@@ -1,25 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using Hazel.Interop;
-using Coral.Managed.Interop;
-
 namespace Hazel
 {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct SceneQueryHit
 	{
-		public readonly ulong EntityID;
-		public readonly Vector3 Position;
-		public readonly Vector3 Normal;
-		public readonly float Distance;
-		private readonly float Padding; // NOTE(Peter): Manual padding because C# doesn't fully respect the 8-byte alignment here
-		public readonly NativeInstance<Collider> HitCollider;
-
-		public SceneQueryHit()
-		{
-			HitCollider = new();
-		}
+		public ulong EntityID { get; internal set; }
+		public Vector3 Position { get; internal set; }
+		public Vector3 Normal { get; internal set; }
+		public float Distance { get; internal set; }
+		public Collider HitCollider { get; internal set; }
 
 		public Entity Entity => Scene.FindEntityByID(EntityID);
 	}
@@ -30,9 +21,8 @@ namespace Hazel
 		public Vector3 Origin;
 		public Vector3 Direction;
 		public float MaxDistance;
-		public float Padding0;
-		public NativeTypeArray RequiredComponents;
-		public NativeArray<ulong> ExcludedEntities;
+		public Type[] RequiredComponents;
+		public ulong[] ExcludedEntities;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -41,10 +31,9 @@ namespace Hazel
 		public Vector3 Origin;
 		public Vector3 Direction;
 		public float MaxDistance;
-		public float Padding0;
-		public NativeInstance<Shape> ShapeData;
-		public NativeTypeArray RequiredComponents;
-		public NativeArray<ulong> ExcludedEntities;
+		public Shape ShapeData;
+		public Type[] RequiredComponents;
+		public ulong[] ExcludedEntities;
 	}
 
 	public enum EActorAxis : uint
@@ -68,15 +57,11 @@ namespace Hazel
 		{
 			get
 			{
-				Vector3 gravity;
-				unsafe { InternalCalls.Physics_GetGravity(&gravity); }
+				InternalCalls.Physics_GetGravity(out Vector3 gravity);
 				return gravity;
 			}
 
-			set
-			{
-				unsafe { InternalCalls.Physics_SetGravity(&value); }
-			}
+			set => InternalCalls.Physics_SetGravity(ref value);
 		}
 
 		/// <summary>
@@ -89,31 +74,10 @@ namespace Hazel
 		/// <param name="falloff">The falloff method used when calculating force over distance</param>
 		/// <param name="velocityChange">Setting this value to <b>true</b> will make this impulse ignore an actors mass</param>
 		public static void AddRadialImpulse(Vector3 origin, float radius, float strength, EFalloffMode falloff = EFalloffMode.Constant, bool velocityChange = false)
-		{
-			unsafe { InternalCalls.Physics_AddRadialImpulse(&origin, radius, strength, falloff, velocityChange); }
-		}
+			=> InternalCalls.Physics_AddRadialImpulse(ref origin, radius, strength, falloff, velocityChange);
 
-		public static bool CastRay(RaycastData raycastData, out SceneQueryHit hit)
-		{
-			unsafe
-			{
-				fixed (SceneQueryHit* hitPtr = &hit)
-				{
-					return InternalCalls.Physics_CastRay(&raycastData, hitPtr);
-				}
-			}
-		}
-
-		public static bool CastShape(ShapeQueryData shapeCastData, out SceneQueryHit outHit)
-		{
-			unsafe
-			{
-				fixed (SceneQueryHit* hitPtr = &outHit)
-				{
-					return InternalCalls.Physics_CastShape(&shapeCastData, hitPtr);
-				}
-			}
-		}
+		public static bool CastRay(RaycastData raycastData, out SceneQueryHit hit) => InternalCalls.Physics_CastRay(ref raycastData, out hit);
+		public static bool CastShape(ShapeQueryData shapeCastData, out SceneQueryHit outHit) => InternalCalls.Physics_CastShape(ref shapeCastData, out outHit);
 
 		/// <summary>
 		/// Performs an overlap scene query, returning an array of any colliders that the provided shape overlaps.
@@ -122,41 +86,6 @@ namespace Hazel
 		/// <param name="shapeQueryData"></param>
 		/// <param name="outHits"></param>
 		/// <returns></returns>
-		public static int OverlapShapeNonAlloc(ShapeQueryData shapeQueryData, ref SceneQueryHit[] outHits)
-		{
-			unsafe
-			{
-				var mappedArray = NativeArray<SceneQueryHit>.Map(outHits);
-				int length = InternalCalls.Physics_OverlapShape(&shapeQueryData, &mappedArray);
-
-				if (length > outHits.Length)
-				{
-					// Array was resized
-					outHits = mappedArray;
-				}
-
-				NativeArray<SceneQueryHit>.Unmap(ref mappedArray);
-				return length;
-			}
-		}
-
-		/// <summary>
-		/// Performs an overlap scene query, returning an array of any colliders that the provided shape overlaps.
-		/// Always allocates.
-		/// </summary>
-		/// <param name="shapeQueryData"></param>
-		/// <param name="outHits"></param>
-		/// <returns></returns>
-		public static int OverlapShape(ShapeQueryData shapeQueryData, out SceneQueryHit[] outHits)
-		{
-			unsafe
-			{
-				NativeArray<SceneQueryHit> hits;
-				int length = InternalCalls.Physics_OverlapShape(&shapeQueryData, &hits);
-				outHits = hits;
-				hits.Dispose();
-				return length;
-			}
-		}
+		public static int OverlapShape(ShapeQueryData shapeQueryData, out SceneQueryHit[] outHits) => InternalCalls.Physics_OverlapShape(ref shapeQueryData, out outHits);
 	}
 }

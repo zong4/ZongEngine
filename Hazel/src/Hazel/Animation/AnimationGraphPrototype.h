@@ -55,10 +55,7 @@ namespace Hazel::AnimationGraph {
 				GraphEvent_NodeEvent = 5,
 				NodeValue_GraphValue = 6,
 				NodeEvent_GraphEvent = 7,
-				GraphEvent_GraphEvent = 8,  // There's nothing stopping a user from connecting a graph input of type "trigger" directly to a graph output event.
-				LocalVariable_NodeValue = 9,
-				//LocalVariable_NodeEvent = 10,  // not needed, as these connections get re-routed to NodeEvent_XXXX during compilation
-				LocalVariable_GraphValue = 11, // In "transition" graphs, it is possible to connect a local variable directly to graph output.
+				LocalVariable_NodeValue = 8,
 			};
 
 			struct Endpoint

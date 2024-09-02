@@ -18,8 +18,6 @@ namespace Hazel {
 
 		~Entity() {}
 
-		bool IsValid() const;
-
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args);
 
@@ -28,14 +26,6 @@ namespace Hazel {
 
 		template<typename T>
 		const T& GetComponent() const;
-
-		// returns nullptr if entity does not have the requested component type
-		template<typename T>
-		T* TryGetComponent();
-
-		// returns nullptr if entity does not have the requested component type
-		template<typename T>
-		const T* TryGetComponent() const;
 
 		template<typename... T>
 		bool HasComponent();

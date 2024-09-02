@@ -3,8 +3,6 @@
 
 #include "Hazel/ImGui/ImGui.h"
 
-#include <format>
-
 namespace Hazel {
 
 	ECSDebugPanel::ECSDebugPanel(Ref<Scene> context)
@@ -25,7 +23,7 @@ namespace Hazel {
 				Entity entity = { e, m_Context.Raw() };
 				const auto& name = entity.Name();
 
-				std::string label = std::format("{0} - {1}", name, entity.GetUUID());
+				std::string label = fmt::format("{0} - {1}", name, entity.GetUUID());
 
 				bool selected = SelectionManager::IsSelected(SelectionContext::Scene, entity.GetUUID());
 				if (ImGui::Selectable(label.c_str(), &selected, 0))

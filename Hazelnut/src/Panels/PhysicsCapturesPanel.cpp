@@ -1,9 +1,8 @@
 #include "PhysicsCapturesPanel.h"
 
-#include "Hazel/ImGui/ImGui.h"
 #include "Hazel/Physics/PhysicsSystem.h"
 
-#include <format>
+#include "Hazel/ImGui/ImGui.h"
 
 namespace Hazel {
 
@@ -55,14 +54,14 @@ namespace Hazel {
 					{
 						UI::BeginDisabled();
 						ImGui::SetNextItemWidth(textFieldWidth);
-						ImGui::InputText(std::format("##captureFilePath-{}", capturePath).c_str(), capturePath.data(), capturePath.size(), ImGuiInputTextFlags_ReadOnly);
+						ImGui::InputText(fmt::format("##captureFilePath-{}", capturePath).c_str(), capturePath.data(), capturePath.size(), ImGuiInputTextFlags_ReadOnly);
 						UI::EndDisabled();
 
 						ImGui::SameLine();
-						if (ImGui::Button(std::format("Open##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
+						if (ImGui::Button(fmt::format("Open##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
 							captureManager->OpenCapture(capturePath);
 						ImGui::SameLine();
-						if (ImGui::Button(std::format("Delete##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
+						if (ImGui::Button(fmt::format("Delete##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
 							captureToDelete = capturePath;
 						UI::Separator();
 					}
@@ -71,15 +70,15 @@ namespace Hazel {
 				{
 					UI::BeginDisabled();
 					ImGui::SetNextItemWidth(textFieldWidth);
-					ImGui::InputText(std::format("##captureFilePath-{}", capturePath).c_str(), capturePath.data(), capturePath.size(), ImGuiInputTextFlags_ReadOnly);
+					ImGui::InputText(fmt::format("##captureFilePath-{}", capturePath).c_str(), capturePath.data(), capturePath.size(), ImGuiInputTextFlags_ReadOnly);
 					UI::EndDisabled();
 
 					ImGui::SameLine();
-					if (ImGui::Button(std::format("Open##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
+					if (ImGui::Button(fmt::format("Open##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
 						captureManager->OpenCapture(capturePath);
 
 					ImGui::SameLine();
-					if (ImGui::Button(std::format("Delete##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
+					if (ImGui::Button(fmt::format("Delete##{}", capturePath).c_str(), ImVec2(buttonWidth, 0.0f)))
 						captureToDelete = capturePath;
 
 					UI::Separator();

@@ -2,6 +2,10 @@
 {
 	public static class SceneManager
 	{
+		/*
+			public static ulong GetCurrentSceneID() => InternalCalls.SceneManager_GetCurrentSceneID();
+		*/
+
 		public static void LoadScene(Scene scene)
 		{
 			if (!scene.Handle.IsValid())
@@ -11,13 +15,12 @@
 			}
 
 			Scene.OnSceneChange();
-
-			unsafe { InternalCalls.SceneManager_LoadScene(scene.Handle); }
+			InternalCalls.SceneManager_LoadScene(ref scene.m_Handle);
 		}
 
 		public static string GetSceneName()
 		{
-			unsafe { return InternalCalls.SceneManager_GetCurrentSceneName(); }
+			return InternalCalls.SceneManager_GetCurrentSceneName();
 		}
 	}
 }

@@ -42,8 +42,6 @@ namespace Hazel
 			W = c.X * c.Y * c.Z + s.X * s.Y * s.Z;
 		}
 
-		public Quaternion Conjugate => new Quaternion(-X, -Y, -Z, W);
-
 		public static Vector3 operator *(Quaternion q, Vector3 v)
 		{
 			Vector3 qv = new Vector3(q.X, q.Y, q.Z);

@@ -1,13 +1,11 @@
 #include "SceneRendererPanel.h"
 
 #include "Hazel/Core/Application.h"
+#include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Debug/Profiler.h"
 #include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Renderer/Renderer.h"
 
-#include <imgui/imgui.h>
-
-#include <format>
+#include "imgui/imgui.h"
 
 namespace Hazel {
 
@@ -51,7 +49,7 @@ namespace Hazel {
 					ImGui::Columns(2);
 					ImGui::Text(name.c_str());
 					ImGui::NextColumn();
-					std::string buttonName = std::format("Reload##{0}", name);
+					std::string buttonName = fmt::format("Reload##{0}", name);
 					if (ImGui::Button(buttonName.c_str()))
 						shader->Reload(true);
 					ImGui::Columns(1);
@@ -146,7 +144,7 @@ namespace Hazel {
 
 						// NOTE(Yan): updating shader defines causes Vulkan render pass issues, and we don't need them here any more,
 						//            but probably worth looking into at some point
-						// Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", std::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
+						// Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
 						// Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", std::to_string((int)options.ReflectionOcclusionMethod));
 					}
 				
@@ -188,8 +186,8 @@ namespace Hazel {
 					options.ReflectionOcclusionMethod = ShaderDef::ROMETHODS[methodIndex];
 					if ((int)options.ReflectionOcclusionMethod & (int)ShaderDef::AOMethod::GTAO)
 						options.EnableGTAO = true;
-					Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", std::format("{}", (int)options.ReflectionOcclusionMethod));
-					Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", std::format("{}", (int)ShaderDef::GetAOMethod(options.EnableGTAO)));
+					Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", options.ReflectionOcclusionMethod));
+					Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
 				}
 
 				UI::Property("Brightness", ssrOptions.Brightness, 0.001f, 0.0f, 1.0f);
@@ -243,10 +241,7 @@ namespace Hazel {
 					{
 						std::string filename = FileSystem::OpenFileDialog().string();
 						if (!filename.empty())
-						{
 							m_Context->m_BloomDirtTexture = Texture2D::Create(TextureSpecification(), filename);
-							m_Context->m_CompositePass->SetInput("u_BloomDirtTexture", m_Context->m_BloomDirtTexture);
-						}
 					}
 				}
 
@@ -347,7 +342,7 @@ namespace Hazel {
 					UI::PropertySlider("Texture", tex, 0, 2);
 					static int mip = 0;
 					auto [mipWidth, mipHeight] = m_BloomComputeTextures[tex]->GetMipSize(mip);
-					std::string label = std::format("Mip ({0}x{1})", mipWidth, mipHeight);
+					std::string label = fmt::format("Mip ({0}x{1})", mipWidth, mipHeight);
 					UI::PropertySlider(label.c_str(), mip, 0, m_BloomComputeTextures[tex]->GetMipLevelCount() - 1);
 					UI::ImageMip(m_BloomComputeTextures[tex]->GetImage(), mip, { size, size * (1.0f / m_BloomComputeTextures[tex]->GetImage()->GetAspectRatio()) }, { 0, 1 }, { 1, 0 });
 				}

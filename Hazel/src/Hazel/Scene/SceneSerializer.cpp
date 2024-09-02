@@ -11,10 +11,11 @@
 #include "Hazel/Audio/AudioEngine.h"
 #include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h" // TODO (0x): separate editor from runtime
 #include "Hazel/Physics/PhysicsSystem.h"
-#include "Hazel/Script/ScriptEngine.h"
 
 #include "Hazel/Renderer/MeshFactory.h"
 #include "Hazel/Renderer/UI/Font.h"
+#include "Hazel/Script/ScriptEngine.h"
+#include "Hazel/Script/ScriptUtils.h"
 #include "Hazel/Utilities/SerializationMacros.h"
 #include "Hazel/Utilities/YAMLSerializationHelpers.h"
 
@@ -22,7 +23,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <magic_enum.hpp>
+#include <mono/metadata/blob.h>
 
 #include "yaml-cpp/yaml.h"
 
@@ -36,7 +37,7 @@ namespace Hazel {
 	{
 	}
 
-	void SceneSerializer::SerializeEntity(YAML::Emitter& out, Entity entity, Ref<Scene> scene)
+	void SceneSerializer::SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
 		UUID uuid = entity.GetComponent<IDComponent>().ID;
 		out << YAML::BeginMap; // Entity
@@ -101,98 +102,136 @@ namespace Hazel {
 			out << YAML::Key << "ScriptComponent";
 			out << YAML::BeginMap; // ScriptComponent
 
-			const auto& scriptEngine = ScriptEngine::GetInstance();
 			const auto& sc = entity.GetComponent<ScriptComponent>();
 
-			if (scriptEngine.IsValidScript(sc.ScriptID))
+			ManagedClass* scriptClass = ScriptCache::GetManagedClassByID(ScriptEngine::GetScriptClassIDFromComponent(sc));
+			out << YAML::Key << "ClassHandle" << YAML::Value << sc.ScriptClassHandle;
+			out << YAML::Key << "Name" << YAML::Value << (scriptClass ? scriptClass->FullName : "Null");
+
+			if (sc.FieldIDs.size() > 0)
 			{
-				const auto& scriptMetadata = scriptEngine.GetScriptMetadata(sc.ScriptID);
-				const auto& entityStorage = scene->m_ScriptStorage.EntityStorage.at(entity.GetUUID());
+				out << YAML::Key << "StoredFields" << YAML::Value;
+				out << YAML::BeginSeq;
 
-				out << YAML::Key << "ScriptID" << YAML::Value << sc.ScriptID;
-				out << YAML::Key << "ScriptName" << YAML::Value << scriptMetadata.FullName;
-
-				out << YAML::Key << "Fields" << YAML::Value << YAML::BeginSeq;
-				for (const auto&[fieldID, fieldStorage] : entityStorage.Fields)
+				for (auto fieldID : sc.FieldIDs)
 				{
-					const auto& fieldMetadata = scriptMetadata.Fields.at(fieldID);
+					FieldInfo* fieldInfo = ScriptCache::GetFieldByID(fieldID);
 
-					out << YAML::BeginMap;
-					out << YAML::Key << "ID" << YAML::Value << fieldID;
-					out << YAML::Key << "Name" << YAML::Value << fieldMetadata.Name;
-					out << YAML::Key << "Type" << YAML::Value << std::string(magic_enum::enum_name(fieldMetadata.Type));
-					out << YAML::Key << "Value" << YAML::Value;
+					if (!fieldInfo->IsWritable())
+						continue;
 
-					if (fieldStorage.IsArray())
+					Ref<FieldStorageBase> storage = ScriptEngine::GetFieldStorage(entity, fieldID);
+
+					if (!storage)
+						continue;
+
+					out << YAML::BeginMap; // Field
+					out << YAML::Key << "ID" << YAML::Value << fieldInfo->ID;
+					out << YAML::Key << "Name" << YAML::Value << fieldInfo->Name; // This is only here for the sake of debugging. All we need is the ID
+					out << YAML::Key << "Type" << YAML::Value << FieldUtils::FieldTypeToString(fieldInfo->Type);
+
+					if (fieldInfo->IsArray())
+						out << YAML::Key << "Length" << YAML::Value << storage.As<ArrayFieldStorage>()->GetLength(); // Not strictly necessary but useful for readability
+
+					out << YAML::Key << "Data" << YAML::Value;
+
+					if (fieldInfo->IsArray())
 					{
 						out << YAML::BeginSeq;
 
-						for (int32_t i = 0; i < fieldStorage.GetLength(); i++)
+						Ref<ArrayFieldStorage> arrayStorage = storage.As<ArrayFieldStorage>();
+
+						for (uint32_t i = 0; i < uint32_t(arrayStorage->GetLength()); i++)
 						{
-							switch (fieldMetadata.Type)
+							switch (fieldInfo->Type)
 							{
-								case DataType::SByte:
-									out << fieldStorage.GetValue<int8_t>(i);
+								case FieldType::Bool:
+								{
+									out << arrayStorage->GetValue<bool>(i);
 									break;
-								case DataType::Byte:
-									out << fieldStorage.GetValue<uint8_t>(i);
+								}
+								case FieldType::Int8:
+								{
+									out << arrayStorage->GetValue<int8_t>(i);
 									break;
-								case DataType::Short:
-									out << fieldStorage.GetValue<int16_t>(i);
+								}
+								case FieldType::Int16:
+								{
+									out << arrayStorage->GetValue<int16_t>(i);
 									break;
-								case DataType::UShort:
-									out << fieldStorage.GetValue<uint16_t>(i);
+								}
+								case FieldType::Int32:
+								{
+									out << arrayStorage->GetValue<int32_t>(i);
 									break;
-								case DataType::Int:
-									out << fieldStorage.GetValue<int32_t>(i);
+								}
+								case FieldType::Int64:
+								{
+									out << arrayStorage->GetValue<int64_t>(i);
 									break;
-								case DataType::UInt:
-									out << fieldStorage.GetValue<uint32_t>(i);
+								}
+								case FieldType::UInt8:
+								{
+									out << arrayStorage->GetValue<uint8_t>(i);
 									break;
-								case DataType::Long:
-									out << fieldStorage.GetValue<int64_t>(i);
+								}
+								case FieldType::UInt16:
+								{
+									out << arrayStorage->GetValue<uint16_t>(i);
 									break;
-								case DataType::ULong:
-									out << fieldStorage.GetValue<uint64_t>(i);
+								}
+								case FieldType::UInt32:
+								{
+									out << arrayStorage->GetValue<uint32_t>(i);
 									break;
-								case DataType::Float:
-									out << fieldStorage.GetValue<float>(i);
+								}
+								case FieldType::UInt64:
+								{
+									out << arrayStorage->GetValue<uint64_t>(i);
 									break;
-								case DataType::Double:
-									out << fieldStorage.GetValue<double>(i);
+								}
+								case FieldType::Float:
+								{
+									out << arrayStorage->GetValue<float>(i);
 									break;
-								case DataType::Vector2:
-									out << fieldStorage.GetValue<glm::vec2>(i);
+								}
+								case FieldType::Double:
+								{
+									out << arrayStorage->GetValue<double>(i);
 									break;
-								case DataType::Vector3:
-									out << fieldStorage.GetValue<glm::vec3>(i);
+								}
+								case FieldType::String:
+								{
+									out << arrayStorage->GetValue<std::string>(i);
 									break;
-								case DataType::Vector4:
-									out << fieldStorage.GetValue<glm::vec4>(i);
+								}
+								case FieldType::Vector2:
+								{
+									out << arrayStorage->GetValue<glm::vec2>(i);
 									break;
-								case DataType::Entity:
-									out << fieldStorage.GetValue<uint64_t>(i);
+								}
+								case FieldType::Vector3:
+								{
+									out << arrayStorage->GetValue<glm::vec3>(i);
 									break;
-								case DataType::Prefab:
-									out << fieldStorage.GetValue<uint64_t>(i);
+								}
+								case FieldType::Vector4:
+								{
+									out << arrayStorage->GetValue<glm::vec4>(i);
 									break;
-								case DataType::Mesh:
-									out << fieldStorage.GetValue<uint64_t>(i);
+								}
+								case FieldType::Prefab:
+								case FieldType::Entity:
+								case FieldType::Mesh:
+								case FieldType::StaticMesh:
+								case FieldType::Material:
+								case FieldType::PhysicsMaterial:
+								case FieldType::Scene:
+								case FieldType::Texture2D:
+								{
+									out << arrayStorage->GetValue<UUID>(i);
 									break;
-								case DataType::StaticMesh:
-									out << fieldStorage.GetValue<uint64_t>(i);
-									break;
-								case DataType::Material:
-									out << fieldStorage.GetValue<uint64_t>(i);
-									break;
-								case DataType::Texture2D:
-									out << fieldStorage.GetValue<uint64_t>(i);
-									break;
-								case DataType::Scene:
-									out << fieldStorage.GetValue<uint64_t>(i);
-									break;
-								default:
-									break;
+								}
 							}
 						}
 
@@ -200,74 +239,99 @@ namespace Hazel {
 					}
 					else
 					{
-						switch (fieldMetadata.Type)
+						Ref<FieldStorage> fieldStorage = storage.As<FieldStorage>();
+						switch (fieldInfo->Type)
 						{
-							case DataType::SByte:
-								out << fieldStorage.GetValue<int8_t>();
+							case FieldType::Bool:
+							{
+								out << fieldStorage->GetValue<bool>();
 								break;
-							case DataType::Byte:
-								out << fieldStorage.GetValue<uint8_t>();
+							}
+							case FieldType::Int8:
+							{
+								out << fieldStorage->GetValue<int8_t>();
 								break;
-							case DataType::Short:
-								out << fieldStorage.GetValue<int16_t>();
+							}
+							case FieldType::Int16:
+							{
+								out << fieldStorage->GetValue<int16_t>();
 								break;
-							case DataType::UShort:
-								out << fieldStorage.GetValue<uint16_t>();
+							}
+							case FieldType::Int32:
+							{
+								out << fieldStorage->GetValue<int32_t>();
 								break;
-							case DataType::Int:
-								out << fieldStorage.GetValue<int32_t>();
+							}
+							case FieldType::Int64:
+							{
+								out << fieldStorage->GetValue<int64_t>();
 								break;
-							case DataType::UInt:
-								out << fieldStorage.GetValue<uint32_t>();
+							}
+							case FieldType::UInt8:
+							{
+								out << fieldStorage->GetValue<uint8_t>();
 								break;
-							case DataType::Long:
-								out << fieldStorage.GetValue<int64_t>();
+							}
+							case FieldType::UInt16:
+							{
+								out << fieldStorage->GetValue<uint16_t>();
 								break;
-							case DataType::ULong:
-								out << fieldStorage.GetValue<uint64_t>();
+							}
+							case FieldType::UInt32:
+							{
+								out << fieldStorage->GetValue<uint32_t>();
 								break;
-							case DataType::Float:
-								out << fieldStorage.GetValue<float>();
+							}
+							case FieldType::UInt64:
+							{
+								out << fieldStorage->GetValue<uint64_t>();
 								break;
-							case DataType::Double:
-								out << fieldStorage.GetValue<double>();
+							}
+							case FieldType::Float:
+							{
+								out << fieldStorage->GetValue<float>();
 								break;
-							case DataType::Vector2:
-								out << fieldStorage.GetValue<glm::vec2>();
+							}
+							case FieldType::Double:
+							{
+								out << fieldStorage->GetValue<double>();
 								break;
-							case DataType::Vector3:
-								out << fieldStorage.GetValue<glm::vec2>();
+							}
+							case FieldType::String:
+							{
+								out << fieldStorage->GetValue<std::string>();
 								break;
-							case DataType::Vector4:
-								out << fieldStorage.GetValue<glm::vec2>();
+							}
+							case FieldType::Vector2:
+							{
+								out << fieldStorage->GetValue<glm::vec2>();
 								break;
-							case DataType::Entity:
-								out << fieldStorage.GetValue<uint64_t>();
+							}
+							case FieldType::Vector3:
+							{
+								out << fieldStorage->GetValue<glm::vec3>();
 								break;
-							case DataType::Prefab:
-								out << fieldStorage.GetValue<uint64_t>();
+							}
+							case FieldType::Vector4:
+							{
+								out << fieldStorage->GetValue<glm::vec4>();
 								break;
-							case DataType::Mesh:
-								out << fieldStorage.GetValue<uint64_t>();
+							}
+							case FieldType::Prefab:
+							case FieldType::Entity:
+							case FieldType::Mesh:
+							case FieldType::StaticMesh:
+							case FieldType::Material:
+							case FieldType::PhysicsMaterial:
+							case FieldType::Scene:
+							case FieldType::Texture2D:
+							{
+								out << fieldStorage->GetValue<UUID>();
 								break;
-							case DataType::StaticMesh:
-								out << fieldStorage.GetValue<uint64_t>();
-								break;
-							case DataType::Material:
-								out << fieldStorage.GetValue<uint64_t>();
-								break;
-							case DataType::Texture2D:
-								out << fieldStorage.GetValue<uint64_t>();
-								break;
-							case DataType::Scene:
-								out << fieldStorage.GetValue<uint64_t>();
-								break;
-							default:
-								break;
+							}
 						}
 					}
-
-					out << YAML::EndMap;
+					out << YAML::EndMap; // Field
 				}
 				out << YAML::EndSeq;
 			}
@@ -281,28 +345,6 @@ namespace Hazel {
 			out << YAML::BeginMap; // MeshComponent
 
 			auto& mc = entity.GetComponent<MeshComponent>();
-			out << YAML::Key << "AssetID" << YAML::Value << mc.Mesh;
-
-			out << YAML::EndMap; // MeshComponent
-		}
-
-		if (entity.HasComponent<MeshTagComponent>())
-		{
-			out << YAML::Key << "MeshTagComponent";
-			out << YAML::BeginMap; // MeshTagComponent
-
-			auto& mtc = entity.GetComponent<MeshTagComponent>();
-			out << YAML::Key << "EntityID" << YAML::Value << mtc.MeshEntity;
-
-			out << YAML::EndMap; // MeshTagComponent
-		}
-
-		if (entity.HasComponent<SubmeshComponent>())
-		{
-			out << YAML::Key << "SubmeshComponent";
-			out << YAML::BeginMap; // SubmeshComponent
-
-			auto& mc = entity.GetComponent<SubmeshComponent>();
 			out << YAML::Key << "AssetID" << YAML::Value << mc.Mesh;
 			out << YAML::Key << "SubmeshIndex" << YAML::Value << mc.SubmeshIndex;
 
@@ -368,16 +410,12 @@ namespace Hazel {
 					{
 						for (auto [id, value] : anim.AnimationGraph->Ins)
 						{
-
-							// TODO: array inputs!
-
-							if (value.isBool())         out << YAML::Key << id << YAML::Value << value.getBool();
-							else if (value.isInt32())   out << YAML::Key << id << YAML::Value << value.getInt32();
-							else if (value.isInt64())   out << YAML::Key << id << YAML::Value << value.getInt64();
-							else if (value.isFloat32()) out << YAML::Key << id << YAML::Value << value.getFloat32();
-							else if (value.isFloat64()) out << YAML::Key << id << YAML::Value << value.getFloat64();
-							else if (value.isVoid());   // void value is for triggers.  No need to output anything;
-							else if (value.isObjectWithClassName(type::type_name<glm::vec3>())) out << YAML::Key << id << YAML::Value << *static_cast<glm::vec3*>(value.getRawData());
+							out << YAML::Key << id;  // TODO: it would be nicer for human-readable scene file to have the input name here rather than id.  However, that couples SceneSerializer to the editor, which we do not want.
+							if(value.isBool())          out << YAML::Value << value.getBool();
+							else if (value.isInt32())   out << YAML::Value << value.getInt32();
+							else if (value.isInt64())   out << YAML::Value << value.getInt64();
+							else if (value.isFloat32()) out << YAML::Value << value.getFloat32();
+							else if (value.isFloat64()) out << YAML::Value << value.getFloat64();
 							else
 							{
 								HZ_CORE_ASSERT(false, "Unknown type");
@@ -471,7 +509,7 @@ namespace Hazel {
 			out << YAML::BeginMap; // SkyLightComponent
 
 			auto& skyLightComponent = entity.GetComponent<SkyLightComponent>();
-			out << YAML::Key << "EnvironmentMap" << YAML::Value << (AssetManager::GetMemoryAsset(skyLightComponent.SceneEnvironment) ? (AssetHandle)0 : skyLightComponent.SceneEnvironment);
+			out << YAML::Key << "EnvironmentMap" << YAML::Value << (AssetManager::IsMemoryAsset(skyLightComponent.SceneEnvironment) ? (AssetHandle)0 : skyLightComponent.SceneEnvironment);
 			out << YAML::Key << "Intensity" << YAML::Value << skyLightComponent.Intensity;
 			out << YAML::Key << "Lod" << YAML::Value << skyLightComponent.Lod;
 			out << YAML::Key << "DynamicSky" << YAML::Value << skyLightComponent.DynamicSky;
@@ -493,8 +531,6 @@ namespace Hazel {
 			out << YAML::Key << "TilingFactor" << YAML::Value << spriteRendererComponent.TilingFactor;
 			out << YAML::Key << "UVStart" << YAML::Value << spriteRendererComponent.UVStart;
 			out << YAML::Key << "UVEnd" << YAML::Value << spriteRendererComponent.UVEnd;
-			out << YAML::Key << "ScreenSpace" << YAML::Value << spriteRendererComponent.ScreenSpace;
-
 
 			out << YAML::EndMap; // SpriteRendererComponent
 		}
@@ -524,14 +560,9 @@ namespace Hazel {
 			out << YAML::Key << "RigidBody2DComponent";
 			out << YAML::BeginMap; // RigidBody2DComponent
 
-			const auto& rigidbody2DComponent = entity.GetComponent<RigidBody2DComponent>();
+			auto& rigidbody2DComponent = entity.GetComponent<RigidBody2DComponent>();
 			out << YAML::Key << "BodyType" << YAML::Value << (int)rigidbody2DComponent.BodyType;
 			out << YAML::Key << "FixedRotation" << YAML::Value << rigidbody2DComponent.FixedRotation;
-			out << YAML::Key << "Mass" << YAML::Value << rigidbody2DComponent.Mass;
-			out << YAML::Key << "LinearDrag" << YAML::Value << rigidbody2DComponent.LinearDrag;
-			out << YAML::Key << "AngularDrag" << YAML::Value << rigidbody2DComponent.AngularDrag;
-			out << YAML::Key << "GravityScale" << YAML::Value << rigidbody2DComponent.GravityScale;
-			out << YAML::Key << "IsBullet" << YAML::Value << rigidbody2DComponent.IsBullet;
 
 			out << YAML::EndMap; // RigidBody2DComponent
 		}
@@ -596,12 +627,27 @@ namespace Hazel {
 			auto& ccc = entity.GetComponent<CharacterControllerComponent>();
 			out << YAML::Key << "Layer" << YAML::Value << ccc.LayerID;
 			out << YAML::Key << "DisableGravity" << YAML::Value << ccc.DisableGravity;
-			out << YAML::Key << "ControlMovementInAir" << YAML::Value << ccc.ControlMovementInAir;
-			out << YAML::Key << "ControlRotationInAir" << YAML::Value << ccc.ControlRotationInAir;
 			out << YAML::Key << "SlopeLimit" << YAML::Value << ccc.SlopeLimitDeg;
 			out << YAML::Key << "StepOffset" << YAML::Value << ccc.StepOffset;
 
 			out << YAML::EndMap; // CharacterControllerComponent
+		}
+
+		if (entity.HasComponent<FixedJointComponent>())
+		{
+			out << YAML::Key << "FixedJointComponent";
+			out << YAML::BeginMap; // FixedJointComponent
+
+			auto& fjc = entity.GetComponent<FixedJointComponent>();
+			out << YAML::Key << "ConnectedEntity" << YAML::Value << fjc.ConnectedEntity;
+			out << YAML::Key << "IsBreakable" << YAML::Value << fjc.IsBreakable;
+			out << YAML::Key << "BreakForce" << YAML::Value << fjc.BreakForce;
+			out << YAML::Key << "BreakTorque" << YAML::Value << fjc.BreakTorque;
+			out << YAML::Key << "EnableCollision" << YAML::Value << fjc.EnableCollision;
+			out << YAML::Key << "EnablePreProcessing" << YAML::Value << fjc.EnablePreProcessing;
+
+
+			out << YAML::EndMap; // FixedJointComponent
 		}
 
 		if (entity.HasComponent<CompoundColliderComponent>())
@@ -676,12 +722,7 @@ namespace Hazel {
 
 			auto& meshColliderComponent = entity.GetComponent<MeshColliderComponent>();
 
-			// don't serialize asset handles of memory-only assets (because this causes spurious differences in the scene file every time it is serialized)
-			if (!AssetManager::GetMemoryAsset(meshColliderComponent.ColliderAsset))
-			{
-				out << YAML::Key << "ColliderHandle" << YAML::Value << meshColliderComponent.ColliderAsset;
-			}
-
+			out << YAML::Key << "ColliderHandle" << YAML::Value << meshColliderComponent.ColliderAsset;
 			out << YAML::Key << "UseSharedShape" << YAML::Value << meshColliderComponent.UseSharedShape;
 			out << YAML::Key << "Friction" << YAML::Value << meshColliderComponent.Material.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << meshColliderComponent.Material.Restitution;
@@ -727,12 +768,8 @@ namespace Hazel {
 		YAML::Emitter out;
 		SerializeToYAML(out);
 
-		// if extension is .auto, then only save if the scene has actually changed (determined by hashing serialized string)
-		if (auto hash = std::hash<std::string>()(out.c_str()); (filepath.extension() != ".auto") || (hash != m_Scene->m_LastSerializeHash)) {
-			std::ofstream fout(filepath);
-			fout << out.c_str();
-			m_Scene->m_LastSerializeHash = hash;
-		}
+		std::ofstream fout(filepath);
+		fout << out.c_str();
 	}
 
 	void SceneSerializer::SerializeToYAML(YAML::Emitter& out)
@@ -750,7 +787,7 @@ namespace Hazel {
 				anim.AnimationGraph->Init();
 			}
 		}
-		m_Scene->UpdateAnimation(0.0f, false, nullptr);
+		m_Scene->UpdateAnimation(0.0f, false);
 
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene";
@@ -767,7 +804,7 @@ namespace Hazel {
 
 		// Serialize sorted entities
 		for (auto [id, entity] : sortedEntityMap)
-			SerializeEntity(out, { entity, m_Scene.Raw() }, m_Scene);
+			SerializeEntity(out, { entity, m_Scene.Raw() });
 
 		out << YAML::EndSeq;
 
@@ -815,9 +852,10 @@ namespace Hazel {
 		for (auto entity : m_Scene->GetAllEntitiesWith<AnimationComponent>())
 		{
 			Entity e = { entity, m_Scene.Raw() };
-			if(auto& anim = e.GetComponent<AnimationComponent>(); anim.AnimationGraph)
+			auto& anim = e.GetComponent<AnimationComponent>();
+			if (anim.AnimationGraph)
 			{
-				anim.BoneEntityIds = m_Scene->FindBoneEntityIds(e, e, anim.AnimationGraph->GetSkeleton());
+				anim.BoneEntityIds = m_Scene->FindBoneEntityIds(e, e, anim.AnimationGraph);
 			}
 		}
 
@@ -894,277 +932,238 @@ namespace Hazel {
 			auto scriptComponent = entity["ScriptComponent"];
 			if (scriptComponent)
 			{
-				uint64_t scriptID = scriptComponent["ScriptID"].as<uint64_t>(0);
+				AssetHandle scriptAssetHandle = scriptComponent["ClassHandle"] ? scriptComponent["ClassHandle"].as<AssetHandle>(AssetHandle(0)) : AssetHandle(0);
+				std::string moduleName = scriptComponent["ModuleName"] ? scriptComponent["ModuleName"].as<std::string>("") : "";
+				std::string name = scriptComponent["Name"].as<std::string>("");
 
-				if (scriptID == 0)
+				if (scriptAssetHandle == 0 && !moduleName.empty())
+					scriptAssetHandle = HZ_SCRIPT_CLASS_ID(moduleName);
+
+				if (scriptAssetHandle != 0)
 				{
-					scriptID = scriptComponent["ClassHandle"].as<uint64_t>(0);
-				}
+					ScriptComponent& sc = deserializedEntity.AddComponent<ScriptComponent>(scriptAssetHandle);
+					ScriptEngine::InitializeScriptEntity(deserializedEntity);
 
-				if (scriptID != 0)
-				{
-					auto& scriptEngine = ScriptEngine::GetMutable();
-
-					if (scriptEngine.IsValidScript(scriptID))
+					if (sc.FieldIDs.size() > 0)
 					{
-						const auto& scriptMetadata = scriptEngine.GetScriptMetadata(scriptID);
-
-						ScriptComponent& sc = deserializedEntity.AddComponent<ScriptComponent>();
-						sc.ScriptID = scriptID;
-
-						scene->m_ScriptStorage.InitializeEntityStorage(scriptID, deserializedEntity.GetUUID());
-
-						bool oldFormat = false;
-
-						auto fieldsArray = scriptComponent["Fields"];
-
-						if (!fieldsArray)
+						auto storedFields = scriptComponent["StoredFields"];
+						if (storedFields)
 						{
-							fieldsArray = scriptComponent["StoredFields"];
-							oldFormat = true;
-						}
-
-						for (auto field : fieldsArray)
-						{
-							uint32_t fieldID = field["ID"].as<uint32_t>(0);
-							auto fieldName = field["Name"].as<std::string>("");
-
-							if (oldFormat)
+							for (auto field : storedFields)
 							{
-								// Old format, try generating id from name
-								auto fullFieldName = std::format("{}.{}", scriptMetadata.FullName, fieldName);
-								fieldID = Hash::GenerateFNVHash(fullFieldName);
-							}
+								uint32_t id = field["ID"].as<uint32_t>(0);
+								std::string fullName = field["Name"].as<std::string>();
+								std::string name = Utils::String::SubStr(fullName, fullName.find(':') + 1);
+								std::string typeStr = field["Type"].as<std::string>("");
+								FieldInfo* fieldData = ScriptCache::GetFieldByID(id);
+								Ref<FieldStorageBase> storage = ScriptEngine::GetFieldStorage(deserializedEntity, id);
 
-							if (scriptMetadata.Fields.contains(fieldID))
-							{
-								const auto& fieldMetadata = scriptMetadata.Fields.at(fieldID);
-								auto& fieldStorage = scene->m_ScriptStorage.EntityStorage.at(deserializedEntity.GetUUID()).Fields[fieldID];
-
-								auto valueNode = oldFormat ? field["Data"] : field["Value"];
-
-								if (fieldStorage.IsArray())
+								if (storage == nullptr)
 								{
-									HZ_CORE_VERIFY(valueNode.IsSequence());
-									fieldStorage.Resize(valueNode.size());
+									id = Hash::GenerateFNVHash(name);
+									storage = ScriptEngine::GetFieldStorage(deserializedEntity, id);
+								}
 
-									for (int32_t i = 0; i < valueNode.size(); i++)
-									{
-										switch (fieldMetadata.Type)
-										{
-											case DataType::SByte:
-											{
-												fieldStorage.SetValue(valueNode[i].as<int8_t>(), i);
-												break;
-											}
-											case DataType::Byte:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint8_t>(), i);
-												break;
-											}
-											case DataType::Short:
-											{
-												fieldStorage.SetValue(valueNode[i].as<int16_t>(), i);
-												break;
-											}
-											case DataType::UShort:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint16_t>(), i);
-												break;
-											}
-											case DataType::Int:
-											{
-												fieldStorage.SetValue(valueNode[i].as<int32_t>(), i);
-												break;
-											}
-											case DataType::UInt:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint32_t>(), i);
-												break;
-											}
-											case DataType::Long:
-											{
-												fieldStorage.SetValue(valueNode[i].as<int64_t>(), i);
-												break;
-											}
-											case DataType::ULong:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Float:
-											{
-												fieldStorage.SetValue(valueNode[i].as<float>(), i);
-												break;
-											}
-											case DataType::Double:
-											{
-												fieldStorage.SetValue(valueNode[i].as<double>(), i);
-												break;
-											}
-											case DataType::Vector2:
-											{
-												fieldStorage.SetValue(valueNode[i].as<glm::vec2>(), i);
-												break;
-											}
-											case DataType::Vector3:
-											{
-												fieldStorage.SetValue(valueNode[i].as<glm::vec3>(), i);
-												break;
-											}
-											case DataType::Vector4:
-											{
-												fieldStorage.SetValue(valueNode[i].as<glm::vec4>(), i);
-												break;
-											}
-											case DataType::Entity:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Prefab:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Mesh:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::StaticMesh:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Material:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Texture2D:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											case DataType::Scene:
-											{
-												fieldStorage.SetValue(valueNode[i].as<uint64_t>(), i);
-												break;
-											}
-											default:
-												break;
-										}
-									}
+								if (storage == nullptr)
+								{
+									HZ_CONSOLE_LOG_WARN("Serialized C# field {0} doesn't exist in script cache! This could be because the script field no longer exists or because it's been renamed.", name);
 								}
 								else
 								{
-									switch (fieldMetadata.Type)
+									auto dataNode = field["Data"];
+
+									if (fieldData->IsArray() && dataNode.IsSequence())
 									{
-										case DataType::SByte:
+										Ref<ArrayFieldStorage> arrayStorage = storage.As<ArrayFieldStorage>();
+										arrayStorage->Resize(uint32_t(dataNode.size()));
+
+										for (uint32_t i = 0; i < uint32_t(dataNode.size()); i++)
 										{
-											fieldStorage.SetValue(valueNode.as<int8_t>());
-											break;
+											switch (fieldData->Type)
+											{
+												case FieldType::Bool:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<bool>());
+													break;
+												}
+												case FieldType::Int8:
+												{
+													arrayStorage->SetValue(i, static_cast<int8_t>(dataNode[i].as<int16_t>()));
+													break;
+												}
+												case FieldType::Int16:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<int16_t>());
+													break;
+												}
+												case FieldType::Int32:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<int32_t>());
+													break;
+												}
+												case FieldType::Int64:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<int64_t>());
+													break;
+												}
+												case FieldType::UInt8:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<uint8_t>());
+													break;
+												}
+												case FieldType::UInt16:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<uint16_t>());
+													break;
+												}
+												case FieldType::UInt32:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<uint32_t>());
+													break;
+												}
+												case FieldType::UInt64:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<uint64_t>());
+													break;
+												}
+												case FieldType::Float:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<float>());
+													break;
+												}
+												case FieldType::Double:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<double>());
+													break;
+												}
+												case FieldType::String:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<std::string>());
+													break;
+												}
+												case FieldType::Vector2:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<glm::vec2>());
+													break;
+												}
+												case FieldType::Vector3:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<glm::vec3>());
+													break;
+												}
+												case FieldType::Vector4:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<glm::vec4>());
+													break;
+												}
+												case FieldType::Prefab:
+												case FieldType::Entity:
+												case FieldType::Mesh:
+												case FieldType::StaticMesh:
+												case FieldType::Material:
+												case FieldType::PhysicsMaterial:
+												case FieldType::Scene:
+												case FieldType::Texture2D:
+												{
+													arrayStorage->SetValue(i, dataNode[i].as<UUID>());
+													break;
+												}
+											}
 										}
-										case DataType::Byte:
+									}
+									else
+									{
+										Ref<FieldStorage> fieldStorage = storage.As<FieldStorage>();
+										switch (fieldData->Type)
 										{
-											fieldStorage.SetValue(valueNode.as<uint8_t>());
-											break;
+											case FieldType::Bool:
+											{
+												fieldStorage->SetValue(dataNode.as<bool>());
+												break;
+											}
+											case FieldType::Int8:
+											{
+												fieldStorage->SetValue(static_cast<int8_t>(dataNode.as<int16_t>()));
+												break;
+											}
+											case FieldType::Int16:
+											{
+												fieldStorage->SetValue(dataNode.as<int16_t>());
+												break;
+											}
+											case FieldType::Int32:
+											{
+												fieldStorage->SetValue(dataNode.as<int32_t>());
+												break;
+											}
+											case FieldType::Int64:
+											{
+												fieldStorage->SetValue(dataNode.as<int64_t>());
+												break;
+											}
+											case FieldType::UInt8:
+											{
+												fieldStorage->SetValue(dataNode.as<uint8_t>());
+												break;
+											}
+											case FieldType::UInt16:
+											{
+												fieldStorage->SetValue(dataNode.as<uint16_t>());
+												break;
+											}
+											case FieldType::UInt32:
+											{
+												fieldStorage->SetValue(dataNode.as<uint32_t>());
+												break;
+											}
+											case FieldType::UInt64:
+											{
+												fieldStorage->SetValue(dataNode.as<uint64_t>());
+												break;
+											}
+											case FieldType::Float:
+											{
+												fieldStorage->SetValue(dataNode.as<float>());
+												break;
+											}
+											case FieldType::Double:
+											{
+												fieldStorage->SetValue(dataNode.as<double>());
+												break;
+											}
+											case FieldType::String:
+											{
+												fieldStorage->SetValue(dataNode.as<std::string>());
+												break;
+											}
+											case FieldType::Vector2:
+											{
+												fieldStorage->SetValue(dataNode.as<glm::vec2>());
+												break;
+											}
+											case FieldType::Vector3:
+											{
+												fieldStorage->SetValue(dataNode.as<glm::vec3>());
+												break;
+											}
+											case FieldType::Vector4:
+											{
+												fieldStorage->SetValue(dataNode.as<glm::vec4>());
+												break;
+											}
+											case FieldType::Prefab:
+											case FieldType::Entity:
+											case FieldType::Mesh:
+											case FieldType::StaticMesh:
+											case FieldType::Material:
+											case FieldType::PhysicsMaterial:
+											case FieldType::Scene:
+											case FieldType::Texture2D:
+											{
+												fieldStorage->SetValue(dataNode.as<UUID>());
+												break;
+											}
 										}
-										case DataType::Short:
-										{
-											fieldStorage.SetValue(valueNode.as<int16_t>());
-											break;
-										}
-										case DataType::UShort:
-										{
-											fieldStorage.SetValue(valueNode.as<uint16_t>());
-											break;
-										}
-										case DataType::Int:
-										{
-											fieldStorage.SetValue(valueNode.as<int32_t>());
-											break;
-										}
-										case DataType::UInt:
-										{
-											fieldStorage.SetValue(valueNode.as<uint32_t>());
-											break;
-										}
-										case DataType::Long:
-										{
-											fieldStorage.SetValue(valueNode.as<int64_t>());
-											break;
-										}
-										case DataType::ULong:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Float:
-										{
-											fieldStorage.SetValue(valueNode.as<float>());
-											break;
-										}
-										case DataType::Double:
-										{
-											fieldStorage.SetValue(valueNode.as<double>());
-											break;
-										}
-										case DataType::Vector2:
-										{
-											fieldStorage.SetValue(valueNode.as<glm::vec2>());
-											break;
-										}
-										case DataType::Vector3:
-										{
-											fieldStorage.SetValue(valueNode.as<glm::vec3>());
-											break;
-										}
-										case DataType::Vector4:
-										{
-											fieldStorage.SetValue(valueNode.as<glm::vec4>());
-											break;
-										}
-										case DataType::Bool:
-											break;
-										case DataType::Entity:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Prefab:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Mesh:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::StaticMesh:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Material:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Texture2D:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										case DataType::Scene:
-										{
-											fieldStorage.SetValue(valueNode.as<uint64_t>());
-											break;
-										}
-										default:
-											break;
 									}
 								}
 							}
@@ -1173,39 +1172,9 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ERROR_TAG("Scripting", "Failed to deserialize ScriptComponent on entity '{}', script id of 0 is not valid.", uuid);
+					HZ_CORE_ERROR("Failed to deserialize ScriptComponent for entity '{0}'! Couldn't find a valid ModuleName or ClassHandle field/value!", deserializedEntity.Name());
 				}
 			}
-
-			auto deserializeSubmesh = [&deserializedEntity](YAML::Node submeshNode) {
-				auto& component = deserializedEntity.AddComponent<SubmeshComponent>();
-
-				AssetHandle assetHandle = submeshNode["AssetID"].as<uint64_t>();
-				if (AssetManager::IsAssetHandleValid(assetHandle))
-				{
-					AssetType type = AssetManager::GetAssetType(assetHandle);
-					if (type == AssetType::Mesh)
-						component.Mesh = assetHandle;
-				}
-
-				if (submeshNode["SubmeshIndex"])
-					component.SubmeshIndex = submeshNode["SubmeshIndex"].as<uint32_t>();
-
-				if (submeshNode["MaterialTable"])
-				{
-					YAML::Node materialTableNode = submeshNode["MaterialTable"];
-					for (auto materialEntry : materialTableNode)
-					{
-						uint32_t index = materialEntry.first.as<uint32_t>();
-						AssetHandle materialAsset = materialEntry.second.as<AssetHandle>();
-						if (materialAsset && AssetManager::IsAssetHandleValid(materialAsset))
-							component.MaterialTable->SetMaterial(index, materialAsset);
-					}
-				}
-
-				if (submeshNode["Visible"])
-					component.Visible = submeshNode["Visible"].as<bool>();
-			};
 
 			auto meshComponent = entity["MeshComponent"];
 			if (meshComponent)
@@ -1218,22 +1187,38 @@ namespace Hazel {
 					AssetType type = AssetManager::GetAssetType(assetHandle);
 					if (type == AssetType::Mesh)
 						component.Mesh = assetHandle;
+#if DEPRECTATED
+					else if (type == AssetType::MeshSource)
+					{
+						// Create new mesh
+						Ref<MeshSource> meshAsset = AssetManager::GetAsset<MeshSource>(assetHandle);
+						std::filesystem::path meshPath = metadata.FilePath;
+						std::filesystem::path meshDirectory = Project::GetMeshPath();
+						std::string filename = fmt::format("{0}.hmesh", meshPath.stem().string());
+						Ref<Mesh> mesh = Project::GetEditorAssetManager()->CreateNewAsset<Mesh>(filename, meshDirectory.string(), meshAsset);
+						component.Mesh = mesh->Handle;
+						AssetImporter::Serialize(mesh);
+					}
+#endif
 				}
+
 				if (meshComponent["SubmeshIndex"])
+					component.SubmeshIndex = meshComponent["SubmeshIndex"].as<uint32_t>();
+
+				if (meshComponent["MaterialTable"])
 				{
-					deserializeSubmesh(meshComponent);
+					YAML::Node materialTableNode = meshComponent["MaterialTable"];
+					for (auto materialEntry : materialTableNode)
+					{
+						uint32_t index = materialEntry.first.as<uint32_t>();
+						AssetHandle materialAsset = materialEntry.second.as<AssetHandle>();
+						if (materialAsset && AssetManager::IsAssetHandleValid(materialAsset))
+							component.MaterialTable->SetMaterial(index, materialAsset);
+					}
 				}
-			}
 
-			auto submeshComponent = entity["SubmeshComponent"];
-			if (submeshComponent)
-				deserializeSubmesh(submeshComponent);
-
-			auto meshTagComponent = entity["MeshTagComponent"];
-			if (meshTagComponent)
-			{
-				auto& component = deserializedEntity.AddComponent<MeshTagComponent>();
-				component.MeshEntity = meshTagComponent["MeshEntity"].as<uint64_t>(0);
+				if (meshComponent["Visible"])
+					component.Visible = meshComponent["Visible"].as<bool>();
 			}
 
 			auto staticMeshComponent = entity["StaticMeshComponent"];
@@ -1293,18 +1278,6 @@ namespace Hazel {
 							else if (value.isInt64())   value.set(input.second.as<int64_t>());
 							else if(value.isFloat32())  value.set(input.second.as<float>());
 							else if (value.isFloat64()) value.set(input.second.as<double>());
-							else if (value.isObjectWithClassName(type::type_name<glm::vec3>()))
-							{
-								glm::vec3 v = input.second.as<glm::vec3>();
-								value.getObjectMemberAt(0).value.set(v.x);
-								value.getObjectMemberAt(1).value.set(v.y);
-								value.getObjectMemberAt(2).value.set(v.z);
-							}
-						}
-						catch (const YAML::Exception& e)
-						{
-							// data type of input has changed since the graph was serialized.
-							HZ_CONSOLE_LOG_WARN("Input with id {0}: {1} while derializing animation component.", id, e.what());
 						}
 						catch (const std::out_of_range&)
 						{
@@ -1429,8 +1402,6 @@ namespace Hazel {
 					component.UVStart = spriteRendererComponent["UVStart"].as<glm::vec2>();
 				if (spriteRendererComponent["UVEnd"])
 					component.UVEnd = spriteRendererComponent["UVEnd"].as<glm::vec2>();
-				if (spriteRendererComponent["ScreenSpace"])
-					component.ScreenSpace = spriteRendererComponent["ScreenSpace"].as<bool>();
 			}
 
 			auto textComponent = entity["TextComponent"];
@@ -1464,11 +1435,6 @@ namespace Hazel {
 				auto& component = deserializedEntity.AddComponent<RigidBody2DComponent>();
 				component.BodyType = (RigidBody2DComponent::Type)rigidBody2DComponent["BodyType"].as<int>();
 				component.FixedRotation = rigidBody2DComponent["FixedRotation"] ? rigidBody2DComponent["FixedRotation"].as<bool>() : false;
-				component.Mass = rigidBody2DComponent["Mass"].as<float>(1.0f);
-				component.LinearDrag = rigidBody2DComponent["LinearDrag"].as<float>(0.01f);
-				component.AngularDrag = rigidBody2DComponent["AngularDrag"].as<float>(0.05f);
-				component.GravityScale = rigidBody2DComponent["GravityScale"].as<float>(1.0f);
-				component.IsBullet = rigidBody2DComponent["IsBullet"].as<bool>(false);
 			}
 
 			auto boxCollider2DComponent = entity["BoxCollider2DComponent"];
@@ -1523,10 +1489,20 @@ namespace Hazel {
 				auto& component = deserializedEntity.AddComponent<CharacterControllerComponent>();
 				component.LayerID = characterControllerComponent["Layer"].as<uint32_t>(0);
 				component.DisableGravity = characterControllerComponent["DisableGravity"].as<bool>(false);
-				component.ControlMovementInAir = characterControllerComponent["ControlMovementInAir"].as<bool>(false);
-				component.ControlRotationInAir = characterControllerComponent["ControlRotationInAir"].as<bool>(false);
 				component.SlopeLimitDeg = characterControllerComponent["SlopeLimit"].as<float>(0.0f);
 				component.StepOffset = characterControllerComponent["StepOffset"].as<float>(0.0f);
+			}
+
+			auto fixedJointComponent = entity["FixedJointComponent"];
+			if (fixedJointComponent)
+			{
+				auto& component = deserializedEntity.AddComponent<FixedJointComponent>();
+				component.ConnectedEntity = fixedJointComponent["ConnectedEntity"].as<UUID>(0);
+				component.IsBreakable = fixedJointComponent["IsBreakable"].as<bool>(true);
+				component.BreakForce = fixedJointComponent["BreakForce"].as<float>(100.0f);
+				component.BreakTorque = fixedJointComponent["BreakTorque"].as<float>(10.0f);
+				component.EnableCollision = fixedJointComponent["EnableCollision"].as<bool>(false);
+				component.EnablePreProcessing = fixedJointComponent["EnablePreProcessing"].as<bool>(true);
 			}
 
 			auto compoundColliderComponent = entity["CompoundColliderComponent"];
@@ -1602,14 +1578,47 @@ namespace Hazel {
 			{
 				auto& component = deserializedEntity.AddComponent<MeshColliderComponent>();
 
-				component.ColliderAsset = meshColliderComponent["ColliderHandle"].as<AssetHandle>(0);
-				Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
-				if (!colliderAsset)
+				if (meshColliderComponent["ColliderHandle"])
 				{
+					component.ColliderAsset = meshColliderComponent["ColliderHandle"].as<AssetHandle>(0);
+					component.UseSharedShape = meshColliderComponent["UseSharedShape"].as<bool>(false);
+					//component.OverrideMaterial = meshColliderComponent["OverrideMaterial"].as<AssetHandle>(0);
+					component.CollisionComplexity = (ECollisionComplexity)meshColliderComponent["CollisionComplexity"].as<uint8_t>(0);
+
+					if (deserializedEntity.HasComponent<MeshComponent>())
+					{
+						const auto& mc = deserializedEntity.GetComponent<MeshComponent>();
+						component.SubmeshIndex = mc.SubmeshIndex;
+					}
+
+					Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
+
 					// Most likely a memory only asset from a previous session, re-create the asset
+					if (!colliderAsset)
+					{
+						if (deserializedEntity.HasComponent<MeshComponent>())
+						{
+							const auto& mc = deserializedEntity.GetComponent<MeshComponent>();
+							component.ColliderAsset = AssetManager::CreateMemoryOnlyAsset<MeshColliderAsset>(mc.Mesh);
+						}
+						else if (deserializedEntity.HasComponent<StaticMeshComponent>())
+						{
+							component.ColliderAsset = AssetManager::CreateMemoryOnlyAsset<MeshColliderAsset>(deserializedEntity.GetComponent<StaticMeshComponent>().StaticMesh);
+						}
+
+						colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
+						colliderAsset->CollisionComplexity = component.CollisionComplexity;
+					}
+
+					if (colliderAsset && !PhysicsSystem::GetMeshCache().Exists(colliderAsset))
+						PhysicsSystem::GetMeshCookingFactory()->CookMesh(colliderAsset);
+				}
+				else
+				{
 					AssetHandle colliderMesh = 0;
-					if (deserializedEntity.HasComponent<SubmeshComponent>())
-						colliderMesh = deserializedEntity.GetComponent<SubmeshComponent>().Mesh;
+
+					if (deserializedEntity.HasComponent<MeshComponent>())
+						colliderMesh = deserializedEntity.GetComponent<MeshComponent>().Mesh;
 					else if (deserializedEntity.HasComponent<StaticMeshComponent>())
 						colliderMesh = deserializedEntity.GetComponent<StaticMeshComponent>().StaticMesh;
 
@@ -1621,30 +1630,15 @@ namespace Hazel {
 						colliderMesh = overrideMesh ? tempHandle : colliderMesh;
 					}
 
-					component.ColliderAsset = AssetManager::AddMemoryOnlyAsset(Ref<MeshColliderAsset>::Create(colliderMesh));
-					colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
-					if (!colliderAsset)
-					{
-						HZ_CORE_WARN("MeshColliderComponent in use without valid mesh!");
-					}
+					component.ColliderAsset = AssetManager::CreateMemoryOnlyAsset<MeshColliderAsset>(colliderMesh);
 
-					if (auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset); colliderAsset)
-					{
-					}
+					if (AssetManager::IsAssetHandleValid(component.ColliderAsset))
+						PhysicsSystem::GetMeshCookingFactory()->CookMesh(component.ColliderAsset);
 					else
-					{
 						HZ_CORE_WARN("MeshColliderComponent in use without valid mesh!");
-					}
-				}
 
-				component.UseSharedShape = meshColliderComponent["UseSharedShape"].as<bool>(false);
-				//component.OverrideMaterial = meshColliderComponent["OverrideMaterial"].as<AssetHandle>(0);
-				colliderAsset->CollisionComplexity = component.CollisionComplexity;
-				component.Material.Friction = meshColliderComponent["Friction"].as<float>(0.5f);
-				component.Material.Restitution = meshColliderComponent["Restitution"].as<float>(0.15f);
-				if (colliderAsset && !PhysicsSystem::GetMeshCache().Exists(colliderAsset))
-				{
-					PhysicsSystem::GetMeshCookingFactory()->CookMesh(component.ColliderAsset);
+					component.Material.Friction = meshColliderComponent["Friction"].as<float>(0.5f);
+					component.Material.Restitution = meshColliderComponent["Restitution"].as<float>(0.15f);
 				}
 
 				if (meshColliderComponent["IsTrigger"] && deserializedEntity.HasComponent<RigidBodyComponent>())

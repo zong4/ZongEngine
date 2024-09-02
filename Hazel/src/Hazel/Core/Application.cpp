@@ -22,8 +22,6 @@
 #include "Hazel/Platform/Vulkan/VulkanSwapChain.h"
 #include "imgui/imgui_internal.h"
 
-#include "Hazel/Script/ScriptEngine.h"
-
 #include "Hazel/Utilities/StringUtils.h"
 #include "Hazel/Debug/Profiler.h"
 
@@ -95,15 +93,14 @@ namespace Hazel {
 			PushOverlay(m_ImGuiLayer);
 		}
 
-		ScriptEngine::GetMutable().InitializeHost();
+		//PhysicsSystem::Init();
+		ScriptEngine::Init(specification.ScriptConfig);
 		MiniAudioEngine::Init();
 		Font::Init();
 	}
 
 	Application::~Application()
 	{
-		ScriptEngine::GetMutable().ShutdownHost();
-
 		NFD::Quit();
 
 		EditorApplicationSettingsSerializer::SaveSettings();
@@ -118,7 +115,7 @@ namespace Hazel {
 			delete layer;
 		}
 
-		//ScriptEngine::Shutdown();
+		ScriptEngine::Shutdown();
 		Project::SetActive(nullptr);
 		Font::Shutdown();
 		MiniAudioEngine::Shutdown();
@@ -162,15 +159,6 @@ namespace Hazel {
 
 		for (int i = 0; i < m_LayerStack.Size(); i++)
 			m_LayerStack[i]->OnImGuiRender();
-	}
-
-	void Application::SyncEvents()
-	{
-		std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
-		for (auto& [synced, _] : m_EventQueue)
-		{
-			synced = true;
-		}
 	}
 
 	void Application::Run()
@@ -218,7 +206,7 @@ namespace Hazel {
 						layer->OnUpdate(m_TimeStep);
 				}
 
-				Ref<Scene> activeScene = ScriptEngine::GetInstance().GetCurrentScene();
+				Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
 				if (activeScene)
 				{
 					m_PerformanceTimers.ScriptUpdate = activeScene->GetPerformanceTimers().ScriptUpdate;
@@ -246,7 +234,7 @@ namespace Hazel {
 				m_PerformanceTimers.MainThreadWorkTime = cpuTimer.ElapsedMillis();
 			}
 
-			//ScriptEngine::InitializeRuntimeDuplicatedEntities();
+			ScriptEngine::InitializeRuntimeDuplicatedEntities();
 			Input::ClearReleasedKeys();
 
 			float time = GetTime();
@@ -280,23 +268,14 @@ namespace Hazel {
 
 		m_Window->ProcessEvents();
 
-		// Note (0x): we have no control over what func() does.  holding this lock while calling func() is a bad idea:
-		// 1) func() might be slow (means we hold the lock for ages)
-		// 2) func() might result in events getting queued, in which case we have a deadlock
 		std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
 
-		// Process custom event queue, up until we encounter an event that is not yet sync'd
-		// If application queues such events, then it is the application's responsibility to call
-		// SyncEvents() at the appropriate time.
+		// Process custom event queue
 		while (m_EventQueue.size() > 0)
 		{
-			const auto& [synced, func] = m_EventQueue.front();
-			if (!synced)
-			{
-				break;
-			}
+			auto& func = m_EventQueue.front();
 			func();
-			m_EventQueue.pop_front();
+			m_EventQueue.pop();
 		}
 	}
 
@@ -368,20 +347,28 @@ namespace Hazel {
 
 	const char* Application::GetConfigurationName()
 	{
-		return HZ_BUILD_CONFIG_NAME;
+#if defined(HZ_DEBUG)
+		return "Debug";
+#elif defined(HZ_RELEASE)
+		return "Release";
+#elif defined(HZ_DIST)
+		return "Dist";
+#else
+	#error Undefined configuration?
+#endif
 	}
 
 	const char* Application::GetPlatformName()
 	{
-		return HZ_BUILD_PLATFORM_NAME;
+#if defined(HZ_PLATFORM_WINDOWS)
+        return "Windows x64";
+#elif defined(HZ_PLATFORM_LINUX)
+		return "Linux";
+#else
+        return "Unknown"
+#endif
 	}
 
 	std::thread::id Application::GetMainThreadID() { return s_MainThreadID; }
-
-	bool Application::IsMainThread()
-	{
-		return std::this_thread::get_id() == s_MainThreadID;
-	}
-
 
 }

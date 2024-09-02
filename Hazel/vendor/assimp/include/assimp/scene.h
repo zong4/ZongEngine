@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2024, assimp team
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -79,7 +79,8 @@ extern "C" {
  * the imported scene does consist of only a single root node without children.
  */
 // -------------------------------------------------------------------------------
-struct ASSIMP_API aiNode {
+struct ASSIMP_API aiNode
+{
     /** The name of the node.
      *
      * The name might be empty (length of zero) but all nodes which
@@ -342,16 +343,6 @@ struct aiScene
      */
     C_STRUCT aiString mName;
 
-    /**
-     *
-     */
-    unsigned int mNumSkeletons;
-
-    /**
-     *
-     */
-    C_STRUCT aiSkeleton **mSkeletons;
-
 #ifdef __cplusplus
 
     //! Default constructor - set everything to 0/nullptr
@@ -392,10 +383,6 @@ struct aiScene
         return mAnimations != nullptr && mNumAnimations > 0;
     }
 
-    bool hasSkeletons() const {
-        return mSkeletons != nullptr && mNumSkeletons > 0;
-    }
-
     //! Returns a short filename from a full path
     static const char* GetShortFilename(const char* filename) {
         const char* lastSlash = strrchr(filename, '/');
@@ -433,7 +420,7 @@ struct aiScene
         for (unsigned int i = 0; i < mNumTextures; i++) {
             const char* shortTextureFilename = GetShortFilename(mTextures[i]->mFilename.C_Str());
             if (strcmp(shortTextureFilename, shortFilename) == 0) {
-                return std::make_pair(mTextures[i], static_cast<int>(i));
+                return std::make_pair(mTextures[i], i);
             }
         }
         return std::make_pair(nullptr, -1);
@@ -450,7 +437,7 @@ struct aiScene
 };
 
 #ifdef __cplusplus
-}
+} 
 #endif //! extern "C"
 
 #endif // AI_SCENE_H_INC

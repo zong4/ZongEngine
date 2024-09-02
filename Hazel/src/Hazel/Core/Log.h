@@ -3,13 +3,10 @@
 #include "Hazel/Core/Base.h"
 #include "Hazel/Core/LogCustomFormatters.h"
 
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"
 
 #include <map>
-#include <memory>
-#include <string>
-#include <string_view>
-#include <utility>
 
 #define HZ_ASSERT_MESSAGE_BOX (!HZ_DIST && HZ_PLATFORM_WINDOWS)
 
@@ -48,25 +45,12 @@ namespace Hazel {
 
 		static bool HasTag(const std::string& tag) { return s_EnabledTags.find(tag) != s_EnabledTags.end(); }
 		static std::map<std::string, TagDetails>& EnabledTags() { return s_EnabledTags; }
-		static void SetDefaultTagSettings();
-
-#if defined(HZ_PLATFORM_WINDOWS)
-		template<typename... Args>
-		static void PrintMessage(Log::Type type, Log::Level level, std::format_string<Args...> format, Args&&... args);
-#else
-		template<typename... Args>
-		static void PrintMessage(Log::Type type, Log::Level level, const std::string_view format, Args&&... args);
-#endif
 
 		template<typename... Args>
-		static void PrintMessageTag(Log::Type type, Log::Level level, std::string_view tag, std::format_string<Args...> format, Args&&... args);
-
-		static void PrintMessageTag(Log::Type type, Log::Level level, std::string_view tag, std::string_view message);
+		static void PrintMessage(Log::Type type, Log::Level level, std::string_view tag, Args&&... args);
 
 		template<typename... Args>
-		static void PrintAssertMessage(Log::Type type, std::string_view prefix, std::format_string<Args...> message, Args&&... args);
-
-		static void PrintAssertMessage(Log::Type type, std::string_view prefix);
+		static void PrintAssertMessage(Log::Type type, std::string_view prefix, Args&&... args);
 
 	public:
 		// Enum utils
@@ -99,7 +83,6 @@ namespace Hazel {
 		static std::shared_ptr<spdlog::logger> s_EditorConsoleLogger;
 
 		inline static std::map<std::string, TagDetails> s_EnabledTags;
-		static std::map<std::string, TagDetails> s_DefaultTagDetails;
 	};
 
 }
@@ -109,34 +92,34 @@ namespace Hazel {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core logging
-#define HZ_CORE_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define HZ_CORE_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define HZ_CORE_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define HZ_CORE_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define HZ_CORE_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define HZ_CORE_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
+#define HZ_CORE_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
+#define HZ_CORE_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
+#define HZ_CORE_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
+#define HZ_CORE_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
 
 // Client logging
-#define HZ_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define HZ_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define HZ_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define HZ_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define HZ_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessageTag(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define HZ_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
+#define HZ_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
+#define HZ_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
+#define HZ_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
+#define HZ_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core Logging
-#define HZ_CORE_TRACE(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, __VA_ARGS__)
-#define HZ_CORE_INFO(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, __VA_ARGS__)
-#define HZ_CORE_WARN(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, __VA_ARGS__)
-#define HZ_CORE_ERROR(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, __VA_ARGS__)
-#define HZ_CORE_FATAL(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, __VA_ARGS__)
+#define HZ_CORE_TRACE(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
+#define HZ_CORE_INFO(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
+#define HZ_CORE_WARN(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
+#define HZ_CORE_ERROR(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
+#define HZ_CORE_FATAL(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Client Logging
-#define HZ_TRACE(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, __VA_ARGS__)
-#define HZ_INFO(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, __VA_ARGS__)
-#define HZ_WARN(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, __VA_ARGS__)
-#define HZ_ERROR(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, __VA_ARGS__)
-#define HZ_FATAL(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, __VA_ARGS__)
+#define HZ_TRACE(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
+#define HZ_INFO(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
+#define HZ_WARN(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
+#define HZ_ERROR(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
+#define HZ_FATAL(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Editor Console Logging Macros
 #define HZ_CONSOLE_LOG_TRACE(...)   Hazel::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
@@ -147,34 +130,30 @@ namespace Hazel {
 
 namespace Hazel {
 
-#if defined(HZ_PLATFORM_WINDOWS)
 	template<typename... Args>
-	void Log::PrintMessage(Log::Type type, Log::Level level, std::format_string<Args...> format, Args&&... args)
-#else
-	template<typename... Args>
-	void Log::PrintMessage(Log::Type type, Log::Level level, const std::string_view format, Args&&... args)
-#endif
+	void Log::PrintMessage(Log::Type type, Log::Level level, std::string_view tag, Args&&... args)
 	{
-		auto detail = s_EnabledTags[""];
+		auto detail = s_EnabledTags[std::string(tag)];
 		if (detail.Enabled && detail.LevelFilter <= level)
 		{
 			auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
+			std::string logString = tag.empty() ? "{0}{1}" : "[{0}] {1}";
 			switch (level)
 			{
 			case Level::Trace:
-				logger->trace(format, std::forward<Args>(args)...);
+				logger->trace(logString, tag, fmt::format(std::forward<Args>(args)...));
 				break;
 			case Level::Info:
-				logger->info(format, std::forward<Args>(args)...);
+				logger->info(logString, tag, fmt::format(std::forward<Args>(args)...));
 				break;
 			case Level::Warn:
-				logger->warn(format, std::forward<Args>(args)...);
+				logger->warn(logString, tag, fmt::format(std::forward<Args>(args)...));
 				break;
 			case Level::Error:
-				logger->error(format, std::forward<Args>(args)...);
+				logger->error(logString, tag, fmt::format(std::forward<Args>(args)...));
 				break;
 			case Level::Fatal:
-				logger->critical(format, std::forward<Args>(args)...);
+				logger->critical(logString, tag, fmt::format(std::forward<Args>(args)...));
 				break;
 			}
 		}
@@ -182,76 +161,18 @@ namespace Hazel {
 
 
 	template<typename... Args>
-	void Log::PrintMessageTag(Log::Type type, Log::Level level, std::string_view tag, const std::format_string<Args...> format, Args&&... args)
-	{
-		auto detail = s_EnabledTags[std::string(tag)];
-		if (detail.Enabled && detail.LevelFilter <= level)
-		{
-			auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
-			std::string formatted = std::format(format, std::forward<Args>(args)...);
-			switch (level)
-			{
-				case Level::Trace:
-					logger->trace("[{0}] {1}", tag, formatted);
-					break;
-				case Level::Info:
-					logger->info("[{0}] {1}", tag, formatted);
-					break;
-				case Level::Warn:
-					logger->warn("[{0}] {1}", tag, formatted);
-					break;
-				case Level::Error:
-					logger->error("[{0}] {1}", tag, formatted);
-					break;
-				case Level::Fatal:
-					logger->critical("[{0}] {1}", tag, formatted);
-					break;
-			}
-		}
-	}
-
-
-	inline void Log::PrintMessageTag(Log::Type type, Log::Level level, std::string_view tag, std::string_view message)
-	{
-		auto detail = s_EnabledTags[std::string(tag)];
-		if (detail.Enabled && detail.LevelFilter <= level)
-		{
-			auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
-			switch (level)
-			{
-				case Level::Trace:
-					logger->trace("[{0}] {1}", tag, message);
-					break;
-				case Level::Info:
-					logger->info("[{0}] {1}", tag, message);
-					break;
-				case Level::Warn:
-					logger->warn("[{0}] {1}", tag, message);
-					break;
-				case Level::Error:
-					logger->error("[{0}] {1}", tag, message);
-					break;
-				case Level::Fatal:
-					logger->critical("[{0}] {1}", tag, message);
-					break;
-			}
-		}
-	}
-
-
-	template<typename... Args>
-	void Log::PrintAssertMessage(Log::Type type, std::string_view prefix, std::format_string<Args...> message, Args&&... args)
+	void Log::PrintAssertMessage(Log::Type type, std::string_view prefix, Args&&... args)
 	{
 		auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
-		auto formatted = std::format(message, std::forward<Args>(args)...);
-		logger->error("{0}: {1}", prefix, formatted);
+		logger->error("{0}: {1}", prefix, fmt::format(std::forward<Args>(args)...));
 
 #if HZ_ASSERT_MESSAGE_BOX
-		MessageBoxA(nullptr, formatted.data(), "Hazel Assert", MB_OK | MB_ICONERROR);
+		std::string message = fmt::format(std::forward<Args>(args)...);
+		MessageBoxA(nullptr, message.c_str(), "Hazel Assert", MB_OK | MB_ICONERROR);
 #endif
 	}
 
-
+	template<>
 	inline void Log::PrintAssertMessage(Log::Type type, std::string_view prefix)
 	{
 		auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();

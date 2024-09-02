@@ -10,9 +10,6 @@
 
 #include "Hazel/Editor/EditorPanel.h"
 
-#include "ThumbnailCache.h"
-#include "ThumbnailGenerator.h"
-
 #include <map>
 #include <mutex>
 
@@ -168,8 +165,6 @@ namespace Hazel {
 
 		Ref<DirectoryInfo> GetDirectory(const std::filesystem::path& filepath) const;
 
-		Ref<ThumbnailCache> GetThumbnailCache() const { return m_ThumbnailCache; }
-
 		void RegisterItemActivateCallbackForType(AssetType type, const std::function<void(const AssetMetadata&)>& callback)
 		{
 			m_ItemActivationCallbacks[type] = callback;
@@ -219,8 +214,6 @@ namespace Hazel {
 
 		void SortItemList();
 
-		void GenerateThumbnails();
-
 		ContentBrowserItemList Search(const std::string& query, const Ref<DirectoryInfo>& directoryInfo);
 
 	private:
@@ -237,7 +230,7 @@ namespace Hazel {
 		template<typename T, typename... Args>
 		Ref<T> CreateAssetInDirectory(const std::string& filename, Ref<DirectoryInfo>& directory, Args&&... args)
 		{
-			auto filepath = FileSystem::GetUniqueFileName(Project::GetActiveAssetDirectory() / directory->FilePath / filename);
+			auto filepath = FileSystem::GetUniqueFileName(Project::GetAssetDirectory() / directory->FilePath / filename);
 
 			Ref<T> asset = Project::GetEditorAssetManager()->CreateNewAsset<T>(filepath.filename().string(), directory->FilePath.string(), std::forward<Args>(args)...);
 			if (!asset)
@@ -245,7 +238,7 @@ namespace Hazel {
 
 			directory->Assets.push_back(asset->Handle);
 
-			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(asset->Handle);
+			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(asset);
 			for (auto& callback : m_NewAssetCreatedCallbacks)
 				callback(metadata);
 
@@ -257,8 +250,6 @@ namespace Hazel {
 	private:
 		Ref<Project> m_Project;
 		Ref<Scene> m_SceneContext;
-		Ref<ThumbnailCache> m_ThumbnailCache;
-		Ref<ThumbnailGenerator> m_ThumbnailGenerator;
 
 		std::map<std::string, Ref<Texture2D>> m_AssetIconMap;
 

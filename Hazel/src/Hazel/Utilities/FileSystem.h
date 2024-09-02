@@ -19,16 +19,9 @@
 
 namespace Hazel {
 
-	enum class FileStatus
-	{
-		Success = 0, Invalid, Locked, OtherError
-	};
-
 	class FileSystem
 	{
 	public:
-		static std::filesystem::path GetWorkingDirectory();
-		static void SetWorkingDirectory(std::filesystem::path path);
 		static bool CreateDirectory(const std::filesystem::path& directory);
 		static bool CreateDirectory(const std::string& directory);
 		static bool Exists(const std::filesystem::path& filepath);
@@ -37,11 +30,6 @@ namespace Hazel {
 		static bool MoveFile(const std::filesystem::path& filepath, const std::filesystem::path& dest);
 		static bool CopyFile(const std::filesystem::path& filepath, const std::filesystem::path& dest);
 		static bool IsDirectory(const std::filesystem::path& filepath);
-
-		static FileStatus TryOpenFile(const std::filesystem::path& filepath);
-
-		// If file is locked, wait specified duration (ms) and try again once
-		static FileStatus TryOpenFileAndWait(const std::filesystem::path& filepath, uint64_t waitms = 100);
 
 		static bool IsNewer(const std::filesystem::path& fileA, const std::filesystem::path& fileB);
 
@@ -58,7 +46,7 @@ namespace Hazel {
 		static Buffer ReadBytes(const std::filesystem::path& filepath);
 
 		static std::filesystem::path GetUniqueFileName(const std::filesystem::path& filepath);
-		static uint64_t GetLastWriteTime(const std::filesystem::path& filepath);
+
 	public:
 		struct FileDialogFilterItem
 		{

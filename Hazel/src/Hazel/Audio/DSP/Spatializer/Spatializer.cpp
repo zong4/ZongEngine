@@ -724,13 +724,7 @@ namespace Hazel::Audio::DSP
                 source.Spread = GetSpreadFromSourceSize(source.SpatializationConfig->SourceSize, distance);
         }
 
-			// NOTE: LLVM libc++ does not support execution policies without a
-			// manually applied patch.
-			std::for_each(
-#ifndef _LIBCPP_VERSION
-				std::execution::par_unseq,
-#endif
-                m_Sources.begin(), m_Sources.end(), [&](std::pair<const uint32_t, Source>& IDSourcePair) 
+        std::for_each(std::execution::par_unseq, m_Sources.begin(), m_Sources.end(), [&](std::pair<const uint32_t, Source>& IDSourcePair) 
             {
                 auto& source = IDSourcePair.second;
                 UpdatePositionalData(source, &m_Engine->listeners[0]);

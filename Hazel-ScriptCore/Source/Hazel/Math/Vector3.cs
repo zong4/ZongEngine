@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Hazel
 {
-	[StructLayout(LayoutKind.Sequential, Pack = 4)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Vector3 : IEquatable<Vector3>
 	{
 		public static Vector3 Zero = new Vector3(0, 0, 0);

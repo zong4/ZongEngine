@@ -1,4 +1,3 @@
-#include <acl/core/iallocator.h>
 #include "hzpch.h"
 #include "AssetPackSerializer.h"
 #include "Hazel/Asset/AssetImporter.h"
@@ -72,16 +71,10 @@ namespace Hazel {
 				else
 				{
 					// Serialize asset
-					if (AssetImporter::SerializeToAssetPack(assetHandle, serializer, serializationInfo))
-					{
-						file.Index.Scenes[sceneHandle].Assets[assetHandle].PackedOffset = serializationInfo.Offset;
-						file.Index.Scenes[sceneHandle].Assets[assetHandle].PackedSize = serializationInfo.Size;
-						serializedAssets[assetHandle] = serializationInfo;
-					}
-					else
-					{
-						HZ_CORE_ERROR("Failed to serialize asset with handle {}", assetHandle);
-					}
+					AssetImporter::SerializeToAssetPack(assetHandle, serializer, serializationInfo);
+					file.Index.Scenes[sceneHandle].Assets[assetHandle].PackedOffset = serializationInfo.Offset;
+					file.Index.Scenes[sceneHandle].Assets[assetHandle].PackedSize = serializationInfo.Size;
+					serializedAssets[assetHandle] = serializationInfo;
 				}
 			}
 
@@ -112,7 +105,7 @@ namespace Hazel {
 	bool AssetPackSerializer::DeserializeIndex(const std::filesystem::path& path, AssetPackFile& file)
 	{
 		// Print Info
-		HZ_CORE_TRACE_TAG("Asset Pack", "Deserializing Asset Pack from {}", path.string());
+		HZ_CORE_TRACE("Deserializing AssetPack from {}", path.string());
 
 		FileStreamReader stream(path);
 		if (!stream.IsStreamGood())
@@ -123,13 +116,6 @@ namespace Hazel {
 		HZ_CORE_ASSERT(validHeader);
 		if (!validHeader)
 			return false;
-
-		AssetPackFile current;
-		if (file.Header.Version != current.Header.Version)
-		{
-			HZ_CORE_ERROR("AssetPack version {} is not compatible with current version {}", file.Header.Version, current.Header.Version);
-			return false;
-		}
 
 		// Read app binary info
 		stream.ReadRaw<uint64_t>(file.Index.PackedAppBinaryOffset);
@@ -150,7 +136,7 @@ namespace Hazel {
 			stream.ReadMap(sceneInfo.Assets);
 		}
 
-		HZ_CORE_TRACE_TAG("Asset Pack", "Deserialized index with {} scenes from AssetPack", sceneCount);
+		HZ_CORE_TRACE("Deserialized index with {} scenes from AssetPack", sceneCount);
 		return true;
 	}
 

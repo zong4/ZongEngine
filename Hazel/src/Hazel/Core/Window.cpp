@@ -94,25 +94,14 @@ namespace Hazel {
 		{
 			GLFWimage icon;
 			int channels;
-
-			bool useEmbedded = m_Specification.IconPath.empty();
-
-			if (!useEmbedded)
+			if (!m_Specification.IconPath.empty())
 			{
 				std::string iconPathStr = m_Specification.IconPath.string();
 				icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
-				if (icon.pixels)
-				{
-					glfwSetWindowIcon(m_Window, 1, &icon);
-					stbi_image_free(icon.pixels);
-				}
-				else
-				{
-					useEmbedded = true;
-				}
+				glfwSetWindowIcon(m_Window, 1, &icon);
+				stbi_image_free(icon.pixels);
 			}
-
-			if (useEmbedded)
+			else
 			{
 				// Use embedded Hazel icon
 				icon.pixels = stbi_load_from_memory(g_HazelIconPNG, sizeof(g_HazelIconPNG), &icon.width, &icon.height, &channels, 4);

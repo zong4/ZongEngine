@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include "Hazel/Core/Ref.h"
 #include "Hazel/Scene/Scene.h"
 #include "Hazel/Project/Project.h"

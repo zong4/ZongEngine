@@ -70,7 +70,7 @@ namespace Hazel
 		public static Matrix4 LookAt(Vector3 eye, Vector3 center, Vector3 up)
 		{
 			Matrix4 result = new Matrix4();
-			unsafe { InternalCalls.Matrix4_LookAt(&eye, &center, &up, &result); }
+			InternalCalls.Matrix4_LookAt(ref eye, ref center, ref up, ref result);
 			return result;
 		}
 

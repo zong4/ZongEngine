@@ -14,9 +14,6 @@ namespace Hazel {
 		AABB(const glm::vec3& min, const glm::vec3& max)
 			: Min(min), Max(max) {}
 
-		glm::vec3 Size() { return Max - Min; }
-		glm::vec3 Center() { return Min + Size() * 0.5f; }
-
 	};
 
 

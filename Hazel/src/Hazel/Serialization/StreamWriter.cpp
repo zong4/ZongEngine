@@ -6,7 +6,7 @@ namespace Hazel
 	void StreamWriter::WriteBuffer(Buffer buffer, bool writeSize)
 	{
 		if (writeSize)
-			WriteData((char*)&buffer.Size, sizeof(uint64_t));
+			WriteData((char*)&buffer.Size, sizeof(uint32_t));
 
 		WriteData((char*)buffer.Data, buffer.Size);
 	}

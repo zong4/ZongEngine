@@ -72,9 +72,6 @@ namespace Hazel {
 		HZ_CORE_VERIFY(s_CurrentInstance == nullptr, "Shouldn't have multiple instances of a physics scene!");
 		s_CurrentInstance = this;
 
-		if (PhysicsSystem::GetSettings().CaptureOnPlay)
-			PhysicsSystem::GetAPI()->GetCaptureManager()->BeginCapture();
-
 		const auto& settings = PhysicsSystem::GetSettings();
 
 		m_JoltSystem = std::make_unique<JPH::PhysicsSystem>();
@@ -88,7 +85,7 @@ namespace Hazel {
 		joltSettings.mNumVelocitySteps = settings.VelocitySolverIterations;
 		m_JoltSystem->SetPhysicsSettings(joltSettings);
 
-		m_JoltContactListener = std::make_unique<JoltContactListener>(&m_JoltSystem->GetBodyLockInterfaceNoLock(), [this](ContactType contactType, UUID entityA, UUID entityB)
+		m_JoltContactListener = std::make_unique<JoltContactListener>(&m_JoltSystem->GetBodyLockInterfaceNoLock(), [this](ContactType contactType, Entity entityA, Entity entityB)
 		{
 			OnContactEvent(contactType, entityA, entityB);
 		});
@@ -113,8 +110,6 @@ namespace Hazel {
 		if (m_BulkAddBuffer == nullptr)
 			return;
 
-		PhysicsSystem::GetAPI()->GetCaptureManager()->EndCapture();
-
 		// NOTE(Peter): We don't technically have to this, but explicitly cleaning things up is more consistent, and means we explicitly control
 		//				the order that things are destroyed in
 		m_BulkBufferCount = 0;
@@ -137,47 +132,28 @@ namespace Hazel {
 
 		PreSimulate(ts);
 
-		// Note (0x): in line with Jolt sample app, character controllers are updated before physics simulation.
-		for (auto& [entityID, characterController] : m_CharacterControllers)
-		{
-			characterController.As<JoltCharacterController>()->Simulate(ts);
-		}
+		JoltAPI* api = (JoltAPI*)PhysicsSystem::GetAPI();
 
 		if (m_CollisionSteps > 0)
 		{
 			HZ_PROFILE_SCOPE_DYNAMIC("JoltSystem::Update");
-			JoltAPI* api = (JoltAPI*)PhysicsSystem::GetAPI();
-			m_JoltSystem->Update(m_FixedTimeStep, m_CollisionSteps, api->GetTempAllocator(), api->GetJobThreadPool());
+			m_JoltSystem->Update(m_FixedTimeStep, m_CollisionSteps, 1, api->GetTempAllocator(), api->GetJobThreadPool());
 		}
+		
+		for (auto& [entityID, characterController] : m_CharacterControllers)
+			characterController.As<JoltCharacterController>()->Simulate(ts);
 
 		{
 			HZ_PROFILE_SCOPE_DYNAMIC("JoltScene::SynchronizeTransform");
-
-			for (auto& [entityID, characterController] : m_CharacterControllers)
-			{
-				auto joltCharacterController = characterController.As<JoltCharacterController>();
-				Entity entity = m_EntityScene->GetEntityWithUUID(entityID);
-				auto& transformComponent = entity.GetComponent<TransformComponent>();
-				glm::vec3 scale = transformComponent.Scale;
-				transformComponent.Translation = JoltUtils::FromJoltVector(joltCharacterController->m_Controller->GetPosition());
-				transformComponent.SetRotation(JoltUtils::FromJoltQuat(joltCharacterController->m_Controller->GetRotation()));
-
-				m_EntityScene->ConvertToLocalSpace(entity);
-				transformComponent.Scale = scale;
-			}
-
 			const auto& bodyLockInterface = m_JoltSystem->GetBodyLockInterface();
 			JPH::BodyIDVector activeBodies;
-			m_JoltSystem->GetActiveBodies(JPH::EBodyType::RigidBody, activeBodies);
+			m_JoltSystem->GetActiveBodies(activeBodies);
 			JPH::BodyLockMultiWrite activeBodiesLock(bodyLockInterface, activeBodies.data(), static_cast<int32_t>(activeBodies.size()));
 			for (int32_t i = 0; i < activeBodies.size(); i++)
 			{
 				JPH::Body* body = activeBodiesLock.GetBody(i);
 
-				// The position of kinematic rigid bodies is synced _before_ the physics simulation by setting its velocity such that
-				// the simulation will move it to the game world position.  This gives a better collision response than synching the
-				// position here.
-				if (body == nullptr || body->IsKinematic())
+				if (body == nullptr)
 					continue;
 
 				// Apply air resistance
@@ -201,6 +177,19 @@ namespace Hazel {
 				m_EntityScene->ConvertToLocalSpace(entity);
 				transformComponent.Scale = scale;
 			}
+
+			for (auto& [entityID, characterController] : m_CharacterControllers)
+			{
+				auto joltCharacterController = characterController.As<JoltCharacterController>();
+				Entity entity = m_EntityScene->GetEntityWithUUID(entityID);
+				auto& transformComponent = entity.GetComponent<TransformComponent>();
+				glm::vec3 scale = transformComponent.Scale;
+				transformComponent.Translation = JoltUtils::FromJoltVector(joltCharacterController->m_Controller->GetPosition());
+				transformComponent.SetRotation(JoltUtils::FromJoltQuat(joltCharacterController->m_Controller->GetRotation()));
+
+				m_EntityScene->ConvertToLocalSpace(entity);
+				transformComponent.Scale = scale;
+			}
 		}
 
 		PostSimulate();
@@ -209,13 +198,7 @@ namespace Hazel {
 	Ref<PhysicsBody> JoltScene::CreateBody(Entity entity, BodyAddType addType)
 	{
 		if (!entity.HasAny<CompoundColliderComponent, BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, MeshColliderComponent>())
-		{
-			// This can happen as a result of a user trying to create a RigidBodyComponent from C# script on an entity that does
-			// not have a collider.
-			// Tell them what went wrong, rather than silently doing nothing.
-			HZ_CONSOLE_LOG_ERROR("Entity does not have a collider component!");
 			return nullptr;
-		}
 
 		if (auto existingBody = GetEntityBody(entity))
 			return existingBody;
@@ -265,16 +248,7 @@ namespace Hazel {
 	void JoltScene::SetBodyType(Entity entity, EBodyType bodyType)
 	{
 		auto entityBody = GetEntityBody(entity);
-
-		if (!entityBody)
-		{
-			// This can happen if the user does silly things in a C# script.
-			// For example:
-			//    RigidBodyComponent? rb = entity.CreateComponent<RigidBodyComponent>();  <-- and suppose this fails
-			//    rb.BodyType = EBodyType::Kinematic;    <-- This is user error.  However, we don't want it to bring down the entire engine.
-			HZ_CONSOLE_LOG_ERROR("Entity does not have a body component!");
-			return;
-		}
+		HZ_CORE_VERIFY(entityBody);
 
 		JPH::BodyLockWrite bodyLock(m_JoltSystem->GetBodyLockInterface(), entityBody.As<JoltBody>()->m_BodyID);
 		HZ_CORE_VERIFY(bodyLock.Succeeded());
@@ -307,9 +281,7 @@ namespace Hazel {
 		{
 			auto joltCharacterController = characterController.As<JoltCharacterController>();
 			auto centerOfMassTransform = joltCharacterController->m_Controller->GetCenterOfMassTransform();
-			uint32_t id = (uint64_t(entityID) >> 32) & JPH::BodyID::cMaxBodyIndex;
-			HZ_CORE_VERIFY(id < JPH::BodyID::cMaxBodyIndex, "If you get this notify Peter and tell him to revise this code.");
-			JPH::BodyID bodyID(id, 0);
+			JPH::BodyID bodyID((uint64_t(entityID) >> 32) & 0xFFFFFFFF);
 			JPH::TransformedShape transformedShape(centerOfMassTransform.GetTranslation(), centerOfMassTransform.GetRotation().GetQuaternion(), joltCharacterController->m_Controller->GetShape(), bodyID);
 			transformedShape.CastRay(JPH::RRayCast(ray), rayCastSettings, hitCollector);
 		}
@@ -320,9 +292,7 @@ namespace Hazel {
 		// Check if we hit any of the Character Controllers
 		for (const auto& [entityID, characterController] : m_CharacterControllers)
 		{
-			uint32_t id = (uint64_t(entityID) >> 32) & JPH::BodyID::cMaxBodyIndex;
-			HZ_CORE_VERIFY(id < JPH::BodyID::cMaxBodyIndex, "If you get this notify Peter and tell him to revise this code.");
-			JPH::BodyID bodyID(id, 0);
+			JPH::BodyID bodyID((uint64_t(entityID) >> 32) & 0xFFFFFFFF);
 
 			if (hitCollector.mHit.mBodyID != bodyID)
 				continue;
@@ -360,7 +330,7 @@ namespace Hazel {
 			outHit.Position = JoltUtils::FromJoltVector(hitPosition);
 			outHit.Normal = JoltUtils::FromJoltVector(body.GetWorldSpaceSurfaceNormal(hitCollector.mHit.mSubShapeID2, hitPosition));
 			outHit.Distance = glm::distance(rayCastInfo->Origin, outHit.Position);
-			outHit.HitCollider = reinterpret_cast<PhysicsShape*>(body.GetShape()->GetUserData());
+			outHit.HitCollider = reinterpret_cast<PhysicsShape*>(body.GetShape()->GetSubShapeUserData(hitCollector.mHit.mSubShapeID2));
 
 			return true;
 		}
@@ -464,7 +434,7 @@ namespace Hazel {
 			outHit.Position = hitPosition;
 			outHit.Normal = JoltUtils::FromJoltVector(body.GetWorldSpaceSurfaceNormal(shapeCastCollector.mHit.mSubShapeID2, JoltUtils::ToJoltVector(hitPosition)));
 			outHit.Distance = glm::distance(shapeCastInfo->Origin, hitPosition);
-			outHit.HitCollider = reinterpret_cast<PhysicsShape*>(body.GetShape()->GetUserData());
+			outHit.HitCollider = reinterpret_cast<PhysicsShape*>(body.GetShape()->GetSubShapeUserData(shapeCastCollector.mHit.mSubShapeID2));
 
 			return true;
 		}
@@ -511,7 +481,7 @@ namespace Hazel {
 		JPH::AllHitCollisionCollector<JPH::CollideShapeCollector> collector;
 		m_JoltSystem->GetNarrowPhaseQuery().CollideShape(shape, shapeScale, worldTransform, settings, JPH::RVec3::sZero(), collector, {}, {}, JoltRayCastBodyFilter(this, shapeOverlapInfo->ExcludedEntities));
 
-		int numBodies = static_cast<int>(collector.mHits.size());
+		size_t numBodies = collector.mHits.size();
 
 		// Resize body id buffer if needed
 		if (numBodies > m_OverlapIDBufferCount)
@@ -529,7 +499,7 @@ namespace Hazel {
 
 		{
 			JPH::BodyLockMultiRead bodyLock(m_JoltSystem->GetBodyLockInterface(), m_OverlapIDBuffer, numBodies);
-			for (int i = 0; i < numBodies; i++)
+			for (size_t i = 0; i < numBodies; i++)
 			{
 				const JPH::Body* body = bodyLock.GetBody(i);
 
@@ -543,7 +513,7 @@ namespace Hazel {
 				hitInfo.Position = hitPosition;
 				hitInfo.Normal = JoltUtils::FromJoltVector(body->GetWorldSpaceSurfaceNormal(collector.mHits[i].mSubShapeID2, JoltUtils::ToJoltVector(hitPosition)));
 				hitInfo.Distance = glm::distance(shapeOverlapInfo->Origin, hitPosition);
-				hitInfo.HitCollider = reinterpret_cast<PhysicsShape*>(body->GetShape()->GetUserData());
+				hitInfo.HitCollider = reinterpret_cast<PhysicsShape*>(body->GetShape()->GetSubShapeUserData(collector.mHits[i].mSubShapeID2));
 			}
 		}
 
@@ -588,10 +558,7 @@ namespace Hazel {
 		if (!entity.HasAny<BoxColliderComponent, CapsuleColliderComponent, SphereColliderComponent>() || entity.HasComponent<MeshColliderComponent>())
 			return nullptr;
 
-		Ref<JoltCharacterController> characterController = Ref<JoltCharacterController>::Create(entity, [this](ContactType contactType, UUID entityA, UUID entityB)
-		{
-			OnContactEvent(contactType, entityA, entityB);
-		});
+		Ref<JoltCharacterController> characterController = Ref<JoltCharacterController>::Create(entity);
 		m_CharacterControllers[entity.GetUUID()] = characterController;
 		return characterController;
 	}
@@ -699,11 +666,6 @@ namespace Hazel {
 
 	bool JoltRayCastBodyFilter::ShouldCollideLocked(const JPH::Body& inBody) const
 	{
-		if (inBody.IsSensor())
-		{
-			return false;
-		}
-
 		return ShouldCollide(inBody.GetID());
 	}
 

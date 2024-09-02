@@ -9,8 +9,6 @@
 #include <sys/inotify.h>
 #include <pthread.h>
 #include <signal.h>
-#include <unistd.h>
-#include <errno.h>
 
 #include <filesystem>
 #include <thread>
@@ -18,23 +16,6 @@
 namespace Hazel {
 
 	static std::filesystem::path s_PersistentStoragePath;
-
-	FileStatus FileSystem::TryOpenFile(const std::filesystem::path& filepath)
-	{
-		int res = access(filepath.c_str(), F_OK);
-
-		if(!res) return FileStatus::Success;
-
-		switch(errno) {
-			default: return FileStatus::OtherError;
-
-			case ENOENT: [[fallthrough]];
-			case ENOTDIR: return FileStatus::Invalid;
-
-			case EPERM: [[fallthrough]];
-			case EACCES: return FileStatus::Locked;
-		}
-	}
 
 	bool FileSystem::WriteBytes(const std::filesystem::path& filepath, const Buffer& buffer)
 	{
@@ -94,7 +75,7 @@ namespace Hazel {
 	{
 		// NOTE(Emily): This looks horrible but the provided string *becomes* the environment for `putenv`
 		// TODO(Emily): Persistent environment variables
-		putenv((new std::string(std::format("{}={}", key, value)))->data());
+		putenv((new std::string(fmt::format("{}={}", key, value)))->data());
 		return true;
 	}
 

@@ -15,8 +15,6 @@ namespace Hazel {
 		RenderThread::State m_State = RenderThread::State::Idle;
 	};
 
-	static std::thread::id s_RenderThreadID;
-
 	RenderThread::RenderThread(ThreadingPolicy coreThreadingPolicy)
 		: m_RenderThread("Render Thread"), m_ThreadingPolicy(coreThreadingPolicy)
 	{
@@ -33,8 +31,6 @@ namespace Hazel {
 	{
 		if (m_ThreadingPolicy == ThreadingPolicy::MultiThreaded)
 			DeleteCriticalSection(&m_Data->m_CriticalSection);
-
-		s_RenderThreadID = std::thread::id();
 	}
 
 	void RenderThread::Run()
@@ -42,8 +38,6 @@ namespace Hazel {
 		m_IsRunning = true;
 		if (m_ThreadingPolicy == ThreadingPolicy::MultiThreaded)
 			m_RenderThread.Dispatch(Renderer::RenderThreadFunc, this);
-
-		s_RenderThreadID = m_RenderThread.GetID();
 	}
 
 	void RenderThread::Terminate()
@@ -53,8 +47,6 @@ namespace Hazel {
 
 		if (m_ThreadingPolicy == ThreadingPolicy::MultiThreaded)
 			m_RenderThread.Join();
-
-		s_RenderThreadID = std::thread::id();
 	}
 
 	void RenderThread::Wait(State waitForState)
@@ -129,13 +121,5 @@ namespace Hazel {
 		Kick();
 		BlockUntilRenderComplete();
 	}
-
-	bool RenderThread::IsCurrentThreadRT()
-	{
-		// NOTE(Yan): for debugging
-		// HZ_CORE_VERIFY(s_RenderThreadID != std::thread::id());
-		return s_RenderThreadID == std::this_thread::get_id();
-	}
-
 
 }

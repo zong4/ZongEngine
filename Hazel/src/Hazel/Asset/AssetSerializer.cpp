@@ -9,7 +9,6 @@
 
 #include "Hazel/Scene/Prefab.h"
 #include "Hazel/Scene/SceneSerializer.h"
-#include "Hazel/Script/ScriptAsset.h"
 #include "Hazel/Asset/MeshColliderAsset.h"
 
 #include "Hazel/Renderer/MaterialAsset.h"
@@ -38,6 +37,7 @@ namespace Hazel {
 		asset->Handle = metadata.Handle;
 
 		bool result = asset.As<Texture2D>()->Loaded();
+
 		if (!result)
 			asset->SetFlag(AssetFlag::Invalid, true);
 
@@ -48,7 +48,7 @@ namespace Hazel {
 	{
 		outInfo.Offset = stream.GetStreamPosition();
 
-		auto metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
+		auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
 		Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
 		outInfo.Size = TextureRuntimeSerializer::SerializeTexture2DToFile(texture, stream);
 		return true;
@@ -56,6 +56,8 @@ namespace Hazel {
 
 	Ref<Asset> TextureSerializer::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const
 	{
+		HZ_CORE_WARN("TextureSerializer::DeserializeFromAssetPack");
+
 		stream.SetStreamPosition(assetInfo.PackedOffset);
 		return TextureRuntimeSerializer::DeserializeTexture2D(stream);
 	}
@@ -129,11 +131,12 @@ namespace Hazel {
 		strStream << stream.rdbuf();
 
 		Ref<MaterialAsset> materialAsset;
-		bool success = DeserializeFromYAML(strStream.str(), materialAsset, metadata.Handle);
+		bool success = DeserializeFromYAML(strStream.str(), materialAsset);
 		if (!success)
 			return false;
 
 		asset = materialAsset;
+		asset->Handle = metadata.Handle;
 		return true;
 	}
 
@@ -155,7 +158,7 @@ namespace Hazel {
 		stream.ReadString(yamlString);
 
 		Ref<MaterialAsset> materialAsset;
-		bool result = DeserializeFromYAML(yamlString, materialAsset, 0);
+		bool result = DeserializeFromYAML(yamlString, materialAsset);
 		if (!result)
 			return nullptr;
 
@@ -226,7 +229,7 @@ namespace Hazel {
 		return std::string(out.c_str());
 	}
 
-	bool MaterialAssetSerializer::DeserializeFromYAML(const std::string& yamlString, Ref<MaterialAsset>& targetMaterialAsset, AssetHandle handle) const
+	bool MaterialAssetSerializer::DeserializeFromYAML(const std::string& yamlString, Ref<MaterialAsset>& targetMaterialAsset) const
 	{
 		YAML::Node root = YAML::Load(yamlString);
 		YAML::Node materialNode = root["Material"];
@@ -235,7 +238,6 @@ namespace Hazel {
 		HZ_DESERIALIZE_PROPERTY(Transparent, transparent, materialNode, false);
 
 		targetMaterialAsset = Ref<MaterialAsset>::Create(transparent);
-		targetMaterialAsset->Handle = handle;
 
 		HZ_DESERIALIZE_PROPERTY(AlbedoColor, targetMaterialAsset->GetAlbedoColor(), materialNode, glm::vec3(0.8f));
 		HZ_DESERIALIZE_PROPERTY(Emission, targetMaterialAsset->GetEmission(), materialNode, 0.0f);
@@ -262,22 +264,22 @@ namespace Hazel {
 		if (albedoMap)
 		{
 			if (AssetManager::IsAssetHandleValid(albedoMap))
-				targetMaterialAsset->SetAlbedoMap(albedoMap);
+				targetMaterialAsset->SetAlbedoMap(AssetManager::GetAsset<Texture2D>(albedoMap));
 		}
 		if (normalMap)
 		{
 			if (AssetManager::IsAssetHandleValid(normalMap))
-				targetMaterialAsset->SetNormalMap(normalMap);
+				targetMaterialAsset->SetNormalMap(AssetManager::GetAsset<Texture2D>(normalMap));
 		}
 		if (metalnessMap)
 		{
 			if (AssetManager::IsAssetHandleValid(metalnessMap))
-				targetMaterialAsset->SetMetalnessMap(metalnessMap);
+				targetMaterialAsset->SetMetalnessMap(AssetManager::GetAsset<Texture2D>(metalnessMap));
 		}
 		if (roughnessMap)
 		{
 			if (AssetManager::IsAssetHandleValid(roughnessMap))
-				targetMaterialAsset->SetRoughnessMap(roughnessMap);
+				targetMaterialAsset->SetRoughnessMap(AssetManager::GetAsset<Texture2D>(roughnessMap));
 		}
 
 		HZ_DESERIALIZE_PROPERTY(MaterialFlags, roughnessMap, materialNode, (AssetHandle)0);
@@ -361,7 +363,7 @@ namespace Hazel {
 
 		Ref<AudioFile> audioFile = AssetManager::GetAsset<AudioFile>(handle);
 		auto path = Project::GetEditorAssetManager()->GetFileSystemPath(handle);
-		auto relativePath = std::filesystem::relative(path, Project::GetActiveAssetDirectory());
+		auto relativePath = std::filesystem::relative(path, Project::GetAssetDirectory());
 		if (relativePath.empty())
 			audioFile->FilePath = path.string();
 		else
@@ -656,7 +658,7 @@ namespace Hazel {
 			if (!entity || !entity.HasComponent<IDComponent>())
 				return;
 
-			SceneSerializer::SerializeEntity(out, entity, prefab->m_Scene);
+			SceneSerializer::SerializeEntity(out, entity);
 		});
 
 		out << YAML::EndSeq;
@@ -698,7 +700,7 @@ namespace Hazel {
 		Ref<Scene> scene = Ref<Scene>::Create("AssetPackTemp", true, false);
 		const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
 		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(Project::GetActiveAssetDirectory() / metadata.FilePath))
+		if (serializer.Deserialize(Project::GetAssetDirectory() / metadata.FilePath))
 		{
 			return serializer.SerializeToAssetPack(stream, outInfo);
 		}
@@ -875,6 +877,15 @@ namespace Hazel {
 
 	bool ScriptFileSerializer::SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const
 	{
+		HZ_CORE_VERIFY(false); // Not implemented
+
+		outInfo.Offset = stream.GetStreamPosition();
+
+		// Write 64 FFs (dummy data)
+		for (uint32_t i = 0; i < 16; i++)
+			stream.WriteRaw<uint32_t>(0xffffffff);
+
+		outInfo.Size = stream.GetStreamPosition() - outInfo.Offset;
 		return true;
 	}
 

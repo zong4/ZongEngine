@@ -1,10 +1,13 @@
 #include "hzpch.h"
 #include "Memory.h"
 
-#include "Log.h"
-#include "Hazel/Debug/Profiler.h"
-
+#include <memory>
+#include <map>
 #include <mutex>
+
+#include "Log.h"
+
+#include "Hazel/Debug/Profiler.h"
 
 namespace Hazel {
 

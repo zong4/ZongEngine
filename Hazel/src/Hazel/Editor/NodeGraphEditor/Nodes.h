@@ -133,10 +133,6 @@ namespace Hazel {
 	template<> choc::value::Value ValueFrom(const TFunction& obj) { return choc::value::createObject(type::type_name<TFunction>()); }
 	template<> choc::value::Value ValueFrom(const TDelegate& obj) { return choc::value::createObject(type::type_name<TDelegate>()); }
 
-	template<> choc::value::Value ValueFrom(const glm::vec3& obj) {
-		return choc::value::createObject(type::type_name<glm::vec3>(), "x", obj.x, "y", obj.y, "z", obj.z);
-	}
-
 	//? not used (see Utils::CreateAssetHandle<>()) for creation of values from asset handles
 	template<> choc::value::Value ValueFrom(const UUID& obj)
 	{
@@ -158,24 +154,17 @@ namespace Hazel {
 		if constexpr (std::is_same_v<T, TFlow> || std::is_same_v<T, TFunction> || std::is_same_v<T, TDelegate>)
 		{
 			if (customValueObject.isObjectWithClassName(type::type_name<T>()))
-			{
 				return T();
-			}
-			return {};
+			else
+				return {};
 		}
-		else if constexpr (std::is_same_v<T, glm::vec3>)
+		else
 		{
-			if (customValueObject.isObjectWithClassName(type::type_name<glm::vec3>()))
-			{
-				return glm::vec3 { customValueObject["x"], customValueObject["y"], customValueObject["z"] };
-			}
-			return {};
+			if (customValueObject.isObjectWithClassName(type::type_name<T>()))
+				return *(T*)(customValueObject["Data"].getRawData());
+			else
+				return {};
 		}
-		if (customValueObject.isObjectWithClassName(type::type_name<T>()))
-		{
-			return *(T*)(customValueObject["Data"].getRawData());
-		}
-		return {};
 	}
 
 	//=================================================================

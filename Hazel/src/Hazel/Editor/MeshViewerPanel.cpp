@@ -1,20 +1,22 @@
 #include "hzpch.h"
 #include "MeshViewerPanel.h"
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Asset/MeshSerializer.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Math/Math.h"
-#include "Hazel/Renderer/SceneRenderer.h"
-
-#include <assimp/scene.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
-#include <filesystem>
-#include <format>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "Hazel/Renderer/SceneRenderer.h"
+#include "Hazel/Math/Math.h"
+
+#include "Hazel/ImGui/ImGui.h"
+#include "Hazel/Asset/MeshSerializer.h"
+#include "Hazel/Asset/AssetManager.h"
+
 #include <stack>
+
+#include <assimp/scene.h>
+#include <filesystem>
 
 namespace Hazel {
 
@@ -158,7 +160,7 @@ namespace Hazel {
 
 	void MeshViewerPanel::SetAsset(const Ref<Asset>& asset)
 	{
-		Ref<MeshSource> meshSource = asset.As<MeshSource>();
+		Ref<MeshSource> meshAsset = (Ref<MeshSource>)asset;
 
 		auto path = Project::GetEditorAssetManager()->GetFileSystemPath(asset->Handle).string();
 		size_t found = path.find_last_of("/\\");
@@ -174,12 +176,12 @@ namespace Hazel {
 		}
 
 		auto& sceneData = m_OpenMeshes[name] = std::make_shared<MeshScene>();
-		sceneData->m_MeshSource = meshSource;
+		sceneData->m_MeshAsset = meshAsset;
 		sceneData->m_Name = name;
 		sceneData->m_Scene = Ref<Scene>::Create("MeshViewerPanel", true);
 		sceneData->m_MeshEntity = sceneData->m_Scene->CreateEntity("Mesh");
-		sceneData->m_Mesh = Ref<Mesh>::Create(sceneData->m_MeshSource->Handle, /*generateColliders=*/false);
-		sceneData->m_MeshEntity.AddComponent<SubmeshComponent>(sceneData->m_Mesh->Handle);
+		sceneData->m_Mesh = Ref<Mesh>::Create(sceneData->m_MeshAsset);
+		sceneData->m_MeshEntity.AddComponent<MeshComponent>(sceneData->m_Mesh->Handle);
 		sceneData->m_MeshEntity.AddComponent<SkyLightComponent>().DynamicSky = true;
 
 		sceneData->m_DirectionaLight = sceneData->m_Scene->CreateEntity("DirectionalLight");
@@ -203,9 +205,9 @@ namespace Hazel {
 		ImGui::PushID(sceneData->m_Name.c_str());
 		const char* meshTabName = sceneData->m_Name.c_str();
 
-		std::string toolBarName = std::format("##{}-{}", meshTabName, "toolbar");
-		std::string viewportPanelName = std::format("Viewport##{}", meshTabName);
-		std::string propertiesPanelName = std::format("Properties##{}", meshTabName);
+		std::string toolBarName = fmt::format("##{}-{}", meshTabName, "toolbar");
+		std::string viewportPanelName = fmt::format("Viewport##{}", meshTabName);
+		std::string propertiesPanelName = fmt::format("Properties##{}", meshTabName);
 
 		{
 			ImGui::Begin(meshTabName, nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse);
@@ -299,7 +301,7 @@ namespace Hazel {
 
 			{
 				ImGui::Begin(propertiesPanelName.c_str(), nullptr, ImGuiWindowFlags_NoCollapse);
-				DrawMeshNode(sceneData->m_MeshSource, sceneData->m_Mesh);
+				DrawMeshNode(sceneData->m_MeshAsset, sceneData->m_Mesh);
 				ImGui::End();
 			}
 
@@ -320,7 +322,7 @@ namespace Hazel {
 		{
 			std::filesystem::path meshPath = meshAsset->GetFilePath();
 			std::filesystem::path directoryPath = meshPath.parent_path();
-			std::string filename = std::format("{0}.hmesh", meshPath.stem().string());
+			std::string filename = fmt::format("{0}.hmesh", meshPath.stem().string());
 			Ref<Mesh> serializedMesh = Project::GetEditorAssetManager()->CreateNewAsset<Mesh>(filename, directoryPath.string(), mesh);
 		}
 #endif

@@ -239,6 +239,18 @@ namespace Hazel::SoundGraph
 			*(T*)outV.getRawData() = value;
 		}
 
+		template<>
+		inline void operator<<(const choc::value::ValueView& value) noexcept
+		{
+			outV = value;
+		}
+
+		template<>
+		inline void operator<<(const choc::value::ValueView value) noexcept
+		{
+			outV = value;
+		}
+
 		// TODO: Stream Writer if used to write from Graph's Input can refer to an external variable.
 		//		This would be useful to have a direct connection between the Graph and a wrapper object.
 		//		Also passing Graph Input Arrays and other heavy types by copy is not very efficient
@@ -248,18 +260,6 @@ namespace Hazel::SoundGraph
 		choc::value::Value outV;
 		choc::value::ValueView& DestinationV;
 	};
-
-	template<>
-	inline void StreamWriter::operator<<(const choc::value::ValueView& value) noexcept
-	{
-		outV = value;
-	}
-
-	template<>
-	inline void StreamWriter::operator<<(const choc::value::ValueView value) noexcept
-	{
-		outV = value;
-	}
 
 } // namespace Hazel::SoundGraph
 

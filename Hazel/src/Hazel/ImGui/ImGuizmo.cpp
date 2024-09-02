@@ -25,15 +25,20 @@
 //
 
 #include "hzpch.h"
+
+// Undef from Windows.h
+#undef min
+#undef max
+
+#include "imgui.h"
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include "imgui_internal.h"
 #include "ImGuizmo.h"
 
 #include "Hazel/Core/Input.h"
 #include "Hazel/Core/KeyCodes.h"
-
-#ifndef IMGUI_DEFINE_MATH_OPERATORS
-#define IMGUI_DEFINE_MATH_OPERATORS
-#endif
-#include <imgui/imgui_internal.h>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <malloc.h>

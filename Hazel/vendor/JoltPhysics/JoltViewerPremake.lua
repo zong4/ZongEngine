@@ -13,15 +13,15 @@ filter "system:windows"
 
     files
     {
-        "JoltPhysics/JoltViewer/JoltViewer.cpp",
-        "JoltPhysics/JoltViewer/JoltViewer.h",
+        "JoltViewer/JoltViewer.cpp",
+        "JoltViewer/JoltViewer.h",
 
         -- Build TestFramework directly into JoltViewer
         "JoltPhysics/TestFramework/**.cpp",
         "JoltPhysics/TestFramework/**.h"
     }
 
-    includedirs { "JoltPhysics/TestFramework/", "JoltPhysics/", "JoltPhysics/JoltViewer/" }
+    includedirs { "JoltPhysics/TestFramework/", "JoltPhysics/", "JoltViewer/" }
 
     links { "JoltPhysics", "Shcore.lib" }
 
@@ -43,14 +43,13 @@ filter "system:windows"
         symbols "on"
         optimize "off"
 
-        files { "DummyProfiler.cpp" }
+        files { "JoltViewer/DummyProfiler.cpp" }
 
         defines
         {
             "JPH_DEBUG_RENDERER",
             "JPH_FLOATING_POINT_EXCEPTIONS_ENABLED",
-            "JPH_EXTERNAL_PROFILE",
-			"JPH_ENABLE_ASSERTS"
+            "JPH_EXTERNAL_PROFILE"
         }
 
     filter { "system:windows", "configurations:Debug-AS" }
@@ -60,7 +59,7 @@ filter "system:windows"
     filter { "configurations:Release", "system:windows" }
         optimize "speed"
         
-        files { "DummyProfiler.cpp" }
+        files { "JoltViewer/DummyProfiler.cpp" }
 
         defines
         {

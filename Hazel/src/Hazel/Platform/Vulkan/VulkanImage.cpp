@@ -1,11 +1,9 @@
 #include "hzpch.h"
 #include "VulkanImage.h"
 
-#include "VulkanAPI.h"
 #include "VulkanContext.h"
 #include "VulkanRenderer.h"
-
-#include <format>
+#include "VulkanAPI.h"
 
 namespace Hazel {
 
@@ -24,15 +22,11 @@ namespace Hazel {
 
 	void VulkanImage2D::Invalidate()
 	{
-#if INVESTIGATE
 		Ref<VulkanImage2D> instance = this;
 		Renderer::Submit([instance]() mutable
 		{
 			instance->RT_Invalidate();
 		});
-#endif
-
-		RT_Invalidate();
 	}
 
 	void VulkanImage2D::Release()
@@ -68,23 +62,6 @@ namespace Hazel {
 		m_PerLayerImageViews.clear();
 		m_PerMipImageViews.clear();
 
-	}
-
-	int VulkanImage2D::GetClosestMipLevel(uint32_t width, uint32_t height) const
-	{
-		if (width > m_Specification.Width / 2 || height > m_Specification.Height / 2)
-			return 0;
-
-		int a = glm::log2(glm::min(m_Specification.Width, m_Specification.Height));
-		int b = glm::log2(glm::min(width, height));
-		return a - b;
-	}
-
-	std::pair<uint32_t, uint32_t> VulkanImage2D::GetMipLevelSize(int mipLevel) const
-	{
-		uint32_t width = m_Specification.Width;
-		uint32_t height = m_Specification.Height;
-		return { width >> mipLevel, height >> mipLevel };
 	}
 
 	void VulkanImage2D::RT_Invalidate()
@@ -152,7 +129,7 @@ namespace Hazel {
 		imageViewCreateInfo.subresourceRange.layerCount = m_Specification.Layers;
 		imageViewCreateInfo.image = m_Info.Image;
 		VK_CHECK_RESULT(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &m_Info.ImageView));
-		VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("{} default image view", m_Specification.DebugName), m_Info.ImageView);
+		VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("{} default image view", m_Specification.DebugName), m_Info.ImageView);
 
 		// TODO: Renderer should contain some kind of sampler cache
 		if (m_Specification.CreateSampler)
@@ -181,7 +158,7 @@ namespace Hazel {
 			samplerCreateInfo.maxLod = 100.0f;
 			samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 			m_Info.Sampler = Vulkan::CreateSampler(samplerCreateInfo);
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SAMPLER, std::format("{} default sampler", m_Specification.DebugName), m_Info.Sampler);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_SAMPLER, fmt::format("{} default sampler", m_Specification.DebugName), m_Info.Sampler);
 		}
 
 		if (m_Specification.Usage == ImageUsage::Storage)
@@ -263,7 +240,7 @@ namespace Hazel {
 			imageViewCreateInfo.subresourceRange.layerCount = 1;
 			imageViewCreateInfo.image = m_Info.Image;
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &m_PerLayerImageViews[layer]));
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("{} image view layer: {}", m_Specification.DebugName, layer), m_PerLayerImageViews[layer]);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("{} image view layer: {}", m_Specification.DebugName, layer), m_PerLayerImageViews[layer]);
 		}
 	}
 
@@ -310,7 +287,7 @@ namespace Hazel {
 		imageViewCreateInfo.image = m_Info.Image;
 
 		VK_CHECK_RESULT(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &m_PerMipImageViews[mip]));
-		VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("{} image view mip: {}", m_Specification.DebugName, mip), m_PerMipImageViews[mip]);
+		VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("{} image view mip: {}", m_Specification.DebugName, mip), m_PerMipImageViews[mip]);
 		return m_PerMipImageViews.at(mip);
 	}
 
@@ -345,7 +322,7 @@ namespace Hazel {
 			imageViewCreateInfo.subresourceRange.layerCount = 1;
 			imageViewCreateInfo.image = m_Info.Image;
 			VK_CHECK_RESULT(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &m_PerLayerImageViews[layer]));
-			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("{} image view layer: {}", m_Specification.DebugName, layer), m_PerLayerImageViews[layer]);
+			VKUtils::SetDebugUtilsObjectName(device, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("{} image view layer: {}", m_Specification.DebugName, layer), m_PerLayerImageViews[layer]);
 		}
 
 	}
@@ -375,130 +352,7 @@ namespace Hazel {
 		return s_ImageReferences;
 	}
 
-	void VulkanImage2D::SetData(Buffer buffer)
-	{
-		HZ_CORE_VERIFY(m_Specification.Transfer, "Image must be created with ImageSpecification::Transfer enabled!");
-
-		if (buffer)
-		{
-			Ref<VulkanDevice> device = VulkanContext::GetCurrentDevice();
-
-			VkDeviceSize size = buffer.Size;
-
-			VkMemoryAllocateInfo memAllocInfo{};
-			memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-
-			VulkanAllocator allocator("Image2D");
-
-			// Create staging buffer
-			VkBufferCreateInfo bufferCreateInfo{};
-			bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-			bufferCreateInfo.size = size;
-			bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-			bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			VkBuffer stagingBuffer;
-			VmaAllocation stagingBufferAllocation = allocator.AllocateBuffer(bufferCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU, stagingBuffer);
-
-			// Copy data to staging buffer
-			uint8_t* destData = allocator.MapMemory<uint8_t>(stagingBufferAllocation);
-			HZ_CORE_VERIFY(buffer.Data);
-			memcpy(destData, buffer.Data, size);
-			allocator.UnmapMemory(stagingBufferAllocation);
-
-			VkCommandBuffer copyCmd = device->GetCommandBuffer(true);
-
-			// Image memory barriers for the texture image
-
-			// The sub resource range describes the regions of the image that will be transitioned using the memory barriers below
-			VkImageSubresourceRange subresourceRange = {};
-			// Image only contains color data
-			subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			// Start at first mip level
-			subresourceRange.baseMipLevel = 0;
-			subresourceRange.levelCount = 1;
-			subresourceRange.layerCount = 1;
-
-			// Transition the texture image layout to transfer target, so we can safely copy our buffer data to it.
-			VkImageMemoryBarrier imageMemoryBarrier{};
-			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			imageMemoryBarrier.image = m_Info.Image;
-			imageMemoryBarrier.subresourceRange = subresourceRange;
-			imageMemoryBarrier.srcAccessMask = 0;
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-			// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
-			// Source pipeline stage is host write/read exection (VK_PIPELINE_STAGE_HOST_BIT)
-			// Destination pipeline stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
-			vkCmdPipelineBarrier(
-				copyCmd,
-				VK_PIPELINE_STAGE_HOST_BIT,
-				VK_PIPELINE_STAGE_TRANSFER_BIT,
-				0,
-				0, nullptr,
-				0, nullptr,
-				1, &imageMemoryBarrier);
-
-			VkBufferImageCopy bufferCopyRegion = {};
-			bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			bufferCopyRegion.imageSubresource.mipLevel = 0;
-			bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
-			bufferCopyRegion.imageSubresource.layerCount = 1;
-			bufferCopyRegion.imageExtent.width = m_Specification.Width;
-			bufferCopyRegion.imageExtent.height = m_Specification.Height;
-			bufferCopyRegion.imageExtent.depth = 1;
-			bufferCopyRegion.bufferOffset = 0;
-
-			// Copy mip levels from staging buffer
-			vkCmdCopyBufferToImage(
-				copyCmd,
-				stagingBuffer,
-				m_Info.Image,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-				1,
-				&bufferCopyRegion);
-
-#if 0
-			// Once the data has been uploaded we transfer to the texture image to the shader read layout, so it can be sampled from
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-			// Insert a memory dependency at the proper pipeline stages that will execute the image layout transition 
-			// Source pipeline stage stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
-			// Destination pipeline stage fragment shader access (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
-			vkCmdPipelineBarrier(
-				copyCmd,
-				VK_PIPELINE_STAGE_TRANSFER_BIT,
-				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-				0,
-				0, nullptr,
-				0, nullptr,
-				1, &imageMemoryBarrier);
-
-#endif
-
-			Utils::InsertImageMemoryBarrier(copyCmd, m_Info.Image,
-				VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_DescriptorImageInfo.imageLayout,
-				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-				subresourceRange);
-
-
-			device->FlushCommandBuffer(copyCmd);
-
-			// Clean up staging resources
-			allocator.DestroyBuffer(stagingBuffer, stagingBufferAllocation);
-
-			UpdateDescriptor();
-		}
-	}
-
-	void VulkanImage2D::CopyToHostBuffer(Buffer& buffer) const
+	void VulkanImage2D::CopyToHostBuffer(Buffer& buffer)
 	{
 		auto device = VulkanContext::GetCurrentDevice();
 		auto vulkanDevice = device->GetVulkanDevice();
@@ -512,13 +366,6 @@ namespace Hazel {
 		bufferCreateInfo.size = bufferSize;
 		bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-#if MEM_INFO
-		VkMemoryRequirements memReqs;
-		vkGetImageMemoryRequirements(vulkanDevice, m_Info.Image, &memReqs);
-		HZ_CORE_WARN("MemReq = {} ({})", memReqs.size, memReqs.alignment);
-		HZ_CORE_WARN("Expected size = {}", bufferSize);
-#endif
 
 		VkBuffer stagingBuffer;
 		VmaAllocation stagingBufferAllocation = allocator.AllocateBuffer(bufferCreateInfo, VMA_MEMORY_USAGE_GPU_TO_CPU, stagingBuffer);
@@ -641,7 +488,7 @@ namespace Hazel {
 		imageViewCreateInfo.subresourceRange.layerCount = imageSpec.Layers;
 		imageViewCreateInfo.image = vulkanImage->GetImageInfo().Image;
 		VK_CHECK_RESULT(vkCreateImageView(vulkanDevice, &imageViewCreateInfo, nullptr, &m_ImageView));
-		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, std::format("{} default image view", m_Specification.DebugName), m_ImageView);
+		VKUtils::SetDebugUtilsObjectName(vulkanDevice, VK_OBJECT_TYPE_IMAGE_VIEW, fmt::format("{} default image view", m_Specification.DebugName), m_ImageView);
 
 		m_DescriptorImageInfo = vulkanImage->GetDescriptorInfoVulkan();
 		m_DescriptorImageInfo.imageView = m_ImageView;

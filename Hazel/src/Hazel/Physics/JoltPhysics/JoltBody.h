@@ -19,14 +19,11 @@ namespace Hazel {
 		virtual bool IsDynamic() const override;
 		virtual bool IsKinematic() const override;
 
-		virtual void MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds) override;
-		virtual void Rotate(const glm::vec3& inRotationTimesDeltaTime) override;
-
 		virtual void SetGravityEnabled(bool isEnabled) override;
+
 		virtual void AddForce(const glm::vec3& force, EForceMode forceMode = EForceMode::Force, bool forceWake = true) override;
 		virtual void AddForce(const glm::vec3& force, const glm::vec3& location, EForceMode forceMode = EForceMode::Force, bool forceWake = true) override;
 		virtual void AddTorque(const glm::vec3& torque, bool forceWake = true) override;
-		virtual void AddRadialImpulse(const glm::vec3& origin, float radius, float strength, EFalloffMode falloff, bool velocityChange) override;
 
 		virtual void ChangeTriggerState(bool isTrigger) override;
 		virtual bool IsTrigger() const override;
@@ -52,15 +49,21 @@ namespace Hazel {
 		virtual bool IsSleeping() const override;
 		virtual void SetSleepState(bool inSleep) override;
 
+		virtual void AddRadialImpulse(const glm::vec3& origin, float radius, float strength, EFalloffMode falloff, bool velocityChange) override;
+
 		virtual void SetCollisionDetectionMode(ECollisionDetectionType collisionDetectionMode) override;
 
 		JPH::BodyID GetBodyID() const { return m_BodyID; }
 
-		virtual glm::vec3 GetTranslation() const override;
-		virtual glm::quat GetRotation() const override;
+		virtual void MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds) override;
 
 		virtual void SetTranslation(const glm::vec3& translation) override;
+		virtual glm::vec3 GetTranslation() const override;
+
 		virtual void SetRotation(const glm::quat& rotation) override;
+		virtual glm::quat GetRotation() const override;
+
+		virtual void Rotate(const glm::vec3& inRotationTimesDeltaTime) override;
 
 	private:
 		virtual void OnAxisLockUpdated(bool forceWake) override;

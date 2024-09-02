@@ -123,9 +123,6 @@ namespace YAML {
 
 		static bool decode(const Node& node, Hazel::AssetHandle& rhs)
 		{
-			if(!node.IsScalar())
-				return false;
-
 			rhs = node.as<uint64_t>();
 			return true;
 		}

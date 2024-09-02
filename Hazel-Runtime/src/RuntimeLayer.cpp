@@ -1,20 +1,27 @@
 #include "RuntimeLayer.h"
 
 #include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
+
 #include "Hazel/Audio/SoundObject.h"
+#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
+
 #include "Hazel/Core/Input.h"
+
 #include "Hazel/Project/Project.h"
 #include "Hazel/Project/ProjectSerializer.h"
+
 #include "Hazel/Renderer/Renderer.h"
-#include "Hazel/Scene/Prefab.h"
+
 #include "Hazel/Scene/SceneSerializer.h"
-#include "Hazel/Script/ScriptEngine.h"
+#include "Hazel/Scene/Prefab.h"
+
 #include "Hazel/Serialization/AssetPack.h"
+
+#include "Hazel/Script/ScriptEngine.h"
+
 #include "Hazel/Tiering/TieringSerializer.h"
 
 #include <filesystem>
-#include <format>
 
 namespace Hazel {
 
@@ -39,19 +46,17 @@ namespace Hazel {
 		spec.NumShadowCascades = 2; // 1 for Dichotomy
 		spec.EnableEdgeOutlineEffect = false; // true for Dichotomy
 
-		/*
-		------------------------------
-		-- Tiering settings example --
-		------------------------------
-
-		Tiering::TieringSettings ts;
-		if (TieringSerializer::Deserialize(ts, "Settings.yaml"))
-			spec.Tiering = ts.RendererTS;
-		*/
+		//Tiering::TieringSettings ts;
+		/*if (TieringSerializer::Deserialize(ts, "LD53/Config/Settings.yaml"))
+			spec.Tiering = ts.RendererTS;*/
 
 		m_SceneRenderer = Ref<SceneRenderer>::Create(m_RuntimeScene, spec);
 		m_SceneRenderer->GetOptions().ShowGrid = false;
 		m_SceneRenderer->SetShadowSettings(-5.0f, 5.0f, 0.92f);
+
+		// For LD51
+		/*m_SceneRenderer->SetShadowSettings(-5.0f, 5.0f, 0.93f, 0.0f);
+		m_SceneRenderer->SetShadowCascades(0.14f, 0.2f, 0.3f, 1.0f);*/
 
 		m_Renderer2D = Ref<Renderer2D>::Create();
 		m_Renderer2D->SetLineWidth(2.0f);
@@ -94,8 +99,7 @@ namespace Hazel {
 	{
 		OnSceneStop();
 
-		ScriptEngine::GetMutable().SetCurrentScene(nullptr);
-		ScriptEngine::GetMutable().SetSceneRenderer(nullptr);
+		ScriptEngine::SetSceneContext(nullptr, nullptr);
 		m_SceneRenderer->SetScene(nullptr);
 
 		HZ_CORE_VERIFY(m_RuntimeScene->GetRefCount() == 1);
@@ -104,9 +108,8 @@ namespace Hazel {
 
 	void RuntimeLayer::OnScenePlay()
 	{
-		m_RuntimeScene->SetSceneTransitionCallback([this](AssetHandle scene) { QueueSceneTransition(scene); });
-		ScriptEngine::GetMutable().SetCurrentScene(m_RuntimeScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_SceneRenderer);
+		m_RuntimeScene->SetSceneTransitionCallback([this](AssetHandle handle) { QueueSceneTransition(handle); });
+		ScriptEngine::SetSceneContext(m_RuntimeScene, m_SceneRenderer);
 		m_RuntimeScene->OnRuntimeStart();
 	}
 
@@ -155,11 +158,17 @@ namespace Hazel {
 		
 	void RuntimeLayer::LoadSceneAssets()
 	{
+	}
+
+#if PRELOAD
+	void RuntimeLayer::LoadSceneAssets()
+	{
 		auto assetList = m_RuntimeScene->GetAssetList();
 		for (AssetHandle handle : assetList)
 		{
-			Ref<Asset> asset = AssetManager::GetAsset<Asset>(handle);
-			if (asset->GetAssetType() == AssetType::Prefab)
+			const AssetMetadata& metadata = AssetManager::GetMetadata(handle);
+			AssetManager::ReloadData(handle);
+			if (metadata.Type == AssetType::Prefab)
 			{
 				Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(handle);
 				LoadPrefabAssets(prefab);
@@ -172,13 +181,19 @@ namespace Hazel {
 		auto assetList = prefab->GetAssetList();
 		for (AssetHandle handle : assetList)
 		{
-			Ref<Asset> asset = AssetManager::GetAsset<Asset>(handle);
-			if (asset->GetAssetType() == AssetType::Prefab)
+			const AssetMetadata& metadata = AssetManager::GetMetadata(handle);
+			AssetManager::ReloadData(handle);
+			if (metadata.Type == AssetType::Prefab)
 			{
 				Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(handle);
 				LoadPrefabAssets(prefab);
 			}
 		}
+	}
+#endif
+
+	void RuntimeLayer::LoadPrefabAssets(Ref<Prefab> prefab)
+	{
 	}
 
 	void RuntimeLayer::DrawFPSStats()
@@ -189,13 +204,13 @@ namespace Hazel {
 
 		const float fontSize = 20.0f;
 		glm::vec2 pos = { unscaledViewportWidth - 250.0f, unscaledViewportHeight - 40.0f };
-		DrawString(std::format("{} fps", m_FramesPerSecond), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+		DrawString(fmt::format("{} fps", m_FramesPerSecond), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 		pos.y -= fontSize;
-		DrawString(std::format("{:.2f} ms frame", m_FrameTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+		DrawString(fmt::format("{:.2f} ms frame", m_FrameTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 		pos.y -= fontSize;
-		DrawString(std::format("{:.2f} ms CPU", m_CPUTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+		DrawString(fmt::format("{:.2f} ms CPU", m_CPUTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 		pos.y -= fontSize;
-		DrawString(std::format("{:.2f} ms GPU", m_GPUTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+		DrawString(fmt::format("{:.2f} ms GPU", m_GPUTime), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 		
 		{
 			auto stats = Renderer::GetGPUMemoryStats();
@@ -204,11 +219,11 @@ namespace Hazel {
 			std::string bufferMem = Utils::BytesToString(stats.BufferAllocationSize);
 			std::string imageMem = Utils::BytesToString(stats.ImageAllocationSize);
 			pos.y -= fontSize;
-			DrawString(std::format("{0}/{1} GPU", usedGPUMem, freeGPUMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+			DrawString(fmt::format("{0}/{1} GPU", usedGPUMem, freeGPUMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 			pos.y -= fontSize;
-			DrawString(std::format("{0} BUF", bufferMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+			DrawString(fmt::format("{0} BUF", bufferMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 			pos.y -= fontSize;
-			DrawString(std::format("{0} IMG", imageMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
+			DrawString(fmt::format("{0} IMG", imageMem), pos, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 20.0f);
 		}
 	}
 
@@ -226,58 +241,56 @@ namespace Hazel {
 			const auto& perFrameData = app.GetProfilerPreviousFrameData();
 			for (const auto& [name, time] : perFrameData)
 			{
-				DrawString(std::format("{}: {:.3f} ms ({}x)", name, time.Time, time.Samples), pos, glm::vec4(1.0f), fontSize);
+				DrawString(fmt::format("{}: {:.3f} ms ({}x)", name, time.Time, time.Samples), pos, glm::vec4(1.0f), fontSize);
 				pos.y += fontSize;
 			}
 		}
 
 		fontSize = 30.0f;
 
-		DrawString(std::format("{:.2f} ms ({:.2f}ms GPU)", m_FrameTime, m_GPUTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("{:.2f} ms ({:.2f}ms GPU)", m_FrameTime, m_GPUTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
 
 		// Render Thread
 		fontSize = 25.0f;
-		DrawString(std::format("GPU wait {:.2f} ms", m_PerformanceTimers.RenderThreadGPUWaitTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("GPU wait {:.2f} ms", m_PerformanceTimers.RenderThreadGPUWaitTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(std::format("MT wait {:.2f} ms", m_PerformanceTimers.RenderThreadWaitTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("MT wait {:.2f} ms", m_PerformanceTimers.RenderThreadWaitTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(std::format("CPU-Only {:.2f} ms", m_PerformanceTimers.RenderThreadWorkTime - m_PerformanceTimers.RenderThreadGPUWaitTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("CPU-Only {:.2f} ms", m_PerformanceTimers.RenderThreadWorkTime - m_PerformanceTimers.RenderThreadGPUWaitTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
 		fontSize = 30.0f;
-		DrawString(std::format("Render Thread {:.2f} ms", m_PerformanceTimers.RenderThreadWorkTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("Render Thread {:.2f} ms", m_PerformanceTimers.RenderThreadWorkTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
 
 		// Main Thread
 		fontSize = 25.0f;
-		DrawString(std::format("Physics {:.2f} ms", m_PerformanceTimers.PhysicsStepTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("Physics {:.2f} ms", m_PerformanceTimers.PhysicsStepTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(std::format("Script Update {:.2f} ms", m_PerformanceTimers.ScriptUpdate), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("Script Update {:.2f} ms", m_PerformanceTimers.ScriptUpdate), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(std::format("Wait for RT {:.2f} ms", m_PerformanceTimers.MainThreadWaitTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("Wait for RT {:.2f} ms", m_PerformanceTimers.MainThreadWaitTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
 		fontSize = 30.0f;
-		DrawString(std::format("Main Thread {:.2f} ms", m_PerformanceTimers.MainThreadWorkTime), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("Main Thread {:.2f} ms", m_PerformanceTimers.MainThreadWorkTime), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
 
-		DrawString(std::format("{} fps", (uint32_t)m_FramesPerSecond), pos, glm::vec4(1.0f), fontSize);
+		DrawString(fmt::format("{} fps", (uint32_t)m_FramesPerSecond), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(std::format("{} entities", (uint32_t)m_RuntimeScene->GetEntityMap().size()), pos, glm::vec4(1.0f), fontSize);
-		/*pos.y += fontSize;
-		DrawString(fmt::format("{} script entities", (uint32_t)ScriptEngine::GetEntityInstances().size()), pos, glm::vec4(1.0f), fontSize);*/
+		DrawString(fmt::format("{} entities", (uint32_t)m_RuntimeScene->GetEntityMap().size()), pos, glm::vec4(1.0f), fontSize);
 		pos.y += fontSize;
-		DrawString(HZ_VERSION_LONG, pos, glm::vec4(1.0f), fontSize * 0.8f);
+		DrawString(fmt::format("{} script entities", (uint32_t)ScriptEngine::GetEntityInstances().size()), pos, glm::vec4(1.0f), fontSize);
+		pos.y += fontSize;
+		DrawString(fmt::format("AssetPack {}", m_AssetPack->GetBuildVersion()), pos, glm::vec4(1.0f), fontSize * 0.8f);
 		pos.y += fontSize * 0.8f;
-		DrawString(std::format("AssetPack {}", m_AssetPack->GetBuildVersion()), pos, glm::vec4(1.0f), fontSize * 0.8f);
-		pos.y += fontSize * 0.8f;
-		DrawString(std::format("{} ({})", m_RuntimeScene->GetName(), (uint64_t)m_RuntimeScene->GetUUID()), pos, glm::vec4(1.0f), fontSize * 0.8f);
+		DrawString(fmt::format("{} ({})", m_RuntimeScene->GetName(), (uint64_t)m_RuntimeScene->GetUUID()), pos, glm::vec4(1.0f), fontSize * 0.8f);
 		pos.y += fontSize * 0.8f;
 	}
 
 	void RuntimeLayer::DrawVersionInfo()
 	{
 		float alpha = glm::clamp(4.0f - (Application::Get().GetTime() * 0.5f), 0.0f, 0.5f);
-		DrawString(std::format("1.3.0.0 (AP {})", m_AssetPack->GetBuildVersion()), { 20.0f, 20.0f }, glm::vec4(1, 1, 1, alpha), 30.0f, false);
+		DrawString(fmt::format("1.3.0.0 (AP {})", m_AssetPack->GetBuildVersion()), { 20.0f, 20.0f }, glm::vec4(1, 1, 1, alpha), 30.0f, false);
 	}
 
 	void RuntimeLayer::DrawString(const std::string& string, const glm::vec2& position, const glm::vec4& color, float size, bool shadow)
@@ -318,8 +331,6 @@ namespace Hazel {
 
 	void RuntimeLayer::OnUpdate(Timestep ts)
 	{
-		AssetManager::SyncWithAssetThread();
-
 		m_UpdateFPSTimer -= ts;
 		if (m_UpdateFPSTimer <= 0.0f)
 		{
@@ -391,23 +402,38 @@ namespace Hazel {
 	{
 		Ref<Project> project = Ref<Project>::Create();
 		ProjectSerializer serializer(project);
-		serializer.DeserializeRuntime(m_ProjectPath / project->GetConfig().AssetDirectory / "Project.hdat");
+		serializer.Deserialize(m_ProjectPath);
 
 		// Load asset pack
-		m_AssetPack = AssetPack::Load(std::filesystem::path(project->GetConfig().ProjectDirectory) / "AssetPack.hap");
+		m_AssetPack = AssetPack::Load(std::filesystem::path(project->GetConfig().ProjectDirectory) / project->GetConfig().AssetDirectory / "AssetPack.hap");
+		//Ref<AssetPack> assetPack = AssetPack::Load("C:/Dev/Hazel/Projects/LD51/Assets/AssetPack.hap");
+		//Ref<AssetPack> assetPack = AssetPack::Load("SandboxProject/Assets/AssetPack.hap");
 		Project::SetActiveRuntime(project, m_AssetPack);
 
 		//if (!s_AudioDisabled)
 		//AudioCommandRegistry::Init();
 
 		Buffer appBinary = m_AssetPack->ReadAppBinary();
-		ScriptEngine::GetMutable().LoadProjectAssemblyRuntime(appBinary);
+		ScriptEngine::LoadAppAssemblyRuntime(appBinary);
 		appBinary.Release();
 
 		// Reset cameras
 		m_EditorCamera = EditorCamera(45.0f, 1280.0f, 720.0f, 0.1f, 1000.0f);
-	
-		LoadScene(project->GetConfig().StartSceneHandle);
+
+		// PrefabSandbox=5335834865867409016
+		// AnimationTest=13221344830749982769
+		// SponzaDemo=8428220783520776882
+		// DOFTest=8428220783520776882
+		//LoadScene(5335834865867409016);
+		
+		// Load Game Settings
+
+
+		// LD53
+		LoadScene(14327706792315080871);
+
+		//if (!project->GetConfig().StartScene.empty())
+		//	OpenScene((Project::GetAssetDirectory() / project->GetConfig().StartScene).string());
 	}
 
 	void RuntimeLayer::OpenScene(const std::string& filepath)
@@ -421,9 +447,7 @@ namespace Hazel {
 
 		std::filesystem::path path = filepath;
 		//UpdateWindowTitle(path.filename().string());
-
-		ScriptEngine::GetMutable().SetCurrentScene(m_RuntimeScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_SceneRenderer);
+		ScriptEngine::SetSceneContext(m_RuntimeScene, m_SceneRenderer);
 	}
 
 	void RuntimeLayer::LoadScene(AssetHandle sceneHandle)
@@ -431,9 +455,7 @@ namespace Hazel {
 		Ref<Scene> scene = Project::GetRuntimeAssetManager()->LoadScene(sceneHandle);
 		m_RuntimeScene = scene;
 		m_RuntimeScene->SetSceneTransitionCallback([this](AssetHandle handle) { QueueSceneTransition(handle); });
-
-		ScriptEngine::GetMutable().SetCurrentScene(m_RuntimeScene);
-		ScriptEngine::GetMutable().SetSceneRenderer(m_SceneRenderer);
+		ScriptEngine::SetSceneContext(m_RuntimeScene, m_SceneRenderer);
 	}
 
 	void RuntimeLayer::OnEvent(Event& e)
@@ -447,6 +469,12 @@ namespace Hazel {
 
 	bool RuntimeLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
+		switch (e.GetKeyCode())
+		{
+			case KeyCode::Escape:
+				break;
+		}
+
 		if (e.GetRepeatCount() == 0 && Input::IsKeyDown(KeyCode::LeftControl))
 		{
 			switch (e.GetKeyCode())

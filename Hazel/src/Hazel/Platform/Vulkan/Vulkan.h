@@ -116,7 +116,7 @@ namespace Hazel::Utils {
 	{
 		if (result != VK_SUCCESS)
 		{
-			HZ_CORE_ERROR("VkResult is '{0}'", Utils::VKResultToString(result));
+			HZ_CORE_ERROR("VkResult is '{0}'");
 			if (result == VK_ERROR_DEVICE_LOST)
 			{
 				using namespace std::chrono_literals;

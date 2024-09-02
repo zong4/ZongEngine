@@ -12,6 +12,8 @@
 #include "Hazel/Core/Events/EditorEvents.h"
 
 #include "Hazel/Renderer/SceneRenderer.h"
+#include "Hazel/Script/ScriptEngine.h"
+#include "Hazel/Script/ScriptUtils.h"
 
 #include "Hazel/Asset/AssetManager.h"
 
@@ -29,8 +31,6 @@
 #include "Hazel/Editor/SelectionManager.h"
 
 #include "Hazel/Debug/Profiler.h"
-
-#include "Hazel/Script/ScriptEngine.h"
 
 #include "SceneSerializer.h"
 
@@ -81,40 +81,33 @@ namespace Hazel {
 		if (!initalize)
 			return;
 
-		// entt construct/destroy signals
-		// Components with signals registered here should be explicitly removed from the entity
-		// in DestroyEntity() _before_ the entity is itself destroyed.  This ensures that the on_destroy()
-		// handlers will be called before the entity is destroyed (in particular before the entity's
-		// IDComponent and TransformComponent are destroyed)
-		m_Registry.on_construct<MeshColliderComponent>().connect<&Scene::OnMeshColliderComponentConstruct>(this);
-		m_Registry.on_destroy<ScriptComponent>().connect<&Scene::OnScriptComponentDestroy>(this);
-
 		// This might not be the the best way, but Audio Engine needs to keep track of all audio component
 		// to have an easy way to lookup a component associated with active sound.
 		m_Registry.on_construct<AudioComponent>().connect<&Scene::OnAudioComponentConstruct>(this);
 		m_Registry.on_destroy<AudioComponent>().connect<&Scene::OnAudioComponentDestroy>(this);
 
-		if (!m_IsEditorScene)
-		{
-			// RUNTIME ONLY
-			m_Registry.on_construct<RigidBody2DComponent>().connect<&Scene::OnRigidBody2DComponentConstruct>(this);
-			m_Registry.on_destroy<RigidBody2DComponent>().connect<&Scene::OnRigidBody2DComponentDestroy>(this);
-			m_Registry.on_construct<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentConstruct>(this);
-			m_Registry.on_construct<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentConstruct>(this);
-			m_Registry.on_construct<RigidBodyComponent>().connect<&Scene::OnRigidBodyComponentConstruct>(this);
-			m_Registry.on_destroy<RigidBodyComponent>().connect<&Scene::OnRigidBodyComponentDestroy>(this);
-		}
+		m_Registry.on_construct<MeshColliderComponent>().connect<&Scene::OnMeshColliderComponentConstruct>(this);
+		m_Registry.on_destroy<MeshColliderComponent>().connect<&Scene::OnMeshColliderComponentDestroy>(this);
 
-		// TODO (0x): For now the box2d world must always exist.  Change this so that we only create the box2d world if/when simulating physics
-		//            Also, use entt registry context for this rather than the slightly hacky "scene entity"
+		m_Registry.on_construct<RigidBody2DComponent>().connect<&Scene::OnRigidBody2DComponentConstruct>(this);
+		m_Registry.on_destroy<RigidBody2DComponent>().connect<&Scene::OnRigidBody2DComponentDestroy>(this);
+		m_Registry.on_construct<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentConstruct>(this);
+		m_Registry.on_destroy<BoxCollider2DComponent>().connect<&Scene::OnBoxCollider2DComponentDestroy>(this);
+		m_Registry.on_construct<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentConstruct>(this);
+		m_Registry.on_destroy<CircleCollider2DComponent>().connect<&Scene::OnCircleCollider2DComponentDestroy>(this);
+
+		m_Registry.on_construct<RigidBodyComponent>().connect<&Scene::OnRigidBodyComponentConstruct>(this);
+		// m_Registry.on_destroy<RigidBodyComponent>().connect<&Scene::OnRigidBodyComponentDestroy>(this);
+		// ^ replaced by OnRigidBodyComponentDestroy_ProEdition for LD53
+
 		Box2DWorldComponent& b2dWorld = m_Registry.emplace<Box2DWorldComponent>(m_SceneEntity, std::make_unique<b2World>(b2Vec2{ 0.0f, -9.8f }));
 		b2dWorld.World->SetContactListener(&b2dWorld.ContactListener);
+
+		Init();
 	}
 
 	Scene::~Scene()
 	{
-		HZ_CORE_ASSERT(!m_IsPlaying && !m_ShouldSimulate); // stop the scene before destroying it
-
 		// NOTE(Peter): **VERY** ugly hack around SkyLight GPU leaks
 		auto lights = m_Registry.group<SkyLightComponent>(entt::get<TransformComponent>);
 		for (auto entity : lights)
@@ -124,37 +117,33 @@ namespace Hazel {
 				AssetManager::RemoveAsset(skyLightComponent.SceneEnvironment);
 		}
 
-		// Destroy all entities one by one rather than calling m_Registry.clear()
-		// This ensures component on_destroy signals are fired in the correct order.
-		// Note that the scene entity does not have an IDComponent, so it will not
-		// be destroyed here.
-		for (auto entity : GetAllEntitiesWith<IDComponent>())
-		{
-			DestroyEntity({ entity, this }, true, false);
-		}
-
-		// Destroy anything that's left (should be just the scene entity)
+		// Clear the registry so that all callbacks are called
 		m_Registry.clear();
 
-		m_Registry.on_construct<MeshColliderComponent>().disconnect(this);
+		// Disconnect EnTT callbacks
+		m_Registry.on_construct<ScriptComponent>().disconnect(this);
 		m_Registry.on_destroy<ScriptComponent>().disconnect(this);
-		m_Registry.on_construct<AudioComponent>().disconnect(this);
-		m_Registry.on_destroy<AudioComponent>().disconnect(this);
-		if (!m_IsEditorScene)
-		{
-			// RUNTIME ONLY
-			m_Registry.on_construct<RigidBody2DComponent>().disconnect(this);
-			m_Registry.on_destroy<RigidBody2DComponent>().disconnect(this);
-			m_Registry.on_construct<BoxCollider2DComponent>().disconnect(this);
-			m_Registry.on_construct<CircleCollider2DComponent>().disconnect(this);
-			m_Registry.on_construct<RigidBodyComponent>().disconnect(this);
-			m_Registry.on_destroy<RigidBodyComponent>().disconnect(this);
-		}
+
+		m_Registry.on_construct<AudioComponent>().disconnect();
+		m_Registry.on_destroy<AudioComponent>().disconnect();
+
+		m_Registry.on_construct<MeshColliderComponent>().disconnect();
+		m_Registry.on_destroy<MeshColliderComponent>().disconnect();
+
+		m_Registry.on_construct<RigidBody2DComponent>().disconnect();
+		m_Registry.on_destroy<RigidBody2DComponent>().disconnect();
+
+		m_Registry.on_construct<RigidBodyComponent>().disconnect();
+		// m_Registry.on_destroy<RigidBodyComponent>().disconnect();
+		// ^ replaced by OnRigidBodyComponentDestroy_ProEdition for LD53
 
 		s_ActiveScenes.erase(m_SceneID);
 		MiniAudioEngine::OnSceneDestruct(m_SceneID);
 	}
 
+	void Scene::Init()
+	{
+	}
 
 	// Merge OnUpdate/Render into one function?
 	void Scene::OnUpdateRuntime(Timestep ts)
@@ -207,53 +196,50 @@ namespace Hazel {
 
 			if (m_IsPlaying)
 			{
-				auto view = m_Registry.view<ScriptComponent>();
-				const auto& scriptEngine = ScriptEngine::GetInstance();
-
 				{
+					HZ_PROFILE_FUNC("Scene::OnUpdate - C# OnUpdate");
+					Timer timer;
 
-					HZ_PROFILE_SCOPE("Scene::OnUpdate - C# OnUpdate");
-
-					for (auto scriptEntityID : view)
+					for (const auto& [entityID, entityInstance] : ScriptEngine::GetEntityInstances())
 					{
-						auto& scriptComponent = view.get<ScriptComponent>(scriptEntityID);
-
-						if (!scriptEngine.IsValidScript(scriptComponent.ScriptID) || !scriptComponent.Instance.IsValid())
+						if (m_EntityIDMap.find(entityID) != m_EntityIDMap.end())
 						{
-							HZ_CORE_ERROR("Entity {} has invalid script!", Entity(scriptEntityID, this).GetComponent<TagComponent>().Tag);
-							continue;
+							Entity entity = m_EntityIDMap.at(entityID);
+
+							if (ScriptEngine::IsEntityInstantiated(entity))
+								ScriptEngine::CallMethod<float>(entityInstance, "OnUpdate", ts);
 						}
 
-						scriptComponent.Instance.Invoke<float>("OnUpdate", ts);
 					}
+					m_PerformanceTimers.ScriptUpdate = timer.ElapsedMillis();
 				}
 
 				{
-					HZ_PROFILE_SCOPE("Scene::OnUpdate - C# OnLateUpdate");
+					HZ_PROFILE_FUNC("Scene::OnUpdate - C# OnLateUpdate");
 					Timer timer;
 
-					for (auto scriptEntityID : view)
+					for (const auto& [entityID, entityInstance] : ScriptEngine::GetEntityInstances())
 					{
-						auto& scriptComponent = view.get<ScriptComponent>(scriptEntityID);
-
-						if (!scriptEngine.IsValidScript(scriptComponent.ScriptID))
+						if (m_EntityIDMap.find(entityID) != m_EntityIDMap.end())
 						{
-							continue;
+							Entity entity = m_EntityIDMap.at(entityID);
+
+							if (ScriptEngine::IsEntityInstantiated(entity))
+								ScriptEngine::CallMethod<float>(entityInstance, "OnLateUpdate", ts);
 						}
 
-						scriptComponent.Instance.Invoke<float>("OnLateUpdate", ts);
 					}
 					m_PerformanceTimers.ScriptLateUpdate = timer.ElapsedMillis();
 				}
+
+				physicsScene->SynchronizePendingBodyTransforms();
 
 				for (auto&& fn : m_PostUpdateQueue)
 					fn();
 				m_PostUpdateQueue.clear();
 			}
 
-			// Note (0x): It's an open question whether animation should happen before or after physics update.
-			//            Most likely it needs to be both (some parts before, some parts after).
-			UpdateAnimation(ts, true, nullptr);
+			UpdateAnimation(ts, true);
 		}
 
 		{	//--- Update Audio Listener ---
@@ -382,7 +368,7 @@ namespace Hazel {
 	void Scene::OnUpdateEditor(Timestep ts)
 	{
 		HZ_PROFILE_FUNC();
-		UpdateAnimation(ts, false, [](void*, Identifier id) { HZ_CONSOLE_LOG_INFO("Received animation event {}", (uint32_t)id); });
+		UpdateAnimation(ts, false);
 	}
 
 	void Scene::OnRenderRuntime(Ref<SceneRenderer> renderer, Timestep ts)
@@ -394,10 +380,7 @@ namespace Hazel {
 		/////////////////////////////////////////////////////////////////////
 		Entity cameraEntity = GetMainCameraEntity();
 		if (!cameraEntity)
-		{
-			HZ_CORE_WARN_TAG("Scene", "Scene {} has no active camera", m_Name);
 			return;
-		}
 
 		glm::mat4 cameraViewMatrix = glm::inverse(GetWorldSpaceTransformMatrix(cameraEntity));
 		HZ_CORE_ASSERT(cameraEntity, "Scene does not contain any cameras!");
@@ -415,7 +398,6 @@ namespace Hazel {
 				{
 					auto [transformComponent, lightComponent] = lights.get<TransformComponent, DirectionalLightComponent>(entity);
 					glm::vec3 direction = -glm::normalize(glm::mat3(transformComponent.GetTransform()) * glm::vec3(1.0f));
-					HZ_CORE_VERIFY(directionalLightIndex < LightEnvironment::MaxDirectionalLights, "More than {} directional lights in scene!", LightEnvironment::MaxDirectionalLights);
 					m_LightEnvironment.DirectionalLights[directionalLightIndex++] =
 					{
 						direction,
@@ -487,10 +469,10 @@ namespace Hazel {
 				if (!AssetManager::IsAssetHandleValid(skyLightComponent.SceneEnvironment) && skyLightComponent.DynamicSky)
 				{
 					Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(skyLightComponent.TurbidityAzimuthInclination.x, skyLightComponent.TurbidityAzimuthInclination.y, skyLightComponent.TurbidityAzimuthInclination.z);
-					skyLightComponent.SceneEnvironment = AssetManager::AddMemoryOnlyAsset(Ref<Environment>::Create(preethamEnv, preethamEnv));
+					skyLightComponent.SceneEnvironment = AssetManager::CreateMemoryOnlyAsset<Environment>(preethamEnv, preethamEnv);
 				}
 				
-				m_Environment = AssetManager::GetAssetAsync<Environment>(skyLightComponent.SceneEnvironment);
+				m_Environment = AssetManager::GetAsset<Environment>(skyLightComponent.SceneEnvironment);
 				m_EnvironmentIntensity = skyLightComponent.Intensity;
 				m_SkyboxLod = skyLightComponent.Lod;
 			}
@@ -510,21 +492,22 @@ namespace Hazel {
 
 		// Render Static Meshes
 		{
-			auto entities = GetAllEntitiesWith<StaticMeshComponent>();
-			for (auto entity : entities)
+			auto group = m_Registry.group<StaticMeshComponent>(entt::get<TransformComponent>);
+			for (auto entity : group)
 			{
 				HZ_PROFILE_SCOPE("Scene-SubmitStaticMesh");
-				auto& staticMeshComponent = entities.get<StaticMeshComponent>(entity);
+				auto [transformComponent, staticMeshComponent] = group.get<TransformComponent, StaticMeshComponent>(entity);
 				if (!staticMeshComponent.Visible)
 					continue;
 
-				if (auto staticMesh = AssetManager::GetAsset<StaticMesh>(staticMeshComponent.StaticMesh); staticMesh)
+				if (AssetManager::IsAssetHandleValid(staticMeshComponent.StaticMesh))
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(staticMesh->GetMeshSource()); meshSource)
+					Ref<StaticMesh> staticMesh = AssetManager::GetAsset<StaticMesh>(staticMeshComponent.StaticMesh);
+					if (staticMesh && !staticMesh->IsFlagSet(AssetFlag::Missing))
 					{
 						Entity e = Entity(entity, this);
 						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
-						renderer->SubmitStaticMesh(staticMesh, meshSource, staticMeshComponent.MaterialTable, transform);
+						renderer->SubmitStaticMesh(staticMesh, staticMeshComponent.MaterialTable, transform);
 					}
 				}
 			}
@@ -532,27 +515,27 @@ namespace Hazel {
 
 		// Render Dynamic Meshes
 		{
-			auto entities = GetAllEntitiesWith<SubmeshComponent>();
-			for (auto entity : entities)
+			auto view = m_Registry.view<MeshComponent, TransformComponent>();
+			for (auto entity : view)
 			{
 				HZ_PROFILE_SCOPE("Scene-SubmitDynamicMesh");
-				auto meshComponent = entities.get<SubmeshComponent>(entity);
+				auto [transformComponent, meshComponent] = view.get<TransformComponent, MeshComponent>(entity);
 				if (!meshComponent.Visible)
 					continue;
 
-				if(auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh); mesh)
+				if (AssetManager::IsAssetHandleValid(meshComponent.Mesh))
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
+					Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
+					if (mesh && !mesh->IsFlagSet(AssetFlag::Missing))
 					{
 						Entity e = Entity(entity, this);
 						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
-						renderer->SubmitMesh(mesh, meshSource, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, meshSource));
+						renderer->SubmitMesh(mesh, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, mesh));
 					}
 				}
 			}
 		}
 
-		RenderAnimationDebug(renderer, true);
 		RenderPhysicsDebug(renderer, true);
 
 		renderer->EndScene();
@@ -563,8 +546,7 @@ namespace Hazel {
 			Ref<Renderer2D> renderer2D = renderer->GetRenderer2D();
 			Ref<Renderer2D> screenSpaceRenderer2D = renderer->GetScreenSpaceRenderer2D();
 
-			bool hasScreenSpaceTextEntities = false;
-			bool hasScreenSpaceSpriteEntities = false;
+			bool hasScreenSpaceEntities = false;
 			
 			renderer2D->ResetStats();
 			renderer2D->BeginScene(camera.GetProjectionMatrix() * cameraViewMatrix, cameraViewMatrix);
@@ -575,14 +557,6 @@ namespace Hazel {
 				{
 					Entity e = Entity(entity, this);
 					auto [transformComponent, spriteRendererComponent] = view.get<TransformComponent, SpriteRendererComponent>(entity);
-
-					// Defer screen space elements to next pass
-					if (spriteRendererComponent.ScreenSpace)
-					{
-						hasScreenSpaceSpriteEntities = true;
-						continue;
-					}
-
 					if (spriteRendererComponent.Texture)
 					{
 						if (AssetManager::IsAssetHandleValid(spriteRendererComponent.Texture))
@@ -606,7 +580,7 @@ namespace Hazel {
 					// Defer screen space elements to next pass
 					if (textComponent.ScreenSpace)
 					{
-						hasScreenSpaceTextEntities = true;
+						hasScreenSpaceEntities = true;
 						continue;
 					}
 
@@ -633,19 +607,18 @@ namespace Hazel {
 
 			renderer2D->EndScene();
 
-			if (hasScreenSpaceTextEntities || hasScreenSpaceSpriteEntities)
+			if (hasScreenSpaceEntities)
 			{
 				// Render screen space elements
 				screenSpaceRenderer2D->ResetStats();
 				screenSpaceRenderer2D->BeginScene(renderer->GetScreenSpaceProjectionMatrix(), glm::mat4(1.0f));
 				screenSpaceRenderer2D->SetTargetFramebuffer(renderer->GetExternalCompositeFramebuffer());
 
-				if (hasScreenSpaceTextEntities)
 				{
-					auto view = m_Registry.view<TransformComponent, TextComponent>();
-					for (auto entity : view)
+					auto group = m_Registry.group<TransformComponent>(entt::get<TextComponent>);
+					for (auto entity : group)
 					{
-						auto [transformComponent, textComponent] = view.get<TransformComponent, TextComponent>(entity);
+						auto [transformComponent, textComponent] = group.get<TransformComponent, TextComponent>(entity);
 						// Already rendered non-screenspace elements
 						if (!textComponent.ScreenSpace)
 							continue;
@@ -653,42 +626,19 @@ namespace Hazel {
 						Entity e = Entity(entity, this);
 						auto font = Font::GetFontAssetForTextComponent(textComponent);
 
+						float renderScale = renderer->GetSpecification().Tiering.RendererScale;
 						if (textComponent.DropShadow)
 						{
-							TransformComponent wsTransform = GetWorldSpaceTransform(e);
-							glm::mat4 scale = glm::scale(glm::mat4(1.0f), wsTransform.Scale);
-							glm::mat4 transformShadow = glm::translate(glm::mat4(1.0f), { wsTransform.Translation.x + textComponent.ShadowDistance, wsTransform.Translation.y - textComponent.ShadowDistance, wsTransform.Translation.z + 0.01f }) * scale;
+							glm::mat4 scale = glm::scale(glm::mat4(1.0f), transformComponent.Scale * renderScale);
+							glm::mat4 transformShadow = glm::translate(glm::mat4(1.0f), { (transformComponent.Translation.x + textComponent.ShadowDistance) * renderScale, (transformComponent.Translation.y - textComponent.ShadowDistance) * renderScale, transformComponent.Translation.z + 0.01f}) * scale;
 							screenSpaceRenderer2D->DrawString(textComponent.TextString, font, transformShadow, textComponent.MaxWidth, textComponent.ShadowColor, textComponent.LineSpacing, textComponent.Kerning);
 						}
-						screenSpaceRenderer2D->DrawString(textComponent.TextString, font, GetWorldSpaceTransformMatrix(e), textComponent.MaxWidth, textComponent.Color, textComponent.LineSpacing, textComponent.Kerning);
-					}
-				}
 
-				if (hasScreenSpaceSpriteEntities)
-				{
-					auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>();
-					for (auto entity : view)
-					{
-						auto [transformComponent, spriteRendererComponent] = view.get<TransformComponent, SpriteRendererComponent>(entity);
+						glm::mat4 transform = glm::translate(glm::mat4(1.0f), transformComponent.Translation * glm::vec3(renderScale, renderScale, 1.0f)) * glm::toMat4(transformComponent.GetRotation())
+							* glm::scale(glm::mat4(1.0f), transformComponent.Scale * renderScale);
 
-						// Already rendered non-screenspace elements
-						if (!spriteRendererComponent.ScreenSpace)
-							continue;
-
-						Entity e = Entity(entity, this);
-						if (spriteRendererComponent.Texture)
-						{
-							if (AssetManager::IsAssetHandleValid(spriteRendererComponent.Texture))
-							{
-								Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(spriteRendererComponent.Texture);
-								screenSpaceRenderer2D->DrawQuad(GetWorldSpaceTransformMatrix(e), texture, spriteRendererComponent.TilingFactor,
-									spriteRendererComponent.Color, spriteRendererComponent.UVStart, spriteRendererComponent.UVEnd);
-							}
-						}
-						else
-						{
-							screenSpaceRenderer2D->DrawQuad(GetWorldSpaceTransformMatrix(e), spriteRendererComponent.Color);
-						}
+						//screenSpaceRenderer2D->DrawString(textComponent.TextString, font, glm::scale(transformComponent.GetTransform(), glm::vec3(renderScale, renderScale, 1.0f)), textComponent.MaxWidth, textComponent.Color, textComponent.LineSpacing, textComponent.Kerning);
+						screenSpaceRenderer2D->DrawString(textComponent.TextString, font, transform, textComponent.MaxWidth, textComponent.Color, textComponent.LineSpacing, textComponent.Kerning);
 					}
 				}
 
@@ -796,11 +746,10 @@ namespace Hazel {
 				if (!AssetManager::IsAssetHandleValid(skyLightComponent.SceneEnvironment) && skyLightComponent.DynamicSky)
 				{
 					Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(skyLightComponent.TurbidityAzimuthInclination.x, skyLightComponent.TurbidityAzimuthInclination.y, skyLightComponent.TurbidityAzimuthInclination.z);
-					skyLightComponent.SceneEnvironment = AssetManager::AddMemoryOnlyAsset(Ref<Environment>::Create(preethamEnv, preethamEnv));
+					skyLightComponent.SceneEnvironment = AssetManager::CreateMemoryOnlyAsset<Environment>(preethamEnv, preethamEnv);
 				}
 
-				m_Environment = AssetManager::GetAssetAsync<Environment>(skyLightComponent.SceneEnvironment);
-
+				m_Environment = AssetManager::GetAsset<Environment>(skyLightComponent.SceneEnvironment);
 				m_EnvironmentIntensity = skyLightComponent.Intensity;
 				m_SkyboxLod = skyLightComponent.Lod;
 			}
@@ -820,60 +769,51 @@ namespace Hazel {
 
 		// Render Static Meshes
 		{
-			auto entities = GetAllEntitiesWith<StaticMeshComponent>();
-			for (auto entity : entities)
+			auto group = m_Registry.group<StaticMeshComponent>(entt::get<TransformComponent>);
+			for (auto entity : group)
 			{
-				auto& staticMeshComponent = entities.get<StaticMeshComponent>(entity);
+				auto [transformComponent, staticMeshComponent] = group.get<TransformComponent, StaticMeshComponent>(entity);
 				if (!staticMeshComponent.Visible)
 					continue;
 
-				AsyncAssetResult<StaticMesh> staticMeshResult = AssetManager::GetAssetAsync<StaticMesh>(staticMeshComponent.StaticMesh);
-				if (staticMeshResult)
+				auto staticMesh = AssetManager::GetAsset<StaticMesh>(staticMeshComponent.StaticMesh);
+				if (staticMesh && !staticMesh->IsFlagSet(AssetFlag::Missing))
 				{
-					Ref<StaticMesh> staticMesh = staticMeshResult;
-					AsyncAssetResult<MeshSource> meshSourceResult = AssetManager::GetAssetAsync<MeshSource>(staticMesh->GetMeshSource());
-					if (meshSourceResult)
-					{
-						Ref<MeshSource> meshSource = meshSourceResult;
-						Entity e = Entity(entity, this);
-						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					Entity e = Entity(entity, this);
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
 
-						if (SelectionManager::IsEntityOrAncestorSelected(e))
-							renderer->SubmitSelectedStaticMesh(staticMesh, meshSource, staticMeshComponent.MaterialTable, transform);
-						else
-							renderer->SubmitStaticMesh(staticMesh, meshSource, staticMeshComponent.MaterialTable, transform);
-					}
+					if (SelectionManager::IsEntityOrAncestorSelected(e))
+						renderer->SubmitSelectedStaticMesh(staticMesh, staticMeshComponent.MaterialTable, transform);
+					else
+						renderer->SubmitStaticMesh(staticMesh, staticMeshComponent.MaterialTable, transform);
 				}
 			}
 		}
 
 		// Render Dynamic Meshes
 		{
-			auto entities = GetAllEntitiesWith<SubmeshComponent>();
-			for (auto entity : entities)
+			auto view = m_Registry.view<MeshComponent, TransformComponent>();
+			for (auto entity : view)
 			{
-				auto& meshComponent = entities.get<SubmeshComponent>(entity);
+				auto [transformComponent, meshComponent] = view.get<TransformComponent, MeshComponent>(entity);
 				if (!meshComponent.Visible)
 					continue;
 
-				if(auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh); mesh)
+				auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
+				if (mesh && !mesh->IsFlagSet(AssetFlag::Missing))
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-					{
-						Entity e = Entity(entity, this);
-						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					Entity e = Entity(entity, this);
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
 
-						// TODO: Should we render (logically)
-						if (SelectionManager::IsEntityOrAncestorSelected(e))
-							renderer->SubmitSelectedMesh(mesh, meshSource, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, meshSource));
-						else
-							renderer->SubmitMesh(mesh, meshSource, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, meshSource));
-					}
+					// TODO: Should we render (logically)
+					if (SelectionManager::IsEntityOrAncestorSelected(e))
+						renderer->SubmitSelectedMesh(mesh, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, mesh));
+					else
+						renderer->SubmitMesh(mesh, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, mesh));
 				}
 			}
 		}
 
-		RenderAnimationDebug(renderer, false);
 		RenderPhysicsDebug(renderer, false);
 
 		renderer->EndScene();
@@ -950,22 +890,13 @@ namespace Hazel {
 			renderer2D->BeginScene(editorCamera.GetViewProjection(), editorCamera.GetViewMatrix());
 			renderer2D->SetTargetFramebuffer(renderer->GetExternalCompositeFramebuffer());
 
-			bool hasScreenSpaceTextEntities = false;
-			bool hasScreenSpaceSpriteEntities = false;
+			bool hasScreenSpaceEntities = false;
 			{
-				auto srcView = m_Registry.view<TransformComponent, SpriteRendererComponent>();
-				for (auto entity : srcView)
+				auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>();
+				for (auto entity : view)
 				{
 					Entity e = Entity(entity, this);
-					auto [transformComponent, spriteRendererComponent] = srcView.get<TransformComponent, SpriteRendererComponent>(entity);
-					
-					// Defer screen space elements to next pass
-					if (spriteRendererComponent.ScreenSpace)
-					{
-						hasScreenSpaceSpriteEntities = true;
-						continue;
-					}
-
+					auto [transformComponent, spriteRendererComponent] = view.get<TransformComponent, SpriteRendererComponent>(entity);
 					if (spriteRendererComponent.Texture)
 					{
 						if (AssetManager::IsAssetHandleValid(spriteRendererComponent.Texture))
@@ -980,15 +911,15 @@ namespace Hazel {
 						renderer2D->DrawQuad(GetWorldSpaceTransformMatrix(e), spriteRendererComponent.Color);
 					}
 				}
-				auto tcView = m_Registry.view<TransformComponent, TextComponent>();
-				for (auto entity : tcView)
+				auto group = m_Registry.group<TransformComponent>(entt::get<TextComponent>);
+				for (auto entity : group)
 				{
-					auto [transformComponent, textComponent] = tcView.get<TransformComponent, TextComponent>(entity);
+					auto [transformComponent, textComponent] = group.get<TransformComponent, TextComponent>(entity);
 
 					// Defer screen space elements to next pass
 					if (textComponent.ScreenSpace)
 					{
-						hasScreenSpaceTextEntities = true;
+						hasScreenSpaceEntities = true;
 						continue;
 					}
 
@@ -1017,19 +948,18 @@ namespace Hazel {
 			// Restore line width (in case it was changed)
 			renderer2D->SetLineWidth(lineWidth);
 
-			if (hasScreenSpaceTextEntities || hasScreenSpaceSpriteEntities)
+			if (hasScreenSpaceEntities)
 			{
 				// Render screen space elements
 				screenSpaceRenderer2D->ResetStats();
 				screenSpaceRenderer2D->BeginScene(renderer->GetScreenSpaceProjectionMatrix(), glm::mat4(1.0f));
 				screenSpaceRenderer2D->SetTargetFramebuffer(renderer->GetExternalCompositeFramebuffer());
 
-				if (hasScreenSpaceTextEntities)
 				{
-					auto view = m_Registry.view<TransformComponent, TextComponent>();
-					for (auto entity : view)
+					auto group = m_Registry.group<TransformComponent>(entt::get<TextComponent>);
+					for (auto entity : group)
 					{
-						auto [transformComponent, textComponent] = view.get<TransformComponent, TextComponent>(entity);
+						auto [transformComponent, textComponent] = group.get<TransformComponent, TextComponent>(entity);
 						// Already rendered non-screenspace elements
 						if (!textComponent.ScreenSpace)
 							continue;
@@ -1039,40 +969,11 @@ namespace Hazel {
 
 						if (textComponent.DropShadow)
 						{
-							TransformComponent wsTransform = GetWorldSpaceTransform(e);
-							glm::mat4 scale = glm::scale(glm::mat4(1.0f), wsTransform.Scale);
-							glm::mat4 transformShadow = glm::translate(glm::mat4(1.0f), { wsTransform.Translation.x + textComponent.ShadowDistance, wsTransform.Translation.y - textComponent.ShadowDistance, wsTransform.Translation.z + 0.01f }) * scale;
+							glm::mat4 scale = glm::scale(glm::mat4(1.0f), transformComponent.Scale);
+							glm::mat4 transformShadow = glm::translate(glm::mat4(1.0f), { transformComponent.Translation.x + textComponent.ShadowDistance, transformComponent.Translation.y - textComponent.ShadowDistance, transformComponent.Translation.z + 0.01f }) * scale;
 							screenSpaceRenderer2D->DrawString(textComponent.TextString, font, transformShadow, textComponent.MaxWidth, textComponent.ShadowColor, textComponent.LineSpacing, textComponent.Kerning);
 						}
-						screenSpaceRenderer2D->DrawString(textComponent.TextString, font, GetWorldSpaceTransformMatrix(e), textComponent.MaxWidth, textComponent.Color, textComponent.LineSpacing, textComponent.Kerning);
-					}
-				}
-
-				if (hasScreenSpaceSpriteEntities)
-				{
-					auto view = m_Registry.view<TransformComponent, SpriteRendererComponent>();
-					for (auto entity : view)
-					{
-						auto [transformComponent, spriteRendererComponent] = view.get<TransformComponent, SpriteRendererComponent>(entity);
-						
-						// Already rendered non-screenspace elements
-						if (!spriteRendererComponent.ScreenSpace)
-							continue;
-
-						Entity e = Entity(entity, this);
-						if (spriteRendererComponent.Texture)
-						{
-							if (AssetManager::IsAssetHandleValid(spriteRendererComponent.Texture))
-							{
-								Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(spriteRendererComponent.Texture);
-								screenSpaceRenderer2D->DrawQuad(GetWorldSpaceTransformMatrix(e), texture, spriteRendererComponent.TilingFactor,
-									spriteRendererComponent.Color, spriteRendererComponent.UVStart, spriteRendererComponent.UVEnd);
-							}
-						}
-						else
-						{
-							screenSpaceRenderer2D->DrawQuad(GetWorldSpaceTransformMatrix(e), spriteRendererComponent.Color);
-						}
+						screenSpaceRenderer2D->DrawString(textComponent.TextString, font, transformComponent.GetTransform(), textComponent.MaxWidth, textComponent.Color, textComponent.LineSpacing, textComponent.Kerning);
 					}
 				}
 
@@ -1177,7 +1078,7 @@ namespace Hazel {
 				if (!AssetManager::IsAssetHandleValid(skyLightComponent.SceneEnvironment) && skyLightComponent.DynamicSky)
 				{
 					Ref<TextureCube> preethamEnv = Renderer::CreatePreethamSky(skyLightComponent.TurbidityAzimuthInclination.x, skyLightComponent.TurbidityAzimuthInclination.y, skyLightComponent.TurbidityAzimuthInclination.z);
-					skyLightComponent.SceneEnvironment = AssetManager::AddMemoryOnlyAsset(Ref<Environment>::Create(preethamEnv, preethamEnv));
+					skyLightComponent.SceneEnvironment = AssetManager::CreateMemoryOnlyAsset<Environment>(preethamEnv, preethamEnv);
 				}
 				m_Environment = AssetManager::GetAsset<Environment>(skyLightComponent.SceneEnvironment);
 				m_EnvironmentIntensity = skyLightComponent.Intensity;
@@ -1192,30 +1093,31 @@ namespace Hazel {
 			}
 		}
 
-		auto group = m_Registry.group<SubmeshComponent>(entt::get<TransformComponent>);
+		auto group = m_Registry.group<MeshComponent>(entt::get<TransformComponent>);
 		renderer->SetScene(this);
 		renderer->BeginScene({ editorCamera, editorCamera.GetViewMatrix(), editorCamera.GetNearClip(), editorCamera.GetFarClip(), editorCamera.GetVerticalFOV() });
 
 		// Render Static Meshes
 		{
-			auto entities = GetAllEntitiesWith<StaticMeshComponent>();
-			for (auto entity : entities)
+			auto group = m_Registry.group<StaticMeshComponent>(entt::get<TransformComponent>);
+			for (auto entity : group)
 			{
-				auto& staticMeshComponent = entities.get<StaticMeshComponent>(entity);
+				auto [transformComponent, staticMeshComponent] = group.get<TransformComponent, StaticMeshComponent>(entity);
 				if (!staticMeshComponent.Visible)
 					continue;
 
-				if (auto staticMesh = AssetManager::GetAsset<StaticMesh>(staticMeshComponent.StaticMesh); staticMesh)
+				if (AssetManager::IsAssetHandleValid(staticMeshComponent.StaticMesh))
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(staticMesh->GetMeshSource()); meshSource)
+					auto staticMesh = AssetManager::GetAsset<StaticMesh>(staticMeshComponent.StaticMesh);
+					if (!staticMesh->IsFlagSet(AssetFlag::Missing))
 					{
 						Entity e = Entity(entity, this);
 						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
 
 						if (SelectionManager::IsEntityOrAncestorSelected(e))
-							renderer->SubmitSelectedStaticMesh(staticMesh, meshSource, staticMeshComponent.MaterialTable, transform);
+							renderer->SubmitSelectedStaticMesh(staticMesh, staticMeshComponent.MaterialTable, transform);
 						else
-							renderer->SubmitStaticMesh(staticMesh, meshSource, staticMeshComponent.MaterialTable, transform);
+							renderer->SubmitStaticMesh(staticMesh, staticMeshComponent.MaterialTable, transform);
 					}
 				}
 			}
@@ -1223,30 +1125,30 @@ namespace Hazel {
 
 		// Render Dynamic Meshes
 		{
-			auto entities = GetAllEntitiesWith<SubmeshComponent>();
-			for (auto entity : entities)
+			auto view = m_Registry.view<MeshComponent, TransformComponent>();
+			for (auto entity : view)
 			{
-				auto& meshComponent = entities.get<SubmeshComponent>(entity);
+				auto [transformComponent, meshComponent] = view.get<TransformComponent, MeshComponent>(entity);
 				if (!meshComponent.Visible)
 					continue;
 
-				if (auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh); mesh)
+				if (AssetManager::IsAssetHandleValid(meshComponent.Mesh))
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
+					auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
+					if (mesh && !mesh->IsFlagSet(AssetFlag::Missing))
 					{
 						Entity e = Entity(entity, this);
 						glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
 
 						if (SelectionManager::IsEntityOrAncestorSelected(e))
-							renderer->SubmitSelectedMesh(mesh, meshSource, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, meshSource));
+							renderer->SubmitSelectedMesh(mesh, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, mesh));
 						else
-							renderer->SubmitMesh(mesh, meshSource, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, meshSource));
+							renderer->SubmitMesh(mesh, meshComponent.SubmeshIndex, meshComponent.MaterialTable, transform, GetModelSpaceBoneTransforms(meshComponent.BoneEntityIds, mesh));
 					}
 				}
 			}
 		}
 
-		RenderAnimationDebug(renderer, true);
 		RenderPhysicsDebug(renderer, true);
 
 		renderer->EndScene();
@@ -1356,116 +1258,49 @@ namespace Hazel {
 	}
 
 
-	void Scene::RenderAnimationDebug(Ref<SceneRenderer> renderer, bool runtime)
+	void Scene::OnAnimationGraphCompiled(AssetHandle AnimationGraphHandle)
 	{
-		if (!renderer->GetOptions().ShowAnimationDebug)
-			return;
-
-		if (SelectionManager::GetSelections(SelectionContext::Scene).empty())
-			return;
-
-		Ref<StaticMesh> boneDebugMesh = renderer->GetBoneDebugMesh();
-		Ref<MeshSource> boneDebugMeshSource = renderer->GetBoneDebugMeshSource();
-		std::unordered_set<UUID> renderedEntities;
-
-		for (UUID selectedEntityId : SelectionManager::GetSelections(SelectionContext::Scene))
+		auto view = GetAllEntitiesWith<AnimationComponent>();
+		for (auto entity : view)
 		{
-			Entity entity = GetEntityWithUUID(selectedEntityId);
-			bool rendered = RenderSkeletonDebug(renderer, entity, boneDebugMesh, boneDebugMeshSource, renderedEntities, selectedEntityId);
-
-			// Step up scene entity hierarchy until we successfully render some animation debug
-			// In this way we will render the whole skeleton if, for example, the selected entity is a bone
-			while (!rendered)
+			Entity e = { entity, this };
+			auto& anim = e.GetComponent<AnimationComponent>();
+			if (anim.AnimationGraphHandle == AnimationGraphHandle)
 			{
-				entity = entity.GetParent();
-				if (!entity)
-					break;
-
-				rendered = RenderSkeletonDebug(renderer, entity, boneDebugMesh, boneDebugMeshSource, renderedEntities, selectedEntityId);
-			}
-		}
-	}
-
-	bool Scene::RenderSkeletonDebug(Ref<SceneRenderer> renderer, Entity entity, Ref<StaticMesh> boneDebugMesh, Ref<MeshSource> boneDebugMeshSource, std::unordered_set<UUID> renderedEntities, UUID selectedEntityId)
-	{
-		if (renderedEntities.find(entity.GetUUID()) != renderedEntities.end())
-			return true;
-
-		bool rendered = false;
-		if (entity.HasComponent<SubmeshComponent>())
-		{
-			const auto& mc = entity.GetComponent<SubmeshComponent>();
-			if (auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh); mesh)
-			{
-				if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
+				auto animationGraphAsset = AssetManager::GetAsset<AnimationGraphAsset>(anim.AnimationGraphHandle);
+				if (
+					animationGraphAsset && animationGraphAsset->Prototype &&
+					(!anim.AnimationGraph || anim.AnimationGraph->ID != animationGraphAsset->Prototype->ID)
+				)
 				{
-					rendered = true;
-					const Skeleton* skeleton = meshSource->GetSkeleton();
-					HZ_CORE_ASSERT(skeleton->GetNumBones() == mc.BoneEntityIds.size());
+					auto oldGraph = anim.AnimationGraph;
+					anim.AnimationGraph = animationGraphAsset->CreateInstance();
 
-					std::vector<bool> renderedBone(skeleton->GetNumBones(), false);
-					for (uint32_t i = 0; i < skeleton->GetNumBones(); i++)
+					// Attempt to copy over old graph input values to new graph.
+					// New graph may not have the same inputs, and even if it does, the types may not match.
+					if (oldGraph)
 					{
-						if (renderedBone[i])
-							continue;
-
-						Entity boneEntity = GetEntityWithUUID(mc.BoneEntityIds[i]);
-
-						TransformComponent boneTransform = GetWorldSpaceTransform(boneEntity);
-
-						auto childBones = skeleton->GetChildBoneIndexes(i);
-						if (childBones.empty())
+						for (auto [id, oldValue] : oldGraph->Ins)
 						{
-							// render leaf bone at same scale as parent bone, or at scale 1 if no parent
-							float scale = 1.0f;
-							uint32_t parentBoneIndex = skeleton->GetParentBoneIndex(i);
-							if (parentBoneIndex != Skeleton::NullIndex)
+							try
 							{
-								Entity parentBoneEntity = GetEntityWithUUID(mc.BoneEntityIds[parentBoneIndex]);
-								TransformComponent parentBoneTransform = GetWorldSpaceTransform(parentBoneEntity);
-								glm::vec3 direction = boneTransform.Translation - parentBoneTransform.Translation;
-								scale = glm::length(direction);
-								renderer->SubmitAnimationDebugMesh(boneDebugMesh, boneDebugMeshSource, glm::scale(boneTransform.GetTransform(), { scale, scale, scale }), (boneEntity.GetUUID() == selectedEntityId));
+								auto newValue = anim.AnimationGraph->InValue(id);
+								if (oldValue.isInt32() && newValue.isInt32())          newValue.set(oldValue.getInt32());
+								else if (oldValue.isInt64() && newValue.isInt64())     newValue.set(oldValue.getInt64());
+								else if (oldValue.isFloat32() && newValue.isFloat32()) newValue.set(oldValue.getFloat32());
+								else if (oldValue.isFloat64() && newValue.isFloat64()) newValue.set(oldValue.getFloat64());
 							}
-						}
-						else
-						{
-							Entity firstChildBoneEntity = GetEntityWithUUID(mc.BoneEntityIds[childBones[0]]);
-							TransformComponent firstChildBoneTransform = GetWorldSpaceTransform(firstChildBoneEntity);
-							glm::vec3 direction = firstChildBoneTransform.Translation - boneTransform.Translation;
-							float scale = glm::length(direction);
-							if (scale > 0.0f)
+							catch (const std::out_of_range&)
 							{
-								renderer->SubmitAnimationDebugMesh(boneDebugMesh, boneDebugMeshSource, glm::scale(boneTransform.GetTransform(), { scale, scale, scale }), (boneEntity.GetUUID() == selectedEntityId));
-
-								// Render bones as capsules, and orient them such that they all join up at bone ends
-								// Note that this means we do not show the _actual_ rotation of bone transforms as driven by the animation, so could be a little misleading
-								// auto rotation = glm::rotation({ 0.0f, 1.0f, 0.0f }, direction / scale);
-								// auto radius = scale / 10.0f;
-								// glm::mat4 capsuleTransform = glm::translate(glm::mat4(1.0f), { 0.0f, scale / 2.0f, 0.0f }) * glm::scale(glm::mat4(1), { radius, scale / 2.0f, radius });
-								// renderer->SubmitAnimationDebugMesh(capsuleDebugMesh, glm::translate(glm::mat4(1.0f), boneTransform.Translation) * glm::toMat4(rotation) * capsuleTransform);
-
-								// Render bones as simple lines (note for this to work, you also need to hack DrawLine to use the "on top" variant of the shader)
-								//renderer->GetDebugRenderer()->DrawLine(boneTransform.Translation, firstChildBoneTransform.Translation, renderer->GetOptions().AnimationDebugColor);
+								;
 							}
-
-							renderedBone[i] = true;
 						}
 					}
+
+					anim.BoneEntityIds = FindBoneEntityIds(e, e, anim.AnimationGraph);
 				}
 			}
 		}
-
-		for (UUID childId : entity.Children())
-		{
-			Entity childEntity = GetEntityWithUUID(childId);
-			rendered |= RenderSkeletonDebug(renderer, childEntity, boneDebugMesh, boneDebugMeshSource, renderedEntities, selectedEntityId);
-		}
-
-		if (rendered)
-			renderedEntities.insert(entity.GetUUID());
-
-		return rendered;
 	}
 
 
@@ -1474,53 +1309,8 @@ namespace Hazel {
 		if (!renderer->GetOptions().ShowPhysicsColliders)
 			return;
 
-		auto submitBoxCollider = [this, &renderer](Entity entity, Ref<Mesh> mesh, Ref<MeshSource> meshSource) {
-			glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
-			const auto& collider = entity.GetComponent<BoxColliderComponent>();
-			glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), collider.HalfSize * 2.0f);
-			renderer->SubmitPhysicsStaticDebugMesh(mesh, meshSource, transform * colliderTransform);
-		};
-
-		auto submitSphereCollider = [this, &renderer](Entity entity, Ref<Mesh> mesh, Ref<MeshSource> meshSource) {
-			glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
-			const auto& collider = entity.GetComponent<SphereColliderComponent>();
-			glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f));
-			renderer->SubmitPhysicsStaticDebugMesh(mesh, meshSource, transform * colliderTransform);
-		};
-
-		auto submitCapsuleCollider = [this, &renderer](Entity entity, Ref<Mesh> mesh, Ref<MeshSource> meshSource) {
-			glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
-			const auto& collider = entity.GetComponent<CapsuleColliderComponent>();
-			glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f, collider.HalfHeight * 2.0f, collider.Radius * 2.0f));
-			renderer->SubmitPhysicsStaticDebugMesh(mesh, meshSource, transform * colliderTransform);
-		};
-
-		auto submitMeshCollider = [this, &renderer](Entity entity) {
-			glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
-			const auto& collider = entity.GetComponent<MeshColliderComponent>();
-
-			if (Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(collider.ColliderAsset); colliderAsset)
-			{
-				bool isSimpleCollider = colliderAsset->CollisionComplexity == ECollisionComplexity::UseComplexAsSimple ? false : true;
-				if (Ref<Mesh> mesh = PhysicsSystem::GetMeshCache().GetDebugMesh(colliderAsset); mesh)
-				{
-					if (Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-					{
-						renderer->SubmitPhysicsDebugMesh(mesh, meshSource, collider.SubmeshIndex, transform, isSimpleCollider);
-					}
-				}
-
-				if (Ref<StaticMesh> staticMesh = PhysicsSystem::GetMeshCache().GetDebugStaticMesh(colliderAsset); staticMesh)
-				{
-					if (Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(staticMesh->GetMeshSource()); meshSource)
-					{
-						renderer->SubmitPhysicsStaticDebugMesh(staticMesh, meshSource, transform, isSimpleCollider);
-					}
-				}
-			}
-		};
-
 		SceneRendererOptions::PhysicsColliderView colliderView = renderer->GetOptions().PhysicsColliderMode;
+
 		if (colliderView == SceneRendererOptions::PhysicsColliderView::SelectedEntity)
 		{
 			if (SelectionManager::GetSelectionCount(SelectionContext::Scene) == 0)
@@ -1532,85 +1322,115 @@ namespace Hazel {
 
 				if (entity.HasComponent<BoxColliderComponent>())
 				{
-					if(Ref<Mesh> mesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetBoxDebugMesh()); mesh)
-					{
-						if (Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-						{
-							submitBoxCollider(entity, mesh, meshSource);
-						}
-					}
+					Ref<StaticMesh> boxDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetBoxDebugMesh());
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
+					const auto& collider = entity.GetComponent<BoxColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), collider.HalfSize * 2.0f);
+					renderer->SubmitPhysicsStaticDebugMesh(boxDebugMesh, transform * colliderTransform);
 				}
 
 				if (entity.HasComponent<SphereColliderComponent>())
 				{
-					if (Ref<Mesh> mesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetSphereDebugMesh()); mesh)
-					{
-						if (Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-						{
-							submitSphereCollider(entity, mesh, meshSource);
-						}
-					}
+					Ref<StaticMesh> sphereDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetSphereDebugMesh());
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
+					const auto& collider = entity.GetComponent<SphereColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f));
+					renderer->SubmitPhysicsStaticDebugMesh(sphereDebugMesh, transform * colliderTransform);
 				}
 
 				if (entity.HasComponent<CapsuleColliderComponent>())
 				{
-					if (Ref<Mesh> mesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetCapsuleDebugMesh()); mesh)
-					{
-						if (Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-						{
-							submitCapsuleCollider(entity, mesh, meshSource);
-						}
-					}
+					Ref<StaticMesh> capsuleDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetCapsuleDebugMesh());
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
+					const auto& collider = entity.GetComponent<CapsuleColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f, collider.HalfHeight * 2.0f, collider.Radius * 2.0f));
+					renderer->SubmitPhysicsStaticDebugMesh(capsuleDebugMesh, transform * colliderTransform);
 				}
 
 				if (entity.HasComponent<MeshColliderComponent>())
 				{
-					submitMeshCollider(entity);
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
+					const auto& collider = entity.GetComponent<MeshColliderComponent>();
+
+					Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(collider.ColliderAsset);
+					if (!colliderAsset)
+						return;
+
+					Ref<Mesh> simpleDebugMesh = PhysicsSystem::GetMeshCache().GetDebugMesh(colliderAsset);
+					if (simpleDebugMesh && colliderAsset->CollisionComplexity != ECollisionComplexity::UseComplexAsSimple)
+					{
+						renderer->SubmitPhysicsDebugMesh(simpleDebugMesh, collider.SubmeshIndex, transform);
+					}
+
+					Ref<StaticMesh> complexDebugMesh = PhysicsSystem::GetMeshCache().GetDebugStaticMesh(colliderAsset);
+					if (complexDebugMesh && colliderAsset->CollisionComplexity != ECollisionComplexity::UseSimpleAsComplex)
+					{
+						renderer->SubmitPhysicsStaticDebugMesh(complexDebugMesh, transform, false);
+					}
 				}
 			}
 		}
 		else
 		{
-			if (Ref<StaticMesh> boxDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetBoxDebugMesh()); boxDebugMesh)
 			{
-				if (Ref<MeshSource> boxDebugMeshSource = AssetManager::GetAsset<MeshSource>(boxDebugMesh->GetMeshSource()); boxDebugMeshSource)
+				auto view = m_Registry.view<BoxColliderComponent>();
+				Ref<StaticMesh> boxDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetBoxDebugMesh());
+				for (auto entity : view)
 				{
-					auto entities = GetAllEntitiesWith<BoxColliderComponent>();
-					for (auto entity : entities)
-					{
-						submitBoxCollider({ entity, this }, boxDebugMesh, boxDebugMeshSource);
-					}
+					Entity e = { entity, this };
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					const auto& collider = e.GetComponent<BoxColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), collider.HalfSize * 2.0f);
+					renderer->SubmitPhysicsStaticDebugMesh(boxDebugMesh, transform * colliderTransform);
 				}
 			}
 
-			if (Ref<StaticMesh> sphereDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetSphereDebugMesh()); sphereDebugMesh)
 			{
-				if (Ref<MeshSource> sphereDebugMeshSource = AssetManager::GetAsset<MeshSource>(sphereDebugMesh->GetMeshSource()); sphereDebugMeshSource)
+				auto view = m_Registry.view<SphereColliderComponent>();
+				Ref<StaticMesh> sphereDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetSphereDebugMesh());
+				for (auto entity : view)
 				{
-					auto entities = GetAllEntitiesWith<SphereColliderComponent>();
-					for (auto entity : entities)
-					{
-						submitSphereCollider({ entity, this }, sphereDebugMesh, sphereDebugMeshSource);
-					}
+					Entity e = { entity, this };
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					const auto& collider = e.GetComponent<SphereColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f));
+					renderer->SubmitPhysicsStaticDebugMesh(sphereDebugMesh, transform * colliderTransform);
 				}
 			}
 
-			if (Ref<StaticMesh> capsuleDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetCapsuleDebugMesh()); capsuleDebugMesh)
 			{
-				if (Ref<MeshSource> capsuleDebugMeshSource = AssetManager::GetAsset<MeshSource>(capsuleDebugMesh->GetMeshSource()); capsuleDebugMeshSource)
+				auto view = m_Registry.view<CapsuleColliderComponent>();
+				Ref<StaticMesh> capsuleDebugMesh = AssetManager::GetAsset<StaticMesh>(PhysicsSystem::GetMeshCache().GetCapsuleDebugMesh());
+				for (auto entity : view)
 				{
-					auto entities = GetAllEntitiesWith<CapsuleColliderComponent>();
-					for (auto entity : entities)
-					{
-						submitCapsuleCollider({ entity, this }, capsuleDebugMesh, capsuleDebugMeshSource);
-					}
+					Entity e = { entity, this };
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					const auto& collider = e.GetComponent<CapsuleColliderComponent>();
+					glm::mat4 colliderTransform = glm::translate(glm::mat4(1.0), collider.Offset) * glm::scale(glm::mat4(1.0f), glm::vec3(collider.Radius * 2.0f, collider.HalfHeight * 2.0f, collider.Radius * 2.0f));
+					renderer->SubmitPhysicsStaticDebugMesh(capsuleDebugMesh, transform * colliderTransform);
 				}
 			}
 
-			auto entities = GetAllEntitiesWith<MeshColliderComponent>();
-			for (auto entity : entities)
 			{
-				submitMeshCollider({ entity, this });
+				auto view = m_Registry.view<MeshColliderComponent>();
+				for (auto entity : view)
+				{
+					Entity e = { entity, this };
+					glm::mat4 transform = GetWorldSpaceTransformMatrix(e);
+					const auto& collider = e.GetComponent<MeshColliderComponent>();
+
+					Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(collider.ColliderAsset);
+					if (!colliderAsset)
+						continue;
+
+					Ref<Mesh> simpleDebugMesh = PhysicsSystem::GetMeshCache().GetDebugMesh(colliderAsset);
+					if (simpleDebugMesh && colliderAsset->CollisionComplexity != ECollisionComplexity::UseComplexAsSimple)
+						renderer->SubmitPhysicsDebugMesh(simpleDebugMesh, collider.SubmeshIndex, transform);
+
+					Ref<StaticMesh> complexDebugMesh = PhysicsSystem::GetMeshCache().GetDebugStaticMesh(colliderAsset);
+					if (complexDebugMesh && colliderAsset->CollisionComplexity != ECollisionComplexity::UseSimpleAsComplex)
+						renderer->SubmitPhysicsStaticDebugMesh(complexDebugMesh, transform, false);
+				}
 			}
 		}
 	}
@@ -1679,7 +1499,6 @@ namespace Hazel {
 	void Scene::OnRuntimeStart()
 	{
 		HZ_PROFILE_FUNC();
-		HZ_CORE_INFO_TAG("Scene", "Starting scene {}", m_Name);
 
 		m_IsPlaying = true;
 		m_ShouldSimulate = true;
@@ -1690,9 +1509,9 @@ namespace Hazel {
 		Application::Get().DispatchEvent<ScenePreStartEvent, true>(_this);
 
 		// Box2D physics
-		// TODO (0x):  make box2d world consistent with 3d world  (e.g create it here, rather that getting it, also attach it to m_SceneEntity)
 		auto sceneView = m_Registry.view<Box2DWorldComponent>();
 		auto& world = m_Registry.get<Box2DWorldComponent>(sceneView.front()).World;
+
 		{
 			auto view = m_Registry.view<RigidBody2DComponent>();
 			for (auto entity : view)
@@ -1715,6 +1534,10 @@ namespace Hazel {
 
 				b2Body* body = world->CreateBody(&bodyDef);
 				body->SetFixedRotation(rigidBody2D.FixedRotation);
+				b2MassData massData;
+				body->GetMassData(&massData);
+				massData.mass = rigidBody2D.Mass;
+				body->SetMassData(&massData);
 				body->SetGravityScale(rigidBody2D.GravityScale);
 				body->SetLinearDamping(rigidBody2D.LinearDrag);
 				body->SetAngularDamping(rigidBody2D.AngularDrag);
@@ -1735,7 +1558,7 @@ namespace Hazel {
 				if (e.HasComponent<RigidBody2DComponent>())
 				{
 					auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-					HZ_CORE_VERIFY(rigidBody2D.RuntimeBody);
+					HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
 					b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 					b2PolygonShape polygonShape;
@@ -1777,64 +1600,10 @@ namespace Hazel {
 			}
 		}
 
-		{
-			auto view = m_Registry.view<RigidBody2DComponent>();
-			for (auto entity : view)
-			{
-				Entity e = { entity, this };
-				UUID entityID = e.GetComponent<IDComponent>().ID;
-				TransformComponent& transform = e.GetComponent<TransformComponent>();
-				auto& rigidBody2D = m_Registry.get<RigidBody2DComponent>(entity);
-				HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
-				b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
-
-				b2MassData massData;
-				body->GetMassData(&massData);
-				massData.mass = rigidBody2D.Mass;
-				body->SetMassData(&massData);
-			}
-		}
-
 		auto& physicsSceneComponent = m_Registry.emplace<PhysicsSceneComponent>(m_SceneEntity);
 		physicsSceneComponent.PhysicsWorld = PhysicsSystem::CreatePhysicsScene(_this);
 
-		{
-			auto& scriptEngine = ScriptEngine::GetMutable();
-			scriptEngine.SetCurrentScene(_this);
-
-			auto view = m_Registry.view<IDComponent, ScriptComponent>();
-			for (auto scriptEntityID : view)
-			{
-				const auto& idComponent = view.get<IDComponent>(scriptEntityID);
-				auto& scriptComponent = view.get<ScriptComponent>(scriptEntityID);
-
-				if (!scriptEngine.IsValidScript(scriptComponent.ScriptID))
-				{
-					HZ_CORE_WARN_TAG("Scripting", "Entity '{}' has an invalid script id '{}'", idComponent.ID, scriptComponent.ScriptID);
-					continue;
-				}
-
-				if (!m_ScriptStorage.EntityStorage.contains(idComponent.ID))
-				{
-					HZ_CORE_ERROR("Entity {} isn't in script storage", Entity{ scriptEntityID, this }.Name());
-					HZ_CORE_VERIFY(false);
-				}
-
-				scriptComponent.Instance = scriptEngine.Instantiate(idComponent.ID, m_ScriptStorage, uint64_t(idComponent.ID));
-			}
-
-			for (auto scriptEntityID : view)
-			{
-				auto& scriptComponent = view.get<ScriptComponent>(scriptEntityID);
-
-				if (!scriptEngine.IsValidScript(scriptComponent.ScriptID))
-				{
-					continue;
-				}
-
-				scriptComponent.Instance.Invoke("OnCreate");
-			}
-		}
+		ScriptEngine::InitializeRuntime();
 
 		{	//--- Make sure we have an audio listener ---
 			//===========================================
@@ -1933,29 +1702,7 @@ namespace Hazel {
 		Ref<Scene> _this = this;
 		Application::Get().DispatchEvent<ScenePreStopEvent, true>(_this);
 
-		auto& scriptEngine = ScriptEngine::GetMutable();
-
-		auto view = m_Registry.view<IDComponent, ScriptComponent>();
-		for (auto scriptEntityID : view)
-		{
-			const auto& idComponent = view.get<IDComponent>(scriptEntityID);
-			auto& scriptComponent = view.get<ScriptComponent>(scriptEntityID);
-
-			if (!scriptEngine.IsValidScript(scriptComponent.ScriptID))
-			{
-				continue;
-			}
-
-			if (!m_ScriptStorage.EntityStorage.contains(idComponent.ID))
-			{
-				// Shouldn't happen
-				HZ_CORE_VERIFY(false);
-			}
-
-			scriptComponent.Instance.Invoke("OnDestroy");
-
-			scriptEngine.DestroyInstance(idComponent.ID, m_ScriptStorage);
-		}
+		ScriptEngine::ShutdownRuntime();
 
 		// TODO: Destroy the entire scene
 
@@ -2125,25 +1872,27 @@ namespace Hazel {
 			PhysicsSystem::GetOrCreateColliderAsset(e, component);
 	}
 
+	void Scene::OnMeshColliderComponentDestroy(entt::registry& registry, entt::entity entity)
+	{
+	}
 
-
-	std::vector<glm::mat4> Scene::GetModelSpaceBoneTransforms(const std::vector<UUID>& boneEntityIds, Ref<MeshSource> meshSource)
+	std::vector<glm::mat4> Scene::GetModelSpaceBoneTransforms(const std::vector<UUID>& boneEntityIds, Ref<Mesh> mesh)
 	{
 		std::vector<glm::mat4> boneTransforms(boneEntityIds.size());
-		if (meshSource)
+
+		if (mesh->HasSkeleton())
 		{
-			if (const auto skeleton = meshSource->GetSkeleton(); skeleton)
+			const auto& skeleton = mesh->GetMeshSource()->GetSkeleton();
+
+			// Can get mismatches if user changes which mesh an entity refers to after the bone entities have been set up
+			// TODO(0x): need a better way to handle the bone entities
+			//HZ_CORE_ASSERT(boneEntityIds.size() == skeleton.GetNumBones(), "Wrong number of boneEntityIds for mesh skeleton!");
+			for (uint32_t i = 0; i < std::min(skeleton.GetNumBones(), (uint32_t)boneEntityIds.size()); ++i)
 			{
-				// Can get mismatches if user changes which mesh an entity refers to after the bone entities have been set up
-				// TODO(0x): need a better way to handle the bone entities
-				//HZ_CORE_ASSERT(boneEntityIds.size() == skeleton.GetNumBones(), "Wrong number of boneEntityIds for mesh skeleton!");
-				for (uint32_t i = 0; i < std::min(skeleton->GetNumBones(), (uint32_t)boneEntityIds.size()); ++i)
-				{
-					auto boneEntity = TryGetEntityWithUUID(boneEntityIds[i]);
-					glm::mat4 localTransform = boneEntity ? boneEntity.GetComponent<TransformComponent>().GetTransform() : glm::identity<glm::mat4>();
-					auto parentIndex = skeleton->GetParentBoneIndex(i);
-					boneTransforms[i] = (parentIndex == Skeleton::NullIndex) ? localTransform : boneTransforms[parentIndex] * localTransform;
-				}
+				auto boneEntity = TryGetEntityWithUUID(boneEntityIds[i]);
+				glm::mat4 localTransform = boneEntity ? boneEntity.GetComponent<TransformComponent>().GetTransform() : glm::identity<glm::mat4>();
+				auto parentIndex = skeleton.GetParentBoneIndex(i);
+				boneTransforms[i] = (parentIndex == Skeleton::NullIndex) ? localTransform : boneTransforms[parentIndex] * localTransform;
 			}
 		}
 		return boneTransforms;
@@ -2153,15 +1902,12 @@ namespace Hazel {
 	void HandleAnimationEvent(void* context, Identifier eventID)
 	{
 		auto* sc = static_cast<ScriptComponent*>(context);
-		sc->Instance.Invoke("OnAnimationEventInternal", eventID);
+		ScriptEngine::CallMethod(sc->ManagedInstance, "OnAnimationEventInternal", eventID);
 	}
 
-	void Scene::UpdateAnimation(Timestep ts, bool isRuntime, AnimationGraph::AnimationGraph::HandleOutgoingEventFn* animationEventHandler)
-	{
-		HZ_PROFILE_FUNC();
-		
-		const auto& scriptEngine = ScriptEngine::GetInstance();
 
+	void Scene::UpdateAnimation(Timestep ts, bool isRuntime)
+	{
 		auto view = GetAllEntitiesWith<AnimationComponent>();
 		for (auto e : view)
 		{
@@ -2206,7 +1952,8 @@ namespace Hazel {
 						{
 							const glm::vec3 displacement = rs * pose->RootMotion.Translation;
 							controller->Move(displacement);
-							controller->Rotate(pose->RootMotion.Rotation);
+							if (!glm::all(glm::equal(pose->RootMotion.Rotation, glm::identity<glm::quat>(), glm::epsilon<float>())))
+								controller->SetRotation(transform.GetRotation() * pose->RootMotion.Rotation);
 						}
 					}
 					else if (m_ShouldSimulate && entity.HasComponent<RigidBodyComponent>())
@@ -2217,7 +1964,7 @@ namespace Hazel {
 						// QUESTION: Should we even support this?
 						// Are there situations where you want to move a kinematic rigidbody via animation root motion? (vs. doing it with character controller, or without any physics at all)
 						// NOTE(Peter): Removed this code path for now (with approval from 0x)
-						//HZ_CORE_VERIFY(false);
+						HZ_CORE_VERIFY(false);
 					}
 					else
 					{
@@ -2235,12 +1982,12 @@ namespace Hazel {
 				if (entity.HasComponent<ScriptComponent>())
 				{
 					auto& sc = entity.GetComponent<ScriptComponent>();
-					if (scriptEngine.IsValidScript(sc.ScriptID) && sc.Instance.IsValid())
+					if (ScriptEngine::IsModuleValid(sc.ScriptClassHandle) && ScriptEngine::IsEntityInstantiated(entity))
 					{
 						anim.AnimationGraph->HandleOutgoingEvents(&sc, HandleAnimationEvent);
 					}
 				}
-				anim.AnimationGraph->HandleOutgoingEvents(nullptr, animationEventHandler);
+				anim.AnimationGraph->HandleOutgoingEvents(nullptr, nullptr);
 
 			}
 		}
@@ -2249,17 +1996,10 @@ namespace Hazel {
 	void Scene::OnRigidBody2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
 		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(!m_IsEditorScene);
 
-		if (!m_IsPlaying)
-		{
-			// Early out if the scene isn't playing.
-			// (the physics world is fully reconstructed when scene starts playing)
+		if (m_IsEditorScene)
 			return;
-		}
 
-		// TODO (0x): entt registry has "context" which might be a better fit for the physics world
-		//            or at least retrive via m_SceneEntity rather than view() here.
 		auto sceneView = registry.view<Box2DWorldComponent>();
 		auto& world = registry.get<Box2DWorldComponent>(sceneView.front()).World;
 
@@ -2291,9 +2031,6 @@ namespace Hazel {
 		body->SetBullet(rigidBody2D.IsBullet);
 		body->GetUserData().pointer = (uintptr_t)entityID;
 		rigidBody2D.RuntimeBody = body;
-
-		// TODO (0x): shouldn't this also set the body shape?
-		//            (box or circle, depending on collider)
 	}
 
 	void Scene::OnRigidBody2DComponentDestroy(entt::registry& registry, entt::entity entity)
@@ -2301,22 +2038,14 @@ namespace Hazel {
 		HZ_PROFILE_FUNC();
 
 		if (!m_IsPlaying)
-		{
-			// If the scene isn't playing, then there aren't any physics bodies to destroy
 			return;
-		}
-		auto& world = m_Registry.get<Box2DWorldComponent>(m_SceneEntity).World;
-		b2Body* body = (b2Body*)m_Registry.get<RigidBody2DComponent>(entity).RuntimeBody;
-		world->DestroyBody(body);
 	}
 
 	void Scene::OnBoxCollider2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
 		HZ_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(!m_IsEditorScene);
-
-		if (!m_IsPlaying)
+		if (m_IsEditorScene)
 			return;
 
 		Entity e = { entity, this };
@@ -2326,7 +2055,7 @@ namespace Hazel {
 		if (e.HasComponent<RigidBody2DComponent>())
 		{
 			auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-			HZ_CORE_VERIFY(rigidBody2D.RuntimeBody);
+			HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
 			b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 			b2PolygonShape polygonShape;
@@ -2340,14 +2069,15 @@ namespace Hazel {
 		}
 	}
 
+	void Scene::OnBoxCollider2DComponentDestroy(entt::registry& registry, entt::entity entity)
+	{
+	}
 
 	void Scene::OnCircleCollider2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
 		HZ_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(!m_IsEditorScene);
-
-		if (!m_IsPlaying)
+		if (m_IsEditorScene)
 			return;
 
 		Entity e = { entity, this };
@@ -2371,217 +2101,49 @@ namespace Hazel {
 		}
 	}
 
-
-	void Scene::OnScriptComponentDestroy(entt::registry& registry, entt::entity entity)
+	void Scene::OnCircleCollider2DComponentDestroy(entt::registry& registry, entt::entity entity)
 	{
-		Entity e = { entity, this };
-
-		auto& scriptComponent = registry.get<ScriptComponent>(entity);
-
-		if (!m_ScriptStorage.EntityStorage.contains(e.GetUUID()))
-			return;
-
-		m_ScriptStorage.ShutdownEntityStorage(scriptComponent.ScriptID, e.GetUUID());
 	}
-
 
 	void Scene::OnRigidBodyComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
 		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(!m_IsEditorScene);
-
-		if (!m_IsPlaying)
-		{
-			// Early out if the scene isn't playing.
-			// (the physics world is fully reconstructed when scene starts playing)
+		
+		if (m_IsEditorScene)
 			return;
-		}
+
+		Entity e = { entity, this };
 
 		auto physicsScene = GetPhysicsScene();
 		if (physicsScene)
-		{
-			physicsScene->CreateBody({ entity, this });
-		}
+			physicsScene->CreateBody(e);
 	}
-
 
 	void Scene::OnRigidBodyComponentDestroy(entt::registry& registry, entt::entity entity)
 	{
 		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(!m_IsEditorScene);
 
-		if (!m_IsPlaying)
-		{
-			// If the scene isn't playing then there aren't any physics bodies to destroy
+		if (m_IsEditorScene)
 			return;
-		}
+
+		Entity e = { entity, this };
 
 		auto physicsScene = GetPhysicsScene();
 		if (physicsScene)
-		{
-			physicsScene->DestroyBody({ entity, this });
-		}
+			physicsScene->DestroyBody(e);
 	}
 
-
-	void Scene::OnAssetReloaded(AssetHandle assetHandle)
+	void Scene::OnRigidBodyComponentDestroy_ProEdition(Entity entity)
 	{
-		// get the asset
-		Ref<Asset> asset = AssetManager::GetAsset<Asset>(assetHandle);
-		switch (asset->GetAssetType())
-		{
-			case AssetType::AnimationGraph:
-			{
-				OnAnimationGraphReloaded(assetHandle);
-				break;
-			}
-			case AssetType::MeshSource:
-			{
-				OnMeshSourceReloaded(assetHandle);
-				break;
-			}
-			case AssetType::Mesh:
-			{
-				OnMeshReloaded(assetHandle);
-				break;
-			}
-		}
+		HZ_PROFILE_FUNC();
+
+		if (m_IsEditorScene)
+			return;
+
+		auto physicsScene = GetPhysicsScene();
+		if (physicsScene)
+			physicsScene->DestroyBody(entity);
 	}
-
-
-	void InstantiateAnimationGraph(Ref<AnimationGraphAsset> animationGraphAsset, AnimationComponent& anim)
-	{
-		auto oldGraph = anim.AnimationGraph;
-		anim.AnimationGraph = animationGraphAsset->CreateInstance();
-
-		// If graph compiled correctly, then it should always be possible to instantiate it.
-		// If graph is unable to be instantiated, then it should not have compiled correctly.
-		HZ_CORE_ASSERT(anim.AnimationGraph, "Failed to instantiate AnimationGraph");
-
-		// Attempt to copy over old graph input values to new graph.
-		// New graph may not have the same inputs, and even if it does, the types may not match.
-		if (oldGraph && anim.AnimationGraph)
-		{
-			for (auto [id, oldValue] : oldGraph->Ins)
-			{
-				try
-				{
-
-					// TODO: array values!
-
-					auto newValue = anim.AnimationGraph->InValue(id);
-					if (oldValue.isBool() && newValue.isBool())             newValue.set(oldValue.getBool());
-					else if (oldValue.isInt32() && newValue.isInt32())     newValue.set(oldValue.getInt32());
-					else if (oldValue.isInt64() && newValue.isInt64())     newValue.set(oldValue.getInt64());
-					else if (oldValue.isFloat32() && newValue.isFloat32()) newValue.set(oldValue.getFloat32());
-					else if (oldValue.isFloat64() && newValue.isFloat64()) newValue.set(oldValue.getFloat64());
-					else if (oldValue.isString() && newValue.isString())   newValue.set(oldValue.getString());
-					else if (oldValue.isObjectWithClassName(type::type_name<glm::vec3>()) && newValue.isObjectWithClassName(type::type_name<glm::vec3>()))
-					{
-						newValue.getObjectMemberAt(0).value.set(oldValue.getObjectMemberAt(0).value.getFloat32());
-						newValue.getObjectMemberAt(1).value.set(oldValue.getObjectMemberAt(1).value.getFloat32());
-						newValue.getObjectMemberAt(2).value.set(oldValue.getObjectMemberAt(2).value.getFloat32());
-					}
-				}
-				catch (const std::out_of_range&)
-				{
-					;
-				}
-			}
-		}
-	}
-
-
-	void Scene::OnAnimationGraphReloaded(AssetHandle animationGraphHandle)
-	{
-		auto view = GetAllEntitiesWith<AnimationComponent>();
-		for (auto entity : view)
-		{
-			Entity e = { entity, this };
-			auto& anim = e.GetComponent<AnimationComponent>();
-			if (anim.AnimationGraphHandle == animationGraphHandle)
-			{
-				auto animationGraphAsset = AssetManager::GetAsset<AnimationGraphAsset>(anim.AnimationGraphHandle);
-				if (
-					animationGraphAsset && animationGraphAsset->Prototype &&
-					(!anim.AnimationGraph || anim.AnimationGraph->ID != animationGraphAsset->Prototype->ID)
-				)
-				{
-					InstantiateAnimationGraph(animationGraphAsset, anim);
-
-					// we could have a different skeleton now, so we need to re-find the bone entities
-					if (anim.AnimationGraph)
-					{
-						anim.BoneEntityIds = FindBoneEntityIds(e, e, anim.AnimationGraph->GetSkeleton());
-					}
-				}
-			}
-		}
-	}
-
-
-	void Scene::OnMeshSourceReloaded(AssetHandle meshSourceHandle)
-	{
-		// Re-instantiate any animation graphs that refer to the reloaded MeshSource
-		auto animatedEntities = GetAllEntitiesWith<AnimationComponent>();
-		for (auto e : animatedEntities)
-		{
-			Entity entity = { e, this };
-			auto& anim = entity.GetComponent<AnimationComponent>();
-			auto animationGraphAsset = AssetManager::GetAsset<AnimationGraphAsset>(anim.AnimationGraphHandle);
-			if (animationGraphAsset)
-			{
-				bool needsReinstantiation = false;
-				bool needsBoneEntityRebuild = false;
-				auto skeleton = AssetManager::GetAsset<SkeletonAsset>(animationGraphAsset->GetSkeletonHandle());
-				if(skeleton && skeleton->GetMeshSource() == meshSourceHandle)
-				{
-					needsReinstantiation = true;
-					needsBoneEntityRebuild = true;
-				}
-				else
-				{
-					auto animationHandles = animationGraphAsset->GetAnimationHandles();
-					for (auto animationHandle : animationHandles)
-					{
-						auto animation = AssetManager::GetAsset<AnimationAsset>(animationHandle);
-						if (animation && ((animation->GetAnimationSource() == meshSourceHandle) || (animation->GetSkeletonSource() == meshSourceHandle)))
-						{
-							needsReinstantiation = true;
-							break;
-						}
-					}
-				}
-				if (needsReinstantiation)
-				{
-					InstantiateAnimationGraph(animationGraphAsset, anim);
-					if (anim.AnimationGraph && needsBoneEntityRebuild)
-					{
-						anim.BoneEntityIds = FindBoneEntityIds(entity, entity, anim.AnimationGraph->GetSkeleton());
-					}
-				}
-			}
-		}
-	}
-
-
-	void Scene::OnMeshReloaded(AssetHandle meshHandle)
-	{
-		auto meshEntities = GetAllEntitiesWith<MeshComponent>();
-		for (auto e : meshEntities)
-		{
-			Entity entity = { e, this };
-			auto& mc = entity.GetComponent<MeshComponent>();
-			if (auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh); mesh)
-			{
-				if (mesh->Handle == meshHandle)
-				{
-					RebuildMeshEntityHierarchy(entity);
-				}
-			}
-		}
-	}
-
 
 	void Scene::SetViewportSize(uint32_t width, uint32_t height)
 	{
@@ -2694,7 +2256,30 @@ namespace Hazel {
 		if (!entity)
 			return;
 
-		// Destroy child entities (if relevant) before we start destroying this entity
+		if (entity.HasComponent<ScriptComponent>())
+			ScriptEngine::ShutdownScriptEntity(entity, m_IsEditorScene);
+
+		if (entity.HasComponent<AudioComponent>())
+			MiniAudioEngine::Get().OnAudibleEntityDestroy(entity);
+
+		if (!m_IsEditorScene)
+		{
+			auto physicsWorld = GetPhysicsScene();
+
+			if (entity.HasComponent<RigidBodyComponent>())
+				physicsWorld->DestroyBody(entity);
+
+			if (entity.HasComponent<RigidBody2DComponent>())
+			{
+				auto& world = m_Registry.get<Box2DWorldComponent>(m_SceneEntity).World;
+				b2Body* body = (b2Body*)entity.GetComponent<RigidBody2DComponent>().RuntimeBody;
+				world->DestroyBody(body);
+			}
+		}
+
+		if (m_OnEntityDestroyedCallback)
+			m_OnEntityDestroyedCallback(entity);
+
 		if (!excludeChildren)
 		{
 			// NOTE(Yan): don't make this a foreach loop because entt will move the children
@@ -2707,28 +2292,19 @@ namespace Hazel {
 			}
 		}
 
-		// Call entity destroyed callback _before_ we start destroying this entity
-		if (m_OnEntityDestroyedCallback)
-			m_OnEntityDestroyedCallback(entity);
-
-		UUID id = entity.GetUUID();
-
-		if (SelectionManager::IsSelected(id))
-			SelectionManager::Deselect(id);
-
 		if (first)
 		{
 			if (auto parent = entity.GetParent(); parent)
 				parent.RemoveChild(entity);
 		}
 
-		// Remove components for which there exist on_destroy handlers
-		// This ensures that if the handlers rely on other entity components (in particular
-		// the IDComponent and the TransformComponent), they can still access them.
-		entity.RemoveComponentIfExists<ScriptComponent>();
-		entity.RemoveComponentIfExists<AudioComponent>();
-		entity.RemoveComponentIfExists<RigidBody2DComponent>();
-		entity.RemoveComponentIfExists<RigidBodyComponent>();
+		UUID id = entity.GetUUID();
+
+		if (SelectionManager::IsSelected(id))
+			SelectionManager::Deselect(id);
+
+		if (entity.HasComponent<RigidBodyComponent>())
+			OnRigidBodyComponentDestroy_ProEdition(entity);
 
 		m_Registry.destroy(entity.m_EntityHandle);
 		m_EntityIDMap.erase(id);
@@ -2747,21 +2323,16 @@ namespace Hazel {
 
 	void Scene::ResetTransformsToMesh(Entity entity, bool resetChildren)
 	{
-		if (entity.HasComponent<SubmeshComponent>())
+		if (entity.HasComponent<MeshComponent>())
 		{
-			auto& mc = entity.GetComponent<SubmeshComponent>();
+			auto& mc = entity.GetComponent<MeshComponent>();
 			if (AssetManager::IsAssetHandleValid(mc.Mesh))
 			{
-				if (auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh); mesh)
+				Ref<Mesh> mesh = AssetManager::GetAsset<Mesh>(mc.Mesh);
+				const auto& submeshes = mesh->GetMeshSource()->GetSubmeshes();
+				if (submeshes.size() > mc.SubmeshIndex)
 				{
-					if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-					{
-						const auto& submeshes = meshSource->GetSubmeshes();
-						if (mc.SubmeshIndex < submeshes.size())
-						{
-							entity.Transform().SetTransform(submeshes[mc.SubmeshIndex].LocalTransform);
-						}
-					}
+					entity.Transform().SetTransform(submeshes[mc.SubmeshIndex].LocalTransform);
 				}
 			}
 		}
@@ -2825,27 +2396,23 @@ namespace Hazel {
 		//				need to duplicate the entire child hierarchy and basically reconstruct the entire RelationshipComponent from the ground up
 		//CopyComponentIfExists<RelationshipComponent>(newEntity.m_EntityHandle, entity.m_EntityHandle, m_Registry);
 		CopyComponentIfExists<MeshComponent>(newEntity.m_EntityHandle, m_Registry, entity);
-
-		// TODO: (0x) When copying MeshTag, we should fix up the entity id
-		CopyComponentIfExists<MeshTagComponent>(newEntity.m_EntityHandle, m_Registry, entity);
-
-		CopyComponentIfExists<SubmeshComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<StaticMeshComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<AnimationComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<ScriptComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<CameraComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<SpriteRendererComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<TextComponent>(newEntity.m_EntityHandle, m_Registry, entity);
+		CopyComponentIfExists<RigidBody2DComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<BoxCollider2DComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<CircleCollider2DComponent>(newEntity.m_EntityHandle, m_Registry, entity);
-		CopyComponentIfExists<RigidBody2DComponent>(newEntity.m_EntityHandle, m_Registry, entity);
+		CopyComponentIfExists<RigidBodyComponent>(newEntity.m_EntityHandle, m_Registry, entity);
+		CopyComponentIfExists<CharacterControllerComponent>(newEntity.m_EntityHandle, m_Registry, entity);
+		CopyComponentIfExists<FixedJointComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<CompoundColliderComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<BoxColliderComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<SphereColliderComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<CapsuleColliderComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<MeshColliderComponent>(newEntity.m_EntityHandle, m_Registry, entity);
-		CopyComponentIfExists<RigidBodyComponent>(newEntity.m_EntityHandle, m_Registry, entity);
-		CopyComponentIfExists<CharacterControllerComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<DirectionalLightComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<PointLightComponent>(newEntity.m_EntityHandle, m_Registry, entity);
 		CopyComponentIfExists<SpotLightComponent>(newEntity.m_EntityHandle, m_Registry, entity);
@@ -2887,20 +2454,8 @@ namespace Hazel {
 
 		BuildBoneEntityIds(newEntity);
 
-		if (!m_IsEditorScene)
-		{
-			if (newEntity.HasAny<BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, MeshColliderComponent>() && !newEntity.HasComponent<RigidBodyComponent>())
-			{
-				newEntity.AddComponent<RigidBodyComponent>(); // This will also create a body in the physics world due signal on RigidBodyComponent creation
-			}
-		}
-
 		if (newEntity.HasComponent<ScriptComponent>())
-		{
-			const auto& scriptComponent = newEntity.GetComponent<ScriptComponent>();
-			m_ScriptStorage.InitializeEntityStorage(scriptComponent.ScriptID, newEntity.GetUUID());
-			m_ScriptStorage.CopyEntityStorage(entity.GetUUID(), newEntity.GetUUID(), m_ScriptStorage);
-		}
+			ScriptEngine::DuplicateScriptInstance(entity, newEntity);
 
 		return newEntity;
 	}
@@ -2918,20 +2473,7 @@ namespace Hazel {
 		entity.m_Scene->CopyComponentIfExists<TagComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<PrefabComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<TransformComponent>(newEntity, m_Registry, entity);
-
-		if (translation)
-			newEntity.Transform().Translation = *translation;
-		if (rotation)
-			newEntity.Transform().SetRotationEuler(*rotation);
-		if (scale)
-			newEntity.Transform().Scale = *scale;
-
 		entity.m_Scene->CopyComponentIfExists<MeshComponent>(newEntity, m_Registry, entity);
-
-		// TODO: (0x) When copying MeshTag, we should fix up the entity id
-		entity.m_Scene->CopyComponentIfExists<MeshTagComponent>(newEntity, m_Registry, entity);
-
-		entity.m_Scene->CopyComponentIfExists<SubmeshComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<StaticMeshComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<AnimationComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<DirectionalLightComponent>(newEntity, m_Registry, entity);
@@ -2942,23 +2484,26 @@ namespace Hazel {
 		entity.m_Scene->CopyComponentIfExists<CameraComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<SpriteRendererComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<TextComponent>(newEntity, m_Registry, entity);
+		entity.m_Scene->CopyComponentIfExists<RigidBody2DComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<BoxCollider2DComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<CircleCollider2DComponent>(newEntity, m_Registry, entity);
-		entity.m_Scene->CopyComponentIfExists<RigidBody2DComponent>(newEntity, m_Registry, entity);
+		entity.m_Scene->CopyComponentIfExists<RigidBodyComponent>(newEntity, m_Registry, entity);
+		entity.m_Scene->CopyComponentIfExists<CharacterControllerComponent>(newEntity, m_Registry, entity);
+		entity.m_Scene->CopyComponentIfExists<FixedJointComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<CompoundColliderComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<BoxColliderComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<SphereColliderComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<CapsuleColliderComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<MeshColliderComponent>(newEntity, m_Registry, entity);
-
-		// Adding RigidBodyComponent will create a body in the physics world (due signal on RigidbodyComponent creation)
-		// Therefore it is important that the entity's transform and colliders are fully set up before this.
-		entity.m_Scene->CopyComponentIfExists<RigidBodyComponent>(newEntity, m_Registry, entity);
-
-		entity.m_Scene->CopyComponentIfExists<CharacterControllerComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<AudioComponent>(newEntity, m_Registry, entity);
 		entity.m_Scene->CopyComponentIfExists<AudioListenerComponent>(newEntity, m_Registry, entity);
 
+		if (translation)
+			newEntity.Transform().Translation = *translation;
+		if (rotation)
+			newEntity.Transform().SetRotationEuler(*rotation);
+		if (scale)
+			newEntity.Transform().Scale = *scale;
 
 		if (newEntity.HasComponent<AnimationComponent>())
 		{
@@ -2973,25 +2518,19 @@ namespace Hazel {
 
 		if (!m_IsEditorScene)
 		{
-			if (newEntity.HasAny<BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, MeshColliderComponent>() && !newEntity.HasComponent<RigidBodyComponent>())
+			if (newEntity.HasComponent<RigidBodyComponent>())
 			{
-				newEntity.AddComponent<RigidBodyComponent>(); // This will also create a body in the physics world due signal on RigidBodyComponent creation
+				GetPhysicsScene()->CreateBody(newEntity, BodyAddType::AddBulk);
+			}
+			else if (newEntity.HasAny<BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, MeshColliderComponent>())
+			{
+				newEntity.AddComponent<RigidBodyComponent>();
+				GetPhysicsScene()->CreateBody(newEntity, BodyAddType::AddBulk);
 			}
 		}
 
-		if (entity.HasComponent<ScriptComponent>())
-		{
-			auto& scriptComponent = newEntity.GetComponent<ScriptComponent>();
-			m_ScriptStorage.InitializeEntityStorage(scriptComponent.ScriptID, newEntity.GetUUID());
-			entity.m_Scene->m_ScriptStorage.CopyEntityStorage(entity.GetUUID(), newEntity.GetUUID(), m_ScriptStorage);
-			const auto& scriptEngine = ScriptEngine::GetInstance();
-
-			if (m_IsPlaying && scriptEngine.IsValidScript(scriptComponent.ScriptID))
-			{
-				scriptComponent.Instance = ScriptEngine::GetMutable().Instantiate(newEntity.GetUUID(), m_ScriptStorage, uint64_t(newEntity.GetUUID()));
-				scriptComponent.Instance.Invoke("OnCreate");
-			}
-		}
+		if (newEntity.HasComponent<ScriptComponent>())
+			ScriptEngine::DuplicateScriptInstance(entity, newEntity);
 
 		return newEntity;
 	}
@@ -3055,211 +2594,93 @@ namespace Hazel {
 		return result;
 	}
 
-	void Scene::BuildMeshEntityHierarchy(Entity parent, Ref<Mesh> mesh, const MeshNode& node)
+	void Scene::BuildMeshEntityHierarchy(Entity parent, Ref<Mesh> mesh, const MeshNode& node, bool generateColliders)
 	{
-		Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource());
+		Ref<MeshSource> meshSource = mesh->GetMeshSource();
 		const auto& nodes = meshSource->GetNodes();
 
-		// capture meshSource and nodes so we don't have to keep getting them as we recurse
-		std::function<void(Entity, const MeshNode&)> recurse = [&](Entity parent, const MeshNode& node)
+		// Skip empty root node
+		if (node.IsRoot() && node.Submeshes.size() == 0)
 		{
-			// Skip empty root node
-			// We should still apply its transform though, as there will sometimes be a 90 degree rotation here
-			// particularly for GLTF assets (where DCC tool may have tried to convert Z-up to Y-up)
-			if (node.IsRoot() && node.Submeshes.size() == 0)
+			for (uint32_t child : node.Children)
+				BuildMeshEntityHierarchy(parent, mesh, nodes[child], generateColliders);
+
+			return;
+		}
+
+		Entity nodeEntity = CreateChildEntity(parent, node.Name);
+		nodeEntity.Transform().SetTransform(node.LocalTransform);
+
+		if (node.Submeshes.size() == 1)
+		{
+			// Node == Mesh in this case
+			uint32_t submeshIndex = node.Submeshes[0];
+			auto& mc = nodeEntity.AddComponent<MeshComponent>(mesh->Handle, submeshIndex);
+
+			if (generateColliders)
 			{
-				for (uint32_t child : node.Children)
-				{
-					MeshNode childNode = nodes[child];
-					childNode.LocalTransform = node.LocalTransform * childNode.LocalTransform;
-					recurse(parent, childNode);
-				}
-				return;
+				auto& colliderComponent = nodeEntity.AddComponent<MeshColliderComponent>();
+				Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(nodeEntity, colliderComponent);
+				colliderComponent.ColliderAsset = colliderAsset->Handle;
+				colliderComponent.SubmeshIndex = submeshIndex;
+				colliderComponent.UseSharedShape = colliderAsset->AlwaysShareShape;
+				nodeEntity.AddComponent<RigidBodyComponent>();
 			}
-
-			Entity nodeEntity = CreateChildEntity(parent, node.Name);
-			nodeEntity.Transform().SetTransform(node.LocalTransform);
-			nodeEntity.AddComponent<MeshTagComponent>(); // TODO: (0x) Add correct root entity id
-
-			if (node.Submeshes.size() == 1)
+		}
+		else if (node.Submeshes.size() > 1)
+		{
+			// Create one entity per child mesh, parented under node
+			for (uint32_t i = 0; i < node.Submeshes.size(); i++)
 			{
-				// Node == Mesh in this case
-				uint32_t submeshIndex = node.Submeshes[0];
-				auto& mc = nodeEntity.AddComponent<SubmeshComponent>(mesh->Handle, submeshIndex);
+				uint32_t submeshIndex = node.Submeshes[i];
 
-				if (mesh->ShouldGenerateColliders())
+				// NOTE(Yan): original implemenation use to use "mesh name" from assimp;
+				//            we don't store that so use node name instead. Maybe we
+				//            should store it?
+				Entity childEntity = CreateChildEntity(nodeEntity, node.Name);
+
+				childEntity.AddComponent<MeshComponent>(mesh->Handle, submeshIndex);
+
+				if (generateColliders)
 				{
-					auto& colliderComponent = nodeEntity.AddComponent<MeshColliderComponent>();
-					Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(nodeEntity, colliderComponent);
+					auto& colliderComponent = childEntity.AddComponent<MeshColliderComponent>();
+					Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(childEntity, colliderComponent);
 					colliderComponent.ColliderAsset = colliderAsset->Handle;
 					colliderComponent.SubmeshIndex = submeshIndex;
 					colliderComponent.UseSharedShape = colliderAsset->AlwaysShareShape;
-					nodeEntity.AddComponent<RigidBodyComponent>();
-				}
-			}
-			else if (node.Submeshes.size() > 1)
-			{
-				// Create one entity per child mesh, parented under node
-				for (uint32_t i = 0; i < node.Submeshes.size(); i++)
-				{
-					uint32_t submeshIndex = node.Submeshes[i];
-
-					// NOTE(Yan): original implemenation use to use "mesh name" from assimp;
-					//            we don't store that so use node name instead. Maybe we
-					//            should store it?
-					Entity childEntity = CreateChildEntity(nodeEntity, node.Name);
-
-					childEntity.AddComponent<MeshTagComponent>(); // TODO: (0x) Add correct root entity id
-					childEntity.AddComponent<SubmeshComponent>(mesh->Handle, submeshIndex);
-
-					if (mesh->ShouldGenerateColliders())
-					{
-						auto& colliderComponent = childEntity.AddComponent<MeshColliderComponent>();
-						Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(childEntity, colliderComponent);
-						colliderComponent.ColliderAsset = colliderAsset->Handle;
-						colliderComponent.SubmeshIndex = submeshIndex;
-						colliderComponent.UseSharedShape = colliderAsset->AlwaysShareShape;
-						childEntity.AddComponent<RigidBodyComponent>();
-					}
+					childEntity.AddComponent<RigidBodyComponent>();
 				}
 			}
 
-			for (uint32_t child : node.Children)
-				recurse(nodeEntity, nodes[child]);
-		};
+		}
 
-		recurse(parent, node);
+		for (uint32_t child : node.Children)
+			BuildMeshEntityHierarchy(nodeEntity, mesh, nodes[child], generateColliders);
 	}
 
-
-	Entity Scene::InstantiateMesh(Ref<Mesh> mesh)
+	Entity Scene::InstantiateMesh(Ref<Mesh> mesh, bool generateColliders)
 	{
-		auto assetData = Project::GetEditorAssetManager()->GetMetadata(mesh->Handle);
+		auto& assetData = Project::GetEditorAssetManager()->GetMetadata(mesh->Handle);
 		Entity rootEntity = CreateEntity(assetData.FilePath.stem().string());
-		rootEntity.AddComponent<MeshComponent>(mesh->Handle);
-		if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-		{
-			BuildMeshEntityHierarchy(rootEntity, mesh, meshSource->GetRootNode());
-			BuildBoneEntityIds(rootEntity);
-		}
-		return rootEntity;
-	}
-
-
-	// Reparent any child entities that do not have the MeshTagComponent to the root entity.
-	// This is used during mesh asset reload to preserve any non-mesh entities that may have
-	// been added in to the scene entity hierarchy.
-	void ReparentNonMeshChildren(Scene& context, Entity entity, Entity rootEntity)
-	{
-		auto childIds = entity.Children();
-		for (auto childId : childIds)
-		{
-			Entity child = context.TryGetEntityWithUUID(childId);
-			if (child && !child.HasComponent<MeshTagComponent>())
-			{
-				child.SetParent(rootEntity);
-			}
-			else
-			{
-				ReparentNonMeshChildren(context, child, rootEntity);
-			}
-		}
-	}
-
-	// Destroy any child entities that have the MeshTagComponent.
-	// This is used during mesh asset reload to remove the old mesh entity hierarchy.
-	void DestroyMeshChildren(Scene& context, Entity entity)
-	{
-		auto childIds = entity.Children();
-		for (auto childId : childIds)
-		{
-			Entity child = context.TryGetEntityWithUUID(childId);
-			if (child && child.HasComponent<MeshTagComponent>())
-			{
-				context.DestroyEntity(child);
-			}
-		}
-	}
-
-
-	void Scene::RebuildMeshEntityHierarchy(Entity rootEntity)
-	{
-		HZ_CORE_ASSERT(rootEntity.HasComponent<MeshComponent>(), "Attempted to RebuildMeshEntityHierarchy() for an entity that has no MeshComponent!");
-
-		// The user may have added other entities in to the original mesh entity hierarchy
-		// We reparent all of these to the root entity (so that subsequent Destroy... step does not destroy them)
-		// Obviously this is not ideal, but I think it is a better solution than just destroying everything.
-		// I thought about trying to restore the correct parents once we have re-built the mesh entity hierarchy,
-		// but there is no reliable way to determine which entity in the new hierarchy corresponded to which entity
-		// in the original hierarchy.  (matching on Tag is not sufficient)
-		ReparentNonMeshChildren(*this, rootEntity, rootEntity);
-
-		// Destroy and then re-create the mesh entity hierarchy
-		DestroyMeshChildren(*this, rootEntity);
-
-		auto& mc = rootEntity.GetComponent<MeshComponent>();
-		if (auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh); mesh)
-		{
-			if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-			{
-				BuildMeshEntityHierarchy(rootEntity, mesh, meshSource->GetRootNode());
-				BuildBoneEntityIds(rootEntity);
-			}
-		}
-	}
-
-
-	Entity Scene::InstantiateStaticMesh(Ref<StaticMesh> mesh)
-	{
-		auto assetData = Project::GetEditorAssetManager()->GetMetadata(mesh->Handle);
-		Entity rootEntity = CreateEntity(assetData.FilePath.stem().string());
-		rootEntity.AddComponent<StaticMeshComponent>(mesh->Handle);
-		const auto& meshMetadata = Project::GetEditorAssetManager()->GetMetadata(mesh->Handle);
-		if (mesh->ShouldGenerateColliders())
-		{
-			auto& colliderComponent = rootEntity.AddComponent<MeshColliderComponent>();
-			Ref<MeshColliderAsset> colliderAsset = PhysicsSystem::GetOrCreateColliderAsset(rootEntity, colliderComponent);
-			colliderComponent.ColliderAsset = colliderAsset->Handle;
-			colliderComponent.SubmeshIndex = 0;
-			colliderComponent.UseSharedShape = colliderAsset->AlwaysShareShape;
-			rootEntity.AddComponent<RigidBodyComponent>();
-		}
+		BuildMeshEntityHierarchy(rootEntity, mesh, mesh->GetMeshSource()->GetRootNode(), generateColliders);
+		BuildBoneEntityIds(rootEntity);
 		return rootEntity;
 	}
 
 	void Scene::BuildBoneEntityIds(Entity entity)
 	{
 		BuildMeshBoneEntityIds(entity, entity);
-
-		// AnimationComponent may not be a direct child of the entity.
-		// We must rebuild the animation component bone entity ids from the oldest ancestor
-		Entity animationEntity = entity;
-		Entity parent = entity.GetParent();
-		while (parent)
-		{
-			if (parent.HasComponent<AnimationComponent>())
-			{
-				animationEntity = parent;
-			}
-			parent = parent.GetParent();
-		}
-
-		BuildAnimationBoneEntityIds(animationEntity, animationEntity);
+		BuildAnimationBoneEntityIds(entity, entity);
 	}
 
 	void Scene::BuildMeshBoneEntityIds(Entity entity, Entity rootEntity)
 	{
-		if (auto mc = entity.TryGetComponent<SubmeshComponent>(); mc)
+		if (entity.HasComponent<MeshComponent>())
 		{
-			// note: we must re-lookup the Mesh asset (even when recursing into this function)
-			//       because there is no guarantee that the child entities all refer to the same mesh
-			if (auto mesh = AssetManager::GetAsset<Mesh>(mc->Mesh); mesh)
-			{
-				if (auto meshSource = AssetManager::GetAsset<MeshSource>(mesh->GetMeshSource()); meshSource)
-				{
-					mc->BoneEntityIds = FindBoneEntityIds(entity, rootEntity, meshSource->GetSkeleton());
-				}
-			}
+			auto& mc = entity.GetComponent<MeshComponent>();
+			auto mesh = AssetManager::GetAsset<Mesh>(mc.Mesh);
+			if (mesh && mesh->HasSkeleton())
+				mc.BoneEntityIds = FindBoneEntityIds(entity, rootEntity, mesh);
 		}
 		for (auto childId : entity.Children())
 		{
@@ -3270,9 +2691,10 @@ namespace Hazel {
 
 	void Scene::BuildAnimationBoneEntityIds(Entity entity, Entity rootEntity)
 	{
-		if (auto anim = entity.TryGetComponent<AnimationComponent>(); anim && anim->AnimationGraph)
+		if (entity.HasComponent<AnimationComponent>())
 		{
-			anim->BoneEntityIds = FindBoneEntityIds(entity, rootEntity, anim->AnimationGraph->GetSkeleton());
+			auto& anim = entity.GetComponent<AnimationComponent>();
+			anim.BoneEntityIds = FindBoneEntityIds(entity, rootEntity, anim.AnimationGraph);
 		}
 		for (auto childId : entity.Children())
 		{
@@ -3281,41 +2703,79 @@ namespace Hazel {
 		}
 	}
 
-	std::vector<UUID> Scene::FindBoneEntityIds(Entity entity, Entity rootEntity, const Skeleton* skeleton)
+	std::vector<UUID> Scene::FindBoneEntityIds(Entity entity, Entity rootEntity, Ref<Mesh> mesh)
 	{
 		std::vector<UUID> boneEntityIds;
-
 		// given an entity, find descendant entities holding the transforms for the specified mesh's bones
-		if (skeleton)
+		if (mesh && mesh->HasSkeleton())
 		{
 			Entity rootParentEntity = rootEntity ? rootEntity.GetParent() : rootEntity;
+			auto boneNames = mesh->GetMeshSource()->GetSkeleton().GetBoneNames();
+			boneEntityIds.reserve(boneNames.size());
+			bool foundAtLeastOne = false;
+			for (const auto& boneName : boneNames)
 			{
-				auto boneNames = skeleton->GetBoneNames();
-				boneEntityIds.reserve(boneNames.size());
-				bool foundAtLeastOne = false;
-				for (const auto& boneName : boneNames)
+				bool found = false;
+				Entity e = entity;
+				while (e && e != rootParentEntity)
 				{
-					bool found = false;
-					Entity e = entity;
-					while (e && e != rootParentEntity)
+					Entity boneEntity = TryGetDescendantEntityWithTag(e, boneName);
+					if (boneEntity)
 					{
-						Entity boneEntity = TryGetDescendantEntityWithTag(e, boneName);
-						if (boneEntity)
-						{
-							boneEntityIds.emplace_back(boneEntity.GetUUID());
-							found = true;
-							break;
-						}
-						e = e.GetParent();
+						boneEntityIds.emplace_back(boneEntity.GetUUID());
+						found = true;
+						break;
 					}
-					if (found)
-						foundAtLeastOne = true;
-					else
-						boneEntityIds.emplace_back(0);
+					e = e.GetParent();
 				}
-				if (!foundAtLeastOne)
-					boneEntityIds.resize(0);
+				if (found)
+					foundAtLeastOne = true;
+				else
+					boneEntityIds.emplace_back(0);
 			}
+			if (!foundAtLeastOne)
+				boneEntityIds.resize(0);
+		}
+		return boneEntityIds;
+	}
+
+	std::vector<UUID> Scene::FindBoneEntityIds(Entity entity, Entity rootEntity, Ref<AnimationGraph::AnimationGraph> animationGraph)
+	{
+		if (!animationGraph)
+		{
+			return {};
+		}
+			
+		std::vector<UUID> boneEntityIds;
+		// given a parent entity, find descendant entities holding the transforms for the specified animation graph's skeleton
+		if (auto skeleton = animationGraph->GetSkeleton())
+		{
+			Entity rootParentEntity = rootEntity.GetParent();
+			auto boneNames = skeleton->GetBoneNames();
+			boneEntityIds.reserve(boneNames.size());
+			bool foundAtLeastOne = false;
+			for (const auto& boneName : boneNames)
+			{
+				bool found = false;
+				Entity e = entity;
+				while (e && e != rootParentEntity)
+				{
+					Entity boneEntity = TryGetDescendantEntityWithTag(entity, boneName);
+					if (boneEntity)
+					{
+						boneEntityIds.emplace_back(boneEntity.GetUUID());
+						found = true;
+						break;
+					}
+					e = e.GetParent();
+				}
+				if (found)
+					foundAtLeastOne = true;
+				else
+					boneEntityIds.emplace_back(0);
+			}
+			if (!foundAtLeastOne)
+				boneEntityIds.resize(0);
 		}
 		return boneEntityIds;
 	}
@@ -3478,6 +2938,9 @@ namespace Hazel {
 	void Scene::CopyTo(Ref<Scene>& target)
 	{
 		HZ_PROFILE_FUNC();
+
+		// TODO(Yan): hack to prevent Box2D bodies from being created on copy via entt signals
+		target->m_IsEditorScene = true;
 		target->m_Name = m_Name;
 
 		// Environment
@@ -3493,24 +2956,15 @@ namespace Hazel {
 		{
 			auto uuid = m_Registry.get<IDComponent>(entity).ID;
 			auto name = m_Registry.get<TagComponent>(entity).Tag;
-			Entity e = target->CreateEntityWithID(uuid, name, /*shouldSort=*/false);
+			Entity e = target->CreateEntityWithID(uuid, name);
 			enttMap[uuid] = e.m_EntityHandle;
 		}
-
-		// Sort IdComponent by by entity handle (which is essentially the order in which they were created)
-		// This ensures a consistent ordering when iterating IdComponent (for example: when rendering scene hierarchy panel)
-		target->SortEntities();
 
 		CopyComponent<PrefabComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<TagComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<TransformComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<RelationshipComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<MeshComponent>(target->m_Registry, m_Registry, enttMap);
-		
-		// TODO: (0x) When copying MeshTag, we should fix up the entity id
-		CopyComponent<MeshTagComponent>(target->m_Registry, m_Registry, enttMap);
-		
-		CopyComponent<SubmeshComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<StaticMeshComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<AnimationComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<DirectionalLightComponent>(target->m_Registry, m_Registry, enttMap);
@@ -3521,39 +2975,30 @@ namespace Hazel {
 		CopyComponent<CameraComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<SpriteRendererComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<TextComponent>(target->m_Registry, m_Registry, enttMap);
+		CopyComponent<RigidBody2DComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<BoxCollider2DComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<CircleCollider2DComponent>(target->m_Registry, m_Registry, enttMap);
-		CopyComponent<RigidBody2DComponent>(target->m_Registry, m_Registry, enttMap);
+		CopyComponent<RigidBodyComponent>(target->m_Registry, m_Registry, enttMap);
+		CopyComponent<CharacterControllerComponent>(target->m_Registry, m_Registry, enttMap);
+		CopyComponent<FixedJointComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<CompoundColliderComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<BoxColliderComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<SphereColliderComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<CapsuleColliderComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<MeshColliderComponent>(target->m_Registry, m_Registry, enttMap);
-		CopyComponent<RigidBodyComponent>(target->m_Registry, m_Registry, enttMap);
-		CopyComponent<CharacterControllerComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<AudioComponent>(target->m_Registry, m_Registry, enttMap);
 		CopyComponent<AudioListenerComponent>(target->m_Registry, m_Registry, enttMap);
 
 		target->SetPhysics2DGravity(GetPhysics2DGravity());
 
+		// Sort IdComponent by by entity handle (which is essentially the order in which they were created)
+		// This ensures a consistent ordering when iterating IdComponent (for example: when rendering scene hierarchy panel)
+		target->SortEntities();
+
 		target->m_ViewportWidth = m_ViewportWidth;
 		target->m_ViewportHeight = m_ViewportHeight;
 
-		// Each entity with an animation component needs to be given its own
-		// independent instance of the animation graph.
-		// Otherwise things that happen in runtime scene animation graphs will propagate
-		// back to the editor scene animation graphs.
-		for (auto src : m_Registry.view<AnimationComponent>())
-		{
-			auto dest = enttMap.at(m_Registry.get<IDComponent>(src).ID);
-
-			Entity srcEntity = { src, this };
-			Entity destEntity = { dest, target.Raw() };
-			DuplicateAnimationInstance(destEntity, srcEntity);
-			//BuildBoneEntityIds(destEntity);  // Note (0x): rebuilding bone entity ids is not needed because the ids are the same in the target
-		}
-
-		m_ScriptStorage.CopyTo(target->m_ScriptStorage);
+		target->m_IsEditorScene = false;
 	}
 
 	Ref<Scene> Scene::GetScene(UUID uuid)
@@ -3593,71 +3038,66 @@ namespace Hazel {
 		}
 	}
 
-
 	// For copied AnimationComponent, need to create an independent AnimationGraph instance.
-	void Scene::DuplicateAnimationInstance(Entity dest, Entity src)
+	void Scene::DuplicateAnimationInstance(Entity dst, Entity src)
 	{
-		HZ_CORE_ASSERT(dest.HasComponent<AnimationComponent>(), "Destination entity does not have AnimationComponent!");
-		auto& animDest = dest.GetComponent<AnimationComponent>();
-		if (animDest.AnimationGraph)
+		HZ_CORE_ASSERT(dst.HasComponent<AnimationComponent>(), "Destination entity does not have AnimationComponent!");
 		{
-			if(auto animGraphAsset = AssetManager::GetAsset<AnimationGraphAsset>(animDest.AnimationGraphHandle); animGraphAsset)
+			auto& animDst = dst.GetComponent<AnimationComponent>();
+			if (animDst.AnimationGraph)
 			{
-				animDest.AnimationGraph = animGraphAsset->CreateInstance();
-			}
-
-			auto& animSrc = src.GetComponent<AnimationComponent>();
-			for (auto [id, srcValue] : animSrc.AnimationGraph->Ins)
-			{
-				try
+				auto animGraphAsset = AssetManager::GetAsset<AnimationGraphAsset>(animDst.AnimationGraphHandle);
+				if (animGraphAsset && animGraphAsset->IsValid())
 				{
-					auto dstValue = animDest.AnimationGraph->InValue(id);
-					if (dstValue.isInt32())        dstValue.set(srcValue.getInt32());
-					else if (dstValue.isInt64())   dstValue.set(srcValue.getInt64());
-					else if (dstValue.isFloat32()) dstValue.set(srcValue.getFloat32());
-					else if (dstValue.isFloat64()) dstValue.set(srcValue.getFloat64());
-					else if (dstValue.isBool())    dstValue.set(srcValue.getBool());
+					animDst.AnimationGraph = animGraphAsset->CreateInstance();
 				}
-				catch (const std::out_of_range&)
+				auto& animSrc = src.GetComponent<AnimationComponent>();
+
+				for (auto [id, srcValue] : animSrc.AnimationGraph->Ins)
 				{
-					;
+					try
+					{
+						auto dstValue = animDst.AnimationGraph->InValue(id);
+						if (dstValue.isInt32())        dstValue.set(srcValue.getInt32());
+						else if (dstValue.isInt64())   dstValue.set(srcValue.getInt64());
+						else if (dstValue.isFloat32()) dstValue.set(srcValue.getFloat32());
+						else if (dstValue.isFloat64()) dstValue.set(srcValue.getInt64());
+					}
+					catch (const std::out_of_range&)
+					{
+						;
+					}
 				}
 			}
 		}
 	}
-
 
 	Ref<Scene> Scene::CreateEmpty()
 	{
 		return Ref<Scene>::Create("Empty", false, false);
 	}
 
-	static void InsertMeshMaterials(AssetHandle meshSource, std::unordered_set<AssetHandle>& assetList)
+	static void InsertMeshMaterials(Ref<MeshSource> meshSource, std::unordered_set<AssetHandle>& assetList)
 	{
-		if (auto meshSourceAsset = AssetManager::GetAsset<MeshSource>(meshSource); meshSourceAsset)
+		// Mesh materials
+		const auto& materials = meshSource->GetMaterials();
+		for (auto material : materials)
 		{
-			// Mesh materials
-			const auto& materials = meshSourceAsset->GetMaterials();
-			assetList.insert(materials.begin(), materials.end());
+			Ref<Texture2D> albedoTexture = material->GetTexture2D("u_AlbedoTexture");
+			if (albedoTexture && albedoTexture->Handle) // White texture has Handle == 0
+				assetList.insert(albedoTexture->Handle);
 
-			for (AssetHandle handle : materials)
-			{
-				Ref<MaterialAsset> ma = AssetManager::GetAsset<MaterialAsset>(handle);
-				std::array<Ref<Texture2D>, 4> textures = {
-					ma->GetAlbedoMap(),
-					ma->GetNormalMap(),
-					ma->GetMetalnessMap(),
-					ma->GetRoughnessMap()
-				};
+			Ref<Texture2D> normalTexture = material->GetTexture2D("u_NormalTexture");
+			if (normalTexture && albedoTexture->Handle)
+				assetList.insert(normalTexture->Handle);
 
-				// Textures
-				for (auto texture : textures)
-				{
-					// ignore default 1x1 white texture (handle = 0)
-					if (texture && AssetManager::IsAssetHandleValid(texture->Handle))
-						assetList.insert(texture->Handle);
-				}
-			}
+			Ref<Texture2D> metalnessTexture = material->GetTexture2D("u_MetalnessTexture");
+			if (metalnessTexture && albedoTexture->Handle)
+				assetList.insert(metalnessTexture->Handle);
+
+			Ref<Texture2D> roughnessTexture = material->GetTexture2D("u_RoughnessTexture");
+			if (roughnessTexture && albedoTexture->Handle)
+				assetList.insert(roughnessTexture->Handle);
 		}
 	}
 
@@ -3668,13 +3108,13 @@ namespace Hazel {
 
 		// MeshComponent
 		{
-			auto view = m_Registry.view<SubmeshComponent>();
+			auto view = m_Registry.view<MeshComponent>();
 			for (auto entity : view)
 			{
-				auto& mc = m_Registry.get<SubmeshComponent>(entity);
+				auto& mc = m_Registry.get<MeshComponent>(entity);
 				if (mc.Mesh)
 				{
-					if (AssetManager::GetMemoryAsset(mc.Mesh))
+					if (AssetManager::IsMemoryAsset(mc.Mesh))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(mc.Mesh))
@@ -3686,14 +3126,11 @@ namespace Hazel {
 						if (!mesh)
 							continue;
 
-						if(auto meshSource = mesh->GetMeshSource(); AssetManager::IsAssetHandleValid(meshSource))
+						Ref<MeshSource> meshSource = mesh->GetMeshSource();
+						if (meshSource && AssetManager::IsAssetHandleValid(meshSource->Handle))
 						{
-							assetList.insert(meshSource);
+							assetList.insert(meshSource->Handle);
 							InsertMeshMaterials(meshSource, assetList);
-						}
-						else
-						{
-							missingAssets.insert(meshSource);
 						}
 					}
 					else
@@ -3723,7 +3160,7 @@ namespace Hazel {
 							// Textures
 							for (auto texture : textures)
 							{
-								if (texture && AssetManager::IsAssetHandleValid(texture->Handle))
+								if (texture)
 									assetList.insert(texture->Handle);
 							}
 						}
@@ -3744,7 +3181,7 @@ namespace Hazel {
 				auto& mc = m_Registry.get<StaticMeshComponent>(entity);
 				if (mc.StaticMesh)
 				{
-					if (AssetManager::GetMemoryAsset(mc.StaticMesh))
+					if (AssetManager::IsMemoryAsset(mc.StaticMesh))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(mc.StaticMesh))
@@ -3753,9 +3190,10 @@ namespace Hazel {
 
 						// MeshSource is required too
 						Ref<StaticMesh> mesh = AssetManager::GetAsset<StaticMesh>(mc.StaticMesh);
-						if (auto meshSource = mesh->GetMeshSource(); AssetManager::IsAssetHandleValid(meshSource))
+						Ref<MeshSource> meshSource = mesh->GetMeshSource();
+						if (meshSource && AssetManager::IsAssetHandleValid(meshSource->Handle))
 						{
-							assetList.insert(meshSource);
+							assetList.insert(meshSource->Handle);
 							InsertMeshMaterials(meshSource, assetList);
 						}
 					}
@@ -3786,7 +3224,7 @@ namespace Hazel {
 							// Textures
 							for (auto texture : textures)
 							{
-								if (texture && texture->Handle) // don't insert default white texture (handle = 0)
+								if (texture)
 									assetList.insert(texture->Handle);
 							}
 						}
@@ -3805,7 +3243,7 @@ namespace Hazel {
 			for (auto entity : view)
 			{
 				const auto& ac = m_Registry.get<AnimationComponent>(entity);
-				if (AssetManager::GetMemoryAsset(ac.AnimationGraphHandle))
+				if (AssetManager::IsMemoryAsset(ac.AnimationGraphHandle))
 					continue;
 
 				if (AssetManager::IsAssetHandleValid(ac.AnimationGraphHandle) && ac.AnimationGraph)
@@ -3816,11 +3254,18 @@ namespace Hazel {
 					auto skeletonHandle = animationGraph->GetSkeletonHandle();
 					if (auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonHandle))
 					{
-						Ref<MeshSource> meshSource = AssetManager::GetAsset<MeshSource>(skeletonAsset->GetMeshSource());
-						if (meshSource && meshSource->HasSkeleton())
+						if (skeletonAsset->GetMeshSource() && skeletonAsset->GetMeshSource()->HasSkeleton())
 						{
 							assetList.insert(skeletonAsset->Handle);
-							assetList.insert(meshSource->Handle);
+
+							// MeshSource is required also
+							Ref<MeshSource> meshSource = skeletonAsset->GetMeshSource();
+							if (meshSource && AssetManager::IsAssetHandleValid(meshSource->Handle))
+							{
+								assetList.insert(meshSource->Handle);
+								// Don't need materials for skeleton mesh source
+								//InsertMeshMaterials(meshSource, assetList);
+							}
 						}
 						else
 						{
@@ -3838,9 +3283,9 @@ namespace Hazel {
 							// MeshSources are required also
 							for (auto meshSource : { animationAsset->GetAnimationSource(), animationAsset->GetSkeletonSource() })
 							{
-								if (meshSource && AssetManager::IsAssetHandleValid(meshSource))
+								if (meshSource && AssetManager::IsAssetHandleValid(meshSource->Handle))
 								{
-									assetList.insert(meshSource);
+									assetList.insert(meshSource->Handle);
 									// Don't need materials for skeleton or animations
 									//InsertMeshMaterials(source, assetList);
 								}
@@ -3861,65 +3306,62 @@ namespace Hazel {
 
 		// ScriptComponent
 		{
-			auto view = m_Registry.view<IDComponent, ScriptComponent>();
+			auto view = m_Registry.view<ScriptComponent>();
 			for (auto entity : view)
 			{
-				const auto& idComponent = m_Registry.get<IDComponent>(entity);
 				const auto& sc = m_Registry.get<ScriptComponent>(entity);
-
-				if (sc.ScriptID && false) // These are referenced script classes (no need to load)
+				if (sc.ScriptClassHandle && false) // These are referenced script classes (no need to load)
 				{
-					if (AssetManager::GetMemoryAsset(sc.ScriptID))
+					if (AssetManager::IsMemoryAsset(sc.ScriptClassHandle))
 						continue;
 
-					if (AssetManager::IsAssetHandleValid(sc.ScriptID))
+					if (AssetManager::IsAssetHandleValid(sc.ScriptClassHandle))
 					{
-						assetList.insert(sc.ScriptID);
+						assetList.insert(sc.ScriptClassHandle);
 					}
 					else
 					{
-						missingAssets.insert(sc.ScriptID);
+						missingAssets.insert(sc.ScriptClassHandle);
 					}
 				}
 
-				if (m_ScriptStorage.EntityStorage.contains(idComponent.ID))
+				for (auto fieldID : sc.FieldIDs)
 				{
-					const auto& scriptStorage = m_ScriptStorage.EntityStorage.at(idComponent.ID);
-
-					for (const auto&[fieldID, fieldStorage] : scriptStorage.Fields)
+					FieldInfo* fieldInfo = ScriptCache::GetFieldByID(fieldID);
+					Ref<FieldStorageBase> storage = ScriptEngine::GetFieldStorage(Entity{ entity, this }, fieldID);
+					if (FieldUtils::IsAsset(fieldInfo->Type))
 					{
-						if (FieldUtils::IsAssetType(fieldStorage.GetType()))
+						if (!fieldInfo->IsArray())
 						{
-							if (!fieldStorage.IsArray())
+							Ref<FieldStorage> fieldStorage = storage.As<FieldStorage>();
+							AssetHandle handle = fieldStorage->GetValue<UUID>();
+							if (AssetManager::IsMemoryAsset(handle))
+								continue;
+
+							if (AssetManager::IsAssetHandleValid(handle))
 							{
-								AssetHandle handle = fieldStorage.GetValue<uint64_t>();
-
-								if (AssetManager::GetMemoryAsset(handle))
-									continue;
-
-								if (AssetManager::IsAssetHandleValid(handle))
-								{
-									assetList.insert(handle);
-								}
-								else
-								{
-									missingAssets.insert(handle);
-								}
+								assetList.insert(handle);
 							}
 							else
 							{
-								for (uint32_t i = 0; i < (uint32_t)fieldStorage.GetLength(); i++)
-								{
-									AssetHandle handle = fieldStorage.GetValue<uint64_t>(i);
+								missingAssets.insert(handle);
+							}
+						}
+						else
+						{
+							Ref<ArrayFieldStorage> arrayFieldStorage = storage.As<ArrayFieldStorage>();
 
-									if (AssetManager::GetMemoryAsset(handle))
-										continue;
+							for (uint32_t i = 0; i < arrayFieldStorage->GetLength(); i++)
+							{
+								AssetHandle handle = arrayFieldStorage->GetValue<UUID>(i);
 
-									if (AssetManager::IsAssetHandleValid(handle))
-										assetList.insert(handle);
-									else
-										missingAssets.insert(handle);
-								}
+								if (AssetManager::IsMemoryAsset(handle))
+									continue;
+
+								if (AssetManager::IsAssetHandleValid(handle))
+									assetList.insert(handle);
+								else
+									missingAssets.insert(handle);
 							}
 						}
 					}
@@ -3935,7 +3377,7 @@ namespace Hazel {
 				const auto& src = m_Registry.get<SpriteRendererComponent>(entity);
 				if (src.Texture)
 				{
-					if (AssetManager::GetMemoryAsset(src.Texture))
+					if (AssetManager::IsMemoryAsset(src.Texture))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(src.Texture))
@@ -3958,7 +3400,7 @@ namespace Hazel {
 				const auto& tc = m_Registry.get<TextComponent>(entity);
 				if (tc.FontHandle)
 				{
-					if (AssetManager::GetMemoryAsset(tc.FontHandle))
+					if (AssetManager::IsMemoryAsset(tc.FontHandle))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(tc.FontHandle))
@@ -4008,7 +3450,7 @@ namespace Hazel {
 				const auto& mcc = m_Registry.get<MeshColliderComponent>(entity);
 				if (mcc.ColliderAsset)
 				{
-					if (AssetManager::GetMemoryAsset(mcc.ColliderAsset))
+					if (AssetManager::IsMemoryAsset(mcc.ColliderAsset))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(mcc.ColliderAsset))
@@ -4031,7 +3473,7 @@ namespace Hazel {
 				const auto& slc = m_Registry.get<SkyLightComponent>(entity);
 				if (slc.SceneEnvironment)
 				{
-					if (AssetManager::GetMemoryAsset(slc.SceneEnvironment))
+					if (AssetManager::IsMemoryAsset(slc.SceneEnvironment))
 						continue;
 
 					if (AssetManager::IsAssetHandleValid(slc.SceneEnvironment))
@@ -4051,7 +3493,7 @@ namespace Hazel {
 		{
 			SceneSerializer serializer(nullptr);
 			const auto& sceneMetadata = Project::GetEditorAssetManager()->GetMetadata(Handle);
-			serializer.DeserializeReferencedPrefabs(Project::GetActiveAssetDirectory() / sceneMetadata.FilePath, assetList);
+			serializer.DeserializeReferencedPrefabs(Project::GetAssetDirectory() / sceneMetadata.FilePath, assetList);
 		}
 
 		//HZ_CORE_WARN("{} assets ({} missing)", assetList.size(), missingAssets.size());

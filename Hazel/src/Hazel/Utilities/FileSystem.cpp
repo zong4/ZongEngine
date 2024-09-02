@@ -8,19 +8,7 @@
 
 #include <nfd.hpp>
 
-#include <format>
-
 namespace Hazel {
-
-	std::filesystem::path FileSystem::GetWorkingDirectory()
-	{
-		return std::filesystem::current_path();
-	}
-
-	void FileSystem::SetWorkingDirectory(std::filesystem::path path)
-	{
-		std::filesystem::current_path(path);
-	}
 
 	bool FileSystem::CreateDirectory(const std::filesystem::path& directory)
 	{
@@ -96,18 +84,6 @@ namespace Hazel {
 		return std::filesystem::is_directory(filepath);
 	}
 
-	FileStatus FileSystem::TryOpenFileAndWait(const std::filesystem::path& filepath, uint64_t waitms)
-	{
-		FileStatus fileStatus = TryOpenFile(filepath);
-		if (fileStatus == FileStatus::Locked)
-		{
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(operator""ms((unsigned long long) waitms));
-			return TryOpenFile(filepath);
-		}
-		return fileStatus;
-	}
-
 	// returns true <=> fileA was last modified more recently than fileB
 	bool FileSystem::IsNewer(const std::filesystem::path& fileA, const std::filesystem::path& fileB)
 	{
@@ -121,9 +97,9 @@ namespace Hazel {
 			return false;
 
 #ifdef HZ_PLATFORM_WINDOWS
-		std::string cmd = std::format("explorer.exe /select,\"{0}\"", absolutePath.string());
+		std::string cmd = fmt::format("explorer.exe /select,\"{0}\"", absolutePath.string());
 #elif defined(HZ_PLATFORM_LINUX)
-		std::string cmd = std::format("xdg-open \"{0}\"", dirname(absolutePath.string().data()));
+		std::string cmd = fmt::format("xdg-open \"{0}\"", dirname(absolutePath.string().data()));
 #endif
 		system(cmd.c_str());
 		return true;
@@ -153,7 +129,7 @@ namespace Hazel {
 		ShellExecute(NULL, L"open", absolutePath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		return true;
 #elif defined(HZ_PLATFORM_LINUX)
-		std::string cmd = std::format("xdg-open \"{0}\"", absolutePath.string().data());
+		std::string cmd = fmt::format("xdg-open \"{0}\"", absolutePath.string().data());
 		system(cmd.c_str());
 		return true;
 #endif
@@ -175,10 +151,10 @@ namespace Hazel {
 					return std::to_string(counter);
 			}();  // Pad with 0 if < 10;
 
-			std::string newFileName = std::format("{} ({})", Utils::RemoveExtension(filepath.filename().string()), counterStr);
+			std::string newFileName = fmt::format("{} ({})", Utils::RemoveExtension(filepath.filename().string()), counterStr);
 
 			if (filepath.has_extension())
-				newFileName = std::format("{}{}", newFileName, filepath.extension().string());
+				newFileName = fmt::format("{}{}", newFileName, filepath.extension().string());
 
 			if (std::filesystem::exists(filepath.parent_path() / newFileName))
 				return checkID(checkID);
@@ -187,20 +163,6 @@ namespace Hazel {
 		};
 
 		return checkID(checkID);
-	}
-
-	uint64_t FileSystem::GetLastWriteTime(const std::filesystem::path& filepath)
-	{
-		HZ_CORE_ASSERT(FileSystem::Exists(filepath));
-
-		if (TryOpenFileAndWait(filepath) == FileStatus::Success)
-		{
-			std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(filepath);
-			return std::chrono::duration_cast<std::chrono::seconds>(lastWriteTime.time_since_epoch()).count();
-		}
-
-		HZ_CORE_ERROR("FileSystem::GetLastWriteTime - could not open file: {}", filepath.string());
-		return 0;
 	}
 
 	std::filesystem::path FileSystem::OpenFileDialog(const std::initializer_list<FileDialogFilterItem> inFilters)

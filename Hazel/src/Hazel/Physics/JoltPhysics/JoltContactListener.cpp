@@ -4,21 +4,21 @@
 
 #include "Hazel/Script/ScriptEngine.h"
 
+#include <thread>
+
 namespace Hazel {
 
 	void JoltContactListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
-		Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
-
-		if (!scene->IsPlaying())
+		if (!ScriptEngine::GetSceneContext()->IsPlaying())
 			return;
 
 		OverrideFrictionAndRestitution(inBody1, inBody2, inManifold, ioSettings);
 
 		if (ioSettings.mIsSensor)
-			OnTriggerBegin(scene, inBody1, inBody2, inManifold, ioSettings);
+			OnTriggerBegin(inBody1, inBody2, inManifold, ioSettings); 
 		else
-			OnCollisionBegin(scene, inBody1, inBody2, inManifold, ioSettings);
+			OnCollisionBegin(inBody1, inBody2, inManifold, ioSettings);
 	}
 
 	void JoltContactListener::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
@@ -28,9 +28,7 @@ namespace Hazel {
 
 	void JoltContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
 	{
-		Ref<Scene> scene = ScriptEngine::GetInstance().GetCurrentScene();
-		
-		if (!scene->IsPlaying())
+		if (!ScriptEngine::GetSceneContext()->IsPlaying())
 			return;
 
 		JPH::Body* body1 = m_BodyLockInterface->TryGetBody(inSubShapePair.GetBody1ID());
@@ -41,32 +39,56 @@ namespace Hazel {
 
 		if (body1->IsSensor() || body2->IsSensor())
 		{
-			OnTriggerEnd(scene, *body1, *body2);
+			OnTriggerEnd(*body1, *body2);
 		}
 		else
 		{
-			OnCollisionEnd(scene, *body1, *body2);
+			OnCollisionEnd(*body1, *body2);
 		}
 	}
 
-	void JoltContactListener::OnCollisionBegin(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+	void JoltContactListener::OnCollisionBegin(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
-		m_ContactEventCallback(ContactType::CollisionBegin, inBody1.GetUserData(), inBody2.GetUserData());
+		Entity entity1 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody1.GetUserData());
+		Entity entity2 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody2.GetUserData());
+
+		if (!entity1 || !entity2)
+			return;
+
+		m_ContactEventCallback(ContactType::CollisionBegin, entity1, entity2);
 	}
 
-	void JoltContactListener::OnCollisionEnd(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2)
+	void JoltContactListener::OnCollisionEnd(const JPH::Body& inBody1, const JPH::Body& inBody2)
 	{
-		m_ContactEventCallback(ContactType::CollisionEnd, inBody1.GetUserData(), inBody2.GetUserData());
+		Entity entity1 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody1.GetUserData());
+		Entity entity2 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody2.GetUserData());
+
+		if (!entity1 || !entity2)
+			return;
+
+		m_ContactEventCallback(ContactType::CollisionEnd, entity1, entity2);
 	}
 
-	void JoltContactListener::OnTriggerBegin(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+	void JoltContactListener::OnTriggerBegin(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
-		m_ContactEventCallback(ContactType::TriggerBegin, inBody1.GetUserData(), inBody2.GetUserData());
+		Entity entity1 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody1.GetUserData());
+		Entity entity2 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody2.GetUserData());
+
+		if (!entity1 || !entity2)
+			return;
+
+		m_ContactEventCallback(ContactType::TriggerBegin, entity1, entity2);
 	}
 
-	void JoltContactListener::OnTriggerEnd(Ref<Scene> scene, const JPH::Body& inBody1, const JPH::Body& inBody2)
+	void JoltContactListener::OnTriggerEnd(const JPH::Body& inBody1, const JPH::Body& inBody2)
 	{
-		m_ContactEventCallback(ContactType::TriggerEnd, inBody1.GetUserData(), inBody2.GetUserData());
+		Entity entity1 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody1.GetUserData());
+		Entity entity2 = ScriptEngine::GetSceneContext()->TryGetEntityWithUUID(inBody2.GetUserData());
+
+		if (!entity1 || !entity2)
+			return;
+
+		m_ContactEventCallback(ContactType::TriggerEnd, entity1, entity2);
 	}
 
 	void JoltContactListener::OverrideFrictionAndRestitution(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)

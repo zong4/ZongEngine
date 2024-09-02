@@ -3,7 +3,7 @@
 
 #include <ShlObj.h>
 
-#include <format>
+#include <spdlog/fmt/fmt.h>
 
 namespace Hazel {
 
@@ -12,13 +12,15 @@ namespace Hazel {
 		TCHAR programFilesFilePath[MAX_PATH];
 		SHGetSpecialFolderPath(0, programFilesFilePath, CSIDL_PROGRAM_FILES, FALSE);
 		std::filesystem::path msBuildPath = std::filesystem::path(programFilesFilePath) / "Microsoft Visual Studio" / "2022" / "Community" / "Msbuild" / "Current" / "Bin" / "MSBuild.exe";
-		std::string command = std::format("cd \"{}\" && \"{}\" \"{}\" -property:Configuration=Debug -t:restore,build", filepath.parent_path().string(), msBuildPath.string(), filepath.filename().string());
+
+		std::string command = fmt::format("cd \"{}\" && \"{}\" \"{}\" -property:Configuration=Debug", filepath.parent_path().string(), msBuildPath.string(), filepath.filename());
 		system(command.c_str());
 	}
 
 	void ScriptBuilder::BuildScriptAssembly(Ref<Project> project)
 	{
-		BuildCSProject(project->GetScriptProjectPath());
+		auto projectAssemblyFile = std::filesystem::absolute(Project::GetActive()->GetAssetDirectory() / "Scripts" / (Project::GetProjectName() + ".csproj"));
+		BuildCSProject(projectAssemblyFile);
 	}
 
 }

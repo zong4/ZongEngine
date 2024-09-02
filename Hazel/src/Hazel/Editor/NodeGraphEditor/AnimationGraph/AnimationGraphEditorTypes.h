@@ -18,13 +18,11 @@ namespace Hazel::AnimationGraph {
 			Bool,
 			Int,
 			Float,
-			Vec3,
 			AnimationAsset,
 			String,
 			SkeletonAsset,
 			Enum,
-			Pose,
-			Bone,
+			Pose
 		};
 
 		enum ENodeType : int
@@ -35,14 +33,10 @@ namespace Hazel::AnimationGraph {
 			State,
 			QuickState,
 			Transition,
-			BlendSpace,
-			ConditionalBlend,
-			OneShot,
 		};
 
 		struct TFlow {};
 		struct TEnum { int Underlying = -1; };
-		struct TBone { std::string Name; };
 
 		template<int EType, class TValueType, ImU32 Color = IM_COL32_WHITE>
 		using PinDescr = Hazel::PinDescr<EType, TValueType, Color, EPinType>;
@@ -53,13 +47,11 @@ namespace Hazel::AnimationGraph {
 			PinDescr<EPinType::Bool,           bool,        IM_COL32(220, 48, 48, 255)>,
 			PinDescr<EPinType::Int,            int,         IM_COL32(68, 201, 156, 255)>,
 			PinDescr<EPinType::Float,          float,       IM_COL32(147, 226, 74, 255)>,
-			PinDescr<EPinType::Vec3,           glm::vec3,   IM_COL32(251, 199, 34, 255)>,
 			PinDescr<EPinType::AnimationAsset, UUID,        IM_COL32(51, 150, 215, 255)>,
 			PinDescr<EPinType::String,         std::string, IM_COL32(194, 75, 227, 255)>,
 			PinDescr<EPinType::SkeletonAsset,  UUID,        IM_COL32(215, 150, 51, 255)>,
 			PinDescr<EPinType::Enum,           TEnum,       IM_COL32(2, 92, 48, 255)>,
-			PinDescr<EPinType::Pose,           int64_t,     IM_COL32(255, 255, 0, 255)>,
-			PinDescr<EPinType::Bone,           TBone,       IM_COL32(200, 200, 200, 255)>
+			PinDescr<EPinType::Pose,           int64_t,     IM_COL32(255, 255, 0, 255)>
 		>;
 
 		static inline const TPinTypes s_PinDefaultValues
@@ -68,13 +60,11 @@ namespace Hazel::AnimationGraph {
 			false,
 			0,
 			0.0f,
-			glm::vec3{},
 			0,
 			"",
 			0,
 			TEnum{-1},
-			0,
-			TBone{"root"},
+			0
 		};
 
 		template<typename TValueType>
@@ -158,10 +148,6 @@ namespace Hazel::AnimationGraph {
 				type = EPinType::AnimationAsset;
 			else if (std::is_same_v<TMemberRaw, bool>)
 				type = EPinType::Bool;
-			else if (std::is_same_v<TMemberRaw, glm::vec3>)
-				type = EPinType::Vec3;
-			else if (std::is_same_v<TMemberRaw, std::string>)
-				type = EPinType::String;
 
 			return type;
 		}
@@ -186,10 +172,6 @@ namespace Hazel::AnimationGraph {
 				else if (Utils::IsAssetHandle<AssetType::Skeleton>(type))
 				{
 					pinType = EPinType::SkeletonAsset;
-				}
-				else if(type.isObjectWithClassName(type::type_name<glm::vec3>()))
-				{
-					pinType = EPinType::Vec3;
 				}
 				else if (value.hasObjectMember("Type"))
 				{
@@ -222,26 +204,25 @@ namespace Hazel::AnimationGraph {
 					// compute type id.  Cannot be done in constructor since we do not know node category there.
 					if (Category == "StateMachine")
 					{
-						if      (Name == "State Machine")  TypeID = ENodeType::StateMachine;
-						else if (Name == "State")          TypeID = ENodeType::State;
-						else if (Name == "Quick State")    TypeID = ENodeType::QuickState;
-						else if (Name == "Transition")     TypeID = ENodeType::Transition;
-						else                               HZ_CORE_ASSERT(false, "Unknown node type");
+						if(Name == "State Machine")      TypeID = ENodeType::StateMachine;
+						else if (Name == "State")        TypeID = ENodeType::State;
+						else if (Name == "Quick State")  TypeID = ENodeType::QuickState;
+						else if (Name == "Transition")   TypeID = ENodeType::Transition;
+						else                             HZ_CORE_ASSERT(false, "Unknown node type");
 						
 					}
-					else if (Name == "State Machine")      TypeID = ENodeType::StateMachine;
-					else if (Name == "Blend Space")        TypeID = ENodeType::BlendSpace;
-					else if (Name == "Conditional Blend")  TypeID = ENodeType::ConditionalBlend;
-					else if (Name == "One Shot")           TypeID = ENodeType::OneShot;
-					else                                   TypeID = ENodeType::Animation;
+					else if (Category == "Animation")
+					{
+						if(Name == "State Machine")      TypeID = ENodeType::StateMachine;
+						else                             TypeID = ENodeType::Animation;
+					}
+					else
+					{
+						TypeID = ENodeType::Animation;
+					}
 				}
 				return TypeID;
 			}
-
-		ImVec2 Offset = { 0.0f, 0.0f };
-		ImVec2 Scale = { 1.0f, -1.0f };
-		ImVec2 LerpSecondsPerUnit = { 0.2f, 0.2f };
-		bool ShowDetails = false;
 
 		protected:
 			mutable int TypeID = ENodeType::None;
@@ -284,19 +265,5 @@ namespace Hazel {
 			return {};
 	}
 
-	template<>
-	choc::value::Value ValueFrom(const AnimationGraph::Types::TBone& obj)
-	{
-		return choc::value::createObject(type::type_name<AnimationGraph::Types::TBone>(), "Value", obj.Name);
-	}
-
-	template<>
-	std::optional<AnimationGraph::Types::TBone> CustomValueTo<AnimationGraph::Types::TBone>(choc::value::ValueView customValueObject)
-	{
-		if (customValueObject.isObjectWithClassName(type::type_name<AnimationGraph::Types::TBone>()))
-			return AnimationGraph::Types::TBone{ customValueObject["Value"].get<std::string>() };
-		else
-			return {};
-	}
 
 } // namespace Hazel
