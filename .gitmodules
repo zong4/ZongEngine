@@ -12,6 +12,7 @@
 [submodule "Hazel/vendor/FastNoise"]
 	path = Hazel/vendor/FastNoise
 	url = https://github.com/Auburns/FastNoise
+	branch = FastNoise-Legacy
 [submodule "Hazel/vendor/Box2D"]
 	path = Hazel/vendor/Box2D
 	url = https://github.com/TheCherno/Box2D
