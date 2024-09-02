@@ -25,3 +25,6 @@
 [submodule "Hazel/vendor/tracy/tracy"]
 	path = Hazel/vendor/tracy/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "Hazel/vendor/imgui"]
+	path = Hazel/vendor/imgui
+	url = https://github.com/zong4/imgui
