@@ -1,30 +1,60 @@
-# Hazel
-Hazel Engine private development repository.
+# Hazel [![License](https://img.shields.io/github/license/TheCherno/Hazel.svg)](https://github.com/TheCherno/Hazel/blob/master/LICENSE)
 
-Latest Release: **2024.1**
+![Hazel](/Resources/Branding/Hazel_Logo_Text_Light_Square.png?raw=true "Hazel")
 
-[![Build](https://github.com/StudioCherno/Hazel/actions/workflows/build.yml/badge.svg?branch=2024.1)](https://github.com/StudioCherno/Hazel/actions/workflows/build.yml)
+Hazel is primarily an early-stage interactive application and rendering engine for Windows. Currently not much is implemented, however (almost) everything inside this repository is being created within YouTube videos, found at [thecherno.com/engine](https://thecherno.com/engine). 
 
-## Notes
-As of 2024.1, Hazel has several branches which form specific releases and in-development versions of the engine. Below is an explanation of the commonly used ones, so you can decide what to use.
+***
 
-### `YYYY.VV` (eg. `2024.1`)
-These branches contain QA tested release versions of Hazel. Y = year and V = version, for example **2024.1** is the first release for 2024.
+## Getting Started
+Visual Studio 2017 or 2019 is recommended, Hazel is officially untested on other development environments whilst we focus on a Windows build.
 
-We always recommend using the _latest_ release when starting a new project, or playing around with the engine, unless you specifically want access to in-development, not-yet-completed features that have not been tested and may not be stable.
+<ins>**1. Downloading the repository:**</ins>
 
-These release branches will continue to receive bug fixes for a limited time going forward, but new features will be developed in the `dev` branch and be eventually released as part of a new release.
+Start by cloning the repository with `git clone --recursive https://github.com/TheCherno/Hazel`.
 
-### `dev`
-`dev` is our central development branch for future versions of Hazel - all other branches with work-in-progress (eg. feature/fix branches) are merged into this branch before they eventually make it to release. As such, this branch is **not** guaranteed to be stable, however should compile (see CI badge above for current build status).
+If the repository was cloned non-recursively previously, use `git submodule update --init` to clone the necessary submodules.
 
-If you are a user, this branch will provide you with the newest features and fixes, at the risk of being a little unstable. We usually quickly fix serious issues and crashes on this branch, however for serious project development it's advised you only stay on `dev` if you know what you're doing, and are prepared to take that risk.
+<ins>**2. Configuring the dependencies:**</ins>
 
-Otherwise, a release branch (eg. `2024.1`) contains a version of Hazel which has been QA tested and certified stable, and may be the best option for you if you value stability. Our current release schedule is not set in stone, so releases can be few and far between.
+1. Run the [Setup.bat](https://github.com/TheCherno/Hazel/blob/master/scripts/Setup.bat) file found in `scripts` folder. This will download the required prerequisites for the project if they are not present yet.
+2. One prerequisite is the Vulkan SDK. If it is not installed, the script will execute the `VulkanSDK.exe` file, and will prompt the user to install the SDK.
+3. After installation, run the [Setup.bat](https://github.com/TheCherno/Hazel/blob/master/scripts/Setup.bat) file again. If the Vulkan SDK is installed properly, it will then download the Vulkan SDK Debug libraries. (This may take a longer amount of time)
+4. After downloading and unzipping the files, the [Win-GenProjects.bat](https://github.com/TheCherno/Hazel/blob/master/scripts/Win-GenProjects.bat) script file will get executed automatically, which will then generate a Visual Studio solution file for user's usage.
 
-So in summary:
-- If you want a stable, production-ready version of Hazel - use a release branch such as `2024.1`
-- If you want to try the latest features at the cost of stability - use the `dev` branch
+If changes are made, or if you want to regenerate project files, rerun the [Win-GenProjects.bat](https://github.com/TheCherno/Hazel/blob/master/scripts/Win-GenProjects.bat) script file found in `scripts` folder.
 
- ## Building
- For instructions on how to build Hazel, check out the [Getting Started](https://docs.hazelengine.com/Welcome/GettingStarted) page in Hazel's documentation.
+***
+
+## The Plan
+The plan for Hazel is two-fold: to create a powerful 3D engine, but also to serve as an education tool for teaching game engine design and architecture. Because of this the development inside this repository is rather slow, since everything has to be taught and implemented on-camera. There is a much more advanced version of the engine in a private repository called `Hazel-dev`, accessible to supporters on [Patreon](https://patreon.com/thecherno). The plan for this project is to mostly take already implemented code from the `Hazel-dev` repository and integrate it into this one, done within videos and supported by explanations.
+
+### Main features to come:
+- Fast 2D rendering (UI, particles, sprites, etc.)
+- High-fidelity Physically-Based 3D rendering (this will be expanded later, 2D to come first)
+- Support for Mac, Linux, Android and iOS
+    - Native rendering API support (DirectX, Vulkan, Metal)
+- Fully featured viewer and editor applications
+- Fully scripted interaction and behavior
+- Integrated 3rd party 2D and 3D physics engine
+- Procedural terrain and world generation
+- Artificial Intelligence
+- Audio system
+
+
+## Short term goals :
+*Note: this is subject to change at any time! Follow the roadmap over at [hazelengine.com/roadmap](http://hazelengine.com/roadmap).*
+
+By the end 2020, we want to make a game using the Hazel game engine. Not like the time I made a game in one hour using the engine, but this time by using the proper tools that would be required to make a game with Hazel. This means we need to add a full 2D workflow:
+
+- Design the game scene by using Hazelnut, the Hazel editor,
+- Test the game inside Hazelnut, including the ability to save/load the created game,
+- Load and play the game inside Sandbox.
+
+We want everyone to be able to play the game on all desktop platforms (Windows, Mac and Linux). When this is implemented, another attempt at the "Creating a game in one hour using Hazel" will be made to see how far the engine has become.
+
+[![Twitter](https://img.shields.io/badge/%40thecherno--blue.svg?style=social&logo=Twitter)](https://twitter.com/thecherno)
+[![Instagram](https://img.shields.io/badge/thecherno--red.svg?style=social&logo=Instagram)](https://www.instagram.com/thecherno)
+[![Youtube](https://img.shields.io/badge/TheChernoProject--red.svg?style=social&logo=youtube)](https://www.youtube.com/user/TheChernoProject)
+[![Discord](https://img.shields.io/badge/TheCherno%20Server--blue.svg?style=social&logo=Discord)](https://discord.gg/K2eSyQA)
+[![Patreon](https://img.shields.io/badge/%40thecherno--green.svg?style=social&logo=Patreon)](https://patreon.com/thecherno)
