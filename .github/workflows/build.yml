@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: [ "main" ]
 
 env:
   # Path to the solution file relative to the root of the project.
@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'StudioCherno/Hazel'
+        repository: 'zong4/ZongEngine'
         submodules: recursive
         lfs: true
     - uses: actions/setup-python@v4
@@ -51,7 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: 'StudioCherno/Hazel'
+        repository: 'zong4/ZongEngine'
         submodules: recursive
         lfs: true
     - uses: actions/setup-python@v4
