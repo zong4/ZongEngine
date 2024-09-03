@@ -23,23 +23,23 @@ filter "system:windows"
 		"src/**.hpp", 
 		"src/**.cpp",
 
-		"../Hazel/vendor/yaml-cpp/src/**.cpp",
-		"../Hazel/vendor/yaml-cpp/src/**.h",
-		"../Hazel/vendor/yaml-cpp/include/**.h",
+		"../Engine/vendor/yaml-cpp/src/**.cpp",
+		"../Engine/vendor/yaml-cpp/src/**.h",
+		"../Engine/vendor/yaml-cpp/include/**.h",
 
 		-- Include tiering serialization
-		"../Hazel/src/Hazel/Tiering/TieringSerializer.h",
-		"../Hazel/src/Hazel/Tiering/TieringSerializer.cpp",
-		"../Hazel/src/Hazel/Core/ApplicationSettings.h",
-		"../Hazel/src/Hazel/Core/ApplicationSettings.cpp",
+		"../Engine/src/Hazel/Tiering/TieringSerializer.h",
+		"../Engine/src/Hazel/Tiering/TieringSerializer.cpp",
+		"../Engine/src/Hazel/Core/ApplicationSettings.h",
+		"../Engine/src/Hazel/Core/ApplicationSettings.cpp",
 	}
 	
 	includedirs 
 	{
 		"src",
-		"../Hazel/vendor",
-		"../Hazel/src",
-		"../Hazel/vendor/yaml-cpp/include/",
+		"../Engine/vendor",
+		"../Engine/src",
+		"../Engine/vendor/yaml-cpp/include/",
 		"%{Dependencies.ImGui.IncludeDir}",
 		"%{Dependencies.Vulkan.Windows.IncludeDir}",
 		"%{Dependencies.GLFW.IncludeDir}",

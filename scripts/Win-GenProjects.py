@@ -16,6 +16,7 @@ colorama.init()
 
 # Change from Scripts directory to root
 os.chdir('../')
+os.environ['PROJECT_DIR'] = os.getcwd()
 
 print(f"{Style.BRIGHT}{Back.GREEN}Generating Visual Studio 2022 solution.{Style.RESET_ALL}")
 subprocess.call(["vendor/bin/premake5.exe", "vs2022"])

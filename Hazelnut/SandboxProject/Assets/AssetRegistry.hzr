@@ -380,9 +380,6 @@ Assets:
   - Handle: 6604090733617253686
     FilePath: Animation/m1911.hanimgraph
     Type: AnimationGraph
-  - Handle: 6633676368151804421
-    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
-    Type: ScriptFile
   - Handle: 6702031623914222884
     FilePath: Meshes/Source/Sponza/13824894030729245199.jpg
     Type: Texture
@@ -929,6 +926,9 @@ Assets:
   - Handle: 17618720637158600454
     FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-03.wav
     Type: Audio
+  - Handle: 17644543752990398107
+    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: ScriptFile
   - Handle: 17747240878314774267
     FilePath: Audio/AudioDemo/Rattle L.wav
     Type: Audio
