@@ -1,0 +1,74 @@
+# Binaries
+**/bin/
+!vendor/bin/premake/
+!Engine/vendor/assimp/bin
+!Engine/vendor/mono/bin
+bin-int/
+obj/
+**/cache/**
+**/Cache/**
+Engine/vendor/VulkanSDK
+Hazelnut/Resources/Scripts/Engine-ScriptCore.dll
+Hazelnut/Resources/Scripts/Engine-ScriptCore.pdb
+Hazelnut/Hazelnut
+Intermediates/
+Binaries
+Hazelnut/Resources/Scripts/
+__pycache__
+
+Hazelnut/SandboxProject/Assets/Scripts/Binaries/**
+Hazelnut/SandboxProject/Assets/SoundBank.hsb
+
+# Hazelnut ApplicationSettings
+Hazelnut/Config/ApplicationSettings.yaml
+
+# Hazelnut Folders
+Hazelnut/Captures/
+Hazelnut/Tools/JoltViewer
+
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
+**.nsight-gfxproj
+**.DotSettings
+**.user
+
+.idea/
+Makefile
+*.make
+*.a
+
+Hazelnut/EditorLayout.yaml
+Hazelnut/Config/EditorApplicationSettings.yaml
+
+# LFS Folders
+lfs/
+hooks/
+
+# Meta Files
+**.meta
+
+# Log files
+**.log
+
+# Auto saves
+*.auto
+
+# Dumps
+*.nvdbg
+*.nv-gpudmp
+*gpudmp.json
+
+# Folder Exceptions
+!Hazelnut/SandboxProject/Assets/Scripts/Binaries
+
+# System DLLs
+Hazelnut/SandboxProject/Assets/Scripts/Binaries/System*.dll
+Hazelnut/SandboxProject/Assets/Scripts/Binaries/Microsoft*.dll
+
+# File Exceptions
+!AssetRegistryCache.hzr

@@ -16,7 +16,7 @@ from colorama import Style
 
 # Change from Scripts directory to root
 os.chdir('../')
-os.environ['PROJECT_DIR'] = os.getcwd()
+os.environ['PROJECT_Dir'] = os.getcwd()
 
 colorama.init()
 

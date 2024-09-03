@@ -19,7 +19,7 @@ local function getAssemblyFiles(directory, is_windows)
 end
 
 function linkAppReferences(linkScriptCore)
-	local hazelDir = os.getenv("HAZEL_DIR")
+	local hazelDir = os.getenv("PROJECT_DIR")
 	local monoLibsPath
     local monoLibsFacadesPath
 	local is_windows = os.istarget('windows')

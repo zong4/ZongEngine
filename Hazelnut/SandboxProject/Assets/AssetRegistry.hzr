@@ -380,6 +380,9 @@ Assets:
   - Handle: 6604090733617253686
     FilePath: Animation/m1911.hanimgraph
     Type: AnimationGraph
+  - Handle: 6633676368151804421
+    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: ScriptFile
   - Handle: 6702031623914222884
     FilePath: Meshes/Source/Sponza/13824894030729245199.jpg
     Type: Texture
@@ -596,9 +599,6 @@ Assets:
   - Handle: 11665984590734068069
     FilePath: Meshes/Default/Cone.hsmesh
     Type: StaticMesh
-  - Handle: 11753752363663537579
-    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
-    Type: ScriptFile
   - Handle: 11757411323514812788
     FilePath: env/dikhololo_night_4k.hdr
     Type: EnvMap

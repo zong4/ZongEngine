@@ -1,0 +1,30 @@
+[submodule "Engine/vendor/GLFW"]
+	path = Engine/vendor/GLFW
+	url = https://github.com/TheCherno/glfw
+[submodule "Engine/vendor/glm"]
+	path = Engine/vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "Engine/vendor/FastNoise"]
+	path = Engine/vendor/FastNoise
+	url = https://github.com/Auburns/FastNoise
+	branch = FastNoise-Legacy
+[submodule "Engine/vendor/Box2D"]
+	path = Engine/vendor/Box2D
+	url = https://github.com/TheCherno/Box2D
+	ignore = dirty
+[submodule "Engine/vendor/msdf-atlas-gen"]
+	path = Engine/vendor/msdf-atlas-gen
+	url = https://github.com/TheCherno/msdf-atlas-gen
+	ignore = dirty
+[submodule "Engine/vendor/JoltPhysics/JoltPhysics"]
+	path = Engine/vendor/JoltPhysics/JoltPhysics
+	url = https://github.com/zong4/JoltPhysics
+[submodule "Engine/vendor/NFD-Extended/NFD-Extended"]
+	path = Engine/vendor/NFD-Extended/NFD-Extended
+	url = https://github.com/btzy/nativefiledialog-extended
+[submodule "Engine/vendor/tracy/tracy"]
+	path = Engine/vendor/tracy/tracy
+	url = https://github.com/wolfpld/tracy
+[submodule "Engine/vendor/imgui"]
+	path = Engine/vendor/imgui
+	url = https://github.com/zong4/imgui

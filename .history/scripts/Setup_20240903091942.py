@@ -16,7 +16,7 @@ from colorama import Style
 
 # Change from Scripts directory to root
 os.chdir('../')
-os.environ['PROJECT_DIR'] = os.getcwd()
+os.environ['PROJECT_Dir'] = os.getcwd()
 
 colorama.init()
 
@@ -31,11 +31,11 @@ subprocess.call(["git", "lfs", "pull"])
 subprocess.call(["git", "submodule", "update", "--init", "--recursive"])
 
 if (Utils.IsRunningAsAdmin()):
-    Utils.CreateSymlink('Hazel/vendor/mono/lib/windows/Dist', 'Release')
+    Utils.CreateSymlink('Engine/vendor/mono/lib/windows/Dist', 'Release')
 else:
     print(f"{Style.BRIGHT}{Back.YELLOW}Re-run as admin to create symlinks required for Dist builds.{Style.RESET_ALL}")
 
 print(f"{Style.BRIGHT}{Back.GREEN}Generating Visual Studio 2022 solution.{Style.RESET_ALL}")
 subprocess.call(["vendor/bin/premake5.exe", "vs2022"])
-os.chdir('Hazelnut/SandboxProject')
+os.chdir('Editor/SandboxProject')
 subprocess.call(["../../vendor/bin/premake5.exe", "vs2022"])

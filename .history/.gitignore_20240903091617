@@ -1,0 +1,74 @@
+# Binaries
+**/bin/
+!vendor/bin/premake/
+!Engine/vendor/assimp/bin
+!Engine/vendor/mono/bin
+bin-int/
+obj/
+**/cache/**
+**/Cache/**
+Engine/vendor/VulkanSDK
+Editor/Resources/Scripts/Engine-ScriptCore.dll
+Editor/Resources/Scripts/Engine-ScriptCore.pdb
+Editor/Editor
+Intermediates/
+Binaries
+Editor/Resources/Scripts/
+__pycache__
+
+Editor/SandboxProject/Assets/Scripts/Binaries/**
+Editor/SandboxProject/Assets/SoundBank.hsb
+
+# Editor ApplicationSettings
+Editor/Config/ApplicationSettings.yaml
+
+# Editor Folders
+Editor/Captures/
+Editor/Tools/JoltViewer
+
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
+**.nsight-gfxproj
+**.DotSettings
+**.user
+
+.idea/
+Makefile
+*.make
+*.a
+
+Editor/EditorLayout.yaml
+Editor/Config/EditorApplicationSettings.yaml
+
+# LFS Folders
+lfs/
+hooks/
+
+# Meta Files
+**.meta
+
+# Log files
+**.log
+
+# Auto saves
+*.auto
+
+# Dumps
+*.nvdbg
+*.nv-gpudmp
+*gpudmp.json
+
+# Folder Exceptions
+!Editor/SandboxProject/Assets/Scripts/Binaries
+
+# System DLLs
+Editor/SandboxProject/Assets/Scripts/Binaries/System*.dll
+Editor/SandboxProject/Assets/Scripts/Binaries/Microsoft*.dll
+
+# File Exceptions
+!AssetRegistryCache.hzr
