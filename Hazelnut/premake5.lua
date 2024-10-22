@@ -4,7 +4,7 @@ project "Hazelnut"
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
 
-	links { "Hazel" }
+	links { "Engine" }
 
 	defines { "GLM_FORCE_DEPTH_ZERO_TO_ONE", }
 
@@ -25,8 +25,8 @@ project "Hazelnut"
 	includedirs  {
 		"src/",
 
-		"../Hazel/src/",
-		"../Hazel/vendor/"
+		"../Engine/src/",
+		"../Engine/vendor/"
 	}
 
 	filter "system:windows"
@@ -35,19 +35,19 @@ project "Hazelnut"
 		defines { "HZ_PLATFORM_WINDOWS" }
 
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Engine/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"',
 		}
 
 	filter { "system:windows", "configurations:Debug or configurations:Debug-AS" }
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll" "%{cfg.targetdir}"',
-			'{COPY} "../Hazel/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Engine/vendor/assimp/bin/windows/Debug/assimp-vc143-mtd.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Engine/vendor/mono/bin/Debug/mono-2.0-sgen.dll" "%{cfg.targetdir}"',
 		}
 
 	filter { "system:windows", "configurations:Release or configurations:Dist" }
 		postbuildcommands {
-			'{COPY} "../Hazel/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"',
-			'{COPY} "../Hazel/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
+			'{COPY} "../Engine/vendor/assimp/bin/windows/Release/assimp-vc143-mt.dll" "%{cfg.targetdir}"',
+			'{COPY} "../Engine/vendor/mono/bin/Release/mono-2.0-sgen.dll" "%{cfg.targetdir}"'
 		}
 
 	filter "system:linux"
