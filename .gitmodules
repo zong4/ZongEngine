@@ -11,11 +11,9 @@
 [submodule "Hazel/vendor/Box2D"]
 	path = Hazel/vendor/Box2D
 	url = https://github.com/TheCherno/Box2D
-	ignore = dirty
 [submodule "Hazel/vendor/msdf-atlas-gen"]
 	path = Hazel/vendor/msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
-	ignore = dirty
 [submodule "Hazel/vendor/JoltPhysics/JoltPhysics"]
 	path = Hazel/vendor/JoltPhysics/JoltPhysics
 	url = https://github.com/zong4/JoltPhysics

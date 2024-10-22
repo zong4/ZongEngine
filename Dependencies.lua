@@ -21,7 +21,7 @@ VULKAN_SDK = os.getenv("VULKAN_SDK")
 	}
 
 	MyDepName - This is just for organizational purposes, it doesn't actually matter for the build process
-	LibName - This is the name of the .lib file that you want e.g Editor to link against (you shouldn't include the .lib extension since Linux uses .a)
+	LibName - This is the name of the .lib file that you want e.g Hazelnut to link against (you shouldn't include the .lib extension since Linux uses .a)
 	LibDir - Indicates which directory the lib file is located in, this can include "%{cfg.buildcfg}" if you have a dedicated Debug / Release directory
 	IncludeDir - Pretty self explanatory, the filepath that will be included in externalincludedirs
 	Windows - This defines a platform-specific scope for this dependency, anything defined in that scope will only apply for Windows, you can also add one for Linux
@@ -62,31 +62,31 @@ Dependencies = {
 	},
 	NvidiaAftermath = {
 		LibName = "GFSDK_Aftermath_Lib.x64",
-		IncludeDir = "%{wks.location}/Engine/vendor/NvidiaAftermath/include",
-		Windows = { LibDir = "%{wks.location}/Engine/vendor/NvidiaAftermath/lib/x64/windows/" },
-		Linux = { LibDir = "%{wks.location}/Engine/vendor/NvidiaAftermath/lib/x64/linux/" },
+		IncludeDir = "%{wks.location}/Hazel/vendor/NvidiaAftermath/include",
+		Windows = { LibDir = "%{wks.location}/Hazel/vendor/NvidiaAftermath/lib/x64/windows/" },
+		Linux = { LibDir = "%{wks.location}/Hazel/vendor/NvidiaAftermath/lib/x64/linux/" },
 	},
 	Assimp = {
-		IncludeDir = "%{wks.location}/Engine/vendor/assimp/include",
-		Windows = { LibName = "assimp-vc143-mt", DebugLibName = "assimp-vc143-mtd", LibDir = "%{wks.location}/Engine/vendor/assimp/bin/windows/%{cfg.buildcfg}/" },
-		Linux = { LibName = "assimp", LibDir = "%{wks.location}/Engine/vendor/assimp/bin/linux/" },
+		IncludeDir = "%{wks.location}/Hazel/vendor/assimp/include",
+		Windows = { LibName = "assimp-vc143-mt", DebugLibName = "assimp-vc143-mtd", LibDir = "%{wks.location}/Hazel/vendor/assimp/bin/windows/%{cfg.buildcfg}/" },
+		Linux = { LibName = "assimp", LibDir = "%{wks.location}/Hazel/vendor/assimp/bin/linux/" },
 		Configurations = "Debug,Release"
 	},
 	Mono = {
-		IncludeDir = "%{wks.location}/Engine/vendor/mono/include",
-		Windows = { LibName = "mono-2.0-sgen", LibDir = "%{wks.location}/Engine/vendor/mono/lib/windows/%{cfg.buildcfg}/" },
-		Linux = { LibName = "monosgen-2.0", LibDir = "%{wks.location}/Engine/vendor/mono/lib/linux/" },
+		IncludeDir = "%{wks.location}/Hazel/vendor/mono/include",
+		Windows = { LibName = "mono-2.0-sgen", LibDir = "%{wks.location}/Hazel/vendor/mono/lib/windows/%{cfg.buildcfg}/" },
+		Linux = { LibName = "monosgen-2.0", LibDir = "%{wks.location}/Hazel/vendor/mono/lib/linux/" },
 	},
 	ShaderC = {
 		LibName = "shaderc_shared",
 		Windows = { DebugLibName = "shaderc_sharedd", },
-		IncludeDir = "%{wks.location}/Engine/vendor/shaderc/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/shaderc/include",
 		Configurations = "Debug,Release"
 	},
 	ShaderCUtil = {
 		LibName = "shaderc_util",
 		Windows = { DebugLibName = "shaderc_utild", },
-		IncludeDir = "%{wks.location}/Engine/vendor/shaderc/libshaderc_util/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/shaderc/libshaderc_util/include",
 		Configurations = "Debug,Release"
 	},
 	SPIRVCrossCore = {
@@ -107,68 +107,68 @@ Dependencies = {
 	GLFW = {
 		-- No need to specify LibDir for GLFW since it's automatically handled by premake
 		LibName = "GLFW",
-		IncludeDir = "%{wks.location}/Engine/vendor/GLFW/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/GLFW/include",
 	},
 	GLM = {
-		IncludeDir = "%{wks.location}/Engine/vendor/glm",
+		IncludeDir = "%{wks.location}/Hazel/vendor/glm",
 	},
 	EnTT = {
-		IncludeDir = "%{wks.location}/Engine/vendor/entt/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/entt/include",
 	},
 	ImGui = {
 		LibName = "ImGui",
-		IncludeDir = "%{wks.location}/Engine/vendor/imgui",
+		IncludeDir = "%{wks.location}/Hazel/vendor/imgui",
 	},
 	ImGuiNodeEditor = {
-		IncludeDir = "%{wks.location}/Engine/vendor/imgui-node-editor",
+		IncludeDir = "%{wks.location}/Hazel/vendor/imgui-node-editor",
 	},
 	NFDExtended = {
 		LibName = "NFD-Extended",
-		IncludeDir = "%{wks.location}/Engine/vendor/NFD-Extended/NFD-Extended/src/include"
+		IncludeDir = "%{wks.location}/Hazel/vendor/NFD-Extended/NFD-Extended/src/include"
 	},
 	FastNoise = {
-		IncludeDir = "%{wks.location}/Engine/vendor/FastNoise",
+		IncludeDir = "%{wks.location}/Hazel/vendor/FastNoise",
 	},
 	MiniAudio = {
-		IncludeDir = "%{wks.location}/Engine/vendor/miniaudio/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/miniaudio/include",
 	},
 	Farbot = {
-		IncludeDir = "%{wks.location}/Engine/vendor/farbot/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/farbot/include",
 	},
 	Choc = {
-		IncludeDir = "%{wks.location}/Engine/vendor/choc",
+		IncludeDir = "%{wks.location}/Hazel/vendor/choc",
 	},
 	MagicEnum = {
-		IncludeDir = "%{wks.location}/Engine/vendor/magic_enum/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/magic_enum/include",
 	},
 	Box2D = {
 		LibName = "Box2D",
-		IncludeDir = "%{wks.location}/Engine/vendor/Box2D/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/Box2D/include",
 	},
 	Tracy = {
 		LibName = "Tracy",
-		IncludeDir = "%{wks.location}/Engine/vendor/tracy/tracy/public",
+		IncludeDir = "%{wks.location}/Hazel/vendor/tracy/tracy/public",
 	},
 	JoltPhysics = {
 		LibName = "JoltPhysics",
-		IncludeDir = "%{wks.location}/Engine/vendor/JoltPhysics/JoltPhysics",
+		IncludeDir = "%{wks.location}/Hazel/vendor/JoltPhysics/JoltPhysics",
 	},
 	MSDFAtlasGen = {
 		LibName = "msdf-atlas-gen",
-		IncludeDir = "%{wks.location}/Engine/vendor/msdf-atlas-gen/msdf-atlas-gen",
+		IncludeDir = "%{wks.location}/Hazel/vendor/msdf-atlas-gen/msdf-atlas-gen",
 	},
 	MSDFGen = {
 		LibName = "msdfgen",
-		IncludeDir = "%{wks.location}/Engine/vendor/msdf-atlas-gen/msdfgen",
+		IncludeDir = "%{wks.location}/Hazel/vendor/msdf-atlas-gen/msdfgen",
 	},
 	Freetype = {
 		LibName = "freetype"
 	},
 	STB = {
-		IncludeDir = "%{wks.location}/Engine/vendor/stb/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/stb/include",
 	},
 	YAML_CPP = {
-		IncludeDir = "%{wks.location}/Engine/vendor/yaml-cpp/include",
+		IncludeDir = "%{wks.location}/Hazel/vendor/yaml-cpp/include",
 	},
 	WS2 = {
 		Windows = { LibName = "ws2_32", },
@@ -177,7 +177,7 @@ Dependencies = {
 		Windows = { LibName = "	Dbghelp" },
 	},
 	FileWatch = {
-		IncludeDir = "%{wks.location}/Engine/vendor/filewatch/include"
+		IncludeDir = "%{wks.location}/Hazel/vendor/filewatch/include"
 	},
 }
 
