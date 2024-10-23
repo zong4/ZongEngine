@@ -1,7 +1,7 @@
 FileVersion = 1.2
 
 HazelRootDirectory = os.getenv("PROJECT_DIR")
-include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Hazel.lua"))
+include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Engine.lua"))
 
 workspace "Sandbox"
 	startproject "Sandbox"

@@ -1,6 +1,6 @@
 include "./vendor/premake_customization/solution_items.lua"
 include "Dependencies.lua"
-include "./Editor/Resources/LUA/Hazel.lua"
+include "./Editor/Resources/LUA/Engine.lua"
 
 workspace "Engine"
 	configurations { "Debug", "Debug-AS", "Release", "Dist" }

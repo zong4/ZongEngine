@@ -1,5 +1,5 @@
 HazelRootDirectory = os.getenv("HAZEL_DIR")
-include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Hazel.lua"))
+include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Engine.lua"))
 
 workspace "$PROJECT_NAME$"
 	targetdir "build"

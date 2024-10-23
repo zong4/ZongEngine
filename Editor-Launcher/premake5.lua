@@ -1,4 +1,4 @@
-project "HazelnutLauncher"
+project "Editor-Launcher"
 filter "not system:windows"
     kind "StaticLib"
 filter "system:windows"
