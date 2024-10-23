@@ -1,40 +1,26 @@
 # Binaries
 **/bin/
 !vendor/bin/premake/
-!Hazel/vendor/assimp/bin
-!Hazel/vendor/mono/bin
 !Engine/vendor/assimp/bin
 !Engine/vendor/mono/bin
 bin-int/
 obj/
+
 **/cache/**
 **/Cache/**
+
 Engine/vendor/VulkanSDK
-Hazelnut/Resources/Scripts/Hazel-ScriptCore.dll
-Hazelnut/Resources/Scripts/Hazel-ScriptCore.pdb
-Hazelnut/Resources/Scripts/Engine-ScriptCore.dll
-Hazelnut/Resources/Scripts/Engine-ScriptCore.pdb
-Hazelnut/Hazelnut
-Editor/Resources/Scripts/Hazel-ScriptCore.dll
-Editor/Resources/Scripts/Hazel-ScriptCore.pdb
+
 Editor/Resources/Scripts/Engine-ScriptCore.dll
 Editor/Resources/Scripts/Engine-ScriptCore.pdb
 Editor/Editor
+
 Intermediates/
 Binaries
-Hazelnut/Resources/Scripts/
+
 Editor/Resources/Scripts/
+
 __pycache__
-
-Hazelnut/SandboxProject/Assets/Scripts/Binaries/**
-Hazelnut/SandboxProject/Assets/SoundBank.hsb
-
-# Hazelnut ApplicationSettings
-Hazelnut/Config/ApplicationSettings.yaml
-
-# Hazelnut Folders
-Hazelnut/Captures/
-Hazelnut/Tools/JoltViewer
 
 Editor/SandboxProject/Assets/Scripts/Binaries/**
 Editor/SandboxProject/Assets/SoundBank.hsb
@@ -62,9 +48,6 @@ Makefile
 *.make
 *.a
 
-Hazelnut/EditorLayout.yaml
-Hazelnut/Config/EditorApplicationSettings.yaml
-
 Editor/EditorLayout.yaml
 Editor/Config/EditorApplicationSettings.yaml
 
@@ -85,13 +68,6 @@ hooks/
 *.nvdbg
 *.nv-gpudmp
 *gpudmp.json
-
-# Folder Exceptions
-!Hazelnut/SandboxProject/Assets/Scripts/Binaries
-
-# System DLLs
-Hazelnut/SandboxProject/Assets/Scripts/Binaries/System*.dll
-Hazelnut/SandboxProject/Assets/Scripts/Binaries/Microsoft*.dll
 
 # Folder Exceptions
 !Editor/SandboxProject/Assets/Scripts/Binaries

@@ -455,9 +455,6 @@ Assets:
   - Handle: 8548413365413454451
     FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-04.wav
     Type: Audio
-  - Handle: 8555121465442918637
-    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
-    Type: ScriptFile
   - Handle: 8625676271195271907
     FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-76.wav
     Type: Audio
@@ -527,6 +524,9 @@ Assets:
   - Handle: 10254819538148995611
     FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-11.wav
     Type: Audio
+  - Handle: 10283168278227600818
+    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: ScriptFile
   - Handle: 10305417802510925618
     FilePath: Meshes/Source/Bloom/BloomText.glb
     Type: MeshSource

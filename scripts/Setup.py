@@ -31,7 +31,7 @@ subprocess.call(["git", "lfs", "pull"])
 subprocess.call(["git", "submodule", "update", "--init", "--recursive"])
 
 if (Utils.IsRunningAsAdmin()):
-    Utils.CreateSymlink('Hazel/vendor/mono/lib/windows/Dist', 'Release')
+    Utils.CreateSymlink('Engine/vendor/mono/lib/windows/Dist', 'Release')
 else:
     print(f"{Style.BRIGHT}{Back.YELLOW}Re-run as admin to create symlinks required for Dist builds.{Style.RESET_ALL}")
 

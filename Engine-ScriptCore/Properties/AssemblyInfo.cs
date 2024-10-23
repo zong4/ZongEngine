@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Hazel Script Core")]
+[assembly: AssemblyTitle("Engine Script Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Studio Cherno")]
-[assembly: AssemblyProduct("Hazel")]
+[assembly: AssemblyProduct("Engine")]
 [assembly: AssemblyCopyright("Studio Cherno")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

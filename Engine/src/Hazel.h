@@ -22,7 +22,7 @@
 
 #include "imgui/imgui.h"
 
-// --- Hazel Render API ------------------------------
+// --- Engine Render API ------------------------------
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/Renderer/SceneRenderer.h"
 #include "Engine/Renderer/RenderPass.h"

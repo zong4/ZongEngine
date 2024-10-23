@@ -1,30 +1,30 @@
-[submodule "Hazel/vendor/GLFW"]
+[submodule "Engine/vendor/GLFW"]
 	path = Engine/vendor/GLFW
 	url = https://github.com/TheCherno/glfw
-[submodule "Hazel/vendor/glm"]
+[submodule "Engine/vendor/glm"]
 	path = Engine/vendor/glm
 	url = https://github.com/g-truc/glm
-[submodule "Hazel/vendor/Box2D"]
+[submodule "Engine/vendor/Box2D"]
 	path = Engine/vendor/Box2D
 	url = https://github.com/TheCherno/Box2D
 	ignore = dirty
-[submodule "Hazel/vendor/msdf-atlas-gen"]
+[submodule "Engine/vendor/msdf-atlas-gen"]
 	path = Engine/vendor/msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
 	ignore = dirty
-[submodule "Hazel/vendor/JoltPhysics/JoltPhysics"]
+[submodule "Engine/vendor/JoltPhysics/JoltPhysics"]
 	path = Engine/vendor/JoltPhysics/JoltPhysics
 	url = https://github.com/zong4/JoltPhysics
-[submodule "Hazel/vendor/NFD-Extended/NFD-Extended"]
+[submodule "Engine/vendor/NFD-Extended/NFD-Extended"]
 	path = Engine/vendor/NFD-Extended/NFD-Extended
 	url = https://github.com/btzy/nativefiledialog-extended
-[submodule "Hazel/vendor/tracy/tracy"]
+[submodule "Engine/vendor/tracy/tracy"]
 	path = Engine/vendor/tracy/tracy
 	url = https://github.com/wolfpld/tracy
-[submodule "Hazel/vendor/imgui"]
+[submodule "Engine/vendor/imgui"]
 	path = Engine/vendor/imgui
 	url = https://github.com/zong4/imgui
 	ignore = dirty
-[submodule "Hazel/vendor/FastNoise"]
+[submodule "Engine/vendor/FastNoise"]
 	path = Engine/vendor/FastNoise
 	url = https://github.com/zong4/FastNoiseLite

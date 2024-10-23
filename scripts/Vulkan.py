@@ -15,10 +15,10 @@ from colorama import Back
 from colorama import Style
 
 VULKAN_SDK = os.environ.get('VULKAN_SDK')
-HAZEL_REQUIRED_VULKAN_VERSION = '1.3.' # Any 1.3 version is fine
-HAZEL_INSTALL_VULKAN_VERSION = '1.3.216.0' # Specifically install this one if no 1.3 version is present
-VULKAN_SDK_INSTALLER_URL = f'https://sdk.lunarg.com/sdk/download/{HAZEL_INSTALL_VULKAN_VERSION}/windows/VulkanSDK-{HAZEL_INSTALL_VULKAN_VERSION}-Installer.exe'
-VULKAN_SDK_LOCAL_PATH = 'Hazel/vendor/VulkanSDK'
+ENGINE_REQUIRED_VULKAN_VERSION = '1.3.' # Any 1.3 version is fine
+ENGINE_INSTALL_VULKAN_VERSION = '1.3.216.0' # Specifically install this one if no 1.3 version is present
+VULKAN_SDK_INSTALLER_URL = f'https://sdk.lunarg.com/sdk/download/{ENGINE_INSTALL_VULKAN_VERSION}/windows/VulkanSDK-{ENGINE_INSTALL_VULKAN_VERSION}-Installer.exe'
+VULKAN_SDK_LOCAL_PATH = 'Engine/vendor/VulkanSDK'
 VULKAN_SDK_EXE_PATH = f'{VULKAN_SDK_LOCAL_PATH}/VulkanSDK.exe'
 
 colorama.init()
@@ -45,9 +45,9 @@ def CheckVulkanSDK():
         print(f"{Style.BRIGHT}{Back.RED}You don't have the Vulkan SDK installed!{Style.RESET_ALL}")
         InstallVulkanPrompt()
         return False
-    elif (HAZEL_REQUIRED_VULKAN_VERSION not in VULKAN_SDK):
+    elif (ENGINE_REQUIRED_VULKAN_VERSION not in VULKAN_SDK):
         print(f"Located Vulkan SDK at {VULKAN_SDK}")
-        print(f"{Style.BRIGHT}{Back.RED}You don't have the correct Vulkan SDK version! (Hazel requires {HAZEL_REQUIRED_VULKAN_VERSION}){Style.RESET_ALL}")
+        print(f"{Style.BRIGHT}{Back.RED}You don't have the correct Vulkan SDK version! (Engine requires {ENGINE_REQUIRED_VULKAN_VERSION}){Style.RESET_ALL}")
         InstallVulkanPrompt()
         return False
     
