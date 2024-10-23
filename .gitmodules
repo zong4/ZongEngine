@@ -12,9 +12,6 @@
 	path = Engine/vendor/msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
 	ignore = dirty
-[submodule "Engine/vendor/JoltPhysics/JoltPhysics"]
-	path = Engine/vendor/JoltPhysics/JoltPhysics
-	url = https://github.com/zong4/JoltPhysics
 [submodule "Engine/vendor/NFD-Extended/NFD-Extended"]
 	path = Engine/vendor/NFD-Extended/NFD-Extended
 	url = https://github.com/btzy/nativefiledialog-extended
@@ -28,3 +25,6 @@
 [submodule "Engine/vendor/FastNoise"]
 	path = Engine/vendor/FastNoise
 	url = https://github.com/zong4/FastNoiseLite
+[submodule "Engine/vendor/JoltPhysics/JoltPhysics"]
+	path = Engine/vendor/JoltPhysics/JoltPhysics
+	url = https://github.com/zong4/JoltPhysics
