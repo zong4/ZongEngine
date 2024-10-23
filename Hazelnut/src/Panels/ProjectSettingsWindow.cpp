@@ -1,16 +1,16 @@
 #include "ProjectSettingsWindow.h"
 
-#include "Hazel/ImGui/ImGui.h"
+#include "Engine/ImGui/ImGui.h"
 
-#include "Hazel/Project/ProjectSerializer.h"
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Physics/PhysicsSystem.h"
-#include "Hazel/Physics/PhysicsLayer.h"
-#include "Hazel/Core/Input.h"
-#include "Hazel/Renderer/Renderer.h"
+#include "Engine/Project/ProjectSerializer.h"
+#include "Engine/Asset/AssetManager.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Physics/PhysicsLayer.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Renderer/Renderer.h"
 
-#include "Hazel/Audio/AudioEngine.h"
-#include "Hazel/Audio/DSP/Reverb/Reverb.h"
+#include "Engine/Audio/AudioEngine.h"
+#include "Engine/Audio/DSP/Reverb/Reverb.h"
 
 namespace Hazel {
 

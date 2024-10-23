@@ -7,8 +7,8 @@
 
 #include "Walnut/ImGuiUtilities.h"
 
-#include "Hazel/Tiering/TieringSerializer.h"
-#include "Hazel/Core/ApplicationSettings.h"
+#include "Engine/Tiering/TieringSerializer.h"
+#include "Engine/Core/ApplicationSettings.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>

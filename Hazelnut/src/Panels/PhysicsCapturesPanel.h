@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Editor/EditorPanel.h"
+#include "Engine/Editor/EditorPanel.h"
 
 namespace Hazel {
 

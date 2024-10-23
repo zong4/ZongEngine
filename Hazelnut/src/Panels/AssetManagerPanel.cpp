@@ -1,8 +1,8 @@
 #include "AssetManagerPanel.h"
 
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Asset/AssetRegistry.h"
-#include "Hazel/Asset/AssetManager.h"
+#include "Engine/ImGui/ImGui.h"
+#include "Engine/Asset/AssetRegistry.h"
+#include "Engine/Asset/AssetManager.h"
 
 namespace Hazel {
 

@@ -1,7 +1,7 @@
 #include "hzpch.h"
-#include "Hazel/Core/RenderThread.h"
+#include "Engine/Core/RenderThread.h"
 
-#include "Hazel/Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer.h"
 
 #include <Windows.h>
 

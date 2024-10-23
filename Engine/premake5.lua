@@ -34,7 +34,7 @@ project "Engine"
 
 	defines { "GLM_FORCE_DEPTH_ZERO_TO_ONE", }
 
-	filter "files:vendor/FastNoise/**.cpp or files:vendor/yaml-cpp/src/**.cpp or files:vendor/imgui/misc/cpp/imgui_stdlib.cpp or files:src/Hazel/Tiering/TieringSerializer.cpp or files:src/Hazel/Core/ApplicationSettings.cpp"
+	filter "files:vendor/FastNoise/**.cpp or files:vendor/yaml-cpp/src/**.cpp or files:vendor/imgui/misc/cpp/imgui_stdlib.cpp or files:src/Engine/Tiering/TieringSerializer.cpp or files:src/Engine/Core/ApplicationSettings.cpp"
 	flags { "NoPCH" }
 
 	filter "system:windows"
@@ -75,10 +75,10 @@ project "Engine"
 		defines { "HZ_DIST" }
 
 		removefiles {
-			"src/Hazel/Platform/Vulkan/ShaderCompiler/**.cpp",
-			"src/Hazel/Platform/Vulkan/Debug/**.cpp",
+			"src/Engine/Platform/Vulkan/ShaderCompiler/**.cpp",
+			"src/Engine/Platform/Vulkan/Debug/**.cpp",
 
-			"src/Hazel/Asset/AssimpAnimationImporter.cpp",
-			"src/Hazel/Asset/AssimpMeshImporter.cpp",
+			"src/Engine/Asset/AssimpAnimationImporter.cpp",
+			"src/Engine/Asset/AssimpMeshImporter.cpp",
 		}
 	

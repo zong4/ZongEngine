@@ -3,7 +3,7 @@
 #include "Walnut/Layer.h"
 #include "Walnut/Image.h"
 
-#include "Hazel/Project/TieringSettings.h"
+#include "Engine/Project/TieringSettings.h"
 
 #include <memory>
 #include <set>

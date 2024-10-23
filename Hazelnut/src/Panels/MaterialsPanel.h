@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Hazel/Editor/EditorPanel.h"
-#include "Hazel/Scene/Entity.h"
-#include "Hazel/Renderer/Texture.h"
+#include "Engine/Editor/EditorPanel.h"
+#include "Engine/Scene/Entity.h"
+#include "Engine/Renderer/Texture.h"
 
 namespace Hazel {
 

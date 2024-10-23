@@ -1,5 +1,5 @@
 #include "hzpch.h"
-#include "Hazel/Core/Thread.h"
+#include "Engine/Core/Thread.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <Windows.h>

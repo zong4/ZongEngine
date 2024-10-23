@@ -6,45 +6,45 @@
 #include "Panels/PhysicsStatsPanel.h"
 #include "Panels/SceneRendererPanel.h"
 
-#include "Hazel/Asset/AnimationAssetSerializer.h"
-#include "Hazel/Audio/AudioEngine.h"
-#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
-#include "Hazel/Audio/Editor/AudioEventsEditor.h"
+#include "Engine/Asset/AnimationAssetSerializer.h"
+#include "Engine/Audio/AudioEngine.h"
+#include "Engine/Audio/AudioEvents/AudioCommandRegistry.h"
+#include "Engine/Audio/Editor/AudioEventsEditor.h"
 
-#include "Hazel/Core/Events/EditorEvents.h"
+#include "Engine/Core/Events/EditorEvents.h"
 
-#include "Hazel/Editor/AssetEditorPanel.h"
-#include "Hazel/Editor/EditorApplicationSettings.h"
-#include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h"
-#include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodeEditorModel.h"
-#include "Hazel/Editor/ScriptEngineDebugPanel.h"
-#include "Hazel/Editor/SelectionManager.h"
+#include "Engine/Editor/AssetEditorPanel.h"
+#include "Engine/Editor/EditorApplicationSettings.h"
+#include "Engine/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h"
+#include "Engine/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodeEditorModel.h"
+#include "Engine/Editor/ScriptEngineDebugPanel.h"
+#include "Engine/Editor/SelectionManager.h"
 
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/ImGui/ImGuizmo.h"
+#include "Engine/ImGui/ImGui.h"
+#include "Engine/ImGui/ImGuizmo.h"
 
-#include "Hazel/Math/Math.h"
+#include "Engine/Math/Math.h"
 
-#include "Hazel/Physics/PhysicsLayer.h"
-#include "Hazel/Physics/PhysicsSystem.h"
+#include "Engine/Physics/PhysicsLayer.h"
+#include "Engine/Physics/PhysicsSystem.h"
 
-#include "Hazel/Project/Project.h"
-#include "Hazel/Project/ProjectSerializer.h"
+#include "Engine/Project/Project.h"
+#include "Engine/Project/ProjectSerializer.h"
 
-#include "Hazel/Renderer/Renderer2D.h"
-#include "Hazel/Renderer/RendererAPI.h"
-#include "Hazel/Renderer/ShaderPack.h"
-#include "Hazel/Renderer/RendererStats.h"
+#include "Engine/Renderer/Renderer2D.h"
+#include "Engine/Renderer/RendererAPI.h"
+#include "Engine/Renderer/ShaderPack.h"
+#include "Engine/Renderer/RendererStats.h"
 
-#include "Hazel/Scene/Prefab.h"
+#include "Engine/Scene/Prefab.h"
 
-#include "Hazel/Script/ScriptBuilder.h"
-#include "Hazel/Script/ScriptEngine.h"
+#include "Engine/Script/ScriptBuilder.h"
+#include "Engine/Script/ScriptEngine.h"
 
-#include "Hazel/Serialization/AssetPack.h"
-#include "Hazel/Serialization/TextureRuntimeSerializer.h"
+#include "Engine/Serialization/AssetPack.h"
+#include "Engine/Serialization/TextureRuntimeSerializer.h"
 
-#include "Hazel/Utilities/FileSystem.h"
+#include "Engine/Utilities/FileSystem.h"
 
 #include <GLFW/include/GLFW/glfw3.h>
 

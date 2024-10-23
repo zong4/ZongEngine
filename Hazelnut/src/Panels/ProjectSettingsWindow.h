@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Hazel/Core/Log.h"
-#include "Hazel/Project/Project.h"
-#include "Hazel/Scene/Scene.h"
+#include "Engine/Core/Log.h"
+#include "Engine/Project/Project.h"
+#include "Engine/Scene/Scene.h"
 
-#include "Hazel/Editor/EditorPanel.h"
+#include "Engine/Editor/EditorPanel.h"
 
 namespace Hazel {
 

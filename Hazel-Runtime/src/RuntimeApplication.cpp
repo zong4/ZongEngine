@@ -1,11 +1,11 @@
 #include <Hazel.h>
-#include <Hazel/EntryPoint.h>
+#include <Engine/EntryPoint.h>
 
 #include "RuntimeLayer.h"
 
-#include "Hazel/Renderer/RendererAPI.h"
+#include "Engine/Renderer/RendererAPI.h"
 
-#include "Hazel/Tiering/TieringSerializer.h"
+#include "Engine/Tiering/TieringSerializer.h"
 
 class RuntimeApplication : public Hazel::Application
 {

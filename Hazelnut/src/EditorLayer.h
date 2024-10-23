@@ -2,8 +2,8 @@
 
 #include "Hazel.h"
 
-#include "Hazel/ImGui/ImGuiLayer.h"
-#include "Hazel/Editor/EditorCamera.h"
+#include "Engine/ImGui/ImGuiLayer.h"
+#include "Engine/Editor/EditorCamera.h"
 #include "imgui/imgui_internal.h"
 
 #include <glm/glm.hpp>
@@ -11,18 +11,18 @@
 
 #include <string>
 
-#include "Hazel/Editor/SceneHierarchyPanel.h"
+#include "Engine/Editor/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/ProjectSettingsWindow.h"
 #include "Panels/ApplicationSettingsPanel.h"
-#include "Hazel/Editor/EditorConsolePanel.h"
-#include "Hazel/Editor/ECSDebugPanel.h"
+#include "Engine/Editor/EditorConsolePanel.h"
+#include "Engine/Editor/ECSDebugPanel.h"
 
-#include "Hazel/Editor/PanelManager.h"
+#include "Engine/Editor/PanelManager.h"
 
-#include "Hazel/Project/UserPreferences.h"
+#include "Engine/Project/UserPreferences.h"
 
-#include "Hazel/Renderer/UI/Font.h"
+#include "Engine/Renderer/UI/Font.h"
 
 #include <future>
 

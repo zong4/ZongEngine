@@ -28,10 +28,10 @@ filter "system:windows"
 		"../Engine/vendor/yaml-cpp/include/**.h",
 
 		-- Include tiering serialization
-		"../Engine/src/Hazel/Tiering/TieringSerializer.h",
-		"../Engine/src/Hazel/Tiering/TieringSerializer.cpp",
-		"../Engine/src/Hazel/Core/ApplicationSettings.h",
-		"../Engine/src/Hazel/Core/ApplicationSettings.cpp",
+		"../Engine/src/Engine/Tiering/TieringSerializer.h",
+		"../Engine/src/Engine/Tiering/TieringSerializer.cpp",
+		"../Engine/src/Engine/Core/ApplicationSettings.h",
+		"../Engine/src/Engine/Core/ApplicationSettings.cpp",
 	}
 	
 	includedirs 

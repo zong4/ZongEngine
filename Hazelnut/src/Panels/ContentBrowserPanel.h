@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Renderer/Texture.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Project/Project.h"
-#include "Hazel/Core/Events/KeyEvent.h"
+#include "Engine/Asset/AssetManager.h"
+#include "Engine/Renderer/Texture.h"
+#include "Engine/ImGui/ImGui.h"
+#include "Engine/Project/Project.h"
+#include "Engine/Core/Events/KeyEvent.h"
 
 #include "ContentBrowser/ContentBrowserItem.h"
 
-#include "Hazel/Editor/EditorPanel.h"
+#include "Engine/Editor/EditorPanel.h"
 
 #include <map>
 #include <mutex>

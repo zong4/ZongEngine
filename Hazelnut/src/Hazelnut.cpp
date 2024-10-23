@@ -1,7 +1,7 @@
 #include "EditorLayer.h"
-#include "Hazel/Utilities/FileSystem.h"
+#include "Engine/Utilities/FileSystem.h"
 
-#include "Hazel/EntryPoint.h"
+#include "Engine/EntryPoint.h"
 
 #ifdef HZ_PLATFORM_WINDOWS
 #include <Shlobj.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Hazel/Editor/EditorPanel.h"
-#include "Hazel/Renderer/SceneRenderer.h"
+#include "Engine/Editor/EditorPanel.h"
+#include "Engine/Renderer/SceneRenderer.h"
 
 namespace Hazel {
 

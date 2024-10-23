@@ -2,15 +2,15 @@
 
 #include "Hazel.h"
 
-#include "Hazel/ImGui/ImGuiLayer.h"
-#include "Hazel/Editor/EditorCamera.h"
+#include "Engine/ImGui/ImGuiLayer.h"
+#include "Engine/Editor/EditorCamera.h"
 #include "imgui/imgui_internal.h"
 
 #include <glm/glm.hpp>
 
 #include <string>
 
-#include "Hazel/Editor/SceneHierarchyPanel.h"
+#include "Engine/Editor/SceneHierarchyPanel.h"
 
 namespace Hazel {
 

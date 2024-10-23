@@ -3,17 +3,17 @@
 #include "ContentBrowserItem.h"
 #include "Panels/ContentBrowserPanel.h"
 
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Utilities/FileSystem.h"
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Editor/AssetEditorPanel.h"
-#include "Hazel/Editor/SelectionManager.h"
+#include "Engine/Asset/AssetManager.h"
+#include "Engine/Utilities/FileSystem.h"
+#include "Engine/ImGui/ImGui.h"
+#include "Engine/Editor/AssetEditorPanel.h"
+#include "Engine/Editor/SelectionManager.h"
 
-#include "Hazel/Editor/EditorApplicationSettings.h"
-#include "Hazel/Editor/EditorResources.h"
+#include "Engine/Editor/EditorApplicationSettings.h"
+#include "Engine/Editor/EditorResources.h"
 
 // TEMP
-#include "Hazel/Asset/MeshRuntimeSerializer.h"
+#include "Engine/Asset/MeshRuntimeSerializer.h"
 
 #include "imgui_internal.h"
 

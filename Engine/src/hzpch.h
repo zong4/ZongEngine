@@ -18,13 +18,13 @@
 #include <vector>
 #include <filesystem>
 
-#include <Hazel/Core/Assert.h>
-#include <Hazel/Core/Base.h>
-#include <Hazel/Core/Events/Event.h>
-#include <Hazel/Core/Log.h>
-#include <Hazel/Core/Math/Mat4.h>
-#include <Hazel/Core/Memory.h>
-#include <Hazel/Core/Delegate.h>
+#include <Engine/Core/Assert.h>
+#include <Engine/Core/Base.h>
+#include <Engine/Core/Events/Event.h>
+#include <Engine/Core/Log.h>
+#include <Engine/Core/Math/Mat4.h>
+#include <Engine/Core/Memory.h>
+#include <Engine/Core/Delegate.h>
 
 // Jolt (Safety because this file has to be included before all other Jolt headers, at all times)
 #ifdef HZ_DEBUG // NOTE(Emily): This is a bit of a hacky fix for some dark magic that happens in Jolt

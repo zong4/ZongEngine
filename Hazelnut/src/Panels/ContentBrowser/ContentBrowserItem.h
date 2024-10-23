@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Hazel/Core/Input.h"
-#include "Hazel/Renderer/Texture.h"
-#include "Hazel/Asset/AssetMetadata.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Renderer/Texture.h"
+#include "Engine/Asset/AssetMetadata.h"
 
 #include <filesystem>
 #include <map>

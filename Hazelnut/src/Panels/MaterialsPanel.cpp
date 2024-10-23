@@ -1,10 +1,10 @@
 #include "MaterialsPanel.h"
 
-#include "Hazel/ImGui/ImGui.h"
+#include "Engine/ImGui/ImGui.h"
 
-#include "Hazel/Renderer/Renderer.h"
-#include "Hazel/Asset/AssetManager.h"
-#include "Hazel/Editor/SelectionManager.h"
+#include "Engine/Renderer/Renderer.h"
+#include "Engine/Asset/AssetManager.h"
+#include "Engine/Editor/SelectionManager.h"
 
 namespace Hazel {
 

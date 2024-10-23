@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Hazel/Editor/EditorPanel.h"
-#include "Hazel/Renderer/Texture.h"
+#include "Engine/Editor/EditorPanel.h"
+#include "Engine/Renderer/Texture.h"
 
 #include <functional>
 

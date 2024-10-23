@@ -1,8 +1,8 @@
 #include "PhysicsCapturesPanel.h"
 
-#include "Hazel/Physics/PhysicsSystem.h"
+#include "Engine/Physics/PhysicsSystem.h"
 
-#include "Hazel/ImGui/ImGui.h"
+#include "Engine/ImGui/ImGui.h"
 
 namespace Hazel {
 

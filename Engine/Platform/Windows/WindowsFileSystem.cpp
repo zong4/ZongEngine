@@ -1,8 +1,8 @@
 #include "hzpch.h"
-#include "Hazel/Utilities/FileSystem.h"
-#include "Hazel/Asset/AssetManager.h"
+#include "Engine/Utilities/FileSystem.h"
+#include "Engine/Asset/AssetManager.h"
 
-#include "Hazel/Core/Application.h"
+#include "Engine/Core/Application.h"
 
 #include <GLFW/glfw3.h>
 

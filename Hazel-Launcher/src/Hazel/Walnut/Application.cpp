@@ -66,7 +66,7 @@ static uint32_t s_CurrentFrameIndex = 0;
 static Walnut::Application* s_Instance = nullptr;
 
 namespace Hazel {
-#include "Hazel/Embed/HazelIcon.embed"
+#include "Engine/Embed/HazelIcon.embed"
 }
 
 void check_vk_result(VkResult err)

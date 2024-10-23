@@ -21,7 +21,7 @@ VULKAN_SDK = os.getenv("VULKAN_SDK")
 	}
 
 	MyDepName - This is just for organizational purposes, it doesn't actually matter for the build process
-	LibName - This is the name of the .lib file that you want e.g Hazelnut to link against (you shouldn't include the .lib extension since Linux uses .a)
+	LibName - This is the name of the .lib file that you want e.g Editor to link against (you shouldn't include the .lib extension since Linux uses .a)
 	LibDir - Indicates which directory the lib file is located in, this can include "%{cfg.buildcfg}" if you have a dedicated Debug / Release directory
 	IncludeDir - Pretty self explanatory, the filepath that will be included in externalincludedirs
 	Windows - This defines a platform-specific scope for this dependency, anything defined in that scope will only apply for Windows, you can also add one for Linux

@@ -1,32 +1,32 @@
 #include <cstdlib>
 #include "ContentBrowserPanel.h"
 
-#include "Hazel/Asset/AnimationAssetSerializer.h"
-#include "Hazel/Asset/MeshColliderAsset.h"
+#include "Engine/Asset/AnimationAssetSerializer.h"
+#include "Engine/Asset/MeshColliderAsset.h"
 
-#include "Hazel/Audio/Sound.h"
+#include "Engine/Audio/Sound.h"
 
-#include "Hazel/Core/Application.h"
-#include "Hazel/Core/Input.h"
+#include "Engine/Core/Application.h"
+#include "Engine/Core/Input.h"
 
-#include "Hazel/Editor/AssetEditorPanel.h"
-#include "Hazel/Editor/EditorApplicationSettings.h"
-#include "Hazel/Editor/EditorResources.h"
-#include "Hazel/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h"
-#include "Hazel/Editor/NodeGraphEditor/SoundGraph/SoundGraphAsset.h"
-#include "Hazel/Editor/SelectionManager.h"
+#include "Engine/Editor/AssetEditorPanel.h"
+#include "Engine/Editor/EditorApplicationSettings.h"
+#include "Engine/Editor/EditorResources.h"
+#include "Engine/Editor/NodeGraphEditor/AnimationGraph/AnimationGraphAsset.h"
+#include "Engine/Editor/NodeGraphEditor/SoundGraph/SoundGraphAsset.h"
+#include "Engine/Editor/SelectionManager.h"
 
-#include "Hazel/ImGui/CustomTreeNode.h"
-#include "Hazel/ImGui/ImGuiWidgets.h"
+#include "Engine/ImGui/CustomTreeNode.h"
+#include "Engine/ImGui/ImGuiWidgets.h"
 
-#include "Hazel/Project/Project.h"
+#include "Engine/Project/Project.h"
 
-#include "Hazel/Renderer/MaterialAsset.h"
+#include "Engine/Renderer/MaterialAsset.h"
 
-#include "Hazel/Scene/Entity.h"
-#include "Hazel/Scene/Prefab.h"
+#include "Engine/Scene/Entity.h"
+#include "Engine/Scene/Prefab.h"
 
-#include "Hazel/Utilities/StringUtils.h"
+#include "Engine/Utilities/StringUtils.h"
 
 #include <filesystem>
 #include <imgui_internal.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Hazel/Editor/EditorPanel.h"
-#include "Hazel/Physics/PhysicsScene.h"
+#include "Engine/Editor/EditorPanel.h"
+#include "Engine/Physics/PhysicsScene.h"
 
 namespace Hazel {
 

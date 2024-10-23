@@ -1,9 +1,9 @@
 #include "ApplicationSettingsPanel.h"
 
-#include "Hazel/Editor/EditorApplicationSettings.h"
-#include "Hazel/Editor/EditorResources.h"
+#include "Engine/Editor/EditorApplicationSettings.h"
+#include "Engine/Editor/EditorResources.h"
 
-#include "Hazel/ImGui/ImGui.h"
+#include "Engine/ImGui/ImGui.h"
 
 namespace Hazel {
 

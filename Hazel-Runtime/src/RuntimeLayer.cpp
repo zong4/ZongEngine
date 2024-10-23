@@ -1,25 +1,25 @@
 #include "RuntimeLayer.h"
 
-#include "Hazel/Asset/AssetManager.h"
+#include "Engine/Asset/AssetManager.h"
 
-#include "Hazel/Audio/SoundObject.h"
-#include "Hazel/Audio/AudioEvents/AudioCommandRegistry.h"
+#include "Engine/Audio/SoundObject.h"
+#include "Engine/Audio/AudioEvents/AudioCommandRegistry.h"
 
-#include "Hazel/Core/Input.h"
+#include "Engine/Core/Input.h"
 
-#include "Hazel/Project/Project.h"
-#include "Hazel/Project/ProjectSerializer.h"
+#include "Engine/Project/Project.h"
+#include "Engine/Project/ProjectSerializer.h"
 
-#include "Hazel/Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer.h"
 
-#include "Hazel/Scene/SceneSerializer.h"
-#include "Hazel/Scene/Prefab.h"
+#include "Engine/Scene/SceneSerializer.h"
+#include "Engine/Scene/Prefab.h"
 
-#include "Hazel/Serialization/AssetPack.h"
+#include "Engine/Serialization/AssetPack.h"
 
-#include "Hazel/Script/ScriptEngine.h"
+#include "Engine/Script/ScriptEngine.h"
 
-#include "Hazel/Tiering/TieringSerializer.h"
+#include "Engine/Tiering/TieringSerializer.h"
 
 #include <filesystem>
 

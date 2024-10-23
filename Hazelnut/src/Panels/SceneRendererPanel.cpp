@@ -1,9 +1,9 @@
 #include "SceneRendererPanel.h"
 
-#include "Hazel/Core/Application.h"
-#include "Hazel/Renderer/Renderer.h"
-#include "Hazel/Debug/Profiler.h"
-#include "Hazel/ImGui/ImGui.h"
+#include "Engine/Core/Application.h"
+#include "Engine/Renderer/Renderer.h"
+#include "Engine/Debug/Profiler.h"
+#include "Engine/ImGui/ImGui.h"
 
 #include "imgui/imgui.h"
 

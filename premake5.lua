@@ -4,7 +4,7 @@ include "./Hazelnut/Resources/LUA/Hazel.lua"
 
 workspace "Engine"
 	configurations { "Debug", "Debug-AS", "Release", "Dist" }
-	targetdir "build"
+	targetdir "az"
 	startproject "Hazelnut"
     conformancemode "On"
 

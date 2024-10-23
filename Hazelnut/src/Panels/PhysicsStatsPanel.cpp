@@ -1,7 +1,7 @@
 #include "PhysicsStatsPanel.h"
 
-#include "Hazel/ImGui/ImGui.h"
-#include "Hazel/Debug/Profiler.h"
+#include "Engine/ImGui/ImGui.h"
+#include "Engine/Debug/Profiler.h"
 
 namespace Hazel {
 

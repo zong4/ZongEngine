@@ -1,5 +1,5 @@
 #include "hzpch.h"
-#include "Hazel/Script/ScriptBuilder.h"
+#include "Engine/Script/ScriptBuilder.h"
 
 #include <ShlObj.h>
 
