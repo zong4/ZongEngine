@@ -54,7 +54,7 @@ namespace Hazel {
 
 		auto& settings = EditorApplicationSettings::Get();
 
-		HZ_ENTER_GROUP("Hazelnut");
+		HZ_ENTER_GROUP("Editor");
 		{
 			HZ_READ_VALUE("AdvancedMode", bool, settings.AdvancedMode, false);
 			HZ_READ_VALUE("HighlightUnsetMeshes", bool, settings.HighlightUnsetMeshes, true);
@@ -92,7 +92,7 @@ namespace Hazel {
 		out << YAML::BeginMap;
 		HZ_BEGIN_GROUP("EditorApplicationSettings");
 		{
-			HZ_BEGIN_GROUP("Hazelnut");
+			HZ_BEGIN_GROUP("Editor");
 			{
 				HZ_SERIALIZE_VALUE("AdvancedMode", settings.AdvancedMode);
 				HZ_SERIALIZE_VALUE("HighlightUnsetMeshes", settings.HighlightUnsetMeshes);

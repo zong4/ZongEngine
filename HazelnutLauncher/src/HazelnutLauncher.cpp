@@ -57,10 +57,10 @@ private:
 	#define HZ_BIN_SUFFIX ""
 #endif
 
-		hazelnutProcessInfo.FilePath = hazelDir / "bin" / HZ_BINDIR_PREFIX "-" HZ_BINDIR_PLATFORM "-x86_64" / "Hazelnut" / "Hazelnut" HZ_BIN_SUFFIX;
+		hazelnutProcessInfo.FilePath = hazelDir / "bin" / HZ_BINDIR_PREFIX "-" HZ_BINDIR_PLATFORM "-x86_64" / "Editor" / "Editor" HZ_BIN_SUFFIX;
 
 		hazelnutProcessInfo.CommandLine = projectPath;
-		hazelnutProcessInfo.WorkingDirectory = hazelDir / "Hazelnut";
+		hazelnutProcessInfo.WorkingDirectory = hazelDir / "Editor";
 		hazelnutProcessInfo.Detached = true;
 		Hazel::ProcessHelper::CreateProcess(hazelnutProcessInfo);
 	}
@@ -72,13 +72,13 @@ private:
 Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 {
 	Hazel::ApplicationSpecification specification;
-	specification.Name = "Hazelnut Launcher";
+	specification.Name = "Editor Launcher";
 	specification.WindowWidth = 1280;
 	specification.WindowHeight = 720;
 	specification.VSync = true;
 	specification.StartMaximized = false;
 	specification.Resizable = false;
-	specification.WorkingDirectory = FileSystem::HasEnvironmentVariable("HAZEL_DIR") ? FileSystem::GetEnvironmentVariable("HAZEL_DIR") + "/Hazelnut" : "../Hazelnut";
+	specification.WorkingDirectory = FileSystem::HasEnvironmentVariable("HAZEL_DIR") ? FileSystem::GetEnvironmentVariable("HAZEL_DIR") + "/Editor" : "../Editor";
 
 	return new HazelnutLauncherApplication(specification);
 }

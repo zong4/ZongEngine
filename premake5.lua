@@ -1,11 +1,11 @@
 include "./vendor/premake_customization/solution_items.lua"
 include "Dependencies.lua"
-include "./Hazelnut/Resources/LUA/Hazel.lua"
+include "./Editor/Resources/LUA/Hazel.lua"
 
 workspace "Engine"
 	configurations { "Debug", "Debug-AS", "Release", "Dist" }
 	targetdir "az"
-	startproject "Hazelnut"
+	startproject "Editor"
     conformancemode "On"
 
 	language "C++"
@@ -73,7 +73,7 @@ include "Engine-ScriptCore"
 group ""
 
 group "Tools"
-include "Hazelnut"
+include "Editor"
 group ""
 
 group "Runtime"

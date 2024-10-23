@@ -21,7 +21,7 @@ public:
 	{
 		// Persistent Storage
 		{
-			m_PersistentStoragePath = Hazel::FileSystem::GetPersistentStoragePath() / "Hazelnut";
+			m_PersistentStoragePath = Hazel::FileSystem::GetPersistentStoragePath() / "Editor";
 
 			if (!std::filesystem::exists(m_PersistentStoragePath))
 				std::filesystem::create_directory(m_PersistentStoragePath);
@@ -45,7 +45,7 @@ public:
 		{
 			std::filesystem::path workingDirectory = std::filesystem::current_path();
 
-			if (workingDirectory.stem().string() == "Hazelnut")
+			if (workingDirectory.stem().string() == "Editor")
 				workingDirectory = workingDirectory.parent_path();
 
 			Hazel::FileSystem::SetEnvironmentVariable("HAZEL_DIR", workingDirectory.string());
@@ -67,7 +67,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 		projectPath = argv[1];
 
 	Hazel::ApplicationSpecification specification;
-	specification.Name = "Hazelnut";
+	specification.Name = "Editor";
 	specification.WindowWidth = 1600;
 	specification.WindowHeight = 900;
 	specification.StartMaximized = true;

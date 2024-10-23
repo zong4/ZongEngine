@@ -62,7 +62,7 @@ namespace Hazel {
 		HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &roamingFilePath);
 		HZ_CORE_VERIFY(result == S_OK);
 		s_PersistentStoragePath = roamingFilePath;
-		s_PersistentStoragePath /= "Hazelnut";
+		s_PersistentStoragePath /= "Editor";
 
 		if (!std::filesystem::exists(s_PersistentStoragePath))
 			std::filesystem::create_directory(s_PersistentStoragePath);

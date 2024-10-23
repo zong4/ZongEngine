@@ -58,7 +58,7 @@ namespace Hazel {
 			return s_PersistentStoragePath;
 
 		s_PersistentStoragePath = HasEnvironmentVariable("HAZEL_DIR") ? GetEnvironmentVariable("HAZEL_DIR") : "..";
-		s_PersistentStoragePath /= "Hazelnut";
+		s_PersistentStoragePath /= "Editor";
 
 		if (!std::filesystem::exists(s_PersistentStoragePath))
 			std::filesystem::create_directory(s_PersistentStoragePath);

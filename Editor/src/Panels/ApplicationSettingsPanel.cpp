@@ -9,7 +9,7 @@ namespace Hazel {
 
 	ApplicationSettingsPanel::ApplicationSettingsPanel()
 	{
-		m_Pages.push_back({ "Hazelnut", [this](){ DrawHazelnutPage(); }});
+		m_Pages.push_back({ "Editor", [this](){ DrawHazelnutPage(); }});
 		m_Pages.push_back({ "Scripting", [this](){ DrawScriptingPage(); }});
 		m_Pages.push_back({ "Renderer", [this]() { DrawRendererPage(); } });
 	}
@@ -191,7 +191,7 @@ namespace Hazel {
 
 		UI::BeginPropertyGrid();
 		{
-			saveSettings |= UI::Property("Advanced Mode", editorSettings.AdvancedMode, "Shows hidden options in Hazelnut which can be used to fix things.");
+			saveSettings |= UI::Property("Advanced Mode", editorSettings.AdvancedMode, "Shows hidden options in Editor which can be used to fix things.");
 
 			saveSettings |= UI::Property("Highlight Unset Meshes", editorSettings.HighlightUnsetMeshes, "Highlights Entities a yellow color that have a Mesh or a Static Mesh component but don't have a value set for those Entities.");
 			

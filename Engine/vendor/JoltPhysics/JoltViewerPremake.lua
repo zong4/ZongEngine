@@ -8,7 +8,7 @@ filter "system:windows"
     staticruntime "off"
     --debugdir "JoltPhysics/"
 
-    targetdir "../../../Hazelnut/Tools/JoltViewer"
+    targetdir "../../../Editor/Tools/JoltViewer"
     objdir ("bin/" .. outputdir .. "/%{prj.name}")
 
     files

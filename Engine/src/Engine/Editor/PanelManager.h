@@ -19,7 +19,7 @@ namespace Hazel {
 		bool IsOpen = false;
 	};
 
-	// NOTE(Peter): For now this just corresponds to what menu the panel will be listed in (in Hazelnut)
+	// NOTE(Peter): For now this just corresponds to what menu the panel will be listed in (in Editor)
 	enum class PanelCategory
 	{
 		Edit, View, _COUNT

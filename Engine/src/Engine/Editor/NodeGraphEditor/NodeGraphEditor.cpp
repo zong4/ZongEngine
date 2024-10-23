@@ -243,7 +243,7 @@ namespace Hazel
 		config.UserPointer = this;
 
 		// Limiting to 1:1 doesn't allow sufficient zoom on a high DPI monitor.
-		// Can revisit this if/when Hazelnut properly supports high DPI.
+		// Can revisit this if/when Editor properly supports high DPI.
 		//
 		//// Set up custom zeoom levels
 		//{

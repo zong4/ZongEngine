@@ -1,7 +1,7 @@
 FileVersion = 1.2
 
 HazelRootDirectory = os.getenv("PROJECT_DIR")
-include (path.join(HazelRootDirectory, "Hazelnut", "Resources", "LUA", "Hazel.lua"))
+include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Hazel.lua"))
 
 workspace "Sandbox"
 	startproject "Sandbox"
@@ -14,8 +14,8 @@ project "Engine-ScriptCore"
 	language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("%{HazelRootDirectory}/Hazelnut/Resources/Scripts")
-	objdir ("%{HazelRootDirectory}/Hazelnut/Resources/Scripts/Intermediates")
+	targetdir ("%{HazelRootDirectory}/Editor/Resources/Scripts")
+	objdir ("%{HazelRootDirectory}/Editor/Resources/Scripts/Intermediates")
 
 	files {
 		"%{HazelRootDirectory}/Engine-ScriptCore/Source/**.cs",

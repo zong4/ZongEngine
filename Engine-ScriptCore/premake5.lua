@@ -10,8 +10,8 @@ filter "system:windows"
 
 	linkAppReferences(false)
 
-	targetdir ("../Hazelnut/Resources/Scripts")
-	objdir ("../Hazelnut/Resources/Scripts/Intermediates")
+	targetdir ("../Editor/Resources/Scripts")
+	objdir ("../Editor/Resources/Scripts/Intermediates")
 
 	files 
 	{

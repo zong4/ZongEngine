@@ -346,7 +346,7 @@ namespace Hazel {
 		if (!std::filesystem::exists(projectPath))
 			std::filesystem::create_directories(projectPath);
 
-		std::filesystem::copy(m_Properties.InstallPath + "/Hazelnut/Resources/NewProjectTemplate", projectPath, std::filesystem::copy_options::recursive);
+		std::filesystem::copy(m_Properties.InstallPath + "/Editor/Resources/NewProjectTemplate", projectPath, std::filesystem::copy_options::recursive);
 
 		{
 			// premake5.lua

@@ -1,4 +1,4 @@
-project "Hazelnut"
+project "Editor"
 	kind "ConsoleApp"
 
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")

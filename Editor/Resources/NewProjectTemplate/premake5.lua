@@ -1,5 +1,5 @@
 HazelRootDirectory = os.getenv("HAZEL_DIR")
-include (path.join(HazelRootDirectory, "Hazelnut", "Resources", "LUA", "Hazel.lua"))
+include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Hazel.lua"))
 
 workspace "$PROJECT_NAME$"
 	targetdir "build"
@@ -19,8 +19,8 @@ project "Engine-ScriptCore"
 	language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("%{HazelRootDirectory}/Hazelnut/Resources/Scripts")
-	objdir ("%{HazelRootDirectory}/Hazelnut/Resources/Scripts/Intermediates")
+	targetdir ("%{HazelRootDirectory}/Editor/Resources/Scripts")
+	objdir ("%{HazelRootDirectory}/Editor/Resources/Scripts/Intermediates")
 
 	files
 	{

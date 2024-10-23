@@ -391,7 +391,7 @@ namespace Hazel {
 	{
 		HZ_CORE_VERIFY(RendererAPI::Current() == RendererAPIType::Vulkan, "Only Vulkan is supported!");
 		const std::string rendererAPI = "Vulkan";
-		const std::string title = fmt::format("{0} ({1}) - Hazelnut - {2} ({3}) Renderer: {4}", sceneName, Project::GetActive()->GetConfig().Name, Application::GetPlatformName(), Application::GetConfigurationName(), rendererAPI);
+		const std::string title = fmt::format("{0} ({1}) - Editor - {2} ({3}) Renderer: {4}", sceneName, Project::GetActive()->GetConfig().Name, Application::GetPlatformName(), Application::GetConfigurationName(), rendererAPI);
 		Application::Get().GetWindow().SetTitle(title);
 	}
 
@@ -767,7 +767,7 @@ namespace Hazel {
 		{
 			// Centered Window title
 			ImVec2 currentCursorPos = ImGui::GetCursorPos();
-			const char* title = "Hazelnut 2023.2";
+			const char* title = "Editor 2023.2";
 			ImVec2 textSize = ImGui::CalcTextSize(title);
 			ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() * 0.5f - textSize.x * 0.5f, 2.0f + windowPadding.y + 6.0f));
 			UI::ScopedFont titleBoldFont(UI::Fonts::Get("BoldTitle"));
@@ -1951,7 +1951,7 @@ namespace Hazel {
 		std::filesystem::path hazelRootDirectory = std::filesystem::absolute("./Resources").parent_path().string();
 		std::string hazelRootDirectoryString = hazelRootDirectory.string();
 
-		if (hazelRootDirectory.stem().string() == "Hazelnut")
+		if (hazelRootDirectory.stem().string() == "Editor")
 			hazelRootDirectoryString = hazelRootDirectory.parent_path().string();
 
 		std::replace(hazelRootDirectoryString.begin(), hazelRootDirectoryString.end(), '\\', '/');
@@ -2002,7 +2002,7 @@ namespace Hazel {
 		//NOTE (Tim) : Copying meshes from resources, change this in the future to just a vertex buffer thats built into 
 		//			   the engine since we wouldn't really want to modify these meshes and hence there's no point to have gltf files...
 		{
-			std::filesystem::path originalFilePath = hazelRootDirectoryString + "/Hazelnut/Resources/Meshes/Default";
+			std::filesystem::path originalFilePath = hazelRootDirectoryString + "/Editor/Resources/Meshes/Default";
 			std::filesystem::path targetPath = projectPath / "Assets" / "Meshes" / "Default" / "Source";
 			HZ_CORE_VERIFY(std::filesystem::exists(originalFilePath));
 
@@ -3610,7 +3610,7 @@ namespace Hazel {
 								{
 									UI::Fonts::PushFont("Medium");
 									ImGui::TextUnformatted("Please fix the prefab reference before duplicating the entity.Follow these steps to fix the reference:");
-									ImGui::TextUnformatted("1. Enable \"Advanced Mode\". Navigate to \"Edit\" -> \"Application Settings\" -> \"Hazelnut\" and make sure that \"Advanced Mode\" is checked.");
+									ImGui::TextUnformatted("1. Enable \"Advanced Mode\". Navigate to \"Edit\" -> \"Application Settings\" -> \"Editor\" and make sure that \"Advanced Mode\" is checked.");
 									ImGui::TextUnformatted("2. Navigate to \"View\" -> \"Asset Manager\" and enable \"Allow Editing\".");
 									ImGui::TextUnformatted("3. Search for the prefab by file name.");
 									ImGui::TextUnformatted("4. Copy the Prefab's Handle.");

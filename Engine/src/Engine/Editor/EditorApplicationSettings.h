@@ -12,7 +12,7 @@ namespace Hazel {
 		bool ContentBrowserShowAssetTypes = true;
 		int ContentBrowserThumbnailSize = 128;
 		
-		//---------- Hazelnut ------------
+		//---------- Editor ------------
 		bool AdvancedMode = false;
 		bool HighlightUnsetMeshes = true;
 		float TranslationSnapValue = 0.5f;

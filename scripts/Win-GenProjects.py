@@ -20,5 +20,5 @@ os.environ['PROJECT_DIR'] = os.getcwd()
 
 print(f"{Style.BRIGHT}{Back.GREEN}Generating Visual Studio 2022 solution.{Style.RESET_ALL}")
 subprocess.call(["vendor/bin/premake5.exe", "vs2022"])
-os.chdir('Hazelnut/SandboxProject')
+os.chdir('Editor/SandboxProject')
 subprocess.call(["../../vendor/bin/premake5.exe", "vs2022"])

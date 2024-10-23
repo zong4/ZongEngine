@@ -26,7 +26,7 @@ using System;
 //
 // Camera Controller:
 //    - Mouse changes direction that the camera is facing.
-//    - Escape key: stops camera movement so that you can (for example) fiddle around with settings in Hazelnut.
+//    - Escape key: stops camera movement so that you can (for example) fiddle around with settings in Editor.
 //    - F5 key: resumes camera movement
 //
 namespace ThirdPersonExample

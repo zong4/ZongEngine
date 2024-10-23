@@ -25,10 +25,10 @@ function linkAppReferences(linkScriptCore)
 	local is_windows = os.istarget('windows')
 
 	if is_windows then
-		monoLibsPath = path.join(hazelDir, "Hazelnut", "mono", "lib", "mono", "4.5"):gsub("/", "\\")
+		monoLibsPath = path.join(hazelDir, "Editor", "mono", "lib", "mono", "4.5"):gsub("/", "\\")
 		monoLibsFacadesPath = path.join(monoLibsPath, "Facades"):gsub("/", "\\")
 	else
-		monoLibsPath = path.join(hazelDir, "Hazelnut", "mono", "linux", "lib", "mono", "4.5")
+		monoLibsPath = path.join(hazelDir, "Editor", "mono", "linux", "lib", "mono", "4.5")
 		monoLibsFacadesPath = path.join(monoLibsPath, "Facades")
 	end
 

@@ -61,7 +61,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 
 	// IMPORTANT: Disable for ACTUAL Dist builds
 #ifndef HZ_DIST
-	//specification.WorkingDirectory = "../Hazelnut";
+	//specification.WorkingDirectory = "../Editor";
 #endif
 
 	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Engine-ScriptCore.dll";
