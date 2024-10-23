@@ -182,7 +182,7 @@ namespace Hazel {
 			PNGFileIcon = LoadTexture("ContentBrowser/PNG.png", "PNGFileIcon", spec);
 			JPGFileIcon = LoadTexture("ContentBrowser/JPG.png", "JPGFileIcon", spec);
 			MaterialFileIcon = LoadTexture("ContentBrowser/Material.png", "MaterialFileIcon", spec);
-			SceneFileIcon = LoadTexture("hazel.png", "SceneFileIcon", spec);
+			SceneFileIcon = LoadTexture("Engine.png", "SceneFileIcon", spec);
 			PrefabFileIcon = LoadTexture("ContentBrowser/Prefab.png", "PrefabFileIcon", spec);
 			FontFileIcon = LoadTexture("ContentBrowser/Font.png", "FontFileIcon", spec);
 			AnimationFileIcon = LoadTexture("ContentBrowser/Animation.png", "AnimationFileIcon", spec);

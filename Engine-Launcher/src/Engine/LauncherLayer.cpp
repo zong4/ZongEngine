@@ -20,7 +20,7 @@
 
 using namespace Walnut;
 
-namespace Hazel {
+namespace Engine {
 
 #include "Embed/HazelDefaultLauncherHeaderImage.embed"
 #include "Embed/HazelGradientLogo.embed"

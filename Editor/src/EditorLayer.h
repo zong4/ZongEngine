@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel.h"
+#include "Engine.h"
 
 #include "Engine/ImGui/ImGuiLayer.h"
 #include "Engine/Editor/EditorCamera.h"

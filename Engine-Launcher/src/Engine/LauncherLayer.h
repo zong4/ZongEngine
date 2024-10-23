@@ -9,7 +9,7 @@
 #include <set>
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	struct Resolution
 	{

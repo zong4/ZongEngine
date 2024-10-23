@@ -65,7 +65,7 @@ static uint32_t s_CurrentFrameIndex = 0;
 
 static Walnut::Application* s_Instance = nullptr;
 
-namespace Hazel {
+namespace Engine {
 #include "Engine/Embed/HazelIcon.embed"
 }
 
@@ -478,7 +478,7 @@ namespace Walnut {
 			}
 			else
 			{
-				// Use embedded Hazel icon
+				// Use embedded Engine icon
 				icon.pixels = stbi_load_from_memory(Hazel::g_HazelIconPNG, sizeof(Hazel::g_HazelIconPNG), &icon.width, &icon.height, &channels, 4);
 				glfwSetWindowIcon(m_WindowHandle, 1, &icon);
 				stbi_image_free(icon.pixels);

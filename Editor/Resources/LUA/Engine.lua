@@ -19,16 +19,16 @@ local function getAssemblyFiles(directory, is_windows)
 end
 
 function linkAppReferences(linkScriptCore)
-	local hazelDir = os.getenv("PROJECT_DIR")
+	local engineDir = os.getenv("PROJECT_DIR")
 	local monoLibsPath
     local monoLibsFacadesPath
 	local is_windows = os.istarget('windows')
 
 	if is_windows then
-		monoLibsPath = path.join(hazelDir, "Editor", "mono", "lib", "mono", "4.5"):gsub("/", "\\")
+		monoLibsPath = path.join(engineDir, "Editor", "mono", "lib", "mono", "4.5"):gsub("/", "\\")
 		monoLibsFacadesPath = path.join(monoLibsPath, "Facades"):gsub("/", "\\")
 	else
-		monoLibsPath = path.join(hazelDir, "Editor", "mono", "linux", "lib", "mono", "4.5")
+		monoLibsPath = path.join(engineDir, "Editor", "mono", "linux", "lib", "mono", "4.5")
 		monoLibsFacadesPath = path.join(monoLibsPath, "Facades")
 	end
 
