@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Engine/Utilities/ProcessHelper.h"
 
 // NOTE(Peter): codecvt has *technically* been deprecated, but the C++ committee has said it's still safe and portable to use until a suitable replacement has been found
@@ -69,7 +69,7 @@ namespace Hazel {
 
 	void ProcessHelper::DestroyProcess(UUID inHandle, uint32_t inExitCode)
 	{
-		HZ_CORE_VERIFY(s_WindowsProcessStorage.find(inHandle) != s_WindowsProcessStorage.end(), "Trying to destroy untracked process!");
+		ZONG_CORE_VERIFY(s_WindowsProcessStorage.find(inHandle) != s_WindowsProcessStorage.end(), "Trying to destroy untracked process!");
 		const auto& processInformation = s_WindowsProcessStorage[inHandle];
 		TerminateProcess(processInformation.hProcess, inExitCode);
 		CloseHandle(processInformation.hThread);

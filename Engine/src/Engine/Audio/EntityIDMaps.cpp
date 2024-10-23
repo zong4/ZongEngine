@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "EntityIDMaps.h"
 #include "AudioEvents/CommandID.h"
 
@@ -11,7 +11,7 @@ namespace Hazel
 			return &o->GetComponent<AudioComponent>();
 		else
 		{
-			HZ_CORE_ASSERT("Component was not found in registry");
+			ZONG_CORE_ASSERT("Component was not found in registry");
 			return nullptr;
 		}
 	}
@@ -96,7 +96,7 @@ namespace Hazel
 
 					if(it != trigger->Actions.end())
 					{
-						HZ_CORE_INFO("removed play trigger");
+						ZONG_CORE_INFO("removed play trigger");
 						if (RefreshActions(trigger.get()))
 							commandFullyHandled = true;
 
@@ -145,7 +145,7 @@ namespace Hazel
 			if (itr != objectTriggers->end())
 			{
 				const int num = objectTriggers->end() - itr;
-				HZ_CORE_INFO("Deleting finished commands, removed: {0}", num); //? for soem reasong this throws: itr->get()->DebugName
+				ZONG_CORE_INFO("Deleting finished commands, removed: {0}", num); //? for soem reasong this throws: itr->get()->DebugName
 				objectTriggers->erase(itr, objectTriggers->end());
 
 				commandFullyHandled = true;
@@ -154,7 +154,7 @@ namespace Hazel
 			// If all of the Commands on the object have been handled, remove object entry from the ActiveEvents list
 			if (objectTriggers->empty())
 			{
-				HZ_CORE_INFO("All Commands on object {0} handled.", objectID);
+				ZONG_CORE_INFO("All Commands on object {0} handled.", objectID);
 				delete objectTriggers;
 				m_ActiveCommands.Remove(sceneID, objectID);
 			}
@@ -189,7 +189,7 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
+			ZONG_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
 
 			return m_PlaybackInstances.erase(eventID);
 		}
@@ -198,7 +198,7 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
+			ZONG_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
 
 			auto& sources = m_PlaybackInstances.at(eventID).ActiveSources;
 			sources.push_back(sourceID);
@@ -216,7 +216,7 @@ namespace Hazel
 		{
 			std::shared_lock lock{ m_Mutex };
 
-			//HZ_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
+			//ZONG_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
 
 			if (m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end())
 				return (uint32_t)m_PlaybackInstances.at(eventID).ActiveSources.size();
@@ -228,13 +228,13 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
+			ZONG_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
 
 			auto& sources = m_PlaybackInstances.at(eventID).ActiveSources;
 			auto it = std::find(sources.begin(), sources.end(), sourceID);
 
 			if (it == sources.end())
-				HZ_CORE_ERROR("Audio. EventRegistry. Attempted to remove source that's not associated to any Event in registry.");
+				ZONG_CORE_ERROR("Audio. EventRegistry. Attempted to remove source that's not associated to any Event in registry.");
 			else
 				sources.erase(it);
 
@@ -248,7 +248,7 @@ namespace Hazel
 		{
 			std::shared_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
+			ZONG_CORE_ASSERT(m_PlaybackInstances.find(eventID) != m_PlaybackInstances.end());
 
 			return m_PlaybackInstances.at(eventID);
 		}
@@ -286,7 +286,7 @@ namespace Hazel
 
 				if (std::find(playbacks.begin(), playbacks.end(), eventID) != playbacks.end())
 				{
-					HZ_CORE_ASSERT(false, "EventID already associated to the object.");
+					ZONG_CORE_ASSERT(false, "EventID already associated to the object.");
 					return false;
 				}
 
@@ -304,13 +304,13 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
+			ZONG_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
 
 			auto& events = m_Objects.at(objectID);
 			auto it = std::find(events.begin(), events.end(), eventID);
 
 			if (it == events.end())
-				HZ_CORE_ERROR("Audio. ObjectEventRegistry. Attempted to remove Event that's not associated to any Object in registry.");
+				ZONG_CORE_ERROR("Audio. ObjectEventRegistry. Attempted to remove Event that's not associated to any Object in registry.");
 			else
 				events.erase(it);
 
@@ -327,7 +327,7 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
+			ZONG_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
 
 			return m_Objects.erase(objectID);
 		}
@@ -347,7 +347,7 @@ namespace Hazel
 		{
 			std::shared_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
+			ZONG_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
 
 			return m_Objects.at(objectID);
 		}
@@ -385,7 +385,7 @@ namespace Hazel
 
 				if (std::find(sounds.begin(), sounds.end(), sourceID) != sounds.end())
 				{
-					HZ_CORE_ASSERT(false, "Active Sound already associated to the object.");
+					ZONG_CORE_ASSERT(false, "Active Sound already associated to the object.");
 					return false;
 				}
 
@@ -403,13 +403,13 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
+			ZONG_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
 
 			auto& sounds = m_Objects.at(objectID);
 			auto it = std::find(sounds.begin(), sounds.end(), sourceID);
 
 			if (it == sounds.end())
-				HZ_CORE_ERROR("Audio. ObjectEventRegistry. Attempted to remove Source that's not associated to any Object in registry.");
+				ZONG_CORE_ERROR("Audio. ObjectEventRegistry. Attempted to remove Source that's not associated to any Object in registry.");
 			else
 				sounds.erase(it);
 
@@ -426,7 +426,7 @@ namespace Hazel
 		{
 			std::scoped_lock lock{ m_Mutex };
 
-			HZ_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
+			ZONG_CORE_ASSERT(m_Objects.find(objectID) != m_Objects.end());
 
 			return m_Objects.erase(objectID);
 		}

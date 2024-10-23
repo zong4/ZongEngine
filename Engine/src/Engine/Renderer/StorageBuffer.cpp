@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "StorageBuffer.h"
 
 #include "Engine/Platform/Vulkan/VulkanStorageBuffer.h"
@@ -13,7 +13,7 @@ namespace Hazel {
 			case RendererAPIType::None:     return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanStorageBuffer>::Create(size, specification);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 

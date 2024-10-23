@@ -21,11 +21,11 @@ namespace Hazel {
 
 	void PhysicsStatsPanel::OnImGuiRender(bool& isOpen)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		/*if (ImGui::Begin("Physics Stats", &isOpen) && m_PhysicsScene->IsValid())
 		{
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 			const auto& stats = m_PhysicsScene->GetSimulationStats();
 
 			if (UI::PropertyGridHeader("General Statistics"))

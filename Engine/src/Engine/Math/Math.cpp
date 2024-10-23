@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Math.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -23,13 +23,13 @@ namespace Hazel::Math {
 			return false;
 
 		// Assume matrix is already normalized
-		HZ_CORE_ASSERT(epsilonEqual(LocalMatrix[3][3], static_cast<T>(1), static_cast<T>(0.00001)));
+		ZONG_CORE_ASSERT(epsilonEqual(LocalMatrix[3][3], static_cast<T>(1), static_cast<T>(0.00001)));
 		//for (length_t i = 0; i < 4; ++i)
 		//	for (length_t j = 0; j < 4; ++j)
 		//		LocalMatrix[i][j] /= LocalMatrix[3][3];
 
 		// Ignore perspective
-		HZ_CORE_ASSERT(
+		ZONG_CORE_ASSERT(
 			epsilonEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) &&
 			epsilonEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) &&
 			epsilonEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>())
@@ -120,7 +120,7 @@ namespace Hazel::Math {
 		// Check for a coordinate system flip.  If the determinant
 		// is -1, then negate the matrix and the scaling factors.
 		vec3 Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-		HZ_CORE_ASSERT(dot(Row[0], Pdum3) >= static_cast<T>(0));
+		ZONG_CORE_ASSERT(dot(Row[0], Pdum3) >= static_cast<T>(0));
 #endif
 		//if (dot(Row[0], Pdum3) < 0)
 		//{

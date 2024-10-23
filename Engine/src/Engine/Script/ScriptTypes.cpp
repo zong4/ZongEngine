@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptTypes.h"
 
 #include "ScriptCache.h"

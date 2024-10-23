@@ -168,10 +168,10 @@ namespace Hazel {
 		inline void DumpGPUInfo()
 		{
 			auto& caps = Renderer::GetCapabilities();
-			HZ_CORE_TRACE_TAG("Renderer", "GPU Info:");
-			HZ_CORE_TRACE_TAG("Renderer", "  Vendor: {0}", caps.Vendor);
-			HZ_CORE_TRACE_TAG("Renderer", "  Device: {0}", caps.Device);
-			HZ_CORE_TRACE_TAG("Renderer", "  Version: {0}", caps.Version);
+			ZONG_CORE_TRACE_TAG("Renderer", "GPU Info:");
+			ZONG_CORE_TRACE_TAG("Renderer", "  Vendor: {0}", caps.Vendor);
+			ZONG_CORE_TRACE_TAG("Renderer", "  Device: {0}", caps.Device);
+			ZONG_CORE_TRACE_TAG("Renderer", "  Version: {0}", caps.Version);
 		}
 
 	}

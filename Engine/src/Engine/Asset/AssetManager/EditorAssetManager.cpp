@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "EditorAssetManager.h"
 
 #include "yaml-cpp/yaml.h"
@@ -40,8 +40,8 @@ namespace Hazel {
 
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle assetHandle)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("AssetManager::GetAsset");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("AssetManager::GetAsset");
 
 		if (IsMemoryAsset(assetHandle))
 			return m_MemoryAssets[assetHandle];
@@ -183,7 +183,7 @@ namespace Hazel {
 		auto& metadata = GetMetadataInternal(assetHandle);
 		if (!metadata.IsValid())
 		{
-			HZ_CORE_ERROR("Trying to reload invalid asset");
+			ZONG_CORE_ERROR("Trying to reload invalid asset");
 			return false;
 		}
 
@@ -235,14 +235,14 @@ namespace Hazel {
 
 	void EditorAssetManager::LoadAssetRegistry()
 	{
-		HZ_CORE_INFO("[AssetManager] Loading Asset Registry");
+		ZONG_CORE_INFO("[AssetManager] Loading Asset Registry");
 
 		const auto& assetRegistryPath = Project::GetAssetRegistryPath();
 		if (!FileSystem::Exists(assetRegistryPath))
 			return;
 
 		std::ifstream stream(assetRegistryPath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -250,8 +250,8 @@ namespace Hazel {
 		auto handles = data["Assets"];
 		if (!handles)
 		{
-			HZ_CORE_ERROR("[AssetManager] Asset Registry appears to be corrupted!");
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_ERROR("[AssetManager] Asset Registry appears to be corrupted!");
+			ZONG_CORE_VERIFY(false);
 			return;
 		}
 
@@ -269,13 +269,13 @@ namespace Hazel {
 
 			if (metadata.Type != GetAssetTypeFromPath(filepath))
 			{
-				HZ_CORE_WARN_TAG("AssetManager", "Mismatch between stored AssetType and extension type when reading asset registry!");
+				ZONG_CORE_WARN_TAG("AssetManager", "Mismatch between stored AssetType and extension type when reading asset registry!");
 				metadata.Type = GetAssetTypeFromPath(filepath);
 			}
 
 			if (!FileSystem::Exists(GetFileSystemPath(metadata)))
 			{
-				HZ_CORE_WARN("[AssetManager] Missing asset '{0}' detected in registry file, trying to locate...", metadata.FilePath);
+				ZONG_CORE_WARN("[AssetManager] Missing asset '{0}' detected in registry file, trying to locate...", metadata.FilePath);
 
 				std::string mostLikelyCandidate;
 				uint32_t bestScore = 0;
@@ -288,7 +288,7 @@ namespace Hazel {
 						continue;
 
 					if (bestScore > 0)
-						HZ_CORE_WARN("[AssetManager] Multiple candidates found...");
+						ZONG_CORE_WARN("[AssetManager] Multiple candidates found...");
 
 					std::vector<std::string> candiateParts = Utils::SplitString(path.string(), "/\\");
 
@@ -299,7 +299,7 @@ namespace Hazel {
 							score++;
 					}
 
-					HZ_CORE_WARN("'{0}' has a score of {1}, best score is {2}", path.string(), score, bestScore);
+					ZONG_CORE_WARN("'{0}' has a score of {1}, best score is {2}", path.string(), score, bestScore);
 
 					if (bestScore > 0 && score == bestScore)
 					{
@@ -316,25 +316,25 @@ namespace Hazel {
 
 				if (mostLikelyCandidate.empty() && bestScore == 0)
 				{
-					HZ_CORE_ERROR("[AssetManager] Failed to locate a potential match for '{0}'", metadata.FilePath);
+					ZONG_CORE_ERROR("[AssetManager] Failed to locate a potential match for '{0}'", metadata.FilePath);
 					continue;
 				}
 
 				std::replace(mostLikelyCandidate.begin(), mostLikelyCandidate.end(), '\\', '/');
 				metadata.FilePath = std::filesystem::relative(mostLikelyCandidate, Project::GetActive()->GetAssetDirectory());
-				HZ_CORE_WARN("[AssetManager] Found most likely match '{0}'", metadata.FilePath);
+				ZONG_CORE_WARN("[AssetManager] Found most likely match '{0}'", metadata.FilePath);
 			}
 
 			if (metadata.Handle == 0)
 			{
-				HZ_CORE_WARN("[AssetManager] AssetHandle for {0} is 0, this shouldn't happen.", metadata.FilePath);
+				ZONG_CORE_WARN("[AssetManager] AssetHandle for {0} is 0, this shouldn't happen.", metadata.FilePath);
 				continue;
 			}
 
 			m_AssetRegistry[metadata.Handle] = metadata;
 		}
 
-		HZ_CORE_INFO("[AssetManager] Loaded {0} asset entries", m_AssetRegistry.Count());
+		ZONG_CORE_INFO("[AssetManager] Loaded {0} asset entries", m_AssetRegistry.Count());
 	}
 
 	void EditorAssetManager::ProcessDirectory(const std::filesystem::path& directoryPath)
@@ -377,7 +377,7 @@ namespace Hazel {
 			sortedMap[metadata.Handle] = { pathToSerialize, metadata.Type };
 		}
 
-		HZ_CORE_INFO("[AssetManager] serializing asset registry with {0} entries", sortedMap.size());
+		ZONG_CORE_INFO("[AssetManager] serializing asset registry with {0} entries", sortedMap.size());
 
 		YAML::Emitter out;
 		out << YAML::BeginMap;

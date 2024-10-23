@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Memory.h"
 
 #include <memory>
@@ -51,7 +51,7 @@ namespace Hazel {
 			s_GlobalStats.TotalAllocated += size;
 		}
 
-#if HZ_ENABLE_PROFILING
+#if ZONG_ENABLE_PROFILING
 		TracyAlloc(memory, size);
 #endif
 
@@ -77,7 +77,7 @@ namespace Hazel {
 				s_Data->m_AllocationStatsMap[desc].TotalAllocated += size;
 		}
 
-#if HZ_ENABLE_PROFILING
+#if ZONG_ENABLE_PROFILING
 		TracyAlloc(memory, size);
 #endif
 
@@ -102,7 +102,7 @@ namespace Hazel {
 			s_Data->m_AllocationStatsMap[file].TotalAllocated += size;
 		}
 
-#if HZ_ENABLE_PROFILING
+#if ZONG_ENABLE_PROFILING
 		TracyAlloc(memory, size);
 #endif
 
@@ -131,13 +131,13 @@ namespace Hazel {
 				}
 			}
 
-#if HZ_ENABLE_PROFILING
+#if ZONG_ENABLE_PROFILING
 			TracyFree(memory);
 #endif
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 			if (!found)
-				HZ_CORE_WARN_TAG("Memory", "Memory block {0} not present in alloc map", memory);
+				ZONG_CORE_WARN_TAG("Memory", "Memory block {0} not present in alloc map", memory);
 #endif
 		}
 		
@@ -150,7 +150,7 @@ namespace Hazel {
 	}
 }
 
-#if HZ_TRACK_MEMORY && HZ_PLATFORM_WINDOWS
+#if ZONG_TRACK_MEMORY && ZONG_PLATFORM_WINDOWS
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new(size_t size)

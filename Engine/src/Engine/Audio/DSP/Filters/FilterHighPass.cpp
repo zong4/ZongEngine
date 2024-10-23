@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "FilterHighPass.h"
 
 namespace Hazel::Audio::DSP
@@ -51,13 +51,13 @@ namespace Hazel::Audio::DSP
 
     bool HighPassFilter::Initialize(ma_engine* engine, ma_node_base* nodeToInsertAfter)
     {
-        HZ_CORE_ASSERT(!m_Initialized);
+        ZONG_CORE_ASSERT(!m_Initialized);
 
         auto abortIfFailed = [&](ma_result result, const char* errorMessage) 
         {
             if (result != MA_SUCCESS)
             {
-                HZ_CORE_ASSERT(false && errorMessage);
+                ZONG_CORE_ASSERT(false && errorMessage);
                 Uninitialize();
                 return true;
             }
@@ -91,7 +91,7 @@ namespace Hazel::Audio::DSP
 
         // attach to the output of the node that this filter is connected to
         result = ma_node_attach_output_bus(&m_Node, 0, output, 0);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
         if (abortIfFailed(result, "Node attach failed"))
             return false;
 

@@ -136,7 +136,7 @@ namespace Hazel::UI {
 		ScopedItemFlags& operator=(const ScopedItemFlags&) = delete;
 		ScopedItemFlags(const ImGuiItemFlags flags, const bool enable = true)
 		{
-			HZ_CORE_VERIFY(!(flags & ImGuiItemFlags_Disabled), "We shouldn't use ImGuiItemFlags_Disabled! Use UI::BeginDisabled / UI::EndDisabled instead. It will handle visuals for you.");
+			ZONG_CORE_VERIFY(!(flags & ImGuiItemFlags_Disabled), "We shouldn't use ImGuiItemFlags_Disabled! Use UI::BeginDisabled / UI::EndDisabled instead. It will handle visuals for you.");
 			ImGui::PushItemFlag(flags, enable);
 		}
 		~ScopedItemFlags() { ImGui::PopItemFlag(); }

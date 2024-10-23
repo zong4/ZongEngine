@@ -172,7 +172,7 @@ namespace Hazel {
 		if (!m_UserPreferences->StartupProject.empty())
 			OpenProject(m_UserPreferences->StartupProject);
 		else
-			HZ_CORE_VERIFY(false, "No project provided!");
+			ZONG_CORE_VERIFY(false, "No project provided!");
 
 		if (!Project::GetActive())
 			EmptyProject();
@@ -295,7 +295,7 @@ namespace Hazel {
 	void EditorLayer::BuildShaderPack()
 	{
 		ShaderPack::CreateFromLibrary(Renderer::GetShaderLibrary(), "Resources/ShaderPack.hsp");
-		UI::ShowSimpleMessageBox<HZ_MESSAGE_BOX_OK_BUTTON>(
+		UI::ShowSimpleMessageBox<ZONG_MESSAGE_BOX_OK_BUTTON>(
 			"Created ShaderPack!",
 			"Successfully created shader pack. File Path: {0}", std::filesystem::absolute("Resources/ShaderPack.hsp").string()
 		);
@@ -311,7 +311,7 @@ namespace Hazel {
 		if (m_AssetPackBuildInProgress)
 			return;
 
-		HZ_CONSOLE_LOG_INFO("Building Asset Pack...");
+		ZONG_CONSOLE_LOG_INFO("Building Asset Pack...");
 
 		m_AssetPackBuildProgress = 0.0f;
 
@@ -383,13 +383,13 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_ERROR("Could not deserialize scene {0}", scene);
+			ZONG_CORE_ERROR("Could not deserialize scene {0}", scene);
 		}
 	}
 
 	void EditorLayer::UpdateWindowTitle(const std::string& sceneName)
 	{
-		HZ_CORE_VERIFY(RendererAPI::Current() == RendererAPIType::Vulkan, "Only Vulkan is supported!");
+		ZONG_CORE_VERIFY(RendererAPI::Current() == RendererAPIType::Vulkan, "Only Vulkan is supported!");
 		const std::string rendererAPI = "Vulkan";
 		const std::string title = fmt::format("{0} ({1}) - Editor - {2} ({3}) Renderer: {4}", sceneName, Project::GetActive()->GetConfig().Name, Application::GetPlatformName(), Application::GetConfigurationName(), rendererAPI);
 		Application::Get().GetWindow().SetTitle(title);
@@ -495,7 +495,7 @@ namespace Hazel {
 					if (ImGui::MenuItem("Build Sound Bank"))
 					{
 						if (!MiniAudioEngine::BuildSoundBank())
-							UI::ShowSimpleMessageBox<HZ_MESSAGE_BOX_OK_BUTTON>(":[", "Failed to build Sound Bank.");
+							UI::ShowSimpleMessageBox<ZONG_MESSAGE_BOX_OK_BUTTON>(":[", "Failed to build Sound Bank.");
 					}
 					if (ImGui::MenuItem("Unload Current Sound Bank"))
 					{
@@ -673,7 +673,7 @@ namespace Hazel {
 		// Title bar drag area
 
 		// On Windows we hook into the GLFW win32 window internals
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 
 		ImGui::InvisibleButton("##titleBarDragZone", ImVec2(w - buttonsAreaWidth, titlebarHeight));
 		m_TitleBarHovered = ImGui::IsItemHovered() && (Input::GetCursorMode() != CursorMode::Locked);
@@ -892,7 +892,7 @@ namespace Hazel {
 		if (!maximized && UI::UpdateWindowManualResize(ImGui::GetCurrentWindow(), newSize, newPosition))
 		{
 			// On Windows we hook into the GLFW win32 window internals
-#ifndef HZ_PLATFORM_WINDOWS
+#ifndef ZONG_PLATFORM_WINDOWS
 
 			glfwSetWindowPos(window, newPosition.x, newPosition.y);
 			glfwSetWindowSize(window, newSize.x, newSize.y);
@@ -1315,7 +1315,7 @@ namespace Hazel {
 
 	void EditorLayer::UI_DrawGizmos()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_SelectionMode != SelectionMode::Entity || m_GizmoType == -1)
 			return;
@@ -1329,7 +1329,7 @@ namespace Hazel {
 		ImGuizmo::SetDrawlist();
 		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
-		bool snap = Input::IsKeyDown(HZ_KEY_LEFT_CONTROL);
+		bool snap = Input::IsKeyDown(ZONG_KEY_LEFT_CONTROL);
 
 		float snapValue = GetSnapValue();
 		float snapValues[3] = { snapValue, snapValue, snapValue };
@@ -1682,7 +1682,7 @@ namespace Hazel {
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		switch (m_SceneState)
 		{
@@ -1959,7 +1959,7 @@ namespace Hazel {
 		{
 			// premake5.lua
 			std::ifstream stream(projectPath / "premake5.lua");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();
@@ -1975,7 +1975,7 @@ namespace Hazel {
 		{
 			// Project File
 			std::ifstream stream(projectPath / "Project.hproj");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();
@@ -2004,7 +2004,7 @@ namespace Hazel {
 		{
 			std::filesystem::path originalFilePath = hazelRootDirectoryString + "/Editor/Resources/Meshes/Default";
 			std::filesystem::path targetPath = projectPath / "Assets" / "Meshes" / "Default" / "Source";
-			HZ_CORE_VERIFY(std::filesystem::exists(originalFilePath));
+			ZONG_CORE_VERIFY(std::filesystem::exists(originalFilePath));
 
 			for (const auto& dirEntry : std::filesystem::directory_iterator(originalFilePath))
 				std::filesystem::copy(dirEntry.path(), targetPath);
@@ -2055,7 +2055,7 @@ namespace Hazel {
 		{
 			// premake5.lua
 			std::ifstream stream(Project::GetProjectDirectory() / "premake5.lua");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();
@@ -2105,7 +2105,7 @@ namespace Hazel {
 	{
 		if (!FileSystem::Exists(filepath))
 		{
-			HZ_CORE_ERROR("Tried to open a project that doesn't exist. Project path: {0}", filepath);
+			ZONG_CORE_ERROR("Tried to open a project that doesn't exist. Project path: {0}", filepath);
 			memset(s_OpenProjectFilePathBuffer, 0, MAX_PROJECT_FILEPATH_LENGTH);
 			return;
 		}
@@ -2132,11 +2132,11 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CONSOLE_LOG_WARN("No C# assembly has been provided in the Project Settings, or it wasn't found. Please make sure to build the Visual Studio Solution for this project if you want to use C# scripts!");
+			ZONG_CONSOLE_LOG_WARN("No C# assembly has been provided in the Project Settings, or it wasn't found. Please make sure to build the Visual Studio Solution for this project if you want to use C# scripts!");
 			std::string path = appAssemblyPath.string();
 			if (path.empty())
 				path = "<empty>";
-			HZ_CONSOLE_LOG_WARN("App Assembly Path = {}", path);
+			ZONG_CONSOLE_LOG_WARN("App Assembly Path = {}", path);
 		}
 
 		m_PanelManager->OnProjectChanged(project);
@@ -2170,7 +2170,7 @@ namespace Hazel {
 	void EditorLayer::SaveProject()
 	{
 		if (!Project::GetActive())
-			HZ_CORE_VERIFY(false); // TODO
+			ZONG_CORE_VERIFY(false); // TODO
 
 		auto project = Project::GetActive();
 		ProjectSerializer serializer(project);
@@ -2202,7 +2202,7 @@ namespace Hazel {
 		m_CurrentScene = nullptr;
 
 		// Check that m_EditorScene is the last one (so setting it null here will destroy the scene)
-		HZ_CORE_ASSERT(m_EditorScene->GetRefCount() == 1, "Scene will not be destroyed after project is closed - something is still holding scene refs!");
+		ZONG_CORE_ASSERT(m_EditorScene->GetRefCount() == 1, "Scene will not be destroyed after project is closed - something is still holding scene refs!");
 		m_EditorScene = nullptr;
 
 		PhysicsLayerManager::ClearLayers();
@@ -2246,7 +2246,7 @@ namespace Hazel {
 	{
 		if (!FileSystem::Exists(filepath))
 		{
-			HZ_CORE_ERROR("Tried loading a non-existing scene: {0}", filepath);
+			ZONG_CORE_ERROR("Tried loading a non-existing scene: {0}", filepath);
 			return false;
 		}
 
@@ -2441,11 +2441,11 @@ namespace Hazel {
 					// note: result is currently always nullptr, but the point is that if there was an exception during asset pack build, get() propagates that exception.
 					auto result = m_AssetPackFuture.get();
 					m_AssetPackBuildMessage = "Asset Pack build done!";
-					HZ_CONSOLE_LOG_INFO(m_AssetPackBuildMessage);
+					ZONG_CONSOLE_LOG_INFO(m_AssetPackBuildMessage);
 				}
 				catch (...) {
 					m_AssetPackBuildMessage = "Asset pack build failed!";
-					HZ_CONSOLE_LOG_ERROR(m_AssetPackBuildMessage);
+					ZONG_CONSOLE_LOG_ERROR(m_AssetPackBuildMessage);
 				}
 				if (m_AssetPackThread.joinable())
 					m_AssetPackThread.join();
@@ -2496,7 +2496,7 @@ namespace Hazel {
 		gridColumn0Widths.clear();
 		gridColumn0Widths.resize(4 + m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames().size(), maxAssetPathWidth);
 
-		HZ_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate);
+		ZONG_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate);
 
 		UI::ShowMessageBox("Create New Mesh", [this, meshAssetPathLabel, skeletonAssetPathLabel, animationAssetPathLabel, graphAssetPathLabel]()
 		{
@@ -2894,7 +2894,7 @@ namespace Hazel {
 				{
 					if (doImportAnimations[i])
 					{
-						HZ_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames().size() > i);
+						ZONG_CORE_ASSERT(m_CreateNewMeshPopupData.MeshToCreate->GetAnimationNames().size() > i);
 						std::string serializePath = m_CreateNewMeshPopupData.CreateAnimationFilenameBuffer[i].data();
 						std::filesystem::path path = Project::GetActive()->GetAnimationPath() / serializePath;
 						if (!FileSystem::Exists(path.parent_path()))
@@ -2907,7 +2907,7 @@ namespace Hazel {
 						else
 						{
 							auto skeletonAsset = AssetManager::GetAsset<SkeletonAsset>(skeletonAssets[i]);
-							HZ_CORE_ASSERT(skeletonAsset && skeletonAsset->IsValid());
+							ZONG_CORE_ASSERT(skeletonAsset && skeletonAsset->IsValid());
 							skeletonAssets[i] = skeletonAsset->GetMeshSource()->Handle;
 						}
 						auto animationSource = AssetManager::GetAsset<MeshSource>(assetData.Handle);
@@ -3163,7 +3163,7 @@ namespace Hazel {
 				}
 				if (ImGui::BeginTabItem("Memory"))
 				{
-#if HZ_TRACK_MEMORY
+#if ZONG_TRACK_MEMORY
 					const auto& allocStats = Memory::GetAllocationStats();
 					const auto& allocStatsMap = Allocator::GetAllocationStats();
 
@@ -3223,7 +3223,7 @@ namespace Hazel {
 						}
 					}
 #else
-					ImGui::TextColored(ImVec4(0.9f, 0.35f, 0.3f, 1.0f), "Memory is not being tracked because HZ_TRACK_MEMORY is not defined!");
+					ImGui::TextColored(ImVec4(0.9f, 0.35f, 0.3f, 1.0f), "Memory is not being tracked because ZONG_TRACK_MEMORY is not defined!");
 #endif
 
 					ImGui::EndTabItem();
@@ -3259,7 +3259,7 @@ namespace Hazel {
 
 	void EditorLayer::OnImGuiRender()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// ImGui + Dockspace Setup ------------------------------------------------------------------------------
 		ImGuiIO& io = ImGui::GetIO();
@@ -3294,7 +3294,7 @@ namespace Hazel {
 		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		bool isMaximized = (bool)glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, isMaximized ? ImVec2(6.0f, 6.0f) : ImVec2(1.0f, 1.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 3.0f);
 #else
@@ -3585,7 +3585,7 @@ namespace Hazel {
 			}
 		}
 
-		if (Input::IsKeyDown(HZ_KEY_LEFT_CONTROL) && !Input::IsMouseButtonDown(MouseButton::Right))
+		if (Input::IsKeyDown(ZONG_KEY_LEFT_CONTROL) && !Input::IsMouseButtonDown(MouseButton::Right))
 		{
 			switch (e.GetKeyCode())
 			{
@@ -3657,7 +3657,7 @@ namespace Hazel {
 					break;
 			}
 
-			if (Input::IsKeyDown(HZ_KEY_LEFT_SHIFT))
+			if (Input::IsKeyDown(ZONG_KEY_LEFT_SHIFT))
 			{
 				switch (e.GetKeyCode())
 				{
@@ -3671,7 +3671,7 @@ namespace Hazel {
 		if (m_SceneState == SceneState::Play && e.GetKeyCode() == KeyCode::Escape)
 			Input::SetCursorMode(CursorMode::Normal);
 
-		if (m_SceneState == SceneState::Play && Input::IsKeyDown(HZ_KEY_LEFT_ALT))
+		if (m_SceneState == SceneState::Play && Input::IsKeyDown(ZONG_KEY_LEFT_ALT))
 		{
 			if (e.GetRepeatCount() == 0)
 			{

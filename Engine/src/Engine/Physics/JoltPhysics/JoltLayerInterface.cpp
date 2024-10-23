@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltLayerInterface.h"
 
 namespace Hazel {
@@ -14,7 +14,7 @@ namespace Hazel {
 
 	JPH::BroadPhaseLayer JoltLayerInterface::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
 	{
-		HZ_CORE_VERIFY(inLayer < m_BroadPhaseLayers.size());
+		ZONG_CORE_VERIFY(inLayer < m_BroadPhaseLayers.size());
 		return m_BroadPhaseLayers[inLayer];
 	}
 

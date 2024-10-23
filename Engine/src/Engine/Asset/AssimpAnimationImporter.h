@@ -11,7 +11,7 @@
 
 namespace Hazel::AssimpAnimationImporter {
 
-#ifdef HZ_DIST
+#ifdef ZONG_DIST
 	Scope<Skeleton> ImportSkeleton(const std::string_view filename) { return nullptr; }
 	Scope<Skeleton> ImportSkeleton(const aiScene* scene) { return nullptr; }
 

@@ -483,12 +483,12 @@ namespace Hazel {
 					}
 					else
 					{
-						HZ_CORE_ERROR("SpawnNodeStatic() - Category {0} does not contain node type {1}", category, type);
+						ZONG_CORE_ERROR("SpawnNodeStatic() - Category {0} does not contain node type {1}", category, type);
 						return nullptr;
 					}
 				}
 
-				HZ_CORE_ERROR("SpawnNodeStatic() - Category {0} does not exist", category);
+				ZONG_CORE_ERROR("SpawnNodeStatic() - Category {0} does not exist", category);
 				return nullptr;
 //				return T::SpawnNodeStatic();
 			}
@@ -498,8 +498,8 @@ namespace Hazel {
 			static const std::vector<Token>* GetEnumTokens(std::string_view nodeName, std::string_view memberName)
 			{
 				// Passed in names must not contain namespace
-				HZ_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
-				HZ_CORE_ASSERT(memberName.find("::") == std::string_view::npos);
+				ZONG_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
+				ZONG_CORE_ASSERT(memberName.find("::") == std::string_view::npos);
 
 				// TODO: for now this is specific to SoundGraph nodes
 				const std::string fullName = choc::text::template joinStrings<std::array<std::string_view, 2>>({ Utils::CreateUserFriendlyTypeName(nodeName), Utils::RemovePrefixAndSuffix(memberName) }, "::");
@@ -514,7 +514,7 @@ namespace Hazel {
 		inline std::string SanitizeMemberName(std::string_view name, bool removePrefixAndSuffix = false)
 		{
 			std::vector<std::string> tokens = Utils::SplitString(name, "::");
-			HZ_CORE_ASSERT(tokens.size() >= 2);
+			ZONG_CORE_ASSERT(tokens.size() >= 2);
 
 			std::array<std::string, 2> validTokens = {
 				*(tokens.rbegin() + 1),

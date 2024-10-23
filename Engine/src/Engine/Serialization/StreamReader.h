@@ -23,7 +23,7 @@ namespace Hazel
 		void ReadRaw(T& type)
 		{
 			bool success = ReadData((char*)&type, sizeof(T));
-			HZ_CORE_ASSERT(success);
+			ZONG_CORE_ASSERT(success);
 		}
 
 		template<typename T>

@@ -140,7 +140,7 @@ uint XeGTAO_EncodeVisibilityBentNormal(lpfloat visibility, lpfloat3 bentNormal)
 void XeGTAO_OutputWorkingTerm(const uint2 pixCoord, lpfloat visibility, lpfloat3 bentNormal, RWTexture2D<uint> o_AOwBentNormals)
 {
     visibility = (lpfloat)saturate(visibility / XE_GTAO_OCCLUSION_TERM_SCALE);
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
     o_AOwBentNormals[pixCoord] = XeGTAO_EncodeVisibilityBentNormal(visibility, bentNormal);
 #else
     o_AOwBentNormals[pixCoord] = uint(visibility * 255.0 + 0.5);
@@ -254,7 +254,7 @@ void XeGTAO_MainPass(const int2 outputPixCoord, const int2 inputPixCoords, lpflo
     const lpfloat falloffAdd = falloffFrom / (falloffRange)+(lpfloat)1.0;
 
     lpfloat visibility = 0;
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
     lpfloat3 bentNormal = 0;
 #else
     lpfloat3 bentNormal = viewspaceNormal;
@@ -432,7 +432,7 @@ void XeGTAO_MainPass(const int2 outputPixCoord, const int2 inputPixCoords, lpflo
             lpfloat localVisibility = (lpfloat)projectedNormalVecLength * (lpfloat)(iarc0 + iarc1);
             visibility += localVisibility;
 
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
             // see "Algorithm 2 Extension that computes bent normals b."
             lpfloat t0 = (6 * sin(h0 - n) - sin(3 * h0 - n) + 6 * sin(h1 - n) - sin(3 * h1 - n) + 16 * sin(n) - 3 * (sin(h0 + n) + sin(h1 + n))) / 12;
             lpfloat t1 = (-cos(3 * h0 - n) - cos(3 * h1 - n) + 8 * cos(n) - 3 * (cos(h0 + n) + cos(h1 + n))) / 12;
@@ -445,7 +445,7 @@ void XeGTAO_MainPass(const int2 outputPixCoord, const int2 inputPixCoords, lpflo
         visibility = (lpfloat)pow(visibility, (lpfloat)u_GTAOConsts.FinalValuePower * lerp(1.0f, (lpfloat)u_GTAOConsts.ShadowTolerance, viewspaceNormalLuminance.a));
         visibility = max((lpfloat)0.03, visibility); // disallow total occlusion (which wouldn't make any sense anyhow since pixel is visible but also helps with packing bent normals)
 
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
         bentNormal = normalize(bentNormal);
 #endif
     }

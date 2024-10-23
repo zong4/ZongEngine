@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationGraphNodes.h"
 
 #include "Engine/Utilities/StringUtils.h"
@@ -143,8 +143,8 @@ namespace Hazel::AnimationGraph {
 	std::optional<choc::value::Value> GetPinDefaultValueOverride(std::string_view nodeName, std::string_view memberNameSanitized)
 	{
 		// Passed in names must not contain namespace
-		HZ_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
-		HZ_CORE_ASSERT(memberNameSanitized.find("::") == std::string_view::npos);
+		ZONG_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
+		ZONG_CORE_ASSERT(memberNameSanitized.find("::") == std::string_view::npos);
 
 		const std::string fullName = choc::text::joinStrings<std::array<std::string_view, 2>>({ nodeName, memberNameSanitized }, "::");
 		if (!DefaultPinValues.count(fullName))
@@ -160,8 +160,8 @@ namespace Hazel::AnimationGraph {
 	std::optional<Types::EPinType> GetPinTypeForMemberOverride(std::string_view nodeName, std::string_view memberNameSanitized)
 	{
 		// Passed in names must not contain namespace
-		HZ_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
-		HZ_CORE_ASSERT(memberNameSanitized.find("::") == std::string_view::npos);
+		ZONG_CORE_ASSERT(nodeName.find("::") == std::string_view::npos);
+		ZONG_CORE_ASSERT(memberNameSanitized.find("::") == std::string_view::npos);
 
 		const std::string fullName = choc::text::joinStrings<std::array<std::string_view, 2>>({ nodeName, memberNameSanitized }, "::");
 		if (!PinTypeOverrides.count(fullName))
@@ -173,8 +173,8 @@ namespace Hazel::AnimationGraph {
 
 	Node* AnimationGraphNodeFactory::SpawnGraphPropertyNode(const Ref<AnimationGraphAsset>& graph, std::string_view propertyName, EPropertyType type, std::optional<bool> isLocalVarGetter)
 	{
-		HZ_CORE_ASSERT(graph);
-		HZ_CORE_ASSERT(((type != EPropertyType::LocalVariable) ^ isLocalVarGetter.has_value()), "'isLocalVarGetter' property must be set if 'type' is 'LocalVariable'");
+		ZONG_CORE_ASSERT(graph);
+		ZONG_CORE_ASSERT(((type != EPropertyType::LocalVariable) ^ isLocalVarGetter.has_value()), "'isLocalVarGetter' property must be set if 'type' is 'LocalVariable'");
 
 		const bool isLocalVariable = isLocalVarGetter.has_value() && (type == EPropertyType::LocalVariable);
 
@@ -188,7 +188,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!properties->HasValue(propertyName))
 		{
-			HZ_CORE_ERROR("SpawnGraphPropertyNode() - property with the name \"{}\" doesn't exist!", propertyName);
+			ZONG_CORE_ERROR("SpawnGraphPropertyNode() - property with the name \"{}\" doesn't exist!", propertyName);
 			return nullptr;
 		}
 
@@ -199,7 +199,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!isLocalVariable && value.isVoid())
 		{
-			HZ_CORE_ERROR("SpawnGraphPropertyNode() - invalid Graph Property value to spawn Graph Property node. Property name {}", propertyName);
+			ZONG_CORE_ERROR("SpawnGraphPropertyNode() - invalid Graph Property value to spawn Graph Property node. Property name {}", propertyName);
 			return nullptr;
 		}
 

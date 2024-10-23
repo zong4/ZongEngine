@@ -11,7 +11,7 @@ namespace Hazel {
 
 	void SceneRendererPanel::OnImGuiRender(bool& isOpen)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (ImGui::Begin("Scene Renderer", &isOpen) && m_Context)
 		{
@@ -144,8 +144,8 @@ namespace Hazel {
 
 						// NOTE(Yan): updating shader defines causes Vulkan render pass issues, and we don't need them here any more,
 						//            but probably worth looking into at some point
-						// Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
-						// Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", std::to_string((int)options.ReflectionOcclusionMethod));
+						// Renderer::SetGlobalMacroInShaders("__ZONG_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
+						// Renderer::SetGlobalMacroInShaders("__ZONG_REFLECTION_OCCLUSION_METHOD", std::to_string((int)options.ReflectionOcclusionMethod));
 					}
 				
 					UI::Property("Radius", m_Context->GTAODataCB.EffectRadius, 0.001f, 0.1f, 10000.f);
@@ -186,8 +186,8 @@ namespace Hazel {
 					options.ReflectionOcclusionMethod = ShaderDef::ROMETHODS[methodIndex];
 					if ((int)options.ReflectionOcclusionMethod & (int)ShaderDef::AOMethod::GTAO)
 						options.EnableGTAO = true;
-					Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", options.ReflectionOcclusionMethod));
-					Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
+					Renderer::SetGlobalMacroInShaders("__ZONG_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", options.ReflectionOcclusionMethod));
+					Renderer::SetGlobalMacroInShaders("__ZONG_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(options.EnableGTAO)));
 				}
 
 				UI::Property("Brightness", ssrOptions.Brightness, 0.001f, 0.0f, 1.0f);

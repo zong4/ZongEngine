@@ -38,12 +38,12 @@ namespace Hazel {
 		Buffer buffer;
 
 		std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 
 		auto end = stream.tellg();
 		stream.seekg(0, std::ios::beg);
 		auto size = end - stream.tellg();
-		HZ_CORE_ASSERT(size != 0);
+		ZONG_CORE_ASSERT(size != 0);
 
 		buffer.Allocate((uint32_t)size);
 		stream.read((char*)buffer.Data, buffer.Size);

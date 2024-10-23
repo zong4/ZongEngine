@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PhysicsScene.h"
 #include "PhysicsSystem.h"
 #include "Engine/Asset/AssetManager.h"
@@ -102,7 +102,7 @@ namespace Hazel {
 
 	void PhysicsScene::SubStepStrategy(float ts)
 	{
-		HZ_PROFILE_SCOPE_DYNAMIC("PhysicsSystem::SubStepStrategy");
+		ZONG_PROFILE_SCOPE_DYNAMIC("PhysicsSystem::SubStepStrategy");
 
 		if (m_Accumulator > m_FixedTimeStep)
 			m_Accumulator = 0.0f;
@@ -120,7 +120,7 @@ namespace Hazel {
 
 	void PhysicsScene::PreSimulate(float ts)
 	{
-		HZ_PROFILE_FUNC("PhysicsScene::PreSimulate");
+		ZONG_PROFILE_FUNC("PhysicsScene::PreSimulate");
 
 		SubStepStrategy(ts);
 
@@ -154,7 +154,7 @@ namespace Hazel {
 
 	void PhysicsScene::PostSimulate()
 	{
-		HZ_PROFILE_FUNC("PhysicsScene::PostSimulate");
+		ZONG_PROFILE_FUNC("PhysicsScene::PostSimulate");
 
 		PhysicsSystem::GetAPI()->GetCaptureManager()->CaptureFrame();
 

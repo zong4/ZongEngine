@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanComputePipeline.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -183,14 +183,14 @@ namespace Hazel {
 		// Wait for execution of compute shader to complete
 		// Currently this is here for "safety"
 		{
-			HZ_SCOPE_TIMER("Compute shader execution");
+			ZONG_SCOPE_TIMER("Compute shader execution");
 			vkWaitForFences(device, 1, &s_ComputeFence, VK_TRUE, UINT64_MAX);
 		}
 	}
 
 	void VulkanComputePipeline::Begin(Ref<RenderCommandBuffer> renderCommandBuffer)
 	{
-		HZ_CORE_ASSERT(!m_ActiveComputeCommandBuffer);
+		ZONG_CORE_ASSERT(!m_ActiveComputeCommandBuffer);
 
 		if (renderCommandBuffer)
 		{
@@ -208,7 +208,7 @@ namespace Hazel {
 
 	void VulkanComputePipeline::RT_Begin(Ref<RenderCommandBuffer> renderCommandBuffer)
 	{
-		HZ_CORE_ASSERT(!m_ActiveComputeCommandBuffer);
+		ZONG_CORE_ASSERT(!m_ActiveComputeCommandBuffer);
 
 		if (renderCommandBuffer)
 		{
@@ -227,14 +227,14 @@ namespace Hazel {
 
 	void VulkanComputePipeline::Dispatch(const glm::uvec3& workGroups) const
 	{
-		HZ_CORE_ASSERT(m_ActiveComputeCommandBuffer);
+		ZONG_CORE_ASSERT(m_ActiveComputeCommandBuffer);
 
 		vkCmdDispatch(m_ActiveComputeCommandBuffer, workGroups.x, workGroups.y, workGroups.z);
 	}
 
 	void VulkanComputePipeline::End()
 	{
-		HZ_CORE_ASSERT(m_ActiveComputeCommandBuffer);
+		ZONG_CORE_ASSERT(m_ActiveComputeCommandBuffer);
 
 		VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 		if (!m_UsingGraphicsQueue)
@@ -263,7 +263,7 @@ namespace Hazel {
 			// Wait for execution of compute shader to complete
 			// Currently this is here for "safety"
 			{
-				HZ_SCOPE_TIMER("Compute shader execution");
+				ZONG_SCOPE_TIMER("Compute shader execution");
 				vkWaitForFences(device, 1, &s_ComputeFence, VK_TRUE, UINT64_MAX);
 			}
 		}

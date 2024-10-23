@@ -89,7 +89,7 @@ namespace Hazel {
 				case AssetType::AnimationGraph:      return "AnimationGraph";
 			}
 
-			HZ_CORE_ASSERT(false, "Unknown Asset Type");
+			ZONG_CORE_ASSERT(false, "Unknown Asset Type");
 			return "None";
 		}
 

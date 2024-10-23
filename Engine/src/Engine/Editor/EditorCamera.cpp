@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "EditorCamera.h"
 
 #include "Engine/Core/Input.h"

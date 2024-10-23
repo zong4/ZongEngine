@@ -151,7 +151,7 @@ namespace Hazel {
 		template<typename... Args>
 		static Ref<T> Create(Args&&... args)
 		{
-#if HZ_TRACK_MEMORY && defined(HZ_PLATFORM_WINDOWS)
+#if ZONG_TRACK_MEMORY && defined(ZONG_PLATFORM_WINDOWS)
 			return Ref<T>(new(typeid(T).name()) T(std::forward<Args>(args)...));
 #else
 			return Ref<T>(new T(std::forward<Args>(args)...));

@@ -9,7 +9,7 @@
 #define LOG_DBG_MESSAGES 0
 
 #if LOG_DBG_MESSAGES
-#define DBG(...) HZ_CORE_WARN(__VA_ARGS__)
+#define DBG(...) ZONG_CORE_WARN(__VA_ARGS__)
 #else
 #define DBG(...)
 #endif
@@ -192,13 +192,13 @@ namespace Hazel::SoundGraph
 
 		void AddNode(std::unique_ptr<NodeProcessor>&& node)
 		{
-			HZ_CORE_ASSERT(node);
+			ZONG_CORE_ASSERT(node);
 			Nodes.emplace_back(std::move(node));
 		}
 
 		void AddNode(NodeProcessor*&& node)
 		{
-			HZ_CORE_ASSERT(node);
+			ZONG_CORE_ASSERT(node);
 			Nodes.emplace_back(std::unique_ptr<NodeProcessor>(std::move(node)));
 		}
 
@@ -242,7 +242,7 @@ namespace Hazel::SoundGraph
 
 			if (!sourceNode || !destinationNode)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -258,7 +258,7 @@ namespace Hazel::SoundGraph
 
 			if (!sourceNode || !destinationNode)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -276,7 +276,7 @@ namespace Hazel::SoundGraph
 
 			if (!destinationNode || endpoint == EndpointInputStreams.end())
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -291,7 +291,7 @@ namespace Hazel::SoundGraph
 
 			if (!destinationNode)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -306,7 +306,7 @@ namespace Hazel::SoundGraph
 
 			if (!sourceNode)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -320,7 +320,7 @@ namespace Hazel::SoundGraph
 			auto* sourceNode = FindNodeByID(sourceNodeID);
 			if (!sourceNode)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -337,7 +337,7 @@ namespace Hazel::SoundGraph
 
 			if (!destinationNode || endpoint == LocalVariables.end())
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 

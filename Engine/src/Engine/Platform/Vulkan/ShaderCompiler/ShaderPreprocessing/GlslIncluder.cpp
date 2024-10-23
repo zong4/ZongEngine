@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "GlslIncluder.h"
 
 #include "Engine/Utilities/StringUtils.h"
@@ -28,7 +28,7 @@ namespace Hazel {
 		{
 			source = Utils::ReadFileAndSkipBOM(requestedFullPath);
 			if (source.empty())
-				HZ_CORE_ERROR("Failed to load included file: {} in {}.", requestedFullPath, requestingPath);
+				ZONG_CORE_ERROR("Failed to load included file: {} in {}.", requestedFullPath, requestingPath);
 			sourceHash = Hash::GenerateFNVHash(source.c_str());
 
 			// Can clear "source" in case it has already been included in this stage and is guarded.

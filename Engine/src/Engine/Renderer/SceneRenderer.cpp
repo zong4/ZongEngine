@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SceneRenderer.h"
 
 #include "Renderer.h"
@@ -36,7 +36,7 @@ namespace Hazel {
 
 	void SceneRenderer::Init()
 	{
-		HZ_SCOPE_TIMER("SceneRenderer::Init");
+		ZONG_SCOPE_TIMER("SceneRenderer::Init");
 
 		m_ShadowCascadeSplits[0] = 0.1f;
 		m_ShadowCascadeSplits[1] = 0.2f;
@@ -211,7 +211,7 @@ namespace Hazel {
 				auto shader = Renderer::GetShaderLibrary()->Get("Bloom");
 				spec.Pipeline = PipelineCompute::Create(shader);
 				m_BloomComputePass = ComputePass::Create(spec);
-				HZ_CORE_VERIFY(m_BloomComputePass->Validate());
+				ZONG_CORE_VERIFY(m_BloomComputePass->Validate());
 				m_BloomComputePass->Bake();
 			}
 
@@ -283,14 +283,14 @@ namespace Hazel {
 
 				m_DirectionalShadowMapPass[i] = RenderPass::Create(shadowMapRenderPassSpec);
 				m_DirectionalShadowMapPass[i]->SetInput("ShadowData", m_UBSShadow);
-				HZ_CORE_VERIFY(m_DirectionalShadowMapPass[i]->Validate());
+				ZONG_CORE_VERIFY(m_DirectionalShadowMapPass[i]->Validate());
 				m_DirectionalShadowMapPass[i]->Bake();
 
 				shadowMapRenderPassSpec.Pipeline = m_ShadowPassPipelinesAnim[i];
 				m_DirectionalShadowMapAnimPass[i] = RenderPass::Create(shadowMapRenderPassSpec);
 				m_DirectionalShadowMapAnimPass[i]->SetInput("ShadowData", m_UBSShadow);
 				m_DirectionalShadowMapAnimPass[i]->SetInput("BoneTransforms", m_SBSBoneTransforms);
-				HZ_CORE_VERIFY(m_DirectionalShadowMapAnimPass[i]->Validate());
+				ZONG_CORE_VERIFY(m_DirectionalShadowMapAnimPass[i]->Validate());
 				m_DirectionalShadowMapAnimPass[i]->Bake();
 			}
 			m_ShadowPassMaterial = Material::Create(shadowPassShader, "DirShadowPass");
@@ -345,7 +345,7 @@ namespace Hazel {
 
 			m_SpotShadowPass->SetInput("SpotShadowData", m_UBSSpotShadowData);
 
-			HZ_CORE_VERIFY(m_SpotShadowPass->Validate());
+			ZONG_CORE_VERIFY(m_SpotShadowPass->Validate());
 			m_SpotShadowPass->Bake();
 		}
 
@@ -395,7 +395,7 @@ namespace Hazel {
 			// 		// Bake will create descriptor sets and ensure everything is ready for rendering
 			// 		// If resources (eg. storage buffers/images) resize, passes need to be invalidated
 			// 		// so we can re-create proper descriptors to the newly created replacement resources
-			// 		HZ_CORE_VERIFY(shadowMapRenderPass[i]->Validate());
+			// 		ZONG_CORE_VERIFY(shadowMapRenderPass[i]->Validate());
 			// 		shadowMapRenderPass[i]->Bake();
 			// 	}
 			// }
@@ -445,7 +445,7 @@ namespace Hazel {
 
 				m_PreDepthPass = RenderPass::Create(preDepthRenderPassSpec);
 				m_PreDepthPass->SetInput("Camera", m_UBSCamera);
-				HZ_CORE_VERIFY(m_PreDepthPass->Validate());
+				ZONG_CORE_VERIFY(m_PreDepthPass->Validate());
 				m_PreDepthPass->Bake();
 
 				// Animated
@@ -454,7 +454,7 @@ namespace Hazel {
 				m_PreDepthAnimPass = RenderPass::Create(preDepthRenderPassSpec);
 				m_PreDepthAnimPass->SetInput("Camera", m_UBSCamera);
 				m_PreDepthAnimPass->SetInput("BoneTransforms", m_SBSBoneTransforms);
-				HZ_CORE_VERIFY(m_PreDepthAnimPass->Validate());
+				ZONG_CORE_VERIFY(m_PreDepthAnimPass->Validate());
 				m_PreDepthAnimPass->Bake();
 
 				// Transparent
@@ -463,7 +463,7 @@ namespace Hazel {
 				m_PreDepthTransparentPass = RenderPass::Create(preDepthRenderPassSpec);
 				m_PreDepthTransparentPass->SetInput("Camera", m_UBSCamera);
 
-				HZ_CORE_VERIFY(m_PreDepthTransparentPass->Validate());
+				ZONG_CORE_VERIFY(m_PreDepthTransparentPass->Validate());
 				m_PreDepthTransparentPass->Bake();
 			}
 
@@ -554,7 +554,7 @@ namespace Hazel {
 				rpSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_SelectedGeometryPass = RenderPass::Create(rpSpec);
 				m_SelectedGeometryPass->SetInput("Camera", m_UBSCamera);
-				HZ_CORE_VERIFY(m_SelectedGeometryPass->Validate());
+				ZONG_CORE_VERIFY(m_SelectedGeometryPass->Validate());
 				m_SelectedGeometryPass->Bake();
 
 				m_SelectedGeometryMaterial = Material::Create(pipelineSpecification.Shader, pipelineSpecification.DebugName);
@@ -570,7 +570,7 @@ namespace Hazel {
 				m_SelectedGeometryAnimPass = RenderPass::Create(rpSpec); // Note: same framebuffer and renderpass as m_SelectedGeometryPipeline
 				m_SelectedGeometryAnimPass->SetInput("Camera", m_UBSCamera);
 				m_SelectedGeometryAnimPass->SetInput("BoneTransforms", m_SBSBoneTransforms);
-				HZ_CORE_VERIFY(m_SelectedGeometryAnimPass->Validate());
+				ZONG_CORE_VERIFY(m_SelectedGeometryAnimPass->Validate());
 				m_SelectedGeometryAnimPass->Bake();
 			}
 
@@ -615,7 +615,7 @@ namespace Hazel {
 				// Bake will create descriptor sets and ensure everything is ready for rendering
 				// If resources (eg. storage buffers/images) resize, passes need to be invalidated
 				// so we can re-create proper descriptors to the newly created replacement resources
-				HZ_CORE_VERIFY(m_GeometryPass->Validate());
+				ZONG_CORE_VERIFY(m_GeometryPass->Validate());
 				m_GeometryPass->Bake();
 			}
 
@@ -648,7 +648,7 @@ namespace Hazel {
 				m_GeometryAnimPass->SetInput("u_ShadowMapTexture", m_DirectionalShadowMapPass[0]->GetOutput(0));
 				m_GeometryAnimPass->SetInput("u_SpotShadowTexture", m_SpotShadowPass->GetOutput(0));
 
-				HZ_CORE_VERIFY(m_GeometryAnimPass->Validate());
+				ZONG_CORE_VERIFY(m_GeometryAnimPass->Validate());
 				m_GeometryAnimPass->Bake();
 			}
 
@@ -665,7 +665,7 @@ namespace Hazel {
 				m_LightCullingPass->SetInput("VisiblePointLightIndicesBuffer", m_SBSVisiblePointLightIndicesBuffer);
 				m_LightCullingPass->SetInput("VisibleSpotLightIndicesBuffer", m_SBSVisibleSpotLightIndicesBuffer);
 				m_LightCullingPass->SetInput("u_DepthMap", m_PreDepthPass->GetDepthOutput());
-				HZ_CORE_VERIFY(m_LightCullingPass->Validate());
+				ZONG_CORE_VERIFY(m_LightCullingPass->Validate());
 				m_LightCullingPass->Bake();
 			}
 
@@ -747,7 +747,7 @@ namespace Hazel {
 				m_DeinterleavingPass[rp]->SetInput("u_Depth", m_PreDepthPass->GetDepthOutput());
 				m_DeinterleavingPass[rp]->SetInput("Camera", m_UBSCamera);
 				m_DeinterleavingPass[rp]->SetInput("ScreenData", m_UBSScreenData);
-				HZ_CORE_VERIFY(m_DeinterleavingPass[rp]->Validate());
+				ZONG_CORE_VERIFY(m_DeinterleavingPass[rp]->Validate());
 				m_DeinterleavingPass[rp]->Bake();
 			}
 			m_DeinterleavingMaterial = Material::Create(pipelineSpec.Shader, pipelineSpec.DebugName);
@@ -773,7 +773,7 @@ namespace Hazel {
 			hdPassSpec.Pipeline = PipelineCompute::Create(shader);
 			m_HierarchicalDepthPass = ComputePass::Create(hdPassSpec);
 
-			HZ_CORE_VERIFY(m_HierarchicalDepthPass->Validate());
+			ZONG_CORE_VERIFY(m_HierarchicalDepthPass->Validate());
 			m_HierarchicalDepthPass->Bake();
 		}
 
@@ -812,7 +812,7 @@ namespace Hazel {
 			renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 			m_SSRCompositePass = RenderPass::Create(renderPassSpec);
 			m_SSRCompositePass->SetInput("u_SSR", m_SSRImage);
-			HZ_CORE_VERIFY(m_SSRCompositePass->Validate());
+			ZONG_CORE_VERIFY(m_SSRCompositePass->Validate());
 			m_SSRCompositePass->Bake();
 		}
 
@@ -849,7 +849,7 @@ namespace Hazel {
 			passSpec.DebugName = "Pre-Integration";
 			passSpec.Pipeline = PipelineCompute::Create(shader);
 			m_PreConvolutionComputePass = ComputePass::Create(passSpec);
-			HZ_CORE_VERIFY(m_PreConvolutionComputePass->Validate());
+			ZONG_CORE_VERIFY(m_PreConvolutionComputePass->Validate());
 			m_PreConvolutionComputePass->Bake();
 		}
 
@@ -882,7 +882,7 @@ namespace Hazel {
 			m_EdgeDetectionPass->SetInput("u_ViewNormalsTexture", m_GeometryPass->GetOutput(1));
 			m_EdgeDetectionPass->SetInput("u_DepthTexture", m_PreDepthPass->GetDepthOutput());
 			m_EdgeDetectionPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_EdgeDetectionPass->Validate());
+			ZONG_CORE_VERIFY(m_EdgeDetectionPass->Validate());
 			m_EdgeDetectionPass->Bake();
 		}
 
@@ -923,7 +923,7 @@ namespace Hazel {
 			
 			m_CompositePass->SetInput("Camera", m_UBSCamera);
 
-			HZ_CORE_VERIFY(m_CompositePass->Validate());
+			ZONG_CORE_VERIFY(m_CompositePass->Validate());
 			m_CompositePass->Bake();
 		}
 
@@ -956,7 +956,7 @@ namespace Hazel {
 			m_DOFPass->SetInput("u_Texture", m_CompositePass->GetOutput(0));
 			m_DOFPass->SetInput("u_DepthTexture", m_PreDepthPass->GetDepthOutput());
 			m_DOFPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_DOFPass->Validate());
+			ZONG_CORE_VERIFY(m_DOFPass->Validate());
 			m_DOFPass->Bake();
 		}
 
@@ -986,7 +986,7 @@ namespace Hazel {
 			renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);;
 			m_GeometryWireframePass = RenderPass::Create(renderPassSpec);
 			m_GeometryWireframePass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_GeometryWireframePass->Validate());
+			ZONG_CORE_VERIFY(m_GeometryWireframePass->Validate());
 			m_GeometryWireframePass->Bake();
 
 			pipelineSpecification.DepthTest = false;
@@ -995,7 +995,7 @@ namespace Hazel {
 			renderPassSpec.DebugName = pipelineSpecification.DebugName;
 			m_GeometryWireframeOnTopPass = RenderPass::Create(renderPassSpec);
 			m_GeometryWireframeOnTopPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_GeometryWireframeOnTopPass->Validate());
+			ZONG_CORE_VERIFY(m_GeometryWireframeOnTopPass->Validate());
 			m_GeometryWireframeOnTopPass->Bake();
 
 			pipelineSpecification.DepthTest = true;
@@ -1007,7 +1007,7 @@ namespace Hazel {
 			m_GeometryWireframeAnimPass = RenderPass::Create(renderPassSpec);
 			m_GeometryWireframeAnimPass->SetInput("Camera", m_UBSCamera);
 			m_GeometryWireframeAnimPass->SetInput("BoneTransforms", m_SBSBoneTransforms);
-			HZ_CORE_VERIFY(m_GeometryWireframeAnimPass->Validate());
+			ZONG_CORE_VERIFY(m_GeometryWireframeAnimPass->Validate());
 			m_GeometryWireframeAnimPass->Bake();
 
 			pipelineSpecification.DepthTest = false;
@@ -1016,7 +1016,7 @@ namespace Hazel {
 			m_GeometryWireframeOnTopAnimPass = RenderPass::Create(renderPassSpec);
 			m_GeometryWireframeOnTopAnimPass->SetInput("Camera", m_UBSCamera);
 			m_GeometryWireframeOnTopAnimPass->SetInput("BoneTransforms", m_SBSBoneTransforms);
-			HZ_CORE_VERIFY(m_GeometryWireframeOnTopAnimPass->Validate());
+			ZONG_CORE_VERIFY(m_GeometryWireframeOnTopAnimPass->Validate());
 			m_GeometryWireframeOnTopAnimPass->Bake();
 		}
 
@@ -1061,7 +1061,7 @@ namespace Hazel {
 			renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 			m_JumpFloodInitPass = RenderPass::Create(renderPassSpec);
 			m_JumpFloodInitPass->SetInput("u_Texture", m_SelectedGeometryPass->GetOutput(0));
-			HZ_CORE_VERIFY(m_JumpFloodInitPass->Validate());
+			ZONG_CORE_VERIFY(m_JumpFloodInitPass->Validate());
 			m_JumpFloodInitPass->Bake();
 
 			const char* passName[2] = { "EvenPass", "OddPass" };
@@ -1075,7 +1075,7 @@ namespace Hazel {
 				renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_JumpFloodPass[i] = RenderPass::Create(renderPassSpec);
 				m_JumpFloodPass[i]->SetInput("u_Texture", m_TempFramebuffers[i]->GetImage());
-				HZ_CORE_VERIFY(m_JumpFloodPass[i]->Validate());
+				ZONG_CORE_VERIFY(m_JumpFloodPass[i]->Validate());
 				m_JumpFloodPass[i]->Bake();
 
 				m_JumpFloodPassMaterial[i] = Material::Create(pipelineSpecification.Shader, pipelineSpecification.DebugName);
@@ -1096,7 +1096,7 @@ namespace Hazel {
 				renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_JumpFloodCompositePass = RenderPass::Create(renderPassSpec);
 				m_JumpFloodCompositePass->SetInput("u_Texture", m_TempFramebuffers[1]->GetImage());
-				HZ_CORE_VERIFY(m_JumpFloodCompositePass->Validate());
+				ZONG_CORE_VERIFY(m_JumpFloodCompositePass->Validate());
 				m_JumpFloodCompositePass->Bake();
 
 				m_JumpFloodCompositeMaterial = Material::Create(pipelineSpecification.Shader, pipelineSpecification.DebugName);
@@ -1120,7 +1120,7 @@ namespace Hazel {
 			renderPassSpec.Pipeline = Pipeline::Create(pipelineSpec);
 			m_GridRenderPass = RenderPass::Create(renderPassSpec);
 			m_GridRenderPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_GridRenderPass->Validate());
+			ZONG_CORE_VERIFY(m_GridRenderPass->Validate());
 			m_GridRenderPass->Bake();
 
 			const float gridScale = 16.025f;
@@ -1168,7 +1168,7 @@ namespace Hazel {
 			renderPassSpec.Pipeline = m_SkyboxPipeline;
 			m_SkyboxPass = RenderPass::Create(renderPassSpec);
 			m_SkyboxPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_SkyboxPass->Validate());
+			ZONG_CORE_VERIFY(m_SkyboxPass->Validate());
 			m_SkyboxPass->Bake();
 		}
 
@@ -1228,7 +1228,7 @@ namespace Hazel {
 
 			m_GTAOComputePass->SetInput("Camera", m_UBSCamera);
 			m_GTAOComputePass->SetInput("ScreenData", m_UBSScreenData);
-			HZ_CORE_VERIFY(m_GTAOComputePass->Validate());
+			ZONG_CORE_VERIFY(m_GTAOComputePass->Validate());
 			m_GTAOComputePass->Bake();
 		}
 
@@ -1259,7 +1259,7 @@ namespace Hazel {
 				m_GTAODenoisePass[0]->SetInput("u_AOTerm", m_GTAOOutputImage);
 				m_GTAODenoisePass[0]->SetInput("o_AOTerm", m_GTAODenoiseImage);
 				m_GTAODenoisePass[0]->SetInput("ScreenData", m_UBSScreenData);
-				HZ_CORE_VERIFY(m_GTAODenoisePass[0]->Validate());
+				ZONG_CORE_VERIFY(m_GTAODenoisePass[0]->Validate());
 				m_GTAODenoisePass[0]->Bake();
 
 				m_GTAODenoisePass[1] = ComputePass::Create(spec);
@@ -1267,7 +1267,7 @@ namespace Hazel {
 				m_GTAODenoisePass[1]->SetInput("u_AOTerm", m_GTAODenoiseImage);
 				m_GTAODenoisePass[1]->SetInput("o_AOTerm", m_GTAOOutputImage);
 				m_GTAODenoisePass[1]->SetInput("ScreenData", m_UBSScreenData);
-				HZ_CORE_VERIFY(m_GTAODenoisePass[1]->Validate());
+				ZONG_CORE_VERIFY(m_GTAODenoisePass[1]->Validate());
 				m_GTAODenoisePass[1]->Bake();
 			}
 
@@ -1297,7 +1297,7 @@ namespace Hazel {
 				renderPassSpec.Pipeline = Pipeline::Create(aoCompositePipelineSpec);
 				m_AOCompositePass = RenderPass::Create(renderPassSpec);
 				m_AOCompositePass->SetInput("u_GTAOTex", m_GTAOOutputImage);
-				HZ_CORE_VERIFY(m_AOCompositePass->Validate());
+				ZONG_CORE_VERIFY(m_AOCompositePass->Validate());
 				m_AOCompositePass->Bake();
 
 				m_AOCompositeMaterial = Material::Create(aoCompositePipelineSpec.Shader, "GTAO-Composite");
@@ -1324,7 +1324,7 @@ namespace Hazel {
 			m_SSRPass->SetInput("Camera", m_UBSCamera);
 			m_SSRPass->SetInput("ScreenData", m_UBSScreenData);
 			// TODO(Yan): HBAO texture as well maybe
-			HZ_CORE_VERIFY(m_SSRPass->Validate());
+			ZONG_CORE_VERIFY(m_SSRPass->Validate());
 			m_SSRPass->Bake();
 		}
 
@@ -1347,9 +1347,9 @@ namespace Hazel {
 		// OVERRIDE
 		m_Options.ReflectionOcclusionMethod = ShaderDef::AOMethod::None;
 
-		// Special macros are strictly starting with "__HZ_"
-		Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", (int)m_Options.ReflectionOcclusionMethod));
-		//Renderer::SetGlobalMacroInShaders("__HZ_GTAO_COMPUTE_BENT_NORMALS", fmt::format("{}", (int)m_Options.GTAOBentNormals));
+		// Special macros are strictly starting with "__ZONG_"
+		Renderer::SetGlobalMacroInShaders("__ZONG_REFLECTION_OCCLUSION_METHOD", fmt::format("{}", (int)m_Options.ReflectionOcclusionMethod));
+		//Renderer::SetGlobalMacroInShaders("__ZONG_GTAO_COMPUTE_BENT_NORMALS", fmt::format("{}", (int)m_Options.GTAOBentNormals));
 	}
 
 	void SceneRenderer::InsertGPUPerfMarker(Ref<RenderCommandBuffer> renderCommandBuffer, const std::string& label, const glm::vec4& markerColor)
@@ -1378,7 +1378,7 @@ namespace Hazel {
 
 	void SceneRenderer::SetScene(Ref<Scene> scene)
 	{
-		HZ_CORE_ASSERT(!m_Active, "Can't change scenes while rendering");
+		ZONG_CORE_ASSERT(!m_Active, "Can't change scenes while rendering");
 		m_Scene = scene;
 	}
 
@@ -1408,10 +1408,10 @@ namespace Hazel {
 
 	void SceneRenderer::BeginScene(const SceneRendererCamera& camera)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(m_Scene);
-		HZ_CORE_ASSERT(!m_Active);
+		ZONG_CORE_ASSERT(m_Scene);
+		ZONG_CORE_ASSERT(!m_Active);
 		m_Active = true;
 
 		if (m_ResourcesCreatedGPU)
@@ -1760,9 +1760,9 @@ namespace Hazel {
 
 	void SceneRenderer::EndScene()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(m_Active);
+		ZONG_CORE_ASSERT(m_Active);
 #if MULTI_THREAD
 		Ref<SceneRenderer> instance = this;
 		s_ThreadPool.emplace_back(([instance]() mutable
@@ -1786,7 +1786,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// TODO: Culling, sorting, etc.
 
@@ -1838,7 +1838,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
@@ -1850,7 +1850,7 @@ namespace Hazel {
 			uint32_t materialIndex = submeshes[submeshIndex].MaterialIndex;
 
 			AssetHandle materialHandle = materialTable->HasMaterial(materialIndex) ? materialTable->GetMaterial(materialIndex) : staticMesh->GetMaterials()->GetMaterial(materialIndex);
-			HZ_CORE_VERIFY(materialHandle);
+			ZONG_CORE_VERIFY(materialHandle);
 			Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(materialHandle);
 
 			MeshKey meshKey = { staticMesh->Handle, materialHandle, submeshIndex, false };
@@ -1889,7 +1889,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitSelectedMesh(Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, const glm::mat4& transform, const std::vector<glm::mat4>& boneTransforms, Ref<Material> overrideMaterial)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// TODO: Culling, sorting, etc.
 
@@ -1900,7 +1900,7 @@ namespace Hazel {
 		bool isRigged = submesh.IsRigged;
 
 		AssetHandle materialHandle = materialTable->HasMaterial(materialIndex) ? materialTable->GetMaterial(materialIndex) : mesh->GetMaterials()->GetMaterial(materialIndex);
-		HZ_CORE_VERIFY(materialHandle);
+		ZONG_CORE_VERIFY(materialHandle);
 		Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(materialHandle);
 
 		MeshKey meshKey = { mesh->Handle, materialHandle, submeshIndex, true };
@@ -1959,7 +1959,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitSelectedStaticMesh(Ref<StaticMesh> staticMesh, Ref<MaterialTable> materialTable, const glm::mat4& transform, Ref<Material> overrideMaterial)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
@@ -1971,7 +1971,7 @@ namespace Hazel {
 			uint32_t materialIndex = submeshes[submeshIndex].MaterialIndex;
 
 			AssetHandle materialHandle = materialTable->HasMaterial(materialIndex) ? materialTable->GetMaterial(materialIndex) : staticMesh->GetMaterials()->GetMaterial(materialIndex);
-			HZ_CORE_VERIFY(materialHandle);
+			ZONG_CORE_VERIFY(materialHandle);
 			Ref<MaterialAsset> material = AssetManager::GetAsset<MaterialAsset>(materialHandle);
 
 			MeshKey meshKey = { staticMesh->Handle, materialHandle, submeshIndex, true };
@@ -2018,7 +2018,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitPhysicsDebugMesh(Ref<Mesh> mesh, uint32_t submeshIndex, const glm::mat4& transform)
 	{
-		HZ_CORE_VERIFY(mesh->Handle);
+		ZONG_CORE_VERIFY(mesh->Handle);
 
 		Ref<MeshSource> meshSource = mesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
@@ -2041,7 +2041,7 @@ namespace Hazel {
 
 	void SceneRenderer::SubmitPhysicsStaticDebugMesh(Ref<StaticMesh> staticMesh, const glm::mat4& transform, const bool isPrimitiveCollider)
 	{
-		HZ_CORE_VERIFY(staticMesh->Handle);
+		ZONG_CORE_VERIFY(staticMesh->Handle);
 		Ref<MeshSource> meshSource = staticMesh->GetMeshSource();
 		const auto& submeshData = meshSource->GetSubmeshes();
 		for (uint32_t submeshIndex : staticMesh->GetSubmeshes())
@@ -2068,14 +2068,14 @@ namespace Hazel {
 
 	void SceneRenderer::ClearPass(Ref<RenderPass> renderPass, bool explicitClear)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		Renderer::BeginRenderPass(m_CommandBuffer, renderPass, explicitClear);
 		Renderer::EndRenderPass(m_CommandBuffer);
 	}
 
 	void SceneRenderer::ShadowMapPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 		m_GPUTimeQueries.DirShadowMapPassQuery = m_CommandBuffer->BeginTimestampQuery();
@@ -2098,13 +2098,13 @@ namespace Hazel {
 			const Buffer cascade(&i, sizeof(uint32_t));
 			for (auto& [mk, dc] : m_StaticMeshShadowPassDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_ShadowPassMaterial, cascade);
 			}
 			for (auto& [mk, dc] : m_ShadowPassDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (!dc.IsRigged)
 					Renderer::RenderMeshWithMaterial(m_CommandBuffer, m_ShadowPassPipelines[i], dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_ShadowPassMaterial, cascade);
@@ -2121,7 +2121,7 @@ namespace Hazel {
 			const Buffer cascade(&i, sizeof(uint32_t));
 			for (auto& [mk, dc] : m_ShadowPassDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (dc.IsRigged)
 				{
@@ -2138,7 +2138,7 @@ namespace Hazel {
 
 	void SceneRenderer::SpotShadowMapPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 		m_GPUTimeQueries.SpotShadowMapPassQuery = m_CommandBuffer->BeginTimestampQuery();
@@ -2151,13 +2151,13 @@ namespace Hazel {
 			const Buffer lightIndex(&i, sizeof(uint32_t));
 			for (auto& [mk, dc] : m_StaticMeshShadowPassDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, m_SpotShadowPassPipeline, dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, m_SpotShadowPassMaterial, lightIndex);
 			}
 			for (auto& [mk, dc] : m_ShadowPassDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (dc.IsRigged)
 				{
@@ -2177,7 +2177,7 @@ namespace Hazel {
 
 	void SceneRenderer::PreDepthPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 		m_GPUTimeQueries.DepthPrePassQuery = m_CommandBuffer->BeginTimestampQuery();
@@ -2265,7 +2265,7 @@ namespace Hazel {
 
 	void SceneRenderer::HZBCompute()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		m_GPUTimeQueries.HierarchicalDepthQuery = m_CommandBuffer->BeginTimestampQuery();
 
@@ -2325,7 +2325,7 @@ namespace Hazel {
 
 	void SceneRenderer::PreIntegration()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		m_GPUTimeQueries.PreIntegrationQuery = m_CommandBuffer->BeginTimestampQuery();
 		glm::vec2 projectionParams = { m_SceneData.SceneCamera.Far, m_SceneData.SceneCamera.Near }; // Reversed 
@@ -2398,7 +2398,7 @@ namespace Hazel {
 
 	void SceneRenderer::SkyboxPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Renderer::BeginRenderPass(m_CommandBuffer, m_SkyboxPass);
 
@@ -2417,7 +2417,7 @@ namespace Hazel {
 
 	void SceneRenderer::GeometryPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 
@@ -2508,7 +2508,7 @@ namespace Hazel {
 
 	void SceneRenderer::PreConvolutionCompute()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// TODO: Other techniques might need it in the future
 		if (!m_Options.EnableSSR)
@@ -2600,7 +2600,7 @@ namespace Hazel {
 
 	void SceneRenderer::JumpFloodPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		m_GPUTimeQueries.JumpFloodPassQuery = m_CommandBuffer->BeginTimestampQuery();
 		Renderer::BeginRenderPass(m_CommandBuffer, m_JumpFloodInitPass);
@@ -2636,7 +2636,7 @@ namespace Hazel {
 
 	void SceneRenderer::SSRCompute()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		const Buffer pushConstantsBuffer(&m_SSROptions, sizeof(SSROptionsUB));
 
@@ -2762,7 +2762,7 @@ namespace Hazel {
 
 	void SceneRenderer::CompositePass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 
@@ -2912,14 +2912,14 @@ namespace Hazel {
 			Renderer::BeginRenderPass(m_CommandBuffer, staticPass);
 			for (auto& [mk, dc] : m_StaticColliderDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				Renderer::RenderStaticMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.StaticMesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, dc.InstanceCount, dc.OverrideMaterial);
 			}
 
 			for (auto& [mk, dc] : m_ColliderDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (!dc.IsRigged)
 					Renderer::RenderMeshWithMaterial(m_CommandBuffer, staticPass->GetPipeline(), dc.Mesh, dc.SubmeshIndex, m_SubmeshTransformBuffers[frameIndex].Buffer, transformData.TransformOffset, 0, dc.InstanceCount, m_SimpleColliderMaterial);
@@ -2932,7 +2932,7 @@ namespace Hazel {
 			Renderer::BeginRenderPass(m_CommandBuffer, animPass);
 			for (auto& [mk, dc] : m_ColliderDrawList)
 			{
-				HZ_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
+				ZONG_CORE_VERIFY(m_MeshTransformMap.find(mk) != m_MeshTransformMap.end());
 				const auto& transformData = m_MeshTransformMap.at(mk);
 				if (dc.IsRigged)
 				{
@@ -3037,7 +3037,7 @@ namespace Hazel {
 
 	void SceneRenderer::PreRender()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t frameIndex = Renderer::GetCurrentFrameIndex();
 
@@ -3208,7 +3208,7 @@ namespace Hazel {
 
 	void SceneRenderer::ClearPass()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Renderer::BeginRenderPass(m_CommandBuffer, m_PreDepthPass, true);
 		Renderer::EndRenderPass(m_CommandBuffer);

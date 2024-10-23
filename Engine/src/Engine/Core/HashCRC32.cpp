@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "Hash.h"
 
 constexpr auto gen_crc32_table()

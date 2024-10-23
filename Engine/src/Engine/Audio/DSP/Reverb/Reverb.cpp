@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 
 #include "Reverb.h"
 
@@ -31,7 +31,7 @@ void reverb_node_process_pcm_frames(ma_node* pNode, const float** ppFramesIn, ma
 
     /*? NOTE: This assumes the same number of channels for all inputs and outputs. */
     channels = ma_node_get_input_channels(pNodeBase, 0);
-    HZ_CORE_ASSERT(channels == 2);
+    ZONG_CORE_ASSERT(channels == 2);
 
     // 1. Feed Pre-Delay
     // TODO: move this stuff to DelayLine class
@@ -101,13 +101,13 @@ void Reverb::Uninitialize()
 
 bool Reverb::Initialize(ma_engine* engine, ma_node_base* nodeToAttachTo)
 {
-    HZ_CORE_ASSERT(!m_Initialized);
+    ZONG_CORE_ASSERT(!m_Initialized);
     
     auto abortIfFailed = [&](ma_result result, const char* errorMessage)
     {
         if (result != MA_SUCCESS)
         {
-            HZ_CORE_ASSERT(false && errorMessage);
+            ZONG_CORE_ASSERT(false && errorMessage);
             Uninitialize();
             return true;
         }
@@ -171,7 +171,7 @@ void Reverb::SetParameter(EReverbParameters parameter, float value)
     switch (parameter)
     {
     case PreDelay:
-        HZ_CORE_ASSERT(value <= m_MaxPreDelay);
+        ZONG_CORE_ASSERT(value <= m_MaxPreDelay);
         m_DelayLine->SetDelayMs((uint32_t)value);
         break;
     case Mode:

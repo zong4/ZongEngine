@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptEngineDebugPanel.h"
 #include "Engine/Script/ScriptUtils.h"
 #include "Engine/Script/ScriptProfiler.h"

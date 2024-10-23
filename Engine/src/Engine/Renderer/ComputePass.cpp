@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ComputePass.h"
 
 #include "Renderer.h"
@@ -13,11 +13,11 @@ namespace Hazel {
 	{
 		switch (RendererAPI::Current())
 		{
-			case RendererAPIType::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPIType::None:    ZONG_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanComputePass>::Create(spec);
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 

@@ -82,9 +82,9 @@ namespace Hazel {
 
 }
 
-#if HZ_TRACK_MEMORY
+#if ZONG_TRACK_MEMORY
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new(size_t size);

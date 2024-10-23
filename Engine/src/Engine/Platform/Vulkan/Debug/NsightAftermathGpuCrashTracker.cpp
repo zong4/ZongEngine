@@ -22,7 +22,7 @@
 //
 //*********************************************************
 
-#include "hzpch.h"
+#include "pch.h"
 #include <fstream>
 #include <iomanip>
 #include <string>
@@ -73,7 +73,7 @@ void GpuCrashTracker::Initialize()
         CrashDumpDescriptionCallback,                                     // Register callback for GPU crash dump description.
         this));                                                           // Set the GpuCrashTracker object as user data for the above callbacks.
 
-    HZ_CORE_TRACE_TAG("Renderer", "GpuCrashTracker::Initialize");
+    ZONG_CORE_TRACE_TAG("Renderer", "GpuCrashTracker::Initialize");
 
     m_initialized = true;
 }

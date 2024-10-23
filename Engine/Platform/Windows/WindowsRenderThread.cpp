@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Engine/Core/RenderThread.h"
 
 #include "Engine/Renderer/Renderer.h"

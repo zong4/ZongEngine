@@ -13,7 +13,7 @@ namespace Hazel {
 			if (stage == VK_SHADER_STAGE_VERTEX_BIT)   return "__VERTEX_STAGE__";
 			if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) return "__FRAGMENT_STAGE__";
 			if (stage == VK_SHADER_STAGE_COMPUTE_BIT)  return "__COMPUTE_STAGE__";
-			HZ_CORE_VERIFY(false, "Unknown shader stage.");
+			ZONG_CORE_VERIFY(false, "Unknown shader stage.");
 			return "";
 		}
 
@@ -22,7 +22,7 @@ namespace Hazel {
 			if (stage == "vert") return "__VERTEX_STAGE__";
 			if (stage == "frag") return "__FRAGMENT_STAGE__";
 			if (stage == "comp") return "__COMPUTE_STAGE__";
-			HZ_CORE_VERIFY(false, "Unknown shader stage.");
+			ZONG_CORE_VERIFY(false, "Unknown shader stage.");
 			return "";
 		}
 
@@ -31,7 +31,7 @@ namespace Hazel {
 			if (stage == "vert") return VK_SHADER_STAGE_VERTEX_BIT;
 			if (stage == "frag") return VK_SHADER_STAGE_FRAGMENT_BIT;
 			if (stage == "comp") return VK_SHADER_STAGE_COMPUTE_BIT;
-			HZ_CORE_VERIFY(false, "Unknown shader stage.");
+			ZONG_CORE_VERIFY(false, "Unknown shader stage.");
 			return VK_SHADER_STAGE_ALL;
 		}
 
@@ -43,7 +43,7 @@ namespace Hazel {
 				case VK_SHADER_STAGE_FRAGMENT_BIT:  return "frag";
 				case VK_SHADER_STAGE_COMPUTE_BIT:   return "comp";
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return "UNKNOWN";
 		}
 
@@ -61,7 +61,7 @@ namespace Hazel {
 			if (type == ".glsl")	return SourceLang::GLSL;
 			if (type == ".hlsl")	return SourceLang::HLSL;
 
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 
 			return SourceLang::NONE;
 		}
@@ -74,7 +74,7 @@ namespace Hazel {
 				case VK_SHADER_STAGE_FRAGMENT_BIT:  return shaderc_fragment_shader;
 				case VK_SHADER_STAGE_COMPUTE_BIT:   return shaderc_compute_shader;
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return {};
 		}
 
@@ -98,11 +98,11 @@ namespace Hazel {
 					case VK_SHADER_STAGE_COMPUTE_BIT:   return ".cached_vulkan.comp";
 				}
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return "";
 		}
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		inline static const wchar_t* HLSLShaderProfile(const VkShaderStageFlagBits stage)
 		{
 			switch (stage)
@@ -111,7 +111,7 @@ namespace Hazel {
 				case VK_SHADER_STAGE_FRAGMENT_BIT:  return L"ps_6_0";
 				case VK_SHADER_STAGE_COMPUTE_BIT:   return L"cs_6_0";
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return L"";
 		}
 #else
@@ -123,7 +123,7 @@ namespace Hazel {
 				case VK_SHADER_STAGE_FRAGMENT_BIT:  return "ps_6_0";
 				case VK_SHADER_STAGE_COMPUTE_BIT:   return "cs_6_0";
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return "";
 		}
 #endif

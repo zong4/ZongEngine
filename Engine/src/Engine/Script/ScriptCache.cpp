@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptCache.h"
 
 #include "ScriptUtils.h"
@@ -33,7 +33,7 @@ namespace Hazel {
 	static Cache* s_Cache = nullptr;
 	void ScriptCache::Init()
 	{
-		HZ_CORE_ASSERT(!s_Cache, "Trying to initialize ScriptCache multiple times!");
+		ZONG_CORE_ASSERT(!s_Cache, "Trying to initialize ScriptCache multiple times!");
 		s_Cache = hnew Cache();
 
 		CacheCoreClasses();
@@ -142,7 +142,7 @@ namespace Hazel {
 
 	static void BuildClassMetadata(Ref<AssemblyInfo>& assemblyInfo, MonoClass* monoClass)
 	{
-		HZ_CORE_VERIFY(monoClass);
+		ZONG_CORE_VERIFY(monoClass);
 
 		const std::string fullName = ScriptUtils::ResolveMonoClassName(monoClass);
 
@@ -160,7 +160,7 @@ namespace Hazel {
 		managedClass.IsStruct = mono_class_is_valuetype(monoClass);
 
 		MonoClass* parentClass = mono_class_get_parent(monoClass);
-		if (parentClass != nullptr && parentClass != HZ_CACHED_CLASS_RAW("System.Object"))
+		if (parentClass != nullptr && parentClass != ZONG_CACHED_CLASS_RAW("System.Object"))
 		{
 			std::string parentName = ScriptUtils::ResolveMonoClassName(parentClass);
 			managedClass.ParentID = Hash::GenerateFNVHash(parentName);
@@ -193,10 +193,10 @@ namespace Hazel {
 			CacheClassFields(assemblyInfo, managedClass);
 			CacheClassProperties(assemblyInfo, managedClass);
 
-			if (mono_class_is_subclass_of(managedClass.Class, HZ_CACHED_CLASS_RAW("Hazel.Entity"), false))
+			if (mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Hazel.Entity"), false))
 			{
 				AssetHandle handle = AssetManager::CreateMemoryOnlyAssetWithHandle<ScriptAsset>(Hash::GenerateFNVHash(managedClass.FullName), classID);
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 				// TODO(Yan): fix this for runtime
 				if (!Application::IsRuntime())
 					Project::GetEditorAssetManager()->GetMutableMetadata(handle).FilePath = managedClass.FullName;
@@ -208,7 +208,7 @@ namespace Hazel {
 		{
 			ManagedClass& managedClass = s_Cache->Classes.at(classID);
 
-			if (!mono_class_is_subclass_of(managedClass.Class, HZ_CACHED_CLASS_RAW("Hazel.Entity"), false))
+			if (!mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Hazel.Entity"), false))
 				continue;
 
 			MonoObject* tempInstance = ScriptEngine::CreateManagedObject_Internal(&managedClass);
@@ -270,7 +270,7 @@ namespace Hazel {
 
 	ManagedClass* ScriptCache::GetMonoObjectClass(MonoObject* monoObject)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (s_Cache == nullptr)
 			return nullptr;
@@ -305,30 +305,30 @@ namespace Hazel {
 	{
 		switch (fieldType)
 		{
-			case FieldType::Bool: return HZ_CACHED_CLASS("System.Bool")->Class;
-			case FieldType::Int8: return HZ_CACHED_CLASS("System.SByte")->Class;
-			case FieldType::Int16: return HZ_CACHED_CLASS("System.Int16")->Class;
-			case FieldType::Int32: return HZ_CACHED_CLASS("System.Int32")->Class;
-			case FieldType::Int64: return HZ_CACHED_CLASS("System.Int64")->Class;
-			case FieldType::UInt8: return HZ_CACHED_CLASS("System.Byte")->Class;
-			case FieldType::UInt16: return HZ_CACHED_CLASS("System.UInt16")->Class;
-			case FieldType::UInt32: return HZ_CACHED_CLASS("System.UInt32")->Class;
-			case FieldType::UInt64: return HZ_CACHED_CLASS("System.UInt64")->Class;
-			case FieldType::Float: return HZ_CACHED_CLASS("System.Single")->Class;
-			case FieldType::Double: return HZ_CACHED_CLASS("System.Double")->Class;
-			case FieldType::String: return HZ_CACHED_CLASS("System.String")->Class;
-			case FieldType::Vector2: return HZ_CACHED_CLASS("Hazel.Vector2")->Class;
-			case FieldType::Vector3: return HZ_CACHED_CLASS("Hazel.Vector3")->Class;
-			case FieldType::Vector4: return HZ_CACHED_CLASS("Hazel.Vector4")->Class;
-			case FieldType::AssetHandle: return HZ_CACHED_CLASS("Hazel.AssetHandle")->Class;
-			case FieldType::Prefab: return HZ_CACHED_CLASS("Hazel.Prefab")->Class;
-			case FieldType::Entity: return HZ_CACHED_CLASS("Hazel.Entity")->Class;
-			case FieldType::Mesh: return HZ_CACHED_CLASS("Hazel.Mesh")->Class;
-			case FieldType::StaticMesh: return HZ_CACHED_CLASS("Hazel.StaticMesh")->Class;
-			case FieldType::Material: return HZ_CACHED_CLASS("Hazel.Material")->Class;
-			case FieldType::PhysicsMaterial: return HZ_CACHED_CLASS("Hazel.PhysicsMaterial")->Class;
-			case FieldType::Texture2D: return HZ_CACHED_CLASS("Hazel.Texture2D")->Class;
-			case FieldType::Scene: return HZ_CACHED_CLASS("Hazel.Scene")->Class;
+			case FieldType::Bool: return ZONG_CACHED_CLASS("System.Bool")->Class;
+			case FieldType::Int8: return ZONG_CACHED_CLASS("System.SByte")->Class;
+			case FieldType::Int16: return ZONG_CACHED_CLASS("System.Int16")->Class;
+			case FieldType::Int32: return ZONG_CACHED_CLASS("System.Int32")->Class;
+			case FieldType::Int64: return ZONG_CACHED_CLASS("System.Int64")->Class;
+			case FieldType::UInt8: return ZONG_CACHED_CLASS("System.Byte")->Class;
+			case FieldType::UInt16: return ZONG_CACHED_CLASS("System.UInt16")->Class;
+			case FieldType::UInt32: return ZONG_CACHED_CLASS("System.UInt32")->Class;
+			case FieldType::UInt64: return ZONG_CACHED_CLASS("System.UInt64")->Class;
+			case FieldType::Float: return ZONG_CACHED_CLASS("System.Single")->Class;
+			case FieldType::Double: return ZONG_CACHED_CLASS("System.Double")->Class;
+			case FieldType::String: return ZONG_CACHED_CLASS("System.String")->Class;
+			case FieldType::Vector2: return ZONG_CACHED_CLASS("Hazel.Vector2")->Class;
+			case FieldType::Vector3: return ZONG_CACHED_CLASS("Hazel.Vector3")->Class;
+			case FieldType::Vector4: return ZONG_CACHED_CLASS("Hazel.Vector4")->Class;
+			case FieldType::AssetHandle: return ZONG_CACHED_CLASS("Hazel.AssetHandle")->Class;
+			case FieldType::Prefab: return ZONG_CACHED_CLASS("Hazel.Prefab")->Class;
+			case FieldType::Entity: return ZONG_CACHED_CLASS("Hazel.Entity")->Class;
+			case FieldType::Mesh: return ZONG_CACHED_CLASS("Hazel.Mesh")->Class;
+			case FieldType::StaticMesh: return ZONG_CACHED_CLASS("Hazel.StaticMesh")->Class;
+			case FieldType::Material: return ZONG_CACHED_CLASS("Hazel.Material")->Class;
+			case FieldType::PhysicsMaterial: return ZONG_CACHED_CLASS("Hazel.PhysicsMaterial")->Class;
+			case FieldType::Texture2D: return ZONG_CACHED_CLASS("Hazel.Texture2D")->Class;
+			case FieldType::Scene: return ZONG_CACHED_CLASS("Hazel.Scene")->Class;
 		}
 
 		return nullptr;
@@ -336,14 +336,14 @@ namespace Hazel {
 
 	ManagedMethod* ScriptCache::GetManagedMethod(ManagedClass* managedClass, const std::string& name, bool ignoreParent /*= false*/)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (s_Cache == nullptr)
 			return nullptr;
 
 		if (managedClass == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Attempting to get method {0} from a nullptr class!", name);
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Attempting to get method {0} from a nullptr class!", name);
 			return nullptr;
 		}
 
@@ -354,20 +354,20 @@ namespace Hazel {
 		if (!ignoreParent && managedClass->ParentID != 0)
 			return GetManagedMethod(&s_Cache->Classes.at(managedClass->ParentID), name);
 
-		HZ_CORE_WARN_TAG("ScriptEngine", "Failed to find method with name: {0} in class {1}", name, managedClass->FullName);
+		ZONG_CORE_WARN_TAG("ScriptEngine", "Failed to find method with name: {0} in class {1}", name, managedClass->FullName);
 		return nullptr;
 	}
 
 	ManagedMethod* ScriptCache::GetSpecificManagedMethod(ManagedClass* managedClass, const std::string& name, uint32_t parameterCount, bool ignoreParent)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (s_Cache == nullptr)
 			return nullptr;
 
 		if (managedClass == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Attempting to get method {0} from a nullptr class!", name);
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Attempting to get method {0} from a nullptr class!", name);
 			return nullptr;
 		}
 
@@ -390,7 +390,7 @@ namespace Hazel {
 			method = GetSpecificManagedMethod(&s_Cache->Classes.at(managedClass->ParentID), name, parameterCount);
 
 		if (method == nullptr)
-			HZ_CORE_WARN_TAG("ScriptEngine", "Failed to find method with name: {0} and parameter count: {1} in class {2}", name, parameterCount, managedClass->FullName);
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Failed to find method with name: {0} and parameter count: {1} in class {2}", name, parameterCount, managedClass->FullName);
 
 		return method;
 	}
@@ -658,7 +658,7 @@ namespace Hazel {
 
 			if (monoType == nullptr)
 			{
-				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to retrieve managed type for property '{0}'", name);
+				ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to retrieve managed type for property '{0}'", name);
 				continue;
 			}
 

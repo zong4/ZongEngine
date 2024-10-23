@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "RendererStats.h"
 
 namespace Hazel {

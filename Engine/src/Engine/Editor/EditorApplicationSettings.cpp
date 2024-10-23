@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "EditorApplicationSettings.h"
 #include "Engine/Utilities/FileSystem.h"
 
@@ -28,8 +28,8 @@ namespace Hazel {
 		LoadSettings();
 	}
 
-#define HZ_ENTER_GROUP(name) currentGroup = rootNode[name];
-#define HZ_READ_VALUE(name, type, var, defaultValue) var = currentGroup[name].as<type>(defaultValue)
+#define ZONG_ENTER_GROUP(name) currentGroup = rootNode[name];
+#define ZONG_READ_VALUE(name, type, var, defaultValue) var = currentGroup[name].as<type>(defaultValue)
 
 	void EditorApplicationSettingsSerializer::LoadSettings()
 	{
@@ -41,7 +41,7 @@ namespace Hazel {
 		}
 
 		std::ifstream stream(s_EditorSettingsPath);
-		HZ_CORE_VERIFY(stream);
+		ZONG_CORE_VERIFY(stream);
 		std::stringstream ss;
 		ss << stream.rdbuf();
 
@@ -54,35 +54,35 @@ namespace Hazel {
 
 		auto& settings = EditorApplicationSettings::Get();
 
-		HZ_ENTER_GROUP("Editor");
+		ZONG_ENTER_GROUP("Editor");
 		{
-			HZ_READ_VALUE("AdvancedMode", bool, settings.AdvancedMode, false);
-			HZ_READ_VALUE("HighlightUnsetMeshes", bool, settings.HighlightUnsetMeshes, true);
-			HZ_READ_VALUE("TranslationSnapValue", float, settings.TranslationSnapValue, 0.5f);
-			HZ_READ_VALUE("RotationSnapValue", float, settings.RotationSnapValue, 45.0f);
-			HZ_READ_VALUE("ScaleSnapValue", float, settings.ScaleSnapValue, 0.5f);
+			ZONG_READ_VALUE("AdvancedMode", bool, settings.AdvancedMode, false);
+			ZONG_READ_VALUE("HighlightUnsetMeshes", bool, settings.HighlightUnsetMeshes, true);
+			ZONG_READ_VALUE("TranslationSnapValue", float, settings.TranslationSnapValue, 0.5f);
+			ZONG_READ_VALUE("RotationSnapValue", float, settings.RotationSnapValue, 45.0f);
+			ZONG_READ_VALUE("ScaleSnapValue", float, settings.ScaleSnapValue, 0.5f);
 		}
 
-		HZ_ENTER_GROUP("Scripting");
+		ZONG_ENTER_GROUP("Scripting");
 		{
-			HZ_READ_VALUE("ShowHiddenFields", bool, settings.ShowHiddenFields, false);
-			HZ_READ_VALUE("DebuggerListenPort", int, settings.ScriptDebuggerListenPort, 2550);
+			ZONG_READ_VALUE("ShowHiddenFields", bool, settings.ShowHiddenFields, false);
+			ZONG_READ_VALUE("DebuggerListenPort", int, settings.ScriptDebuggerListenPort, 2550);
 		}
 
-		HZ_ENTER_GROUP("ContentBrowser");
+		ZONG_ENTER_GROUP("ContentBrowser");
 		{
-			HZ_READ_VALUE("ShowAssetTypes", bool, settings.ContentBrowserShowAssetTypes, true);
-			HZ_READ_VALUE("ThumbnailSize", int, settings.ContentBrowserThumbnailSize, 128);
+			ZONG_READ_VALUE("ShowAssetTypes", bool, settings.ContentBrowserShowAssetTypes, true);
+			ZONG_READ_VALUE("ThumbnailSize", int, settings.ContentBrowserThumbnailSize, 128);
 		}
 
 		stream.close();
 	}
 
-#define HZ_BEGIN_GROUP(name)\
+#define ZONG_BEGIN_GROUP(name)\
 		out << YAML::Key << name << YAML::Value << YAML::BeginMap;
-#define HZ_END_GROUP() out << YAML::EndMap;
+#define ZONG_END_GROUP() out << YAML::EndMap;
 
-#define HZ_SERIALIZE_VALUE(name, value) out << YAML::Key << name << YAML::Value << value;
+#define ZONG_SERIALIZE_VALUE(name, value) out << YAML::Key << name << YAML::Value << value;
 
 	void EditorApplicationSettingsSerializer::SaveSettings()
 	{
@@ -90,33 +90,33 @@ namespace Hazel {
 
 		YAML::Emitter out;
 		out << YAML::BeginMap;
-		HZ_BEGIN_GROUP("EditorApplicationSettings");
+		ZONG_BEGIN_GROUP("EditorApplicationSettings");
 		{
-			HZ_BEGIN_GROUP("Editor");
+			ZONG_BEGIN_GROUP("Editor");
 			{
-				HZ_SERIALIZE_VALUE("AdvancedMode", settings.AdvancedMode);
-				HZ_SERIALIZE_VALUE("HighlightUnsetMeshes", settings.HighlightUnsetMeshes);
-				HZ_SERIALIZE_VALUE("TranslationSnapValue", settings.TranslationSnapValue);
-				HZ_SERIALIZE_VALUE("RotationSnapValue", settings.RotationSnapValue);
-				HZ_SERIALIZE_VALUE("ScaleSnapValue", settings.ScaleSnapValue);
+				ZONG_SERIALIZE_VALUE("AdvancedMode", settings.AdvancedMode);
+				ZONG_SERIALIZE_VALUE("HighlightUnsetMeshes", settings.HighlightUnsetMeshes);
+				ZONG_SERIALIZE_VALUE("TranslationSnapValue", settings.TranslationSnapValue);
+				ZONG_SERIALIZE_VALUE("RotationSnapValue", settings.RotationSnapValue);
+				ZONG_SERIALIZE_VALUE("ScaleSnapValue", settings.ScaleSnapValue);
 			}
-			HZ_END_GROUP(); 
+			ZONG_END_GROUP(); 
 			
-			HZ_BEGIN_GROUP("Scripting");
+			ZONG_BEGIN_GROUP("Scripting");
 			{
-				HZ_SERIALIZE_VALUE("ShowHiddenFields", settings.ShowHiddenFields);
-				HZ_SERIALIZE_VALUE("DebuggerListenPort", settings.ScriptDebuggerListenPort);
+				ZONG_SERIALIZE_VALUE("ShowHiddenFields", settings.ShowHiddenFields);
+				ZONG_SERIALIZE_VALUE("DebuggerListenPort", settings.ScriptDebuggerListenPort);
 			}
-			HZ_END_GROUP();
+			ZONG_END_GROUP();
 
-			HZ_BEGIN_GROUP("ContentBrowser");
+			ZONG_BEGIN_GROUP("ContentBrowser");
 			{
-				HZ_SERIALIZE_VALUE("ShowAssetTypes", settings.ContentBrowserShowAssetTypes);
-				HZ_SERIALIZE_VALUE("ThumbnailSize", settings.ContentBrowserThumbnailSize);
+				ZONG_SERIALIZE_VALUE("ShowAssetTypes", settings.ContentBrowserShowAssetTypes);
+				ZONG_SERIALIZE_VALUE("ThumbnailSize", settings.ContentBrowserThumbnailSize);
 			}
-			HZ_END_GROUP();
+			ZONG_END_GROUP();
 		}
-		HZ_END_GROUP();
+		ZONG_END_GROUP();
 		out << YAML::EndMap;
 
 		std::ofstream fout(s_EditorSettingsPath);

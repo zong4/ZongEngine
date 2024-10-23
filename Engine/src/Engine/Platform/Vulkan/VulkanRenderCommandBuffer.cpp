@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanRenderCommandBuffer.h"
 
 #include <utility>
@@ -219,7 +219,7 @@ namespace Hazel {
 			VK_CHECK_RESULT(vkWaitForFences(device->GetVulkanDevice(), 1, &instance->m_WaitFences[frameIndex], VK_TRUE, UINT64_MAX));
 			VK_CHECK_RESULT(vkResetFences(device->GetVulkanDevice(), 1, &instance->m_WaitFences[frameIndex]));
 
-			HZ_CORE_TRACE_TAG("Renderer", "Submitting Render Command Buffer {}", instance->m_DebugName);
+			ZONG_CORE_TRACE_TAG("Renderer", "Submitting Render Command Buffer {}", instance->m_DebugName);
 
 			VK_CHECK_RESULT(vkQueueSubmit(device->GetGraphicsQueue(), 1, &submitInfo, instance->m_WaitFences[frameIndex]));
 

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanRenderer.h"
 
 #include "imgui.h"
@@ -29,7 +29,7 @@
 #include "Engine/Core/Timer.h"
 #include "Engine/Debug/Profiler.h"
 
-#if HZ_HAS_SHADER_COMPILER
+#if ZONG_HAS_SHADER_COMPILER
 #include "ShaderCompiler/VulkanShaderCompiler.h"
 #endif
 
@@ -181,7 +181,7 @@ namespace Hazel {
 			s_Data->SamplerClamp = nullptr;
 		}
 
-#if HZ_HAS_SHADER_COMPILER
+#if ZONG_HAS_SHADER_COMPILER
 		VulkanShaderCompiler::ClearUniformBuffers();
 #endif
 		delete s_Data;
@@ -249,13 +249,13 @@ namespace Hazel {
 
 	void VulkanRenderer::RenderStaticMesh(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount)
 	{
-		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(materialTable);
+		ZONG_CORE_VERIFY(mesh);
+		ZONG_CORE_VERIFY(materialTable);
 
 		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable = Ref<MaterialTable>::Create(materialTable), transformBuffer, transformOffset, instanceCount]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderMesh");
-			HZ_SCOPE_PERF("VulkanRenderer::RenderMesh");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderMesh");
+			ZONG_SCOPE_PERF("VulkanRenderer::RenderMesh");
 
 			if (s_Data->SelectedDrawCall != -1 && s_Data->DrawCallCount > s_Data->SelectedDrawCall)
 				return;
@@ -318,13 +318,13 @@ namespace Hazel {
 
 	void VulkanRenderer::RenderSubmeshInstanced(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<MaterialTable> materialTable, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount)
 	{
-		HZ_CORE_VERIFY(mesh);
-		HZ_CORE_VERIFY(materialTable);
+		ZONG_CORE_VERIFY(mesh);
+		ZONG_CORE_VERIFY(materialTable);
 
 		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, materialTable, transformBuffer, transformOffset, boneTransformsOffset, instanceCount]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderMesh");
-			HZ_SCOPE_PERF("VulkanRenderer::RenderMesh");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderMesh");
+			ZONG_SCOPE_PERF("VulkanRenderer::RenderMesh");
 
 			if (s_Data->SelectedDrawCall != -1 && s_Data->DrawCallCount > s_Data->SelectedDrawCall)
 				return;
@@ -396,8 +396,8 @@ namespace Hazel {
 
 	void VulkanRenderer::RenderMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<Mesh> mesh, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t boneTransformsOffset, uint32_t instanceCount, Buffer additionalUniforms)
 	{
-		HZ_CORE_ASSERT(mesh);
-		HZ_CORE_ASSERT(mesh->GetMeshSource());
+		ZONG_CORE_ASSERT(mesh);
+		ZONG_CORE_ASSERT(mesh->GetMeshSource());
 
 		Buffer pushConstantBuffer;
 		bool isRigged = mesh->GetMeshSource()->IsSubmeshRigged(submeshIndex);
@@ -415,8 +415,8 @@ namespace Hazel {
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
 		Renderer::Submit([renderCommandBuffer, pipeline, mesh, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
-			HZ_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
+			ZONG_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -478,8 +478,8 @@ namespace Hazel {
 
 	void VulkanRenderer::RenderStaticMeshWithMaterial(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Pipeline> pipeline, Ref<StaticMesh> staticMesh, uint32_t submeshIndex, Ref<Material> material, Ref<VertexBuffer> transformBuffer, uint32_t transformOffset, uint32_t instanceCount, Buffer additionalUniforms /*= Buffer()*/)
 	{
-		HZ_CORE_ASSERT(staticMesh);
-		HZ_CORE_ASSERT(staticMesh->GetMeshSource());
+		ZONG_CORE_ASSERT(staticMesh);
+		ZONG_CORE_ASSERT(staticMesh->GetMeshSource());
 
 		Buffer pushConstantBuffer;
 		if (additionalUniforms.Size)
@@ -492,8 +492,8 @@ namespace Hazel {
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
 		Renderer::Submit([renderCommandBuffer, pipeline, staticMesh, submeshIndex, vulkanMaterial, transformBuffer, transformOffset, instanceCount, pushConstantBuffer]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
-			HZ_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderMeshWithMaterial");
+			ZONG_SCOPE_PERF("VulkanRenderer::RenderMeshWithMaterial");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -550,7 +550,7 @@ namespace Hazel {
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
 		Renderer::Submit([renderCommandBuffer, pipeline, vulkanMaterial, transform]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderQuad");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderQuad");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -584,7 +584,7 @@ namespace Hazel {
 
 		Renderer::Submit([renderCommandBuffer, pipeline, vulkanMaterial, vertexBuffer, indexBuffer, transform, indexCount]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::RenderGeometry");
+			ZONG_PROFILE_FUNC("VulkanRenderer::RenderGeometry");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -617,7 +617,7 @@ namespace Hazel {
 
 	VkDescriptorSet VulkanRenderer::RT_AllocateDescriptorSet(VkDescriptorSetAllocateInfo& allocInfo)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t bufferIndex = Renderer::RT_GetCurrentFrameIndex();
 		allocInfo.descriptorPool = s_Data->DescriptorPools[bufferIndex];
@@ -630,7 +630,7 @@ namespace Hazel {
 
 	VkDescriptorSet VulkanRenderer::AllocateMaterialDescriptorSet(VkDescriptorSetAllocateInfo& allocInfo)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		uint32_t bufferIndex = Renderer::RT_GetCurrentFrameIndex();
 		allocInfo.descriptorPool = s_Data->MaterialDescriptorPool;
@@ -648,7 +648,7 @@ namespace Hazel {
 		{
 
 
-			HZ_CORE_ASSERT(set == 1); // Currently we only bind to Renderer-maintaned UBs, which are in descriptor set 1
+			ZONG_CORE_ASSERT(set == 1); // Currently we only bind to Renderer-maintaned UBs, which are in descriptor set 1
 
 			Ref<VulkanUniformBuffer> vulkanUniformBuffer = uniformBuffer.As<VulkanUniformBuffer>();
 
@@ -660,7 +660,7 @@ namespace Hazel {
 			writeDescriptorSet.dstBinding = uniformBuffer->GetBinding();
 			writeDescriptorSet.dstSet = s_Data->RendererDescriptorSet.DescriptorSets[0];
 
-			HZ_CORE_WARN("VulkanRenderer - Updating descriptor set (VulkanRenderer::SetUniformBuffer)");
+			ZONG_CORE_WARN("VulkanRenderer - Updating descriptor set (VulkanRenderer::SetUniformBuffer)");
 			VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 			vkUpdateDescriptorSets(device, 1, &writeDescriptorSet, 0, nullptr);
 		});
@@ -867,7 +867,7 @@ namespace Hazel {
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
 		Renderer::Submit([renderCommandBuffer, pipeline, vulkanMaterial]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::SubmitFullscreenQuad");
+			ZONG_PROFILE_FUNC("VulkanRenderer::SubmitFullscreenQuad");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -919,7 +919,7 @@ namespace Hazel {
 		Ref<VulkanMaterial> vulkanMaterial = material.As<VulkanMaterial>();
 		Renderer::Submit([renderCommandBuffer, pipeline, vulkanMaterial, vertexPushConstantBuffer, fragmentPushConstantBuffer]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::SubmitFullscreenQuad");
+			ZONG_PROFILE_FUNC("VulkanRenderer::SubmitFullscreenQuad");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -960,7 +960,7 @@ namespace Hazel {
 
 		Renderer::Submit([sceneRenderer, environment, shadow, spotShadow]() mutable
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::SetSceneEnvironment");
+			ZONG_PROFILE_FUNC("VulkanRenderer::SetSceneEnvironment");
 
 			const auto shader = Renderer::GetShaderLibrary()->Get("HazelPBR_Static");
 			Ref<VulkanShader> pbrShader = shader.As<VulkanShader>();
@@ -1017,7 +1017,7 @@ namespace Hazel {
 	{
 		Renderer::Submit([]()
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::BeginFrame");
+			ZONG_PROFILE_FUNC("VulkanRenderer::BeginFrame");
 
 			VulkanSwapChain& swapChain = Application::Get().GetWindow().GetSwapChain();
 
@@ -1037,7 +1037,7 @@ namespace Hazel {
 
 			VkCommandBuffer drawCommandBuffer = swapChain.GetCurrentDrawCommandBuffer();
 			commandBuffer = drawCommandBuffer;
-			HZ_CORE_ASSERT(commandBuffer);
+			ZONG_CORE_ASSERT(commandBuffer);
 			VK_CHECK_RESULT(vkBeginCommandBuffer(drawCommandBuffer, &cmdBufInfo));
 #endif
 		});
@@ -1112,8 +1112,8 @@ namespace Hazel {
 	{
 		Renderer::Submit([renderCommandBuffer, renderPass, explicitClear]()
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
-			HZ_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
+			ZONG_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
+			ZONG_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -1193,7 +1193,7 @@ namespace Hazel {
 			{
 				const uint32_t colorAttachmentCount = (uint32_t)framebuffer->GetColorAttachmentCount();
 				const uint32_t totalAttachmentCount = colorAttachmentCount + (framebuffer->HasDepthAttachment() ? 1 : 0);
-				HZ_CORE_ASSERT(clearValues.size() == totalAttachmentCount);
+				ZONG_CORE_ASSERT(clearValues.size() == totalAttachmentCount);
 
 				std::vector<VkClearAttachment> attachments(totalAttachmentCount);
 				std::vector<VkClearRect> clearRects(totalAttachmentCount);
@@ -1240,8 +1240,8 @@ namespace Hazel {
 	{
 		Renderer::Submit([renderCommandBuffer, renderPass, explicitClear]()
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
-			HZ_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
+			ZONG_PROFILE_SCOPE_DYNAMIC(fmt::format("VulkanRenderer::BeginRenderPass ({})", renderPass->GetSpecification().DebugName).c_str());
+			ZONG_CORE_TRACE_TAG("Renderer", "BeginRenderPass - {}", renderPass->GetSpecification().DebugName);
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -1320,7 +1320,7 @@ namespace Hazel {
 			{
 				const uint32_t colorAttachmentCount = (uint32_t)framebuffer->GetColorAttachmentCount();
 				const uint32_t totalAttachmentCount = colorAttachmentCount + (framebuffer->HasDepthAttachment() ? 1 : 0);
-				HZ_CORE_ASSERT(clearValues.size() == totalAttachmentCount);
+				ZONG_CORE_ASSERT(clearValues.size() == totalAttachmentCount);
 
 				std::vector<VkClearAttachment> attachments(totalAttachmentCount);
 				std::vector<VkClearRect> clearRects(totalAttachmentCount);
@@ -1386,7 +1386,7 @@ namespace Hazel {
 	{
 		Renderer::Submit([renderCommandBuffer]()
 		{
-			HZ_PROFILE_FUNC("VulkanRenderer::EndRenderPass");
+			ZONG_PROFILE_FUNC("VulkanRenderer::EndRenderPass");
 
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
 			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetActiveCommandBuffer();
@@ -1477,7 +1477,7 @@ namespace Hazel {
 		const uint32_t irradianceMapSize = 32;
 
 		Ref<Texture2D> envEquirect = Texture2D::Create(TextureSpecification(), filepath);
-		HZ_CORE_ASSERT(envEquirect->GetFormat() == ImageFormat::RGBA32F, "Texture is not HDR!");
+		ZONG_CORE_ASSERT(envEquirect->GetFormat() == ImageFormat::RGBA32F, "Texture is not HDR!");
 
 		TextureSpecification cubemapSpec;
 		cubemapSpec.Format = ImageFormat::RGBA32F;

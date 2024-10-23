@@ -117,7 +117,7 @@ namespace Hazel::SoundGraph
 		{
 			const uint32_t arraySize = InValue(IDs::Array).size();
 			const auto index = (uint32_t)(*in_Index);
-			//HZ_CORE_ASSERT(index < arraySize);
+			//ZONG_CORE_ASSERT(index < arraySize);
 
 			const auto& element = in_Array[(index >= arraySize) ? (index % arraySize) : index];
 			out_Element = element;

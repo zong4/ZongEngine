@@ -32,7 +32,7 @@ project "Editor"
 	filter "system:windows"
 		systemversion "latest"
 
-		defines { "HZ_PLATFORM_WINDOWS" }
+		defines { "ZONG_PLATFORM_WINDOWS" }
 
 		postbuildcommands {
 			'{COPY} "../Engine/vendor/NvidiaAftermath/lib/x64/windows/GFSDK_Aftermath_Lib.x64.dll" "%{cfg.targetdir}"',
@@ -51,7 +51,7 @@ project "Editor"
 		}
 
 	filter "system:linux"
-		defines { "HZ_PLATFORM_LINUX", "__EMULATE_UUID" }
+		defines { "ZONG_PLATFORM_LINUX", "__EMULATE_UUID" }
 
 		links {
 			"pthread"
@@ -66,7 +66,7 @@ project "Editor"
 
 	filter "configurations:Debug or configurations:Debug-AS"
 		symbols "On"
-		defines { "HZ_DEBUG" }
+		defines { "ZONG_DEBUG" }
 
 		ProcessDependencies("Debug")
 
@@ -78,13 +78,13 @@ project "Editor"
 		optimize "On"
         vectorextensions "AVX2"
         isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_RELEASE", }
+		defines { "ZONG_RELEASE", }
 
 		ProcessDependencies("Release")
 
 	filter "configurations:Debug or configurations:Debug-AS or configurations:Release"
 		defines {
-			"HZ_TRACK_MEMORY",
+			"ZONG_TRACK_MEMORY",
 			
             "JPH_DEBUG_RENDERER",
             "JPH_FLOATING_POINT_EXCEPTIONS_ENABLED",
@@ -96,7 +96,7 @@ project "Editor"
 		optimize "On"
         vectorextensions "AVX2"
         isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_DIST" }
+		defines { "ZONG_DIST" }
 
 		ProcessDependencies("Dist")
 

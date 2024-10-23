@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanDiagnostics.h"
 
 #include "Engine/Platform/Vulkan/VulkanContext.h"

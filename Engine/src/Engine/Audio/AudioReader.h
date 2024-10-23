@@ -28,7 +28,7 @@ namespace Hazel::Audio
 			// Returns number of frames read
 			uint64_t Read(float* destination, uint64_t numFramesToRead, uint64_t readPositionInSource, uint64_t startFrameInSource)
 			{
-				HZ_CORE_ASSERT(destination != nullptr);
+				ZONG_CORE_ASSERT(destination != nullptr);
 
 				if (numFramesToRead == 0) return 0;
 
@@ -36,10 +36,10 @@ namespace Hazel::Audio
 				ma_uint64 framesRead = 0;
 
 				result = ma_resource_manager_data_source_seek_to_pcm_frame(&Source, readPositionInSource);
-				HZ_CORE_ASSERT(result == MA_SUCCESS);
+				ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 				result = ma_resource_manager_data_source_read_pcm_frames(&Source, destination, numFramesToRead, &framesRead);
-				HZ_CORE_ASSERT(result == MA_SUCCESS ||
+				ZONG_CORE_ASSERT(result == MA_SUCCESS ||
 							   result == MA_AT_END && (Source.flags & MA_RESOURCE_MANAGER_DATA_SOURCE_FLAG_DECODE));
 
 				//! If data source set to DECODE, miniaudio doesn't handle looping, it just stopps at the end,
@@ -49,15 +49,15 @@ namespace Hazel::Audio
 				{
 					// Wrapp around start position
 					result = ma_resource_manager_data_source_seek_to_pcm_frame(&Source, startFrameInSource);
-					HZ_CORE_ASSERT(result == MA_SUCCESS);
+					ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 					ma_uint64 secondRead = 0;
 					result = ma_resource_manager_data_source_read_pcm_frames(&Source, destination + framesRead * NumChannels, leftToRead, &secondRead);
-					HZ_CORE_ASSERT(result == MA_SUCCESS);
+					ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 					framesRead += secondRead;
 
-					HZ_CORE_ASSERT(framesRead == numFramesToRead);
+					ZONG_CORE_ASSERT(framesRead == numFramesToRead);
 				}
 
 				// Up-convert mono input source to stereo output
@@ -65,7 +65,7 @@ namespace Hazel::Audio
 				{
 					Buffer.Write(destination, (uint32_t)(numFramesToRead * sizeof(float)));
 					result = ma_channel_converter_process_pcm_frames(&Converter, destination, Buffer.Data, numFramesToRead);
-					HZ_CORE_ASSERT(result == MA_SUCCESS);
+					ZONG_CORE_ASSERT(result == MA_SUCCESS);
 				}
 
 				return framesRead;
@@ -75,9 +75,9 @@ namespace Hazel::Audio
 			{
 				ma_uint64 cursor, length;
 				ma_result r = ma_resource_manager_data_source_get_cursor_in_pcm_frames(&Source, &cursor);
-				HZ_CORE_ASSERT(r == MA_SUCCESS);
+				ZONG_CORE_ASSERT(r == MA_SUCCESS);
 				r = ma_resource_manager_data_source_get_length_in_pcm_frames(&Source, &length);
-				HZ_CORE_ASSERT(r == MA_SUCCESS);
+				ZONG_CORE_ASSERT(r == MA_SUCCESS);
 
 				return cursor == length;
 			}
@@ -92,19 +92,19 @@ namespace Hazel::Audio
 				if (!AssetManager::IsAssetHandleValid(waveAssetHandle))
 				{
 					// TODO: remove "empty" wave refs before this stage (?)
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					return false;
 				}
 
 				auto& assetMetadata = Project::GetEditorAssetManager()->GetMetadata(waveAssetHandle);
-				HZ_CORE_ASSERT(assetMetadata.Type == AssetType::Audio);
+				ZONG_CORE_ASSERT(assetMetadata.Type == AssetType::Audio);
 
 				const std::string filepath = Project::GetEditorAssetManager()->GetFileSystemPathString(assetMetadata);
 
 				//? This may be unnecessary, as we're only interested in auido files, not meta assets
 				if (!std::filesystem::exists(filepath))
 				{
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					return false;
 				}
 			}
@@ -112,7 +112,7 @@ namespace Hazel::Audio
 			{
 				// Verify that the handle is a valid AudioFile asset
 				Ref<AudioFile> audioFile = AssetManager::GetAsset<AudioFile>(waveAssetHandle);
-				HZ_CORE_VERIFY(audioFile);
+				ZONG_CORE_VERIFY(audioFile);
 			}
 
 			auto [it, is_inserted] = Readers.insert_or_assign(waveAssetHandle, Reader{});
@@ -143,14 +143,14 @@ namespace Hazel::Audio
 			ma_uint32 flags = MA_RESOURCE_MANAGER_DATA_SOURCE_FLAG_DECODE;
 			ma_result result;
 			result = ma_resource_manager_data_source_init(resourceManager, sourceFile.c_str(), flags, nullptr, &reader.Source);
-			HZ_CORE_ASSERT(result == MA_SUCCESS);
+			ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 			result = ma_resource_manager_data_source_set_looping(&reader.Source, true);
-			HZ_CORE_ASSERT(result == MA_SUCCESS);
+			ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 			ma_uint64 length;
 			result = ma_resource_manager_data_source_get_length_in_pcm_frames(&reader.Source, &length);
-			HZ_CORE_ASSERT(result == MA_SUCCESS);
+			ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 			reader.TotalFrames = length;
 			ma_format sourceFormat;
@@ -159,9 +159,9 @@ namespace Hazel::Audio
 			ma_resource_manager_data_source_get_data_format(&reader.Source, &sourceFormat, &reader.NumChannels, &sampleRate, &channelMap, 0);
 
 			// For now we only support f32 sample format
-			HZ_CORE_ASSERT(sourceFormat == ma_format_f32);
+			ZONG_CORE_ASSERT(sourceFormat == ma_format_f32);
 			// For now we only support mono and stereo files
-			HZ_CORE_ASSERT(reader.NumChannels > 0 && reader.NumChannels <= 2);
+			ZONG_CORE_ASSERT(reader.NumChannels > 0 && reader.NumChannels <= 2);
 
 			// We up-convert mono file sources to stereo for now.
 			// This may change in the future.
@@ -175,7 +175,7 @@ namespace Hazel::Audio
 																					  ma_channel_mix_mode_default);	  // The mixing algorithm to use when combining channels.
 
 				result = ma_channel_converter_init(&config, /*nullptr, */&reader.Converter);
-				HZ_CORE_ASSERT(result == MA_SUCCESS);
+				ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 				// Allocate buffer for channel convertion
 				reader.Buffer.Allocate(s_ConversionBufferSize * sizeof(float));

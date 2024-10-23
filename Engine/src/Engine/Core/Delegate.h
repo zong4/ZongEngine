@@ -99,7 +99,7 @@ namespace Hazel {
 
 		TReturn Invoke(TArgs...args) const
 		{
-			HZ_CORE_ASSERT(IsBound(), "Trying to invoke unbound delegate.");
+			ZONG_CORE_ASSERT(IsBound(), "Trying to invoke unbound delegate.");
 			return std::invoke(m_Invocation.Stub, m_Invocation.Object, std::forward<TArgs>(args)...);
 			//return (*m_Invocation.Stub)(m_Invocation.Object, std::forward<TArgs>(args)...);
 		}
@@ -229,7 +229,7 @@ namespace Hazel {
 		/** Multicast Delegate does not support return type handling. */
 		void Invoke(TArgs...args) const
 		{
-			HZ_CORE_ASSERT(IsBound(), "Trying to invoke unbound delegate.");
+			ZONG_CORE_ASSERT(IsBound(), "Trying to invoke unbound delegate.");
 
 			// We don't want to Invoke new functions that may be added
 			// in one of the delegate calls.

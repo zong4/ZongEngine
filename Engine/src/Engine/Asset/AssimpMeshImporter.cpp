@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssimpMeshImporter.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -14,11 +14,11 @@ namespace Hazel {
 
 #define MESH_DEBUG_LOG 0
 #if MESH_DEBUG_LOG
-#define HZ_MESH_LOG(...) HZ_CORE_TRACE_TAG("Mesh", __VA_ARGS__)
-#define HZ_MESH_ERROR(...) HZ_CORE_ERROR_TAG("Mesh", __VA_ARGS__)
+#define ZONG_MESH_LOG(...) ZONG_CORE_TRACE_TAG("Mesh", __VA_ARGS__)
+#define ZONG_MESH_ERROR(...) ZONG_CORE_ERROR_TAG("Mesh", __VA_ARGS__)
 #else
-#define HZ_MESH_LOG(...)
-#define HZ_MESH_ERROR(...)
+#define ZONG_MESH_LOG(...)
+#define ZONG_MESH_ERROR(...)
 #endif
 
 	static const uint32_t s_MeshImportFlags =
@@ -50,7 +50,7 @@ namespace Hazel {
 #if MESH_DEBUG_LOG
 		void PrintNode(aiNode* node, size_t depth)
 		{
-			HZ_MESH_LOG("{0:^{1}}{2} {{", "", depth * 3, node->mName.C_Str());
+			ZONG_MESH_LOG("{0:^{1}}{2} {{", "", depth * 3, node->mName.C_Str());
 			++depth;
 			glm::vec3 translation;
 			glm::vec3 rotation;
@@ -59,15 +59,15 @@ namespace Hazel {
 			Math::DecomposeTransform(transform, translation, rotation, scale);
 			rotation = glm::degrees(rotation);
 
-			HZ_MESH_LOG("{0:^{1}}translation: ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, translation.x, translation.y, translation.z);
-			HZ_MESH_LOG("{0:^{1}}rotation:    ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, rotation.x, rotation.y, rotation.z);
-			HZ_MESH_LOG("{0:^{1}}scale:       ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, scale.x, scale.y, scale.z);
+			ZONG_MESH_LOG("{0:^{1}}translation: ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, translation.x, translation.y, translation.z);
+			ZONG_MESH_LOG("{0:^{1}}rotation:    ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, rotation.x, rotation.y, rotation.z);
+			ZONG_MESH_LOG("{0:^{1}}scale:       ({2:6.2f}, {3:6.2f}, {4:6.2f})", "", depth * 3, scale.x, scale.y, scale.z);
 			for (uint32_t i = 0; i < node->mNumChildren; ++i)
 			{
 				PrintNode(node->mChildren[i], depth);
 			}
 			--depth;
-			HZ_MESH_LOG("{0:^{1}}}}", "", depth * 3);
+			ZONG_MESH_LOG("{0:^{1}}}}", "", depth * 3);
 		}
 #endif
 
@@ -83,7 +83,7 @@ namespace Hazel {
 	{
 		Ref<MeshSource> meshSource = Ref<MeshSource>::Create();
 
-		HZ_CORE_INFO_TAG("Mesh", "Loading mesh: {0}", m_Path.string());
+		ZONG_CORE_INFO_TAG("Mesh", "Loading mesh: {0}", m_Path.string());
 
 		Assimp::Importer importer;
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -91,13 +91,13 @@ namespace Hazel {
 		const aiScene* scene = importer.ReadFile(m_Path.string(), s_MeshImportFlags);
 		if (!scene /* || !scene->HasMeshes()*/)  // note: scene can legit contain no meshes (e.g. it could contain an armature, an animation, and no skin (mesh)))
 		{
-			HZ_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
+			ZONG_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
 			meshSource->SetFlag(AssetFlag::Invalid);
 			return nullptr;
 		}
 
 		meshSource->m_Skeleton = AssimpAnimationImporter::ImportSkeleton(scene);
-		HZ_CORE_INFO_TAG("Animation", "Skeleton {0} found in mesh file '{1}'", meshSource->HasSkeleton() ? "" : "not", m_Path.string());
+		ZONG_CORE_INFO_TAG("Animation", "Skeleton {0} found in mesh file '{1}'", meshSource->HasSkeleton() ? "" : "not", m_Path.string());
 
 		meshSource->m_Animations.resize(scene->mNumAnimations);
 		meshSource->m_AnimationNames.reserve(scene->mNumAnimations);
@@ -138,8 +138,8 @@ namespace Hazel {
 				vertexCount += mesh->mNumVertices;
 				indexCount += submesh.IndexCount;
 
-				HZ_CORE_ASSERT(mesh->HasPositions(), "Meshes require positions.");
-				HZ_CORE_ASSERT(mesh->HasNormals(), "Meshes require normals.");
+				ZONG_CORE_ASSERT(mesh->HasPositions(), "Meshes require positions.");
+				ZONG_CORE_ASSERT(mesh->HasNormals(), "Meshes require normals.");
 
 				// Vertices
 				auto& aabb = submesh.BoundingBox;
@@ -172,7 +172,7 @@ namespace Hazel {
 				// Indices
 				for (size_t i = 0; i < mesh->mNumFaces; i++)
 				{
-					HZ_CORE_ASSERT(mesh->mFaces[i].mNumIndices == 3, "Must have 3 indices.");
+					ZONG_CORE_ASSERT(mesh->mFaces[i].mNumIndices == 3, "Must have 3 indices.");
 					Index index = { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] };
 					meshSource->m_Indices.push_back(index);
 
@@ -181,7 +181,7 @@ namespace Hazel {
 			}
 
 #if MESH_DEBUG_LOG
-			HZ_CORE_INFO_TAG("Mesh", "Traversing nodes for scene '{0}'", filename);
+			ZONG_CORE_INFO_TAG("Mesh", "Traversing nodes for scene '{0}'", filename);
 			Utils::PrintNode(scene->mRootNode, 0);
 #endif
 
@@ -233,7 +233,7 @@ namespace Hazel {
 						uint32_t boneIndex = meshSource->m_Skeleton->GetBoneIndex(bone->mName.C_Str());
 						if (boneIndex == Skeleton::NullIndex)
 						{
-							HZ_CORE_ERROR_TAG("Animation", "Could not find mesh bone '{}' in skeleton!", bone->mName.C_Str());
+							ZONG_CORE_ERROR_TAG("Animation", "Could not find mesh bone '{}' in skeleton!", bone->mName.C_Str());
 						}
 
 						uint32_t boneInfoIndex = ~0;
@@ -273,7 +273,7 @@ namespace Hazel {
 		Ref<Texture2D> whiteTexture = Renderer::GetWhiteTexture();
 		if (scene->HasMaterials())
 		{
-			HZ_MESH_LOG("---- Materials - {0} ----", filename);
+			ZONG_MESH_LOG("---- Materials - {0} ----", filename);
 
 			meshSource->m_Materials.resize(scene->mNumMaterials);
 
@@ -284,10 +284,10 @@ namespace Hazel {
 				Hazel::Ref<Material> mi = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"), aiMaterialName.data);
 				meshSource->m_Materials[i] = mi;
 
-				HZ_MESH_LOG("  {0} (Index = {1})", aiMaterialName.data, i);
+				ZONG_MESH_LOG("  {0} (Index = {1})", aiMaterialName.data, i);
 				aiString aiTexPath;
 				uint32_t textureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-				HZ_MESH_LOG("    TextureCount = {0}", textureCount);
+				ZONG_MESH_LOG("    TextureCount = {0}", textureCount);
 
 				glm::vec3 albedoColor(0.8f);
 				float emission = 0.0f;
@@ -308,9 +308,9 @@ namespace Hazel {
 				if (aiMaterial->Get(AI_MATKEY_REFLECTIVITY, metalness) != aiReturn_SUCCESS)
 					metalness = 0.0f;
 
-				HZ_MESH_LOG("    COLOR = {0}, {1}, {2}", aiColor.r, aiColor.g, aiColor.b);
-				HZ_MESH_LOG("    ROUGHNESS = {0}", roughness);
-				HZ_MESH_LOG("    METALNESS = {0}", metalness);
+				ZONG_MESH_LOG("    COLOR = {0}, {1}, {2}", aiColor.r, aiColor.g, aiColor.b);
+				ZONG_MESH_LOG("    ROUGHNESS = {0}", roughness);
+				ZONG_MESH_LOG("    METALNESS = {0}", metalness);
 				bool hasAlbedoMap = aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexPath) == AI_SUCCESS;
 				bool fallback = !hasAlbedoMap;
 				if (hasAlbedoMap)
@@ -332,7 +332,7 @@ namespace Hazel {
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
-						HZ_MESH_LOG("    Albedo map path = {0}", texturePath);
+						ZONG_MESH_LOG("    Albedo map path = {0}", texturePath);
 						textureHandle = AssetManager::CreateMemoryOnlyRendererAsset<Texture2D>(spec, texturePath);
 					}
 
@@ -344,14 +344,14 @@ namespace Hazel {
 					}
 					else
 					{
-						HZ_CORE_ERROR_TAG("Mesh", "Could not load texture: {0}", aiTexPath.C_Str());
+						ZONG_CORE_ERROR_TAG("Mesh", "Could not load texture: {0}", aiTexPath.C_Str());
 						fallback = true;
 					}
 				}
 
 				if (fallback)
 				{
-					HZ_MESH_LOG("    No albedo map");
+					ZONG_MESH_LOG("    No albedo map");
 					mi->Set("u_AlbedoTexture", whiteTexture);
 				}
 
@@ -378,7 +378,7 @@ namespace Hazel {
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
-						HZ_MESH_LOG("    Normal map path = {0}", texturePath);
+						ZONG_MESH_LOG("    Normal map path = {0}", texturePath);
 						textureHandle = AssetManager::CreateMemoryOnlyRendererAsset<Texture2D>(spec, texturePath);
 					}
 
@@ -390,14 +390,14 @@ namespace Hazel {
 					}
 					else
 					{
-						HZ_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", aiTexPath.C_Str());
+						ZONG_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", aiTexPath.C_Str());
 						fallback = true;
 					}
 				}
 
 				if (fallback)
 				{
-					HZ_MESH_LOG("    No normal map");
+					ZONG_MESH_LOG("    No normal map");
 					mi->Set("u_NormalTexture", whiteTexture);
 					mi->Set("u_MaterialUniforms.UseNormalMap", false);
 				}
@@ -423,7 +423,7 @@ namespace Hazel {
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
-						HZ_MESH_LOG("    Roughness map path = {0}", texturePath);
+						ZONG_MESH_LOG("    Roughness map path = {0}", texturePath);
 						textureHandle = AssetManager::CreateMemoryOnlyRendererAsset<Texture2D>(spec, texturePath);
 					}
 
@@ -435,14 +435,14 @@ namespace Hazel {
 					}
 					else
 					{
-						HZ_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", aiTexPath.C_Str());
+						ZONG_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", aiTexPath.C_Str());
 						fallback = true;
 					}
 				}
 
 				if (fallback)
 				{
-					HZ_MESH_LOG("    No roughness map");
+					ZONG_MESH_LOG("    No roughness map");
 					mi->Set("u_RoughnessTexture", whiteTexture);
 					mi->Set("u_MaterialUniforms.Roughness", roughness);
 				}
@@ -460,18 +460,18 @@ namespace Hazel {
 					auto texture = Texture2D::Create(texturePath);
 					if (texture->Loaded())
 					{
-						HZ_MESH_LOG("    Metalness map path = {0}", texturePath);
+						ZONG_MESH_LOG("    Metalness map path = {0}", texturePath);
 						mi->Set("u_MetalnessTexture", texture);
 						mi->Set("u_MetalnessTexToggle", 1.0f);
 					}
 					else
 					{
-						HZ_CORE_ERROR_TAG("Mesh", "Could not load texture: {0}", texturePath);
+						ZONG_CORE_ERROR_TAG("Mesh", "Could not load texture: {0}", texturePath);
 					}
 				}
 				else
 				{
-					HZ_MESH_LOG("    No metalness texture");
+					ZONG_MESH_LOG("    No metalness texture");
 					mi->Set("u_Metalness", metalness);
 				}
 #endif
@@ -482,53 +482,53 @@ namespace Hazel {
 					auto prop = aiMaterial->mProperties[p];
 
 #if DEBUG_PRINT_ALL_PROPS
-					HZ_MESH_LOG("Material Property:");
-					HZ_MESH_LOG("  Name = {0}", prop->mKey.data);
-					// HZ_MESH_LOG("  Type = {0}", prop->mType);
-					// HZ_MESH_LOG("  Size = {0}", prop->mDataLength);
+					ZONG_MESH_LOG("Material Property:");
+					ZONG_MESH_LOG("  Name = {0}", prop->mKey.data);
+					// ZONG_MESH_LOG("  Type = {0}", prop->mType);
+					// ZONG_MESH_LOG("  Size = {0}", prop->mDataLength);
 					float data = *(float*)prop->mData;
-					HZ_MESH_LOG("  Value = {0}", data);
+					ZONG_MESH_LOG("  Value = {0}", data);
 
 					switch (prop->mSemantic)
 					{
 						case aiTextureType_NONE:
-							HZ_MESH_LOG("  Semantic = aiTextureType_NONE");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_NONE");
 							break;
 						case aiTextureType_DIFFUSE:
-							HZ_MESH_LOG("  Semantic = aiTextureType_DIFFUSE");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_DIFFUSE");
 							break;
 						case aiTextureType_SPECULAR:
-							HZ_MESH_LOG("  Semantic = aiTextureType_SPECULAR");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_SPECULAR");
 							break;
 						case aiTextureType_AMBIENT:
-							HZ_MESH_LOG("  Semantic = aiTextureType_AMBIENT");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_AMBIENT");
 							break;
 						case aiTextureType_EMISSIVE:
-							HZ_MESH_LOG("  Semantic = aiTextureType_EMISSIVE");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_EMISSIVE");
 							break;
 						case aiTextureType_HEIGHT:
-							HZ_MESH_LOG("  Semantic = aiTextureType_HEIGHT");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_HEIGHT");
 							break;
 						case aiTextureType_NORMALS:
-							HZ_MESH_LOG("  Semantic = aiTextureType_NORMALS");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_NORMALS");
 							break;
 						case aiTextureType_SHININESS:
-							HZ_MESH_LOG("  Semantic = aiTextureType_SHININESS");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_SHININESS");
 							break;
 						case aiTextureType_OPACITY:
-							HZ_MESH_LOG("  Semantic = aiTextureType_OPACITY");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_OPACITY");
 							break;
 						case aiTextureType_DISPLACEMENT:
-							HZ_MESH_LOG("  Semantic = aiTextureType_DISPLACEMENT");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_DISPLACEMENT");
 							break;
 						case aiTextureType_LIGHTMAP:
-							HZ_MESH_LOG("  Semantic = aiTextureType_LIGHTMAP");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_LIGHTMAP");
 							break;
 						case aiTextureType_REFLECTION:
-							HZ_MESH_LOG("  Semantic = aiTextureType_REFLECTION");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_REFLECTION");
 							break;
 						case aiTextureType_UNKNOWN:
-							HZ_MESH_LOG("  Semantic = aiTextureType_UNKNOWN");
+							ZONG_MESH_LOG("  Semantic = aiTextureType_UNKNOWN");
 							break;
 					}
 #endif
@@ -557,7 +557,7 @@ namespace Hazel {
 								auto parentPath = m_Path.parent_path();
 								parentPath /= str;
 								std::string texturePath = parentPath.string();
-								HZ_MESH_LOG("    Metalness map path = {0}", texturePath);
+								ZONG_MESH_LOG("    Metalness map path = {0}", texturePath);
 								textureHandle = AssetManager::CreateMemoryOnlyRendererAsset<Texture2D>(spec, texturePath);
 							}
 
@@ -570,7 +570,7 @@ namespace Hazel {
 							}
 							else
 							{
-								HZ_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", str);
+								ZONG_CORE_ERROR_TAG("Mesh", "    Could not load texture: {0}", str);
 							}
 							break;
 						}
@@ -580,13 +580,13 @@ namespace Hazel {
 				fallback = !metalnessTextureFound;
 				if (fallback)
 				{
-					HZ_MESH_LOG("    No metalness map");
+					ZONG_MESH_LOG("    No metalness map");
 					mi->Set("u_MetalnessTexture", whiteTexture);
 					mi->Set("u_MaterialUniforms.Metalness", metalness);
 
 				}
 			}
-			HZ_MESH_LOG("------------------------");
+			ZONG_MESH_LOG("------------------------");
 		}
 		else
 		{
@@ -627,7 +627,7 @@ namespace Hazel {
 		const aiScene* scene = importer.ReadFile(m_Path.string(), s_MeshImportFlags);
 		if (!scene)
 		{
-			HZ_CORE_ERROR_TAG("Animation", "Failed to load mesh source file: {0}", m_Path.string());
+			ZONG_CORE_ERROR_TAG("Animation", "Failed to load mesh source file: {0}", m_Path.string());
 			return false;
 		}
 
@@ -643,13 +643,13 @@ namespace Hazel {
 		const aiScene* scene = importer.ReadFile(m_Path.string(), s_MeshImportFlags);
 		if (!scene)
 		{
-			HZ_CORE_ERROR_TAG("Animation", "Failed to load mesh source file: {0}", m_Path.string());
+			ZONG_CORE_ERROR_TAG("Animation", "Failed to load mesh source file: {0}", m_Path.string());
 			return false;
 		}
 
 		if (animationIndex >= scene->mNumAnimations)
 		{
-			HZ_CORE_ERROR_TAG("Animation", "Animation index {0} out of range for mesh source file: {1}", animationIndex, m_Path.string());
+			ZONG_CORE_ERROR_TAG("Animation", "Animation index {0} out of range for mesh source file: {1}", animationIndex, m_Path.string());
 			return false;
 		}
 		
@@ -665,7 +665,7 @@ namespace Hazel {
 		const aiScene* scene = importer.ReadFile(m_Path.string(), s_MeshImportFlags);
 		if (!scene)
 		{
-			HZ_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
+			ZONG_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
 			return false;
 		}
 
@@ -716,7 +716,7 @@ namespace Hazel {
 		const aiScene* scene = importer.ReadFile(m_Path.string(), s_MeshImportFlags);
 		if (!scene)
 		{
-			HZ_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
+			ZONG_CORE_ERROR_TAG("Mesh", "Failed to load mesh file: {0}", m_Path.string());
 			return false;
 		}
 
@@ -743,7 +743,7 @@ namespace Hazel {
 			node.Submeshes.push_back(submeshIndex);
 		}
 
-		// HZ_MESH_LOG("{0} {1}", LevelToSpaces(level), node->mName.C_Str());
+		// ZONG_MESH_LOG("{0} {1}", LevelToSpaces(level), node->mName.C_Str());
 
 		uint32_t parentNodeIndex = (uint32_t)meshSource->m_Nodes.size() - 1;
 		node.Children.resize(aNode->mNumChildren);

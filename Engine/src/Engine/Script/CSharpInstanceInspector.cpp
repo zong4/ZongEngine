@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "CSharpInstanceInspector.h"
 
 #include "ScriptUtils.h"
@@ -120,12 +120,12 @@ namespace Hazel {
 			}
 			else
 			{
-				HZ_CORE_VERIFY(false);
+				ZONG_CORE_VERIFY(false);
 			}
 		}
 		else
 		{
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 		}
 		
 		FieldType fieldType = ScriptUtils::GetFieldTypeFromMonoType(fieldMonoType);

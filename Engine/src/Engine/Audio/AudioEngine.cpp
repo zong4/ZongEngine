@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AudioEngine.h"
 
 #include "SourceManager.h"
@@ -29,13 +29,13 @@
 //#define DBG_VOICES
 
 #ifdef DBG_VOICES // Enable logging of Voice handling
-#define LOG_VOICES(...) HZ_CORE_INFO_TAG("Audio", __VA_ARGS__)
+#define LOG_VOICES(...) ZONG_CORE_INFO_TAG("Audio", __VA_ARGS__)
 #else
 #define LOG_VOICES(...)
 #endif
 
 #if 0 // Enable logging for Events handling
-#define LOG_EVENTS(...) HZ_CORE_INFO_TAG("Audio", __VA_ARGS__)
+#define LOG_EVENTS(...) ZONG_CORE_INFO_TAG("Audio", __VA_ARGS__)
 #else
 #define LOG_EVENTS(...)
 #endif
@@ -91,7 +91,7 @@ namespace Hazel {
 		}
 
 #ifdef LOG_MEMORY
-		HZ_CORE_INFO_TAG("Audio", "Freed mem KB : {0}", *sizeBox / 1000.0f);
+		ZONG_CORE_INFO_TAG("Audio", "Freed mem KB : {0}", *sizeBox / 1000.0f);
 #endif
 		ma_free(buffer, nullptr);
 	}
@@ -115,7 +115,7 @@ namespace Hazel {
 		*sizeBox = (int)sz; //store the size in first sizeof(int) bytes!
 
 #ifdef LOG_MEMORY
-		HZ_CORE_INFO_TAG("Audio", "Allocated mem KB : {0}", *sizeBox / 1000.0f);
+		ZONG_CORE_INFO_TAG("Audio", "Allocated mem KB : {0}", *sizeBox / 1000.0f);
 #endif
 		return buffer + offset; //return buffer after offset bytes!
 	}
@@ -143,7 +143,7 @@ namespace Hazel {
 			return NULL;
 
 #ifdef LOG_MEMORY
-		HZ_CORE_INFO_TAG("Audio", "Reallocated mem KB : {0}", sz / 1000.0f);
+		ZONG_CORE_INFO_TAG("Audio", "Reallocated mem KB : {0}", sz / 1000.0f);
 #endif
 		return newBuffer + offset;
 	}
@@ -156,16 +156,16 @@ namespace Hazel {
 		switch (level)
 		{
 			case MA_LOG_LEVEL_INFO:
-				HZ_CORE_TRACE_TAG("miniaudio", message);
+				ZONG_CORE_TRACE_TAG("miniaudio", message);
 				break;
 			case MA_LOG_LEVEL_WARNING:
-				HZ_CORE_INFO_TAG("miniaudio", message);
+				ZONG_CORE_INFO_TAG("miniaudio", message);
 				break;
 			case MA_LOG_LEVEL_ERROR:
-				HZ_CORE_ERROR_TAG("miniaudio", message);
+				ZONG_CORE_ERROR_TAG("miniaudio", message);
 				break;
 			default:
-				HZ_CORE_TRACE_TAG("miniaudio", message);
+				ZONG_CORE_TRACE_TAG("miniaudio", message);
 		}
 	}
 
@@ -241,13 +241,13 @@ namespace Hazel {
 
 	void MiniAudioEngine::Init()
 	{
-		HZ_CORE_ASSERT(s_Instance == nullptr, "Audio Engine already initialized.");
+		ZONG_CORE_ASSERT(s_Instance == nullptr, "Audio Engine already initialized.");
 		MiniAudioEngine::s_Instance = hnew MiniAudioEngine();
 	}
 
 	void MiniAudioEngine::Shutdown()
 	{
-		HZ_CORE_ASSERT(s_Instance, "Audio Engine was not initialized.");
+		ZONG_CORE_ASSERT(s_Instance, "Audio Engine was not initialized.");
 		s_Instance->Uninitialize();
 		delete s_Instance;
 		s_Instance = nullptr;
@@ -258,14 +258,14 @@ namespace Hazel {
 		if (bInitialized)
 			return true;
 
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		ma_result result;
 		ma_engine_config engineConfig = ma_engine_config_init();
 		// TODO: for now splitter node and custom node don't work toghether if custom periodSizeInFrames is set
 		//engineConfig.periodSizeInFrames = PCM_FRAME_CHUNK_SIZE;
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
         // TODO(Emily): These callbacks cause heap corruption
 		ma_allocation_callbacks allocationCallbacks{ &m_EngineCallbackData, &MemAllocCallback, &MemReallocCallback, &MemFreeCallback };
 #else
@@ -278,10 +278,10 @@ namespace Hazel {
 #endif
 
 		result = ma_log_init(&allocationCallbacks, &m_maLog);
-		HZ_CORE_ASSERT(result == MA_SUCCESS, "Failed to initialize miniaudio logger.");
+		ZONG_CORE_ASSERT(result == MA_SUCCESS, "Failed to initialize miniaudio logger.");
 		ma_log_callback logCallback = ma_log_callback_init(&MALogCallback, nullptr);
 		result = ma_log_register_callback(&m_maLog, logCallback);
-		HZ_CORE_ASSERT(result == MA_SUCCESS, "Failed to register miniaudio log callback.");
+		ZONG_CORE_ASSERT(result == MA_SUCCESS, "Failed to register miniaudio log callback.");
 
 		engineConfig.allocationCallbacks = allocationCallbacks;
 		engineConfig.pLog = &m_maLog;
@@ -294,7 +294,7 @@ namespace Hazel {
 		result = Audio::ma_custom_vfs_init(m_ResourceManagerVFS.get(), &allocationCallbacks);
 		if (result != MA_SUCCESS)
 		{
-			HZ_CORE_ASSERT(false, "Failed to initialize Resource Manager VFS.");
+			ZONG_CORE_ASSERT(false, "Failed to initialize Resource Manager VFS.");
 			return false;
 		}
 
@@ -303,7 +303,7 @@ namespace Hazel {
 		result = ma_engine_init(&engineConfig, &m_Engine);
 		if (result != MA_SUCCESS)
 		{
-			HZ_CORE_ASSERT(false, "Failed to initialize audio engine.");
+			ZONG_CORE_ASSERT(false, "Failed to initialize audio engine.");
 			return false;
 		}
 
@@ -323,7 +323,7 @@ namespace Hazel {
 		m_NumSources = 32;
 		CreateSources();
 
-		HZ_CORE_INFO_TAG("Audio", R"(Audio Engine: engine initialized.
+		ZONG_CORE_INFO_TAG("Audio", R"(Audio Engine: engine initialized.
                     -----------------------------
                     Endpoint Device Name:   {0}
                     Sample Rate:            {1}
@@ -377,7 +377,7 @@ namespace Hazel {
 
 		bInitialized = false;
 
-		HZ_CORE_INFO_TAG("Audio", "Audio Engine: engine un-initialized.");
+		ZONG_CORE_INFO_TAG("Audio", "Audio Engine: engine un-initialized.");
 
 		return true;
 	}
@@ -392,7 +392,7 @@ namespace Hazel {
 
 		if (!m_ResourceManager->GetSoundBank())
 		{
-			HZ_CORE_ERROR("Could not load SoundBank OnProjectLoaded!");
+			ZONG_CORE_ERROR("Could not load SoundBank OnProjectLoaded!");
 		}
 
 		// TODO: maybe reinitialize the whole engine?
@@ -416,7 +416,7 @@ namespace Hazel {
 		if (m_EventsManager->GetNumberOfActiveSources(playingEvent) <= 0)
 		{
 			// This might be unnecesary, but for the time being is useful for debugging.
-			HZ_CONSOLE_LOG_WARN("Audio. Trying to set parameter for an event that's not in the active events registry.");
+			ZONG_CONSOLE_LOG_WARN("Audio. Trying to set parameter for an event that's not in the active events registry.");
 			return;
 		}
 
@@ -427,7 +427,7 @@ namespace Hazel {
 	//==============================================================================
 	void MiniAudioEngine::CreateSources()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		m_SoundSources.reserve(m_NumSources);
 		for (int i = 0; i < m_NumSources; ++i)
@@ -444,9 +444,9 @@ namespace Hazel {
 
 	SoundObject* MiniAudioEngine::FreeLowestPrioritySource()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(m_SourceManager->m_FreeSourcIDs.empty());
+		ZONG_CORE_ASSERT(m_SourceManager->m_FreeSourcIDs.empty());
 
 		SoundObject* lowestPriStoppingSource = nullptr;
 		SoundObject* lowestPriNonLoopingSource = nullptr;
@@ -503,7 +503,7 @@ namespace Hazel {
 		else if (lowestPriNonLoopingSource) releasedSoundSource = lowestPriNonLoopingSource;
 		else                                releasedSoundSource = lowestPriSource;
 
-		HZ_CORE_ASSERT(releasedSoundSource);
+		ZONG_CORE_ASSERT(releasedSoundSource);
 
 		releasedSoundSource->StopNow();
 
@@ -522,9 +522,9 @@ namespace Hazel {
 		ReleaseFinishedSources();
 
 #if DBG_VOICES
-		HZ_CORE_ASSERT(releasedSoundSource->m_PlayState == Sound::ESoundPlayState::Stopped);
+		ZONG_CORE_ASSERT(releasedSoundSource->m_PlayState == Sound::ESoundPlayState::Stopped);
 #endif
-		HZ_CORE_ASSERT(!m_SourceManager->m_FreeSourcIDs.empty());
+		ZONG_CORE_ASSERT(!m_SourceManager->m_FreeSourcIDs.empty());
 
 		/* Other possible way:
 		   1. check if any of the sources already Stopping
@@ -539,7 +539,7 @@ namespace Hazel {
 
 	bool MiniAudioEngine::SubmitStartPlayback(uint64_t audioEntityID)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		
 		//! Game Thread
 
@@ -551,7 +551,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_ERROR_TAG("Audio", "AudioEntity with ID {0} doesn't exist!", audioEntityID);
+			ZONG_CORE_ERROR_TAG("Audio", "AudioEntity with ID {0} doesn't exist!", audioEntityID);
 			return false;
 		}
 	}
@@ -654,7 +654,7 @@ namespace Hazel {
 	{
 		// Submit voice for playback
 
-		//HZ_CORE_ASSERT(m_ActiveSounds.size() < m_NumSources && m_SoundsToStart.size() < m_NumSources);
+		//ZONG_CORE_ASSERT(m_ActiveSounds.size() < m_NumSources && m_SoundsToStart.size() < m_NumSources);
 
 		int sourceID = Audio::INVALID_SOURCE_ID;
 
@@ -932,8 +932,8 @@ namespace Hazel {
 		};
 
 		// TODO
-		auto break_ = [](SoundObject* sound) { HZ_CORE_ASSERT(false); };
-		auto releaseEnvelope = [](SoundObject* sound) { HZ_CORE_ASSERT(false); };
+		auto break_ = [](SoundObject* sound) { ZONG_CORE_ASSERT(false); };
+		auto releaseEnvelope = [](SoundObject* sound) { ZONG_CORE_ASSERT(false); };
 
 		switch (action)
 		{
@@ -953,7 +953,7 @@ namespace Hazel {
 	// TODO: move this to SourceManager
 	void MiniAudioEngine::UpdateSources()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		/*
 			For now we update/store objects positions even if spatialziation is disabled for them.
@@ -999,7 +999,7 @@ namespace Hazel {
 			return;
 
 		// Note: JP. We update data for SoundsToStart sources as well as already ActiveSounds
-		//HZ_CORE_ASSERT(m_ActiveSounds.size() + m_SoundsToStart.size() == m_VoiceHandles.size());
+		//ZONG_CORE_ASSERT(m_ActiveSounds.size() + m_SoundsToStart.size() == m_VoiceHandles.size());
 
 		for (const auto& voice : m_VoiceHandles)
 		{
@@ -1012,7 +1012,7 @@ namespace Hazel {
 		// 3. Update position of the sound sources from associated AudioObjects, which can originate from AudioComponent or not.
 
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC("MiniAudioEngine::UpdateSources - USP Loop");
+			ZONG_PROFILE_SCOPE_DYNAMIC("MiniAudioEngine::UpdateSources - USP Loop");
 
 			std::for_each(std::execution::par, m_VoiceHandles.begin(), m_VoiceHandles.end(), [&](const VoiceHandle& voice)
 			{
@@ -1091,7 +1091,7 @@ namespace Hazel {
 
 		//if (isVelocityValid(newVelocity))
 
-		HZ_CORE_ASSERT(isVelocityValid(newVelocity));
+		ZONG_CORE_ASSERT(isVelocityValid(newVelocity));
 
 		m_AudioListener.SetNewVelocity(newVelocity);
 	}
@@ -1105,7 +1105,7 @@ namespace Hazel {
 	//==================================================================================
 	void MiniAudioEngine::ReleaseFinishedSources()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		choc::SmallVector<Audio::SourceID, 32> sourcesFinished;
 		sourcesFinished.reserve(m_ActiveSounds.size());
@@ -1158,7 +1158,7 @@ namespace Hazel {
 		}
 
 		// There should be the same number of entries in these maps
-		//HZ_CORE_ASSERT(m_ObjectData.size() == m_EventHandles.size());
+		//ZONG_CORE_ASSERT(m_ObjectData.size() == m_EventHandles.size());
 
 		// If no sounds are playing, remove dangling objects
 		// which might have been initialized by then failed Play requests.
@@ -1170,7 +1170,7 @@ namespace Hazel {
 
 	void MiniAudioEngine::Update(Timestep ts)
 	{
-		HZ_PROFILE_FUNC("MiniAudioEngine::Update");
+		ZONG_PROFILE_FUNC("MiniAudioEngine::Update");
 
 		if (!bInitialized)
 			return;
@@ -1260,7 +1260,7 @@ namespace Hazel {
 
 	SoundObject* MiniAudioEngine::InitiateNewVoice(UUID entityID, EventID eventID, const Ref<SoundConfig>& sourceConfig)
 	{
-		HZ_CORE_ASSERT(AudioThread::IsAudioThread());
+		ZONG_CORE_ASSERT(AudioThread::IsAudioThread());
 
 		SoundObject* sound = nullptr;
 
@@ -1283,7 +1283,7 @@ namespace Hazel {
 		// TODO: move m_SoundSources to SourceManager
 		if (!m_SourceManager->InitializeSource(freeID, sourceConfig)) //? this is weird for now, because SourceManager calls back AudioEngine to init get the source by ID
 		{
-			HZ_CORE_ERROR_TAG("Audio", "Failed to initialize sound source!");
+			ZONG_CORE_ERROR_TAG("Audio", "Failed to initialize sound source!");
 
 			// Release resources if failed to initialize
 			m_SourceManager->ReleaseSource(freeID);
@@ -1306,13 +1306,13 @@ namespace Hazel {
 	{
 		if (triggerCommandID == 0)
 		{
-			HZ_CORE_ERROR_TAG("Audio", "PostTrigger with empty triggerCommandID.");
+			ZONG_CORE_ERROR_TAG("Audio", "PostTrigger with empty triggerCommandID.");
 			return EventID::INVALID;
 		}
 
 		if (!AudioCommandRegistry::DoesCommandExist<TriggerCommand>(triggerCommandID))
 		{
-			HZ_CONSOLE_LOG_ERROR("[Audio] PostTrigger. Audio command with ID {0} does not exist!", triggerCommandID);
+			ZONG_CONSOLE_LOG_ERROR("[Audio] PostTrigger. Audio command with ID {0} does not exist!", triggerCommandID);
 			return EventID::INVALID;
 		}
 
@@ -1322,7 +1322,7 @@ namespace Hazel {
 		// TODO: if entityID is invalid, this was intended to play as a global trigger, or a 2D sound?
 		if (entityID == 0)
 		{
-			HZ_CORE_ERROR_TAG("Audio", "PostTrigger. Invalid entity ID {0}.", entityID);
+			ZONG_CORE_ERROR_TAG("Audio", "PostTrigger. Invalid entity ID {0}.", entityID);
 			return EventID::INVALID;
 		}
 
@@ -1502,7 +1502,7 @@ namespace Hazel {
 	{
 		if (m_PlaybackState != EPlaybackState::Playing)
 		{
-			HZ_CORE_ASSERT(false, "Audio Engine is already paused.");
+			ZONG_CORE_ASSERT(false, "Audio Engine is already paused.");
 			return;
 		}
 
@@ -1523,7 +1523,7 @@ namespace Hazel {
 	{
 		if (m_PlaybackState != EPlaybackState::Paused)
 		{
-			HZ_CORE_ASSERT(false, "Audio Engine is already active.");
+			ZONG_CORE_ASSERT(false, "Audio Engine is already active.");
 			return;
 		}
 
@@ -1586,7 +1586,7 @@ namespace Hazel {
 		auto& audioEngine = Get();
 
 		const auto currentSceneID = audioEngine.m_CurrentSceneID;
-		HZ_CORE_ASSERT(currentSceneID == sceneID)
+		ZONG_CORE_ASSERT(currentSceneID == sceneID)
 
 		auto newScene = Scene::GetScene(currentSceneID);
 
@@ -1609,7 +1609,7 @@ namespace Hazel {
 			}
 		}
 
-		//HZ_CORE_INFO_TAG("Audio", "ON RUNTIME PLAYING");
+		//ZONG_CORE_INFO_TAG("Audio", "ON RUNTIME PLAYING");
 	}
 
 	void MiniAudioEngine::OnSceneDestruct(UUID sceneID)
@@ -1621,7 +1621,7 @@ namespace Hazel {
 			instance.m_UpdateState.Set(UpdateState::Stats_AudioObjects);
 		});
 
-		//HZ_CORE_INFO_TAG("Audio", "ON SCENE DESTRUCT");
+		//ZONG_CORE_INFO_TAG("Audio", "ON SCENE DESTRUCT");
 	}
 
 	Ref<Scene>& MiniAudioEngine::GetCurrentSceneContext()
@@ -1757,11 +1757,11 @@ namespace Hazel {
 	{
 		if (Get().GetCurrentSceneContext()->IsPlaying())
 		{
-			HZ_CONSOLE_LOG_WARN("Can't build Sound Bank while playing a scene!");
+			ZONG_CONSOLE_LOG_WARN("Can't build Sound Bank while playing a scene!");
 			return false;
 		}
 
-		HZ_CONSOLE_LOG_INFO("Packaging Sound Bank...");
+		ZONG_CONSOLE_LOG_INFO("Packaging Sound Bank...");
 
 		Get().StopAll(true);
 		
@@ -1774,11 +1774,11 @@ namespace Hazel {
 	{
 		if (Get().GetCurrentSceneContext()->IsPlaying())
 		{
-			HZ_CONSOLE_LOG_WARN("Can't unload Sound Bank while playing a scene!");
+			ZONG_CONSOLE_LOG_WARN("Can't unload Sound Bank while playing a scene!");
 			return false;
 		}
 
-		HZ_CONSOLE_LOG_INFO("Unloading Sound Bank...");
+		ZONG_CONSOLE_LOG_INFO("Unloading Sound Bank...");
 
 		Get().StopAll(true);
 		

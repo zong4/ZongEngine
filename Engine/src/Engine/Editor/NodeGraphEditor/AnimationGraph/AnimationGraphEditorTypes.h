@@ -162,7 +162,7 @@ namespace Hazel::AnimationGraph {
 			{
 				if (type.isObjectWithClassName(type::type_name<TFlow>()))
 				{
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					pinType = EPinType::Flow;
 				}
 				else if (Utils::IsAssetHandle<AssetType::Animation>(type))
@@ -175,7 +175,7 @@ namespace Hazel::AnimationGraph {
 				}
 				else if (value.hasObjectMember("Type"))
 				{
-					HZ_CORE_WARN("Found pin with custom type {}, need to handle it!", value["Type"].getString());
+					ZONG_CORE_WARN("Found pin with custom type {}, need to handle it!", value["Type"].getString());
 				}
 			}
 			else if (type.isFloat())  pinType = EPinType::Float;
@@ -183,7 +183,7 @@ namespace Hazel::AnimationGraph {
 			else if (type.isBool())   pinType = EPinType::Bool;
 			else if (type.isString()) pinType = EPinType::String;
 			else if (type.isVoid())   pinType = EPinType::Flow;	// Trigger
-			else HZ_CORE_ASSERT(false);
+			else ZONG_CORE_ASSERT(false);
 
 			return pinType;
 		}
@@ -208,7 +208,7 @@ namespace Hazel::AnimationGraph {
 						else if (Name == "State")        TypeID = ENodeType::State;
 						else if (Name == "Quick State")  TypeID = ENodeType::QuickState;
 						else if (Name == "Transition")   TypeID = ENodeType::Transition;
-						else                             HZ_CORE_ASSERT(false, "Unknown node type");
+						else                             ZONG_CORE_ASSERT(false, "Unknown node type");
 						
 					}
 					else if (Category == "Animation")

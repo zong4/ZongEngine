@@ -60,7 +60,7 @@ namespace Hazel {
 						meshMaterialTable = mesh->GetMaterials();
 				}
 
-				//HZ_CORE_VERIFY(meshMaterialTable != nullptr && componentMaterialTable != nullptr);
+				//ZONG_CORE_VERIFY(meshMaterialTable != nullptr && componentMaterialTable != nullptr);
 				if (componentMaterialTable)
 				{
 					if (meshMaterialTable)

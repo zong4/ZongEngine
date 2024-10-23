@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "HlslIncluder.h"
 
 #include "ShaderPreprocessor.h"
@@ -15,7 +15,7 @@ namespace Hazel
 		{
 			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
 			HRESULT result = pUtils->CreateDefaultIncludeHandler(&s_DefaultIncludeHandler);
-			HZ_CORE_ASSERT(!FAILED(result), "Failed to create default include handler!");
+			ZONG_CORE_ASSERT(!FAILED(result), "Failed to create default include handler!");
 		}
 
 		const std::filesystem::path filePath = pFilename;

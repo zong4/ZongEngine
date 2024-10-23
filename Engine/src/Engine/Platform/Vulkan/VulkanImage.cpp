@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanImage.h"
 
 #include "VulkanContext.h"
@@ -12,7 +12,7 @@ namespace Hazel {
 	VulkanImage2D::VulkanImage2D(const ImageSpecification& specification)
 		: m_Specification(specification)
 	{
-		HZ_CORE_VERIFY(m_Specification.Width > 0 && m_Specification.Height > 0);
+		ZONG_CORE_VERIFY(m_Specification.Width > 0 && m_Specification.Height > 0);
 	}
 
 	VulkanImage2D::~VulkanImage2D()
@@ -66,7 +66,7 @@ namespace Hazel {
 
 	void VulkanImage2D::RT_Invalidate()
 	{
-		HZ_CORE_VERIFY(m_Specification.Width > 0 && m_Specification.Height > 0);
+		ZONG_CORE_VERIFY(m_Specification.Width > 0 && m_Specification.Height > 0);
 
 		// Try release first if necessary
 		Release();
@@ -214,7 +214,7 @@ namespace Hazel {
 
 	void VulkanImage2D::RT_CreatePerLayerImageViews()
 	{
-		HZ_CORE_ASSERT(m_Specification.Layers > 1);
+		ZONG_CORE_ASSERT(m_Specification.Layers > 1);
 
 		VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 
@@ -293,7 +293,7 @@ namespace Hazel {
 
 	void VulkanImage2D::RT_CreatePerSpecificLayerImageViews(const std::vector<uint32_t>& layerIndices)
 	{
-		HZ_CORE_ASSERT(m_Specification.Layers > 1);
+		ZONG_CORE_ASSERT(m_Specification.Layers > 1);
 
 		VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 
@@ -303,7 +303,7 @@ namespace Hazel {
 
 		const VkFormat vulkanFormat = Utils::VulkanImageFormat(m_Specification.Format);
 
-		//HZ_CORE_ASSERT(m_PerLayerImageViews.size() == m_Specification.Layers);
+		//ZONG_CORE_ASSERT(m_PerLayerImageViews.size() == m_Specification.Layers);
 		if (m_PerLayerImageViews.empty())
 			m_PerLayerImageViews.resize(m_Specification.Layers);
 
@@ -344,7 +344,7 @@ namespace Hazel {
 		m_DescriptorImageInfo.imageView = m_Info.ImageView;
 		m_DescriptorImageInfo.sampler = m_Info.Sampler;
 
-		//HZ_CORE_WARN_TAG("Renderer", "VulkanImage2D::UpdateDescriptor to ImageView = {0}", (const void*)m_Info.ImageView);
+		//ZONG_CORE_WARN_TAG("Renderer", "VulkanImage2D::UpdateDescriptor to ImageView = {0}", (const void*)m_Info.ImageView);
 	}
 
 	const std::map<VkImage, WeakRef<VulkanImage2D>>& VulkanImage2D::GetImageRefs()

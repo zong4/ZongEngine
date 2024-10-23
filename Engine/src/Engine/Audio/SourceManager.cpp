@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SourceManager.h"
 #include "ResourceManager.h"
 #include "AudioEngine.h"
@@ -100,7 +100,7 @@ namespace Hazel
             }
             else
             {
-				HZ_CONSOLE_LOG_ERROR("SourceManager::InitializeSource. Failed to initialize source, SoundGraph has to be built.");
+				ZONG_CONSOLE_LOG_ERROR("SourceManager::InitializeSource. Failed to initialize source, SoundGraph has to be built.");
                 return false;
             }
 
@@ -113,7 +113,7 @@ namespace Hazel
 
                 if (!node)
                 {
-                    HZ_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
+                    ZONG_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
                     return false;
                 }
 
@@ -136,7 +136,7 @@ namespace Hazel
             }
             else
             {
-                HZ_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
+                ZONG_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
             }
         }
         else
@@ -167,7 +167,7 @@ namespace Hazel
             }
             else
             {
-                HZ_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
+                ZONG_CORE_ASSERT(false, "Failed to initialize audio data soruce.");
             }
         }
 

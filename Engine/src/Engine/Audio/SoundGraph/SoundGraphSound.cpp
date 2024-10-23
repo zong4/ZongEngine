@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphSound.h"
 #include "Engine/Audio/AudioEngine.h"
 #include "Engine/Audio/SoundGraph/SoundGraphSource.h"
@@ -16,7 +16,7 @@ namespace Hazel
     using EPlayState = ESoundPlayState;
 
 #if 0 // Enable logging of playback state changes
-    #define LOG_PLAYBACK(...) HZ_CORE_INFO(__VA_ARGS__)
+    #define LOG_PLAYBACK(...) ZONG_CORE_INFO(__VA_ARGS__)
 #else
     #define LOG_PLAYBACK(...)
 #endif
@@ -54,9 +54,9 @@ namespace Hazel
 
     bool SoundGraphSound::InitializeDataSource(const Ref<SoundConfig>& config, MiniAudioEngine* audioEngine, const Ref<SoundGraph::SoundGraph>& source)
     {
-        HZ_CORE_ASSERT(!IsPlaying());
-        HZ_CORE_ASSERT(!bIsReadyToPlay);
-        HZ_CORE_ASSERT(source);
+        ZONG_CORE_ASSERT(!IsPlaying());
+        ZONG_CORE_ASSERT(!bIsReadyToPlay);
+        ZONG_CORE_ASSERT(source);
 
         // Reset Finished flag so that we don't accidentally release this voice again while it's starting for the new source
         bFinished = false;
@@ -71,7 +71,7 @@ namespace Hazel
         AssetType type = AssetManager::GetAssetType(config->DataSourceAsset);
         if (type != AssetType::SoundGraphSound)
         {
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             return false;
         }
 
@@ -89,7 +89,7 @@ namespace Hazel
 
 		if (!callbackInitialized)
 		{
-			HZ_CORE_ASSERT(false, "Failed to initialize Audio Callback for SoundGraphSound.");
+			ZONG_CORE_ASSERT(false, "Failed to initialize Audio Callback for SoundGraphSound.");
 			return false;
 		}
 
@@ -110,7 +110,7 @@ namespace Hazel
         {
             m_SoundGraphPreset = graph->GraphInputs;
             const bool parametersSet = m_Source->ApplyParameterPreset(m_SoundGraphPreset);
-            HZ_CORE_ASSERT(parametersSet);
+            ZONG_CORE_ASSERT(parametersSet);
         }
 
         InitializeEffects(config);
@@ -172,27 +172,27 @@ namespace Hazel
                                        &engine->pResourceManager->config.allocationCallbacks,
                                        &m_MasterSplitter);
 
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Store the node the sound was connected to
         auto* oldOutput = currentHeaderNode->pOutputBuses[0].pInputNode;
 
         // Attach splitter node to the old output of the sound
         result = ma_node_attach_output_bus(&m_MasterSplitter, 0, oldOutput, 0);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Attach sound node to splitter node
         result = ma_node_attach_output_bus(currentHeaderNode, 0, &m_MasterSplitter, 0);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
         //result = ma_node_attach_output_bus(&m_MasterSplitter, 0, oldOutput, 0);
 
         // Set volume of the main pass-through output of the splitter to 1.0
         result = ma_node_set_output_bus_volume(&m_MasterSplitter, 0, 1.0f);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Mute the "FX send" output of the splitter
         result = ma_node_set_output_bus_volume(&m_MasterSplitter, 1, 0.0f);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         /* TODO: Refactore this to
             - InitializeFXSend()
@@ -242,7 +242,7 @@ namespace Hazel
             m_NextPlayState = EPlayState::Starting;
             break;
         case EPlayState::Starting:
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             break;
         case EPlayState::Playing:
             StopNow(ResetPlaybackPosition);
@@ -270,7 +270,7 @@ namespace Hazel
         }
 
         bFinished = false;
-		HZ_CORE_ASSERT(!m_Source->IsFinished());
+		ZONG_CORE_ASSERT(!m_Source->IsFinished());
 
         LOG_PLAYBACK("-> ..next state: " + StringFromState(m_NextPlayState));
 
@@ -361,7 +361,7 @@ namespace Hazel
 
     bool SoundGraphSound::StopFade(int milliseconds)
     {
-        HZ_CORE_ASSERT(milliseconds > 0);
+        ZONG_CORE_ASSERT(milliseconds > 0);
 
         const uint64_t fadeInFrames = (milliseconds * m_Source->GetEngineNode()->fader.config.sampleRate) / 1000;
 
@@ -485,7 +485,7 @@ namespace Hazel
 
     void SoundGraphSound::Update(Hazel::Timestep ts)
     {
-        HZ_PROFILE_FUNC();
+        ZONG_PROFILE_FUNC();
 
 		m_Source->Update(ts);
 
@@ -545,11 +545,11 @@ namespace Hazel
                     // Apply SoundGraph preset
                     bool parametersSet = m_Source->ApplyParameterPreset(m_SoundGraphPreset);
                     // Preset must match parameters (input events) of the compiled patch player 
-                    HZ_CORE_ASSERT(parametersSet);
+                    ZONG_CORE_ASSERT(parametersSet);
                 }
                 else
                 {
-                    HZ_CORE_ASSERT("Failed to post Play event to SoundGraph instance.");
+                    ZONG_CORE_ASSERT("Failed to post Play event to SoundGraph instance.");
                 }
             }
 #if 0
@@ -575,7 +575,7 @@ namespace Hazel
                 volume = std::fmodf(volume += step, 1.0f);
 
                 if (!m_Source->SetParameter("VolumePar", choc::value::Value(volume)))
-                    HZ_CORE_ERROR("Failed to set VolumePar");
+                    ZONG_CORE_ERROR("Failed to set VolumePar");
             }*/
 
             //if (!m_Source->IsAnyDataSourceReading() || m_Source->IsFinished())
@@ -633,7 +633,7 @@ namespace Hazel
                 parametersSet = m_Source->ApplyParameterPreset(m_SoundGraphPreset);
 
             // Preset must match parameters (input events) of the compiled patch player 
-            HZ_CORE_ASSERT(parametersSet);
+            ZONG_CORE_ASSERT(parametersSet);
 
         }
 
@@ -642,7 +642,7 @@ namespace Hazel
             // Mark this voice to be released.
             bFinished = true;
 
-            HZ_CORE_ASSERT(m_PlayState != EPlayState::Starting);
+            ZONG_CORE_ASSERT(m_PlayState != EPlayState::Starting);
             m_NextPlayState = EPlayState::Stopped;
         }
 

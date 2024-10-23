@@ -44,13 +44,13 @@ namespace Hazel {
 
 		VkFramebuffer GetFramebuffer(uint32_t index)
 		{
-			HZ_CORE_ASSERT(index < m_Framebuffers.size());
+			ZONG_CORE_ASSERT(index < m_Framebuffers.size());
 			return m_Framebuffers[index];
 		}
 
 		VkCommandBuffer GetDrawCommandBuffer(uint32_t index)
 		{
-			HZ_CORE_ASSERT(index < m_CommandBuffers.size());
+			ZONG_CORE_ASSERT(index < m_CommandBuffers.size());
 			return m_CommandBuffers[index].CommandBuffer;
 		}
 

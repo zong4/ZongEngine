@@ -74,7 +74,7 @@ namespace Hazel {
 
 		AssetHandle operator[](size_t index) const
 		{
-			HZ_CORE_ASSERT(index >= 0 && index < m_Selections.size());
+			ZONG_CORE_ASSERT(index >= 0 && index < m_Selections.size());
 			return m_Selections[index];
 		}
 

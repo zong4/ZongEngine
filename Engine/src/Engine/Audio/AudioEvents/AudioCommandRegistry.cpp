@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "AudioCommandRegistry.h"
 
 #include "Engine/Core/Application.h"
@@ -19,7 +19,7 @@ namespace Hazel
 	{
 		if (!instance)
 		{
-			HZ_CORE_ASSERT(false, "Invalid instance of AudioCommandsRegistry.");
+			ZONG_CORE_ASSERT(false, "Invalid instance of AudioCommandsRegistry.");
 			return;
 		}
 
@@ -36,7 +36,7 @@ namespace Hazel
 	{
 		if (!s_ActiveRegistry)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -99,7 +99,7 @@ namespace Hazel
 	{
 		if (!s_ActiveRegistry)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -129,7 +129,7 @@ namespace Hazel
 			return;
 		
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -146,7 +146,7 @@ namespace Hazel
 
 		if (!triggers)
 		{
-			HZ_CORE_ERROR("CommandRegistry appears to be corrupted!");
+			ZONG_CORE_ERROR("CommandRegistry appears to be corrupted!");
 			return;
 		}
 
@@ -156,11 +156,11 @@ namespace Hazel
 		{
 			TriggerCommand trigger;
 
-			HZ_DESERIALIZE_PROPERTY(DebugName, trigger.DebugName, entry, std::string(""));
+			ZONG_DESERIALIZE_PROPERTY(DebugName, trigger.DebugName, entry, std::string(""));
 			
 			if (trigger.DebugName.empty())
 			{
-				HZ_CORE_ERROR("Tried to load invalid command. Command must have a DebugName, or an ID!");
+				ZONG_CORE_ERROR("Tried to load invalid command. Command must have a DebugName, or an ID!");
 				continue;
 			}
 			
@@ -173,9 +173,9 @@ namespace Hazel
 				std::string type;
 				std::string context;
 
-				HZ_DESERIALIZE_PROPERTY(Type, type, actionEntry, std::string(""));
-				HZ_DESERIALIZE_PROPERTY_ASSET(Target, action.Target, actionEntry, SoundConfig);
-				HZ_DESERIALIZE_PROPERTY(Context, context, actionEntry, std::string(""));
+				ZONG_DESERIALIZE_PROPERTY(Type, type, actionEntry, std::string(""));
+				ZONG_DESERIALIZE_PROPERTY_ASSET(Target, action.Target, actionEntry, SoundConfig);
+				ZONG_DESERIALIZE_PROPERTY(Context, context, actionEntry, std::string(""));
 
 				action.Type = Utils::AudioActionTypeFromString(type);
 				action.Context = Utils::AudioActionContextFromString(context);
@@ -192,7 +192,7 @@ namespace Hazel
 	{
 		if (!s_ActiveRegistry)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -216,15 +216,15 @@ namespace Hazel
 		for (auto& [commandID, trigger] : sortedTriggers)
 		{
 			out << YAML::BeginMap; // Trigger entry
-			HZ_SERIALIZE_PROPERTY(DebugName, trigger.DebugName, out);
+			ZONG_SERIALIZE_PROPERTY(DebugName, trigger.DebugName, out);
 
 			out << YAML::Key << "Actions" << YAML::BeginSeq;
 			for (auto& action : trigger.Actions.GetVector())
 			{
 				out << YAML::BeginMap;
-				HZ_SERIALIZE_PROPERTY(Type, Utils::AudioActionTypeToString(action.Type), out);
-				HZ_SERIALIZE_PROPERTY_ASSET(Target, action.Target, out);
-				HZ_SERIALIZE_PROPERTY(Context, Utils::AudioActionContextToString(action.Context), out);
+				ZONG_SERIALIZE_PROPERTY(Type, Utils::AudioActionTypeToString(action.Type), out);
+				ZONG_SERIALIZE_PROPERTY_ASSET(Target, action.Target, out);
+				ZONG_SERIALIZE_PROPERTY(Context, Utils::AudioActionContextToString(action.Context), out);
 				out << YAML::EndMap;
 			}
 			out << YAML::EndSeq; // Actions

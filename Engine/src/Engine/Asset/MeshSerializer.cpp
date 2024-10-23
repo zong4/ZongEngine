@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshSerializer.h"
 
 #include "yaml-cpp/yaml.h"
@@ -89,13 +89,13 @@ namespace Hazel {
 		std::string yamlString = SerializeToYAML(mesh);
 
 		std::filesystem::path serializePath = Project::GetActive()->GetAssetDirectory() / metadata.FilePath;
-		HZ_CORE_WARN("Serializing to {0}", serializePath.string());
+		ZONG_CORE_WARN("Serializing to {0}", serializePath.string());
 		std::ofstream fout(serializePath);
 
 		if (!fout.is_open())
 		{
-			HZ_CORE_ERROR("Failed to serialize mesh to file '{0}'", serializePath);
-//			HZ_CORE_ASSERT(false, "GetLastError() = {0}", GetLastError());
+			ZONG_CORE_ERROR("Failed to serialize mesh to file '{0}'", serializePath);
+//			ZONG_CORE_ASSERT(false, "GetLastError() = {0}", GetLastError());
 			return;
 		}
 
@@ -108,7 +108,7 @@ namespace Hazel {
 	{
 		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -206,7 +206,7 @@ namespace Hazel {
 
 		auto serializePath = Project::GetActive()->GetAssetDirectory() / metadata.FilePath;
 		std::ofstream fout(serializePath);
-		HZ_CORE_ASSERT(fout.good());
+		ZONG_CORE_ASSERT(fout.good());
 		if (fout.good())
 			fout << yamlString;
 	}
@@ -217,7 +217,7 @@ namespace Hazel {
 		//       the MeshAsset file is also loaded
 		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 

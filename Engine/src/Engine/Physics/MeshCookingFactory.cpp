@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshCookingFactory.h"
 #include "PhysicsAPI.h"
 #include "Engine/Asset/AssetManager.h"
@@ -22,7 +22,7 @@ namespace Hazel {
 		if (!stream)
 		{
 			stream.close();
-			HZ_CORE_ERROR("Failed to write collider to {0}", filepath.string());
+			ZONG_CORE_ERROR("Failed to write collider to {0}", filepath.string());
 			for (auto& submesh : meshData.Submeshes)
 				submesh.ColliderData.Release();
 			meshData.Submeshes.clear();
@@ -45,7 +45,7 @@ namespace Hazel {
 		// Deserialize
 		Buffer colliderBuffer = FileSystem::ReadBytes(filepath);
 		HazelPhysicsMesh& hmc = *(HazelPhysicsMesh*)colliderBuffer.Data;
-		HZ_CORE_VERIFY(strcmp(hmc.Header, HazelPhysicsMesh().Header) == 0);
+		ZONG_CORE_VERIFY(strcmp(hmc.Header, HazelPhysicsMesh().Header) == 0);
 
 		MeshColliderData meshData;
 		meshData.Type = hmc.Type;

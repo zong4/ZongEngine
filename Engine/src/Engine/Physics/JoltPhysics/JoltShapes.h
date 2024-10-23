@@ -154,7 +154,7 @@ namespace Hazel {
 		virtual uint32_t GetNumShapes() const override { return 1; }
 		virtual void* GetNativeShape(uint32_t index = 0) const override
 		{
-			HZ_CORE_VERIFY(index < 1);
+			ZONG_CORE_VERIFY(index < 1);
 			return m_Shape.GetPtr();
 		}
 
@@ -178,7 +178,7 @@ namespace Hazel {
 		virtual uint32_t GetNumShapes() const override { return m_Shape->GetNumSubShapes(); }
 		virtual void* GetNativeShape(uint32_t index = 0) const override
 		{
-			HZ_CORE_VERIFY(index < 1);
+			ZONG_CORE_VERIFY(index < 1);
 			return m_Shape.GetPtr();
 		}
 

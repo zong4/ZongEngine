@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptUtils.h"
 #include "ScriptEngine.h"
 
@@ -35,13 +35,13 @@ namespace Hazel {
 
 #define REGISTER_METHOD_THUNK(var, method) s_MethodThunks->var.SetThunkFromMethod(method);
 
-		REGISTER_METHOD_THUNK(Entity_OnCreate, HZ_CACHED_METHOD("Hazel.Entity", "OnCreate", 0));
-		REGISTER_METHOD_THUNK(Entity_OnUpdate, HZ_CACHED_METHOD("Hazel.Entity", "OnUpdate", 1));
-		REGISTER_METHOD_THUNK(Entity_OnPhysicsUpdate, HZ_CACHED_METHOD("Hazel.Entity", "OnPhysicsUpdate", 1));
-		REGISTER_METHOD_THUNK(Entity_OnDestroyInternal, HZ_CACHED_METHOD("Hazel.Entity", "OnDestroyInternal", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnInstantiate, HZ_CACHED_METHOD("Hazel.IEditorRunnable", "OnInstantiate", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnUIRender, HZ_CACHED_METHOD("Hazel.IEditorRunnable", "OnUIRender", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnShutdown, HZ_CACHED_METHOD("Hazel.IEditorRunnable", "OnShutdown", 0));
+		REGISTER_METHOD_THUNK(Entity_OnCreate, ZONG_CACHED_METHOD("Hazel.Entity", "OnCreate", 0));
+		REGISTER_METHOD_THUNK(Entity_OnUpdate, ZONG_CACHED_METHOD("Hazel.Entity", "OnUpdate", 1));
+		REGISTER_METHOD_THUNK(Entity_OnPhysicsUpdate, ZONG_CACHED_METHOD("Hazel.Entity", "OnPhysicsUpdate", 1));
+		REGISTER_METHOD_THUNK(Entity_OnDestroyInternal, ZONG_CACHED_METHOD("Hazel.Entity", "OnDestroyInternal", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnInstantiate, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnInstantiate", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnUIRender, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnUIRender", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnShutdown, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnShutdown", 0));
 
 #undef REGISTER_METHOD_THUNK
 	}
@@ -61,11 +61,11 @@ namespace Hazel {
 			unsigned short errorCode = mono_error_get_error_code(&error);
 			const char* errorMessage = mono_error_get_message(&error);
 
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Mono Error!");
-			HZ_CORE_ERROR_TAG("ScriptEngine", "\tError Code: {0}", errorCode);
-			HZ_CORE_ERROR_TAG("ScriptEngine", "\tError Message: {0}", errorMessage);
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Mono Error!");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "\tError Code: {0}", errorCode);
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "\tError Message: {0}", errorMessage);
 			mono_error_cleanup(&error);
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 		}
 
 		return hasError;
@@ -109,18 +109,18 @@ namespace Hazel {
 			return;
 
 		MonoExceptionInfo exceptionInfo = GetExceptionInfo(exception);
-		HZ_CONSOLE_LOG_ERROR("{0}: {1}. Source: {2}, Stack Trace: {3}", exceptionInfo.TypeName, exceptionInfo.Message, exceptionInfo.Source, exceptionInfo.StackTrace);
+		ZONG_CONSOLE_LOG_ERROR("{0}: {1}. Source: {2}, Stack Trace: {3}", exceptionInfo.TypeName, exceptionInfo.Message, exceptionInfo.Source, exceptionInfo.StackTrace);
 	}
 
 	Buffer ScriptUtils::GetFieldValue(MonoObject* classInstance, std::string_view fieldName, FieldType fieldType, bool isProperty)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		return MonoObjectToValue(GetFieldValueObject(classInstance, fieldName, isProperty), fieldType);
 	}
 
 	MonoObject* ScriptUtils::GetFieldValueObject(MonoObject* classInstance, std::string_view fieldName, bool isProperty)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoClass* objectClass = mono_object_get_class(classInstance);
 
@@ -142,7 +142,7 @@ namespace Hazel {
 
 	void ScriptUtils::SetFieldValue(MonoObject* classInstance, const FieldInfo* fieldInfo, const void* data)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (classInstance == nullptr || fieldInfo == nullptr || data == nullptr)
 			return;
@@ -181,7 +181,7 @@ namespace Hazel {
 	// Type Utils
 	Buffer ScriptUtils::MonoObjectToValue(MonoObject* obj, FieldType fieldType)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (obj == nullptr)
 			return Buffer();
@@ -317,7 +317,7 @@ namespace Hazel {
 
 	MonoObject* ScriptUtils::ValueToMonoObject(const void* data, FieldType dataType)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (FieldUtils::IsPrimitiveType(dataType))
 		{
@@ -339,13 +339,13 @@ namespace Hazel {
 			}
 		}
 
-		HZ_CORE_ASSERT(false, "Unsupported value type!");
+		ZONG_CORE_ASSERT(false, "Unsupported value type!");
 		return nullptr;
 	}
 
 	/*Utils::ValueWrapper ScriptUtils::GetDefaultValueForType(const ManagedType& type)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		switch (type.NativeType)
 		{
@@ -379,26 +379,26 @@ namespace Hazel {
 
 	/*MonoObject* ScriptUtils::GetDefaultValueObjectForType(const ManagedType& type)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		switch (type.NativeType)
 		{
-			case UnmanagedType::Bool: return BoxValue(HZ_CACHED_CLASS("System.Boolean"), (MonoBoolean)false);
-			case UnmanagedType::Int8: return BoxValue(HZ_CACHED_CLASS("System.SByte"), 0);
-			case UnmanagedType::Int16: return BoxValue(HZ_CACHED_CLASS("System.Int16"), 0);
-			case UnmanagedType::Int32: return BoxValue(HZ_CACHED_CLASS("System.Int32"), 0);
-			case UnmanagedType::Int64: return BoxValue(HZ_CACHED_CLASS("System.Int64"), 0);
-			case UnmanagedType::UInt8: return BoxValue(HZ_CACHED_CLASS("System.Byte"), 0);
-			case UnmanagedType::UInt16: return BoxValue(HZ_CACHED_CLASS("System.UInt16"), 0);
-			case UnmanagedType::UInt32: return BoxValue(HZ_CACHED_CLASS("System.UInt32"), 0);
-			case UnmanagedType::UInt64: return BoxValue(HZ_CACHED_CLASS("System.UInt64"), 0);
-			case UnmanagedType::Float: return BoxValue(HZ_CACHED_CLASS("System.Single"), 0);
-			case UnmanagedType::Double: return BoxValue(HZ_CACHED_CLASS("System.Double"), 0);
+			case UnmanagedType::Bool: return BoxValue(ZONG_CACHED_CLASS("System.Boolean"), (MonoBoolean)false);
+			case UnmanagedType::Int8: return BoxValue(ZONG_CACHED_CLASS("System.SByte"), 0);
+			case UnmanagedType::Int16: return BoxValue(ZONG_CACHED_CLASS("System.Int16"), 0);
+			case UnmanagedType::Int32: return BoxValue(ZONG_CACHED_CLASS("System.Int32"), 0);
+			case UnmanagedType::Int64: return BoxValue(ZONG_CACHED_CLASS("System.Int64"), 0);
+			case UnmanagedType::UInt8: return BoxValue(ZONG_CACHED_CLASS("System.Byte"), 0);
+			case UnmanagedType::UInt16: return BoxValue(ZONG_CACHED_CLASS("System.UInt16"), 0);
+			case UnmanagedType::UInt32: return BoxValue(ZONG_CACHED_CLASS("System.UInt32"), 0);
+			case UnmanagedType::UInt64: return BoxValue(ZONG_CACHED_CLASS("System.UInt64"), 0);
+			case UnmanagedType::Float: return BoxValue(ZONG_CACHED_CLASS("System.Single"), 0);
+			case UnmanagedType::Double: return BoxValue(ZONG_CACHED_CLASS("System.Double"), 0);
 			case UnmanagedType::String: return (MonoObject*)UTF8StringToMono("");
-			case UnmanagedType::AssetHandle: return BoxValue(HZ_CACHED_CLASS("Hazel.AssetHandle"), 0);
-			case UnmanagedType::Vector2: return BoxValue(HZ_CACHED_CLASS("Hazel.Vector2"), glm::vec2(0.0f));
-			case UnmanagedType::Vector3: return BoxValue(HZ_CACHED_CLASS("Hazel.Vector3"), glm::vec3(0.0f));
-			case UnmanagedType::Vector4: return BoxValue(HZ_CACHED_CLASS("Hazel.Vector4"), glm::vec4(0.0f));
+			case UnmanagedType::AssetHandle: return BoxValue(ZONG_CACHED_CLASS("Hazel.AssetHandle"), 0);
+			case UnmanagedType::Vector2: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector2"), glm::vec2(0.0f));
+			case UnmanagedType::Vector3: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector3"), glm::vec3(0.0f));
+			case UnmanagedType::Vector4: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector4"), glm::vec4(0.0f));
 			case UnmanagedType::Prefab: return nullptr;
 			case UnmanagedType::Entity: return nullptr;
 			case UnmanagedType::Mesh: return nullptr;
@@ -437,46 +437,46 @@ namespace Hazel {
 				if (mono_class_is_enum(typeClass))
 					return GetFieldTypeFromMonoType(mono_type_get_underlying_type(monoType));
 
-				if (HZ_CORE_CLASS(AssetHandle) && typeClass == HZ_CORE_CLASS(AssetHandle)->Class)
+				if (ZONG_CORE_CLASS(AssetHandle) && typeClass == ZONG_CORE_CLASS(AssetHandle)->Class)
 					return FieldType::AssetHandle;
 
-				if (HZ_CORE_CLASS(Vector2) && typeClass == HZ_CORE_CLASS(Vector2)->Class)
+				if (ZONG_CORE_CLASS(Vector2) && typeClass == ZONG_CORE_CLASS(Vector2)->Class)
 					return FieldType::Vector2;
 
-				if (HZ_CORE_CLASS(Vector3) && typeClass == HZ_CORE_CLASS(Vector3)->Class)
+				if (ZONG_CORE_CLASS(Vector3) && typeClass == ZONG_CORE_CLASS(Vector3)->Class)
 					return FieldType::Vector3;
 
-				if (HZ_CORE_CLASS(Vector4) && typeClass == HZ_CORE_CLASS(Vector4)->Class)
+				if (ZONG_CORE_CLASS(Vector4) && typeClass == ZONG_CORE_CLASS(Vector4)->Class)
 					return FieldType::Vector4;
 
 				break;
 			}
 			case MONO_TYPE_CLASS:
 			{
-				auto entityClass = HZ_CORE_CLASS(Entity);
+				auto entityClass = ZONG_CORE_CLASS(Entity);
 
 				if (entityClass && mono_class_is_assignable_from(typeClass, entityClass->Class))
 					return FieldType::Entity;
 
-				if (HZ_CORE_CLASS(Prefab) && typeClass == HZ_CORE_CLASS(Prefab)->Class)
+				if (ZONG_CORE_CLASS(Prefab) && typeClass == ZONG_CORE_CLASS(Prefab)->Class)
 					return FieldType::Prefab;
 
-				if (HZ_CORE_CLASS(Mesh) && typeClass == HZ_CORE_CLASS(Mesh)->Class)
+				if (ZONG_CORE_CLASS(Mesh) && typeClass == ZONG_CORE_CLASS(Mesh)->Class)
 					return FieldType::Mesh;
 
-				if (HZ_CORE_CLASS(StaticMesh) && typeClass == HZ_CORE_CLASS(StaticMesh)->Class)
+				if (ZONG_CORE_CLASS(StaticMesh) && typeClass == ZONG_CORE_CLASS(StaticMesh)->Class)
 					return FieldType::StaticMesh;
 
-				if (HZ_CORE_CLASS(Material) && typeClass == HZ_CORE_CLASS(Material)->Class)
+				if (ZONG_CORE_CLASS(Material) && typeClass == ZONG_CORE_CLASS(Material)->Class)
 					return FieldType::Material;
 
-				if (HZ_CORE_CLASS(PhysicsMaterial) && typeClass == HZ_CORE_CLASS(PhysicsMaterial)->Class)
+				if (ZONG_CORE_CLASS(PhysicsMaterial) && typeClass == ZONG_CORE_CLASS(PhysicsMaterial)->Class)
 					return FieldType::PhysicsMaterial;
 
-				if (HZ_CORE_CLASS(Texture2D) && typeClass == HZ_CORE_CLASS(Texture2D)->Class)
+				if (ZONG_CORE_CLASS(Texture2D) && typeClass == ZONG_CORE_CLASS(Texture2D)->Class)
 					return FieldType::Texture2D;
 
-				if (HZ_CORE_CLASS(Scene) && typeClass == HZ_CORE_CLASS(Scene)->Class)
+				if (ZONG_CORE_CLASS(Scene) && typeClass == ZONG_CORE_CLASS(Scene)->Class)
 					return FieldType::Scene;
 
 				break;
@@ -572,10 +572,10 @@ namespace Hazel {
 	// ManagedArrayUtils
 	//Utils::ValueWrapper ManagedArrayUtils::GetValue(MonoArray* arr, uintptr_t index)
 	//{
-	//	HZ_CORE_VERIFY(arr, "Can't get a value from a nullptr array");
+	//	ZONG_CORE_VERIFY(arr, "Can't get a value from a nullptr array");
 
 	//	uintptr_t length = mono_array_length(arr);
-	//	HZ_CORE_VERIFY(index < length, "index out of range");
+	//	ZONG_CORE_VERIFY(index < length, "index out of range");
 
 	//	MonoClass* arrayClass = mono_object_get_class((MonoObject*)arr);
 	//	MonoClass* elementClass = mono_class_get_element_class(arrayClass);
@@ -595,7 +595,7 @@ namespace Hazel {
 
 	uintptr_t ManagedArrayUtils::Length(MonoArray* arr)
 	{
-		HZ_CORE_VERIFY(arr);
+		ZONG_CORE_VERIFY(arr);
 		return mono_array_length(arr);
 	}
 
@@ -621,10 +621,10 @@ namespace Hazel {
 
 	//void ManagedArrayUtils::RemoveAt(MonoArray** arr, uintptr_t index)
 	//{
-	//	HZ_CORE_VERIFY(arr && *arr, "Cannot remove elements from nullptr array");
+	//	ZONG_CORE_VERIFY(arr && *arr, "Cannot remove elements from nullptr array");
 
 	//	uintptr_t length = mono_array_length(*arr);
-	//	HZ_CORE_VERIFY(index < length, "Index out of range");
+	//	ZONG_CORE_VERIFY(index < length, "Index out of range");
 
 	//	if (index == length - 1)
 	//	{
@@ -636,7 +636,7 @@ namespace Hazel {
 	//	MonoClass* elementClass = mono_class_get_element_class(arrayClass);
 	//	int32_t elementSize = mono_array_element_size(arrayClass);
 	//	MonoArray* temp = mono_array_new(ScriptEngine::GetScriptDomain(), elementClass, length - 1);
-	//	HZ_CORE_VERIFY(temp);
+	//	ZONG_CORE_VERIFY(temp);
 
 	//	if (index != 0)
 	//	{
@@ -660,7 +660,7 @@ namespace Hazel {
 
 	MonoArray* ManagedArrayUtils::Copy(MonoArray* arr)
 	{
-		HZ_CORE_VERIFY(arr);
+		ZONG_CORE_VERIFY(arr);
 
 		// TODO: Maybe attempt a deep copy? mono_array_clone only creates a shallow copy, for now that's fine though.
 		return mono_array_clone(arr);
@@ -668,29 +668,29 @@ namespace Hazel {
 
 	MonoArray* ManagedArrayUtils::Create(const std::string& arrayClass, uintptr_t length)
 	{
-		HZ_CORE_VERIFY(!arrayClass.empty(), "Cannot create managed array of no type");
+		ZONG_CORE_VERIFY(!arrayClass.empty(), "Cannot create managed array of no type");
 
 		ManagedClass* klass = ScriptCache::GetManagedClassByName(arrayClass);
-		HZ_CORE_VERIFY(klass, "Unable to find array class");
+		ZONG_CORE_VERIFY(klass, "Unable to find array class");
 
 		return mono_array_new(ScriptEngine::GetScriptDomain(), klass->Class, length);
 	}
 
 	MonoArray* ManagedArrayUtils::Create(ManagedClass* arrayClass, uintptr_t length)
 	{
-		HZ_CORE_VERIFY(arrayClass, "Cannot create managed array of no type");
+		ZONG_CORE_VERIFY(arrayClass, "Cannot create managed array of no type");
 		return mono_array_new(ScriptEngine::GetScriptDomain(), arrayClass->Class, length);
 	}
 
 	void ManagedArrayUtils::SetValueInternal(MonoArray* arr, uintptr_t index, void* data)
 	{
-		HZ_CORE_VERIFY(arr);
+		ZONG_CORE_VERIFY(arr);
 
 		uintptr_t length = mono_array_length(arr);
 		
 		if (index >= length)
 		{
-			HZ_CORE_WARN_TAG("ScriptEngine", "Index out of bounds in C# array!");
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Index out of bounds in C# array!");
 			return;
 		}
 
@@ -713,10 +713,10 @@ namespace Hazel {
 
 	void ManagedArrayUtils::SetValueInternal(MonoArray* arr, uintptr_t index, MonoObject* value)
 	{
-		HZ_CORE_VERIFY(arr);
+		ZONG_CORE_VERIFY(arr);
 
 		uintptr_t length = mono_array_length(arr);
-		HZ_CORE_VERIFY(index < length, "index out of range");
+		ZONG_CORE_VERIFY(index < length, "index out of range");
 
 		MonoClass* arrayClass = mono_object_get_class((MonoObject*)arr);
 		MonoClass* elementClass = mono_class_get_element_class(arrayClass);
@@ -732,7 +732,7 @@ namespace Hazel {
 	// Managed Thunks
 	void MethodThunks::OnEntityCreate(GCHandle entityHandle)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* entityObject = GCManager::GetReferencedObject(entityHandle);
@@ -742,7 +742,7 @@ namespace Hazel {
 
 	void MethodThunks::OnEntityUpdate(GCHandle entityHandle, float ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* entityObject = GCManager::GetReferencedObject(entityHandle);
@@ -752,7 +752,7 @@ namespace Hazel {
 
 	void MethodThunks::OnEntityPhysicsUpdate(GCHandle entityHandle, float ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* entityObject = GCManager::GetReferencedObject(entityHandle);
@@ -762,7 +762,7 @@ namespace Hazel {
 
 	void MethodThunks::OnEntityDestroyed(GCHandle entityHandle)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* entityObject = GCManager::GetReferencedObject(entityHandle);
@@ -772,8 +772,8 @@ namespace Hazel {
 
 	void MethodThunks::IEditorRunnable_OnInstantiate(GCHandle scriptHandle)
 	{
-#ifndef HZ_DIST
-		HZ_PROFILE_FUNC();
+#ifndef ZONG_DIST
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* scriptObject = GCManager::GetReferencedObject(scriptHandle);
@@ -784,8 +784,8 @@ namespace Hazel {
 
 	void MethodThunks::IEditorRunnable_OnUIRender(GCHandle scriptHandle)
 	{
-#ifndef HZ_DIST
-		HZ_PROFILE_FUNC();
+#ifndef ZONG_DIST
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* scriptObject = GCManager::GetReferencedObject(scriptHandle);
@@ -796,8 +796,8 @@ namespace Hazel {
 
 	void MethodThunks::IEditorRunnable_OnShutdown(GCHandle scriptHandle)
 	{
-#ifndef HZ_DIST
-		HZ_PROFILE_FUNC();
+#ifndef ZONG_DIST
+		ZONG_PROFILE_FUNC();
 
 		MonoException* exception = nullptr;
 		MonoObject* scriptObject = GCManager::GetReferencedObject(scriptHandle);

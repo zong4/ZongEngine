@@ -4,8 +4,8 @@ project "Engine"
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
 
-	pchheader "hzpch.h"
-	pchsource "src/hzpch.cpp"
+	pchheader "pch.h"
+	pchsource "src/pch.cpp"
 
 	files {
 		"src/**.h",
@@ -39,14 +39,14 @@ project "Engine"
 
 	filter "system:windows"
 		systemversion "latest"
-		defines { "HZ_PLATFORM_WINDOWS", }
+		defines { "ZONG_PLATFORM_WINDOWS", }
 
 	filter "system:linux"
-		defines { "HZ_PLATFORM_LINUX", "__EMULATE_UUID" }
+		defines { "ZONG_PLATFORM_LINUX", "__EMULATE_UUID" }
 
 	filter "configurations:Debug or configurations:Debug-AS"
 		symbols "On"
-		defines { "HZ_DEBUG", "_DEBUG", }
+		defines { "ZONG_DEBUG", "_DEBUG", }
 
 	filter { "system:windows", "configurations:Debug-AS" }	
 		sanitize { "Address" }
@@ -56,11 +56,11 @@ project "Engine"
 		optimize "On"
 		vectorextensions "AVX2"
 		isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_RELEASE", "NDEBUG", }
+		defines { "ZONG_RELEASE", "NDEBUG", }
 
 	filter { "configurations:Debug or configurations:Debug-AS or configurations:Release" }
 		defines {
-			"HZ_TRACK_MEMORY",
+			"ZONG_TRACK_MEMORY",
 
 			"JPH_DEBUG_RENDERER",
 			"JPH_FLOATING_POINT_EXCEPTIONS_ENABLED",
@@ -72,7 +72,7 @@ project "Engine"
 		symbols "Off"
 		vectorextensions "AVX2"
 		isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_DIST" }
+		defines { "ZONG_DIST" }
 
 		removefiles {
 			"src/Engine/Platform/Vulkan/ShaderCompiler/**.cpp",

@@ -27,19 +27,19 @@ namespace Hazel {
 			}
 			if (strncmp(message, "Debug", 5) == 0)
 			{
-				HZ_CORE_TRACE_TAG("Assimp", msg);
+				ZONG_CORE_TRACE_TAG("Assimp", msg);
 			}
 			else if (strncmp(message, "Info", 4) == 0)
 			{
-				HZ_CORE_INFO_TAG("Assimp", msg);
+				ZONG_CORE_INFO_TAG("Assimp", msg);
 			}
 			else if (strncmp(message, "Warn", 4) == 0)
 			{
-				HZ_CORE_WARN_TAG("Assimp", msg);
+				ZONG_CORE_WARN_TAG("Assimp", msg);
 			}
 			else
 			{
-				HZ_CORE_ERROR_TAG("Assimp", msg);
+				ZONG_CORE_ERROR_TAG("Assimp", msg);
 			}
 		}
 	};

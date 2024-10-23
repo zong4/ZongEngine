@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SelectionManager.h"
 #include "Engine/Core/Application.h"
 #include "Engine/Core/Events/SceneEvents.h"
@@ -111,7 +111,7 @@ namespace Hazel {
 	UUID SelectionManager::GetSelection(SelectionContext context, size_t index)
 	{
 		auto& contextSelections = s_Contexts[context];
-		HZ_CORE_VERIFY(index >= 0 && index < contextSelections.size());
+		ZONG_CORE_VERIFY(index >= 0 && index < contextSelections.size());
 		return contextSelections[index];
 	}
 

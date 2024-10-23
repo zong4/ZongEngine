@@ -1,10 +1,10 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "AudioEventsManager.h"
 
 #include "magic_enum.hpp"
 
 #if 0 // Enable logging for Events handling
-#define LOG_EVENTS(...) HZ_CORE_INFO_TAG("Audio", __VA_ARGS__)
+#define LOG_EVENTS(...) ZONG_CORE_INFO_TAG("Audio", __VA_ARGS__)
 #else
 #define LOG_EVENTS(...)
 #endif
@@ -44,7 +44,7 @@ namespace Hazel::Audio {
 			}
 			else
 			{
-				HZ_CORE_ERROR_TAG("Audio", "Failed to initialize new Voice for audio object");
+				ZONG_CORE_ERROR_TAG("Audio", "Failed to initialize new Voice for audio object");
 				action.Handled = false;
 			}
 		};
@@ -60,7 +60,7 @@ namespace Hazel::Audio {
 				}
 				else
 				{
-					HZ_CORE_ERROR_TAG("Audio", "No Active Sources for object to Pause");
+					ZONG_CORE_ERROR_TAG("Audio", "No Active Sources for object to Pause");
 				}
 			}
 			else // Global context
@@ -129,7 +129,7 @@ namespace Hazel::Audio {
 				}
 				else
 				{
-					HZ_CORE_ERROR_TAG("Audio", "No Active Sources for object to Stop");
+					ZONG_CORE_ERROR_TAG("Audio", "No Active Sources for object to Stop");
 				}
 			}
 			else // Global context
@@ -219,7 +219,7 @@ namespace Hazel::Audio {
 								&& action.Type != EActionType::ResumeAll
 								&& action.Type != EActionType::SeekAll)
 			{
-				HZ_CORE_ERROR_TAG("Audio", "One of the actions of audio trigger ({0}) doesn't have a target assigned!", trigger.DebugName);
+				ZONG_CORE_ERROR_TAG("Audio", "One of the actions of audio trigger ({0}) doesn't have a target assigned!", trigger.DebugName);
 				action.Handled = true;
 				continue;
 			}
@@ -280,19 +280,19 @@ namespace Hazel::Audio {
 
 	bool AudioEventsManager::ProcessSwitchCommand(EventInfo& info)
 	{
-		HZ_CORE_ASSERT(false, "Not implemented.");
+		ZONG_CORE_ASSERT(false, "Not implemented.");
 		return false;
 	}
 
 	bool AudioEventsManager::ProcessStateCommand(EventInfo& info)
 	{
-		HZ_CORE_ASSERT(false, "Not implemented.");
+		ZONG_CORE_ASSERT(false, "Not implemented.");
 		return false;
 	}
 
 	bool AudioEventsManager::ProcessParameterCommand(EventInfo& info)
 	{
-		HZ_CORE_ASSERT(false, "Not implemented.");
+		ZONG_CORE_ASSERT(false, "Not implemented.");
 		return false;
 	}
 
@@ -372,7 +372,7 @@ namespace Hazel::Audio {
 	{
 		if (m_EventRegistry.GetNumberOfSources(playingEvent) <= 0)
 		{
-			HZ_CONSOLE_LOG_WARN("Audio. Trying to execute action {} on playing event that's not in the active events registry.", magic_enum::enum_name(action));
+			ZONG_CONSOLE_LOG_WARN("Audio. Trying to execute action {} on playing event that's not in the active events registry.", magic_enum::enum_name(action));
 			return false;
 		}
 

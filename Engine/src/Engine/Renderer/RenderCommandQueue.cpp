@@ -1,7 +1,7 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "RenderCommandQueue.h"
 
-#define HZ_RENDER_TRACE(...) HZ_CORE_TRACE(__VA_ARGS__)
+#define ZONG_RENDER_TRACE(...) ZONG_CORE_TRACE(__VA_ARGS__)
 
 namespace Hazel {
 
@@ -35,7 +35,7 @@ namespace Hazel {
 
 	void RenderCommandQueue::Execute()
 	{
-		//HZ_RENDER_TRACE("RenderCommandQueue::Execute -- {0} commands, {1} bytes", m_CommandCount, (m_CommandBufferPtr - m_CommandBuffer));
+		//ZONG_RENDER_TRACE("RenderCommandQueue::Execute -- {0} commands, {1} bytes", m_CommandCount, (m_CommandBufferPtr - m_CommandBuffer));
 
 		byte* buffer = m_CommandBuffer;
 

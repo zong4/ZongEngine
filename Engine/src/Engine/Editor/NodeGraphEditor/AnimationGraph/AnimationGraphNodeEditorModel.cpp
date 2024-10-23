@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationGraphNodeEditorModel.h"
 
 #include "AnimationGraphAsset.h"
@@ -82,7 +82,7 @@ namespace Hazel {
 			for (auto& [id, nodes] : model.GetAllNodes())
 			{
 				Node* rootNode = id == 0 ? nullptr : model.FindInAllNodes(id);
-				HZ_CORE_ASSERT(id == 0 || rootNode);
+				ZONG_CORE_ASSERT(id == 0 || rootNode);
 				model.SetCurrentPath(rootNode);
 
 				bool hasOutputNode = false;
@@ -131,7 +131,7 @@ namespace Hazel {
 
 			Parser(GeneratorOptions& options, Prototype& outPrototype) : m_Options{ options }, m_Prototype(outPrototype)
 			{
-				HZ_CORE_ASSERT(m_Options.Model);
+				ZONG_CORE_ASSERT(m_Options.Model);
 			}
 
 
@@ -168,7 +168,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ASSERT(!type.isObject());
+					ZONG_CORE_ASSERT(!type.isObject());
 				}
 			}
 
@@ -386,7 +386,7 @@ namespace Hazel {
 								sourceNode = m_Options.Model->FindNode(sourcePin->NodeID);
 								if (!sourceNode)
 								{
-									HZ_CORE_ERROR("Failed to find source node while parsing Local Variable.");
+									ZONG_CORE_ERROR("Failed to find source node while parsing Local Variable.");
 									continue;
 								}
 								sourceNodeName = Utils::MakeSafeIdentifier(sourceNode->Name);
@@ -405,7 +405,7 @@ namespace Hazel {
 								else
 								{
 									// TODO: in this case the graph should not crash, just the getters of this LV wouldn't be ever triggered
-									HZ_CORE_ERROR("We can't have default plugs for Local Variables of flow type!");
+									ZONG_CORE_ERROR("We can't have default plugs for Local Variables of flow type!");
 								}
 
 								continue;
@@ -416,15 +416,15 @@ namespace Hazel {
 						// then other node connections
 						if (sourceNodeName == "Input_Action")
 						{
-							HZ_CORE_ASSERT(false, "Input_Action is no longer supported!");
+							ZONG_CORE_ASSERT(false, "Input_Action is no longer supported!");
 #if 0
 							Prototype::Node* destination = FindNodeByID(destNode->ID);
-							HZ_CORE_ASSERT(destination);
+							ZONG_CORE_ASSERT(destination);
 
 							const Identifier inputActionID = sourcePinName == "Update" ? AnimationGraph::IDs::Update : Identifier();
 							// Invalid Input Action ID
 							{
-								HZ_CORE_ASSERT(inputActionID != Identifier());
+								ZONG_CORE_ASSERT(inputActionID != Identifier());
 								// TODO: collect error and terminate compilation
 							}
 
@@ -457,8 +457,8 @@ namespace Hazel {
 						}
 						else if (destNodeName == "Event")
 						{
-							HZ_CORE_ASSERT(destNode->Inputs.size() >= 2);
-							HZ_CORE_ASSERT(destNode->Inputs[1]->GetType() == Types::EPinType::String);
+							ZONG_CORE_ASSERT(destNode->Inputs.size() >= 2);
+							ZONG_CORE_ASSERT(destNode->Inputs[1]->GetType() == Types::EPinType::String);
 							std::string_view eventName = destNode->Inputs[1]->Value.getString();
 							m_Prototype.Connections.emplace_back(
 								Prototype::Connection::Endpoint{ sourceNode->ID, Identifier(sourcePinName) },
@@ -469,7 +469,7 @@ namespace Hazel {
 						else if (sourceNodeName == "Input")
 						{
 							Prototype::Node* destination = FindNodeByID(destNode->ID);
-							HZ_CORE_ASSERT(destination);
+							ZONG_CORE_ASSERT(destination);
 
 							m_Prototype.Connections.emplace_back(
 								Prototype::Connection::Endpoint{ m_Prototype.ID, Identifier{ sourcePinName } },
@@ -479,9 +479,9 @@ namespace Hazel {
 						}
 						else
 						{
-							HZ_CORE_ASSERT(FindNodeByID(sourceNode->ID));
-							HZ_CORE_ASSERT(FindNodeByID(sourceNode->ID));
-							HZ_CORE_ASSERT(FindNodeByID(destNode->ID));
+							ZONG_CORE_ASSERT(FindNodeByID(sourceNode->ID));
+							ZONG_CORE_ASSERT(FindNodeByID(sourceNode->ID));
+							ZONG_CORE_ASSERT(FindNodeByID(destNode->ID));
 
 							m_Prototype.Connections.emplace_back(
 								Prototype::Connection::Endpoint{ sourceNode->ID, Identifier(sourcePinName) },
@@ -524,7 +524,7 @@ namespace Hazel {
 			if (!errors.empty())
 			{
 				errors.insert(errors.begin(), "Graph is invalid.");
-				HZ_CONSOLE_LOG_ERROR("Failed to construct Animation Graph Prototype! " + choc::text::joinStrings(errors, "\n"));
+				ZONG_CONSOLE_LOG_ERROR("Failed to construct Animation Graph Prototype! " + choc::text::joinStrings(errors, "\n"));
 				return nullptr;
 			}
 
@@ -811,7 +811,7 @@ namespace Hazel {
 
 	bool AnimationGraphNodeEditorModel::SaveGraphState(const char* data, size_t size)
 	{
-		HZ_CORE_INFO_TAG("Animation", "SaveGraphState() node = {0}: {1}", m_RootNodeId, data);
+		ZONG_CORE_INFO_TAG("Animation", "SaveGraphState() node = {0}: {1}", m_RootNodeId, data);
 		m_AnimationGraph->m_GraphState.at(m_RootNodeId) = data;
 		return true;
 	}
@@ -819,7 +819,7 @@ namespace Hazel {
 
 	const std::string& AnimationGraphNodeEditorModel::LoadGraphState()
 	{
-		HZ_CORE_INFO_TAG("Animation", "LoadGraphState() node = {0}: {1}", m_RootNodeId, m_AnimationGraph->m_GraphState.at(m_RootNodeId));
+		ZONG_CORE_INFO_TAG("Animation", "LoadGraphState() node = {0}: {1}", m_RootNodeId, m_AnimationGraph->m_GraphState.at(m_RootNodeId));
 		return m_AnimationGraph->m_GraphState.at(m_RootNodeId);
 	}
 
@@ -859,7 +859,7 @@ namespace Hazel {
 	{
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -893,7 +893,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin*
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return node->Outputs[0];
@@ -956,7 +956,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin**
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return &node->Outputs[0];
@@ -1034,7 +1034,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin*
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return node->Outputs[0];
@@ -1090,7 +1090,7 @@ namespace Hazel {
 					&& node->Inputs.size() == 1
 					&& node->Inputs[0]->Name == variableName)
 				{
-					HZ_CONSOLE_LOG_TRACE("Setter node for the variable '{}' already exists!", variableName);
+					ZONG_CONSOLE_LOG_TRACE("Setter node for the variable '{}' already exists!", variableName);
 					ax::NodeEditor::SelectNode((uint64_t)node->ID, false);
 					ax::NodeEditor::NavigateToSelection();
 					return nullptr;
@@ -1116,7 +1116,7 @@ namespace Hazel {
 		for (auto& [id, nodes] : GetAllNodes())
 		{
 			Node* rootNode = id == 0 ? nullptr : FindInAllNodes(id);
-			HZ_CORE_ASSERT(id == 0 || rootNode);
+			ZONG_CORE_ASSERT(id == 0 || rootNode);
 
 			if (rootNode && rootNode->GetTypeID() == AG::Types::ENodeType::StateMachine)
 			{
@@ -1131,7 +1131,7 @@ namespace Hazel {
 	{
 		if (!node)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -1207,7 +1207,7 @@ namespace Hazel {
 		for (auto& [id, nodes] : GetAllNodes())
 		{
 			Node* rootNode = id == 0 ? nullptr : FindInAllNodes(id);
-			HZ_CORE_ASSERT(id == 0 || rootNode);
+			ZONG_CORE_ASSERT(id == 0 || rootNode);
 
 			SetCurrentPath(rootNode);
 
@@ -1377,7 +1377,7 @@ namespace Hazel {
 		for (auto& [id, links] : GetAllLinks())
 		{
 			Node* rootNode = id == 0 ? nullptr : FindInAllNodes(id);
-			HZ_CORE_ASSERT(id == 0 || rootNode);
+			ZONG_CORE_ASSERT(id == 0 || rootNode);
 
 			// State Machine graph does not need links to be sorted
 			if (rootNode && rootNode->GetTypeID() == AG::Types::StateMachine)
@@ -1393,7 +1393,7 @@ namespace Hazel {
 				auto getIndex = [](auto vec, auto valueFunc)
 				{
 					auto it = std::find_if(vec.begin(), vec.end(), valueFunc);
-					HZ_CORE_ASSERT(it != vec.end());
+					ZONG_CORE_ASSERT(it != vec.end());
 					return it - vec.begin();
 				};
 
@@ -1495,7 +1495,7 @@ namespace Hazel {
 
 	void AnimationGraphNodeEditorModel::OnCompileGraph()
 	{
-		HZ_CORE_INFO_TAG("Animation", "Compiling graph...");
+		ZONG_CORE_INFO_TAG("Animation", "Compiling graph...");
 
 		if (onCompile)
 		{
@@ -1503,28 +1503,28 @@ namespace Hazel {
 			{
 				InvalidatePlayer(false);
 
-				HZ_CORE_INFO_TAG("Animation", "Graph has been compiled.");
+				ZONG_CORE_INFO_TAG("Animation", "Graph has been compiled.");
 				if (onCompiledSuccessfully)
 					onCompiledSuccessfully();
 
-				HZ_CONSOLE_LOG_TRACE("Animation graph successfully compiled.");
+				ZONG_CONSOLE_LOG_TRACE("Animation graph successfully compiled.");
 
 			}
 			else
 			{
-				HZ_CONSOLE_LOG_ERROR("Failed to compile animation graph!");
+				ZONG_CONSOLE_LOG_ERROR("Failed to compile animation graph!");
 			}
 		}
 		else
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to compile animation graph!");
+			ZONG_CONSOLE_LOG_ERROR("Failed to compile animation graph!");
 		}
 	}
 
 
 	void AnimationGraphNodeEditorModel::EnsureEntryState()
 	{
-		HZ_CORE_ASSERT(m_CurrentPath.size() > 0 && m_CurrentPath.back()->GetTypeID() == AG::Types::StateMachine);
+		ZONG_CORE_ASSERT(m_CurrentPath.size() > 0 && m_CurrentPath.back()->GetTypeID() == AG::Types::StateMachine);
 		bool bFoundEntry = std::find_if(GetNodes().begin(), GetNodes().end(), [](const Node* node) {
 			const auto* stateNode = static_cast<const AG::Types::Node*>(node);
 			return stateNode->IsEntryState;

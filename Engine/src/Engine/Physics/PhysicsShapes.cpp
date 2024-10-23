@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PhysicsShapes.h"
 #include "PhysicsAPI.h"
 
@@ -13,7 +13,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltImmutableCompoundShape>::Create(entity);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -24,7 +24,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltMutableCompoundShape>::Create(entity);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -35,7 +35,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltBoxShape>::Create(entity, totalBodyMass);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -46,7 +46,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltSphereShape>::Create(entity, totalBodyMass);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -57,7 +57,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltCapsuleShape>::Create(entity, totalBodyMass);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -68,7 +68,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltConvexMeshShape>::Create(entity, totalBodyMass);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 
@@ -79,7 +79,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return Ref<JoltTriangleMeshShape>::Create(entity);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return nullptr;
 	}
 

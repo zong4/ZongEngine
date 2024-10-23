@@ -71,7 +71,7 @@ namespace Hazel::Utils {
 			case AssetType::Animation: return CreateAssetHandleValue<AssetType::Animation>(id);
 			case AssetType::Skeleton:  return CreateAssetHandleValue<AssetType::Skeleton>(id);
 			default:
-				HZ_CORE_ASSERT(false, "Unknown asset type!");
+				ZONG_CORE_ASSERT(false, "Unknown asset type!");
 				return {};
 		}
 	}
@@ -81,7 +81,7 @@ namespace Hazel::Utils {
 	AssetHandle GetAssetHandleFromValue(const T& v)
 	{
 		static_assert(std::is_same_v<T, choc::value::Value> || std::is_same_v<T, choc::value::ValueView>, "GetAssetHandleFromValue<T> requires T to be choc::value::Value, or choc::value::ValueView");
-		HZ_CORE_ASSERT(IsAssetHandle(v));
+		ZONG_CORE_ASSERT(IsAssetHandle(v));
 
 		// Assuming asset handle value stored as int64 [Data]["Value"] member in choc Value object
 		return (AssetHandle)(v["Value"].getInt64());
@@ -92,7 +92,7 @@ namespace Hazel::Utils {
 	inline void SetAssetHandleValue(T& v, AssetHandle value)
 	{
 		static_assert(std::is_same_v<T, choc::value::Value> || std::is_same_v<T, choc::value::ValueView>, "SetAssetHandleValue<T> requires T to be choc::value::Value, or choc::value::ValueView");
-		HZ_CORE_ASSERT(IsAssetHandle(v));
+		ZONG_CORE_ASSERT(IsAssetHandle(v));
 
 		v["Value"].set((int64_t)value);
 	}

@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "AudioPlayback.h"
 
 #include "AudioEngine.h"
@@ -20,7 +20,7 @@ namespace Hazel
 
 bool AudioPlayback::Play(uint64_t audioEntityID, float startTime)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     return engine.SubmitStartPlayback(audioEntityID);
@@ -28,7 +28,7 @@ bool AudioPlayback::Play(uint64_t audioEntityID, float startTime)
 
 bool AudioPlayback::StopActiveSound(uint64_t audioEntityID)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     return engine.StopActiveSoundSource(audioEntityID);
@@ -36,7 +36,7 @@ bool AudioPlayback::StopActiveSound(uint64_t audioEntityID)
 
 bool AudioPlayback::PauseActiveSound(uint64_t audioEntityID)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     return engine.PauseActiveSoundSource(audioEntityID);
@@ -44,7 +44,7 @@ bool AudioPlayback::PauseActiveSound(uint64_t audioEntityID)
 
 bool AudioPlayback::Resume(uint64_t audioEntityID)
 {
-    HZ_PROFILE_FUNC();
+    ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     return engine.ResumeActiveSoundSource(audioEntityID);
@@ -52,7 +52,7 @@ bool AudioPlayback::Resume(uint64_t audioEntityID)
 
 bool AudioPlayback::IsPlaying(uint64_t audioEntityID)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     return engine.HasActiveEvents(audioEntityID);
@@ -61,7 +61,7 @@ bool AudioPlayback::IsPlaying(uint64_t audioEntityID)
 #if OLD_API
 void AudioPlayback::SetMasterReverbSend(uint64_t audioComponetnID, float sendLevel)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
 
@@ -77,7 +77,7 @@ void AudioPlayback::SetMasterReverbSend(uint64_t audioComponetnID, float sendLev
 
 float AudioPlayback::GetMasterReverbSend(uint64_t audioComponetnID)
 {
-	HZ_PROFILE_FUNC();
+	ZONG_PROFILE_FUNC();
 
     auto& engine = MiniAudioEngine::Get();
     if (auto* sound = engine.GetSoundForAudioComponent(audioComponetnID))
@@ -101,7 +101,7 @@ uint32_t AudioPlayback::PostTrigger(CommandID triggerCommandID, uint64_t audioEn
 	}
 	else
 	{
-		HZ_CORE_ERROR("Audio command with ID {0} does not exist!", triggerCommandID);
+		ZONG_CORE_ERROR("Audio command with ID {0} does not exist!", triggerCommandID);
 		return Audio::EventID::INVALID;
 	}
 }
@@ -110,13 +110,13 @@ uint32_t AudioPlayback::PostTriggerFromAC(Audio::CommandID triggerCommandID, uin
 {
 	if (audioEntityID == 0)
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return Audio::EventID::INVALID;
 	}
 
 	if (!AudioCommandRegistry::DoesCommandExist<TriggerCommand>(triggerCommandID))
 	{
-		HZ_CORE_ERROR("Audio command with ID {0} does not exist!", triggerCommandID);
+		ZONG_CORE_ERROR("Audio command with ID {0} does not exist!", triggerCommandID);
 		return Audio::EventID::INVALID;
 	}
 
@@ -182,7 +182,7 @@ void AudioPlayback::SetParameterFloatForAC(Audio::CommandID parameterID, uint64_
 	}
 	else
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return;
 	}
 }
@@ -196,7 +196,7 @@ void AudioPlayback::SetParameterIntForAC(Audio::CommandID parameterID, uint64_t 
 	}
 	else
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return;
 	}
 }
@@ -210,7 +210,7 @@ void AudioPlayback::SetParameterBoolForAC(Audio::CommandID parameterID, uint64_t
 	}
 	else
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return;
 	}
 }
@@ -290,7 +290,7 @@ void AudioPlayback::SetLowPassFilterValueAC(uint64_t audioEntityID, float value)
 	}
 	else
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return;
 	}
 }
@@ -304,7 +304,7 @@ void AudioPlayback::SetHighPassFilterValueAC(uint64_t audioEntityID, float value
 	}
 	else
 	{
-		HZ_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
+		ZONG_CORE_ERROR_TAG("Audio", "Invalid Entity ID {0}!", audioEntityID);
 		return;
 	}
 }

@@ -57,7 +57,7 @@ namespace Hazel {
 		void Set(const std::string& name, const T& value)
 		{
 			auto decl = FindUniformDeclaration(name);
-			HZ_CORE_ASSERT(decl, "Could not find uniform!");
+			ZONG_CORE_ASSERT(decl, "Could not find uniform!");
 			if (!decl)
 				return;
 
@@ -69,7 +69,7 @@ namespace Hazel {
 		T& Get(const std::string& name)
 		{
 			auto decl = FindUniformDeclaration(name);
-			HZ_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
+			ZONG_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
 			auto& buffer = m_UniformStorageBuffer;
 			return buffer.Read<T>(decl->GetOffset());
 		}

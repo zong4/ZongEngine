@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "CustomTreeNode.h"
 
 #include "Engine/ImGui/Colors.h"
@@ -216,9 +216,9 @@ namespace ImGui {
 			// Unframed typed for tree nodes
 			if (hovered || selected)
 			{
-				//if (held && hovered) HZ_CORE_WARN("held && hovered");
-				//if(hovered && !selected && !held && !pressed && !toggled) HZ_CORE_WARN("hovered && !selected && !held");
-				//else if(!selected) HZ_CORE_WARN("ImGuiCol_Header");
+				//if (held && hovered) ZONG_CORE_WARN("held && hovered");
+				//if(hovered && !selected && !held && !pressed && !toggled) ZONG_CORE_WARN("hovered && !selected && !held");
+				//else if(!selected) ZONG_CORE_WARN("ImGuiCol_Header");
 
 				const ImU32 bg_col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : (hovered && !selected && !held && !pressed && !toggled) ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
 				RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, false);

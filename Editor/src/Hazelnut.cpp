@@ -3,7 +3,7 @@
 
 #include "Engine/EntryPoint.h"
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 #include <Shlobj.h>
 #endif
 
@@ -76,7 +76,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 
 	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Engine-ScriptCore.dll";
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 	specification.ScriptConfig.EnableDebugging = true;
 	specification.ScriptConfig.EnableProfiling = true;
 #else

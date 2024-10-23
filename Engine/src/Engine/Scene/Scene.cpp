@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Scene.h"
 
 #include "Entity.h"
@@ -148,7 +148,7 @@ namespace Hazel {
 	// Merge OnUpdate/Render into one function?
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		ts = ts * m_TimeScale;
 
@@ -158,7 +158,7 @@ namespace Hazel {
 		int32_t velocityIterations = 6;
 		int32_t positionIterations = 2;
 		{
-			HZ_PROFILE_SCOPE("Box2DWorld::Step");
+			ZONG_PROFILE_SCOPE("Box2DWorld::Step");
 			box2DWorld->Step(ts, velocityIterations, positionIterations);
 		}
 
@@ -197,7 +197,7 @@ namespace Hazel {
 			if (m_IsPlaying)
 			{
 				{
-					HZ_PROFILE_FUNC("Scene::OnUpdate - C# OnUpdate");
+					ZONG_PROFILE_FUNC("Scene::OnUpdate - C# OnUpdate");
 					Timer timer;
 
 					for (const auto& [entityID, entityInstance] : ScriptEngine::GetEntityInstances())
@@ -215,7 +215,7 @@ namespace Hazel {
 				}
 
 				{
-					HZ_PROFILE_FUNC("Scene::OnUpdate - C# OnLateUpdate");
+					ZONG_PROFILE_FUNC("Scene::OnUpdate - C# OnLateUpdate");
 					Timer timer;
 
 					for (const auto& [entityID, entityInstance] : ScriptEngine::GetEntityInstances())
@@ -249,7 +249,7 @@ namespace Hazel {
 			// TODO: should probably store active listener handle somewhere
 			//		and subscribe to destroy and created events to update the handle?
 
-			HZ_PROFILE_SCOPE("Scene::OnUpdate - Update Audio Listener");
+			ZONG_PROFILE_SCOPE("Scene::OnUpdate - Update Audio Listener");
 			auto view = m_Registry.view<AudioListenerComponent>();
 			Entity listener;
 			for (auto entity : view)
@@ -312,7 +312,7 @@ namespace Hazel {
 		{	//--- Update Audio Components ---
 			//===============================
 
-			HZ_PROFILE_SCOPE("Scene::OnUpdate - Update Audio Components");
+			ZONG_PROFILE_SCOPE("Scene::OnUpdate - Update Audio Components");
 
 			// 1. We need to handle entities that are no longer used by Audio Engine,
 			// mainly the ones that were created for "fire and forge" audio events.
@@ -367,13 +367,13 @@ namespace Hazel {
 
 	void Scene::OnUpdateEditor(Timestep ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		UpdateAnimation(ts, false);
 	}
 
 	void Scene::OnRenderRuntime(Ref<SceneRenderer> renderer, Timestep ts)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		/////////////////////////////////////////////////////////////////////
 		// RENDER 3D SCENE
@@ -383,7 +383,7 @@ namespace Hazel {
 			return;
 
 		glm::mat4 cameraViewMatrix = glm::inverse(GetWorldSpaceTransformMatrix(cameraEntity));
-		HZ_CORE_ASSERT(cameraEntity, "Scene does not contain any cameras!");
+		ZONG_CORE_ASSERT(cameraEntity, "Scene does not contain any cameras!");
 		SceneCamera& camera = cameraEntity.GetComponent<CameraComponent>();
 		camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 
@@ -495,7 +495,7 @@ namespace Hazel {
 			auto group = m_Registry.group<StaticMeshComponent>(entt::get<TransformComponent>);
 			for (auto entity : group)
 			{
-				HZ_PROFILE_SCOPE("Scene-SubmitStaticMesh");
+				ZONG_PROFILE_SCOPE("Scene-SubmitStaticMesh");
 				auto [transformComponent, staticMeshComponent] = group.get<TransformComponent, StaticMeshComponent>(entity);
 				if (!staticMeshComponent.Visible)
 					continue;
@@ -518,7 +518,7 @@ namespace Hazel {
 			auto view = m_Registry.view<MeshComponent, TransformComponent>();
 			for (auto entity : view)
 			{
-				HZ_PROFILE_SCOPE("Scene-SubmitDynamicMesh");
+				ZONG_PROFILE_SCOPE("Scene-SubmitDynamicMesh");
 				auto [transformComponent, meshComponent] = view.get<TransformComponent, MeshComponent>(entity);
 				if (!meshComponent.Visible)
 					continue;
@@ -655,7 +655,7 @@ namespace Hazel {
 
 	void Scene::OnRenderEditor(Ref<SceneRenderer> renderer, Timestep ts, const EditorCamera& editorCamera)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		/////////////////////////////////////////////////////////////////////
 		// RENDER 3D SCENE
@@ -988,7 +988,7 @@ namespace Hazel {
 
 	void Scene::OnRenderSimulation(Ref<SceneRenderer> renderer, Timestep ts, const EditorCamera& editorCamera)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		/////////////////////////////////////////////////////////////////////
 		// RENDER 3D SCENE
@@ -1498,7 +1498,7 @@ namespace Hazel {
 
 	void Scene::OnRuntimeStart()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		m_IsPlaying = true;
 		m_ShouldSimulate = true;
@@ -1558,7 +1558,7 @@ namespace Hazel {
 				if (e.HasComponent<RigidBody2DComponent>())
 				{
 					auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-					HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+					ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 					b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 					b2PolygonShape polygonShape;
@@ -1584,7 +1584,7 @@ namespace Hazel {
 				if (e.HasComponent<RigidBody2DComponent>())
 				{
 					auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-					HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+					ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 					b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 					b2CircleShape circleShape;
@@ -1765,7 +1765,7 @@ namespace Hazel {
 				if (e.HasComponent<RigidBody2DComponent>())
 				{
 					auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-					HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+					ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 					b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 					b2PolygonShape polygonShape;
@@ -1791,7 +1791,7 @@ namespace Hazel {
 				if (e.HasComponent<RigidBody2DComponent>())
 				{
 					auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-					HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+					ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 					b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 					b2CircleShape circleShape;
@@ -1846,7 +1846,7 @@ namespace Hazel {
 	void Scene::OnAudioComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
 		auto entityID = registry.get<IDComponent>(entity).ID;
-		HZ_CORE_ASSERT(m_EntityIDMap.find(entityID) != m_EntityIDMap.end());
+		ZONG_CORE_ASSERT(m_EntityIDMap.find(entityID) != m_EntityIDMap.end());
 		registry.get<AudioComponent>(entity).ParentHandle = entityID;
 		MiniAudioEngine::Get().OnAudibleEntityCreated(m_EntityIDMap.at(entityID));
 	}
@@ -1864,7 +1864,7 @@ namespace Hazel {
 
 	void Scene::OnMeshColliderComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity e = { entity, this };
 		auto& component = e.GetComponent<MeshColliderComponent>();
@@ -1886,7 +1886,7 @@ namespace Hazel {
 
 			// Can get mismatches if user changes which mesh an entity refers to after the bone entities have been set up
 			// TODO(0x): need a better way to handle the bone entities
-			//HZ_CORE_ASSERT(boneEntityIds.size() == skeleton.GetNumBones(), "Wrong number of boneEntityIds for mesh skeleton!");
+			//ZONG_CORE_ASSERT(boneEntityIds.size() == skeleton.GetNumBones(), "Wrong number of boneEntityIds for mesh skeleton!");
 			for (uint32_t i = 0; i < std::min(skeleton.GetNumBones(), (uint32_t)boneEntityIds.size()); ++i)
 			{
 				auto boneEntity = TryGetEntityWithUUID(boneEntityIds[i]);
@@ -1948,7 +1948,7 @@ namespace Hazel {
 						// 1. target entity is a physics character controller
 						//    => apply root motion to character pose
 						Ref<CharacterController> controller = GetPhysicsScene()->GetCharacterController(entity);
-						HZ_CORE_ASSERT(controller);
+						ZONG_CORE_ASSERT(controller);
 						{
 							const glm::vec3 displacement = rs * pose->RootMotion.Translation;
 							controller->Move(displacement);
@@ -1964,7 +1964,7 @@ namespace Hazel {
 						// QUESTION: Should we even support this?
 						// Are there situations where you want to move a kinematic rigidbody via animation root motion? (vs. doing it with character controller, or without any physics at all)
 						// NOTE(Peter): Removed this code path for now (with approval from 0x)
-						HZ_CORE_VERIFY(false);
+						ZONG_CORE_VERIFY(false);
 					}
 					else
 					{
@@ -1995,7 +1995,7 @@ namespace Hazel {
 
 	void Scene::OnRigidBody2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_IsEditorScene)
 			return;
@@ -2035,7 +2035,7 @@ namespace Hazel {
 
 	void Scene::OnRigidBody2DComponentDestroy(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!m_IsPlaying)
 			return;
@@ -2043,7 +2043,7 @@ namespace Hazel {
 
 	void Scene::OnBoxCollider2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_IsEditorScene)
 			return;
@@ -2055,7 +2055,7 @@ namespace Hazel {
 		if (e.HasComponent<RigidBody2DComponent>())
 		{
 			auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-			HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+			ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 			b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 			b2PolygonShape polygonShape;
@@ -2075,7 +2075,7 @@ namespace Hazel {
 
 	void Scene::OnCircleCollider2DComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_IsEditorScene)
 			return;
@@ -2087,7 +2087,7 @@ namespace Hazel {
 		if (e.HasComponent<RigidBody2DComponent>())
 		{
 			auto& rigidBody2D = e.GetComponent<RigidBody2DComponent>();
-			HZ_CORE_ASSERT(rigidBody2D.RuntimeBody);
+			ZONG_CORE_ASSERT(rigidBody2D.RuntimeBody);
 			b2Body* body = static_cast<b2Body*>(rigidBody2D.RuntimeBody);
 
 			b2CircleShape circleShape;
@@ -2107,7 +2107,7 @@ namespace Hazel {
 
 	void Scene::OnRigidBodyComponentConstruct(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		
 		if (m_IsEditorScene)
 			return;
@@ -2121,7 +2121,7 @@ namespace Hazel {
 
 	void Scene::OnRigidBodyComponentDestroy(entt::registry& registry, entt::entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_IsEditorScene)
 			return;
@@ -2135,7 +2135,7 @@ namespace Hazel {
 
 	void Scene::OnRigidBodyComponentDestroy_ProEdition(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_IsEditorScene)
 			return;
@@ -2153,7 +2153,7 @@ namespace Hazel {
 
 	Entity Scene::GetMainCameraEntity()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto view = m_Registry.view<CameraComponent>();
 		for (auto entity : view)
@@ -2161,7 +2161,7 @@ namespace Hazel {
 			auto& comp = view.get<CameraComponent>(entity);
 			if (comp.Primary)
 			{
-				HZ_CORE_ASSERT(comp.Camera.GetOrthographicSize() || comp.Camera.GetDegPerspectiveVerticalFOV(), "Camera is not fully initialized");
+				ZONG_CORE_ASSERT(comp.Camera.GetOrthographicSize() || comp.Camera.GetDegPerspectiveVerticalFOV(), "Camera is not fully initialized");
 				return { entity, this };
 			}
 		}
@@ -2192,7 +2192,7 @@ namespace Hazel {
 
 	Entity Scene::CreateChildEntity(Entity parent, const std::string& name)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto entity = Entity{ m_Registry.create(), this };
 		auto& idComponent = entity.AddComponent<IDComponent>();
@@ -2216,7 +2216,7 @@ namespace Hazel {
 
 	Entity Scene::CreateEntityWithID(UUID uuid, const std::string& name, bool shouldSort)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto entity = Entity{ m_Registry.create(), this };
 		auto& idComponent = entity.AddComponent<IDComponent>();
@@ -2228,7 +2228,7 @@ namespace Hazel {
 
 		entity.AddComponent<RelationshipComponent>();
 
-		HZ_CORE_ASSERT(m_EntityIDMap.find(uuid) == m_EntityIDMap.end());
+		ZONG_CORE_ASSERT(m_EntityIDMap.find(uuid) == m_EntityIDMap.end());
 		m_EntityIDMap[uuid] = entity;
 
 		if (shouldSort)
@@ -2242,7 +2242,7 @@ namespace Hazel {
 		bool isValid = m_Registry.valid((entt::entity)entity);
 		if (!isValid)
 		{
-			HZ_CORE_WARN_TAG("Scene", "Trying to destroy invalid entity! entt={0}", (uint32_t)entity);
+			ZONG_CORE_WARN_TAG("Scene", "Trying to destroy invalid entity! entt={0}", (uint32_t)entity);
 			return;
 		}
 
@@ -2251,7 +2251,7 @@ namespace Hazel {
 
 	void Scene::DestroyEntity(Entity entity, bool excludeChildren, bool first)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!entity)
 			return;
@@ -2363,7 +2363,7 @@ namespace Hazel {
 
 	Entity Scene::DuplicateEntity(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto parentNewEntity = [&entity, scene = this](Entity newEntity)
 		{
@@ -2377,7 +2377,7 @@ namespace Hazel {
 		if (entity.HasComponent<PrefabComponent>())
 		{
 			auto prefabID = entity.GetComponent<PrefabComponent>().PrefabID;
-			HZ_CORE_VERIFY(AssetManager::IsAssetHandleValid(prefabID));
+			ZONG_CORE_VERIFY(AssetManager::IsAssetHandleValid(prefabID));
 			const auto& entityTransform = entity.GetComponent<TransformComponent>();
 			glm::vec3 rotation = entityTransform.GetRotationEuler();
 			Entity prefabInstance = Instantiate(AssetManager::GetAsset<Prefab>(prefabID), &entityTransform.Translation, &rotation, &entityTransform.Scale);
@@ -2430,7 +2430,7 @@ namespace Hazel {
 			m_Registry.visit(newEntity, [type, &foundOne](entt::id_type newType) {if (newType == type) foundOne = true; });
 			foundAll = foundAll && foundOne;
 		});
-		HZ_CORE_ASSERT(foundAll, "At least one component was not duplicated - have you added a new component type and not dealt with it here?");
+		ZONG_CORE_ASSERT(foundAll, "At least one component was not duplicated - have you added a new component type and not dealt with it here?");
 #endif
 
 		if (newEntity.HasComponent<AnimationComponent>())
@@ -2462,9 +2462,9 @@ namespace Hazel {
 
 	Entity Scene::CreatePrefabEntity(Entity entity, Entity parent, const glm::vec3* translation, const glm::vec3* rotation, const glm::vec3* scale)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
-		HZ_CORE_VERIFY(entity.HasComponent<PrefabComponent>());
+		ZONG_CORE_VERIFY(entity.HasComponent<PrefabComponent>());
 
 		Entity newEntity = CreateEntity();
 		if (parent)
@@ -2537,7 +2537,7 @@ namespace Hazel {
 
 	Entity Scene::Instantiate(Ref<Prefab> prefab, const glm::vec3* translation, const glm::vec3* rotation, const glm::vec3* scale)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity result;
 
@@ -2564,7 +2564,7 @@ namespace Hazel {
 
 	Entity Scene::InstantiateChild(Ref<Prefab> prefab, Entity parent, const glm::vec3* translation /*= nullptr*/, const glm::vec3* rotation /*= nullptr*/, const glm::vec3* scale /*= nullptr*/)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity result;
 
@@ -2782,14 +2782,14 @@ namespace Hazel {
 
 	Entity Scene::GetEntityWithUUID(UUID id) const
 	{
-		//HZ_PROFILE_FUNC();
-		HZ_CORE_VERIFY(m_EntityIDMap.find(id) != m_EntityIDMap.end(), "Invalid entity ID or entity doesn't exist in scene!");
+		//ZONG_PROFILE_FUNC();
+		ZONG_CORE_VERIFY(m_EntityIDMap.find(id) != m_EntityIDMap.end(), "Invalid entity ID or entity doesn't exist in scene!");
 		return m_EntityIDMap.at(id);
 	}
 
 	Entity Scene::TryGetEntityWithUUID(UUID id) const
 	{
-		//HZ_PROFILE_FUNC();
+		//ZONG_PROFILE_FUNC();
 		if (const auto iter = m_EntityIDMap.find(id); iter != m_EntityIDMap.end())
 			return iter->second;
 		return Entity{};
@@ -2797,7 +2797,7 @@ namespace Hazel {
 
 	Entity Scene::TryGetEntityWithTag(const std::string& tag)
 	{
-		//HZ_PROFILE_FUNC();
+		//ZONG_PROFILE_FUNC();
 		auto entities = GetAllEntitiesWith<TagComponent>();
 		for (auto e : entities)
 		{
@@ -2809,7 +2809,7 @@ namespace Hazel {
 
 	Entity Scene::TryGetDescendantEntityWithTag(Entity entity, const std::string& tag)
 	{
-		//HZ_PROFILE_FUNC();
+		//ZONG_PROFILE_FUNC();
 		if (entity)
 		{
 			if (entity.GetComponent<TagComponent>().Tag == tag)
@@ -2837,7 +2837,7 @@ namespace Hazel {
 
 	void Scene::ConvertToLocalSpace(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity parent = TryGetEntityWithUUID(entity.GetParentUUID());
 
@@ -2852,7 +2852,7 @@ namespace Hazel {
 
 	void Scene::ConvertToWorldSpace(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity parent = TryGetEntityWithUUID(entity.GetParentUUID());
 
@@ -2866,7 +2866,7 @@ namespace Hazel {
 
 	glm::mat4 Scene::GetWorldSpaceTransformMatrix(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		glm::mat4 transform(1.0f);
 
@@ -2880,7 +2880,7 @@ namespace Hazel {
 	// TODO: Definitely cache this at some point
 	TransformComponent Scene::GetWorldSpaceTransform(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		glm::mat4 transform = GetWorldSpaceTransformMatrix(entity);
 		TransformComponent transformComponent;
@@ -2890,7 +2890,7 @@ namespace Hazel {
 
 	void Scene::ParentEntity(Entity entity, Entity parent)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (parent.IsDescendantOf(entity))
 		{
@@ -2919,7 +2919,7 @@ namespace Hazel {
 
 	void Scene::UnparentEntity(Entity entity, bool convertToWorldSpace)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Entity parent = TryGetEntityWithUUID(entity.GetParentUUID());
 		if (!parent)
@@ -2937,7 +2937,7 @@ namespace Hazel {
 	// Copy to runtime
 	void Scene::CopyTo(Ref<Scene>& target)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// TODO(Yan): hack to prevent Box2D bodies from being created on copy via entt signals
 		target->m_IsEditorScene = true;
@@ -3034,14 +3034,14 @@ namespace Hazel {
 		// Debug
 		if (!m_OnSceneTransitionCallback)
 		{
-			HZ_CORE_WARN("Cannot transition scene - no callback set!");
+			ZONG_CORE_WARN("Cannot transition scene - no callback set!");
 		}
 	}
 
 	// For copied AnimationComponent, need to create an independent AnimationGraph instance.
 	void Scene::DuplicateAnimationInstance(Entity dst, Entity src)
 	{
-		HZ_CORE_ASSERT(dst.HasComponent<AnimationComponent>(), "Destination entity does not have AnimationComponent!");
+		ZONG_CORE_ASSERT(dst.HasComponent<AnimationComponent>(), "Destination entity does not have AnimationComponent!");
 		{
 			auto& animDst = dst.GetComponent<AnimationComponent>();
 			if (animDst.AnimationGraph)
@@ -3496,7 +3496,7 @@ namespace Hazel {
 			serializer.DeserializeReferencedPrefabs(Project::GetAssetDirectory() / sceneMetadata.FilePath, assetList);
 		}
 
-		//HZ_CORE_WARN("{} assets ({} missing)", assetList.size(), missingAssets.size());
+		//ZONG_CORE_WARN("{} assets ({} missing)", assetList.size(), missingAssets.size());
 		return assetList;
 	}
 

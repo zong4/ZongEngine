@@ -15,8 +15,8 @@ void main()
 #pragma stage : frag
 #include <GTAO.slh>
 
-#define ENABLED_GTAO (__HZ_AO_METHOD & HZ_AO_METHOD_GTAO)
-#define ENABLED_HBAO (__HZ_AO_METHOD & HZ_AO_METHOD_HBAO)
+#define ENABLED_GTAO (__ZONG_AO_METHOD & ZONG_AO_METHOD_GTAO)
+#define ENABLED_HBAO (__ZONG_AO_METHOD & ZONG_AO_METHOD_HBAO)
 
 #if ENABLED_GTAO
 layout(set = 1, binding = 0) uniform usampler2D u_GTAOTex;
@@ -35,7 +35,7 @@ void main()
 {
     float occlusion = 1.0f;
 #if ENABLED_GTAO
-    #if __HZ_GTAO_COMPUTE_BENT_NORMALS
+    #if __ZONG_GTAO_COMPUTE_BENT_NORMALS
         float ao = (texture(u_GTAOTex, vs_TexCoord).x >> 24) / 255.f;
     #else
         float ao = texture(u_GTAOTex, vs_TexCoord).x / 255.f;

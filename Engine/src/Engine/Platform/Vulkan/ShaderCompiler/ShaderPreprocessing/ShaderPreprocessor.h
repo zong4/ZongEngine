@@ -162,11 +162,11 @@ namespace Hazel {
 					// Stages
 					if (tokens[index] == "stage")
 					{
-						HZ_CORE_VERIFY(tokens[++index] == ":", "Stage pragma is invalid");
+						ZONG_CORE_VERIFY(tokens[++index] == ":", "Stage pragma is invalid");
 
 						// Skipped ':'
 						const std::string_view stage(tokens[++index]);
-						HZ_CORE_VERIFY(stage == "vert" || stage == "frag" || stage == "comp", "Invalid shader type specified");
+						ZONG_CORE_VERIFY(stage == "vert" || stage == "frag" || stage == "comp", "Invalid shader type specified");
 						VkShaderStageFlagBits foundStage = ShaderUtils::StageToVKShaderStage(stage);
 
 
@@ -178,7 +178,7 @@ namespace Hazel {
 						if (isGuarded && alreadyIncluded)
 							contents.clear();
 						else if (!isGuarded && alreadyIncluded)
-							HZ_CORE_WARN("\"{}\" Header does not contain a header guard (#pragma once).", fullPath);
+							ZONG_CORE_WARN("\"{}\" Header does not contain a header guard (#pragma once).", fullPath);
 
 						// Add #endif
 						if (stageCount == 0)
@@ -193,7 +193,7 @@ namespace Hazel {
 				else if (tokens[index] == "ifdef")
 				{
 					++index;
-					if (tokens[index].rfind("__HZ_", 0) == 0) // Hazel special macros start with "__HZ_"
+					if (tokens[index].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
 					{
 						specialMacros.emplace(tokens[index]);
 					}
@@ -203,7 +203,7 @@ namespace Hazel {
 					++index;
 					for (size_t i = index; i < tokens.size(); ++i)
 					{
-						if (tokens[i].rfind("__HZ_", 0) == 0) // Hazel special macros start with "__HZ_"
+						if (tokens[i].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
 						{
 							specialMacros.emplace(tokens[i]);
 						}
@@ -224,7 +224,7 @@ namespace Hazel {
 			if (isGuarded && alreadyIncluded)
 				contents.clear();
 			else if (!isGuarded && alreadyIncluded)
-				HZ_CORE_WARN("\"{}\" Header does not contain a header guard (#pragma once)", fullPath);
+				ZONG_CORE_WARN("\"{}\" Header does not contain a header guard (#pragma once)", fullPath);
 		}
 
 
@@ -240,7 +240,7 @@ namespace Hazel {
 
 		std::map<VkShaderStageFlagBits, std::string> shaderSources;
 		std::vector<std::pair<VkShaderStageFlagBits, size_t>> stagePositions;
-		HZ_CORE_ASSERT(newSource.size(), "Shader is empty!");
+		ZONG_CORE_ASSERT(newSource.size(), "Shader is empty!");
 
 		size_t startOfStage = 0;
 		size_t pos = newSource.find('#');
@@ -250,7 +250,7 @@ namespace Hazel {
 		{
 			const size_t endOfLine = newSource.find_first_of("\r\n", pos) + 1;
 			const std::vector<std::string> tokens = Utils::SplitStringAndKeepDelims(newSource.substr(pos, endOfLine - pos));
-			HZ_CORE_VERIFY(tokens.size() >= 3 && tokens[1] == "version", "Invalid #version encountered or #version is NOT encounted first.");
+			ZONG_CORE_VERIFY(tokens.size() >= 3 && tokens[1] == "version", "Invalid #version encountered or #version is NOT encounted first.");
 			pos = newSource.find('#', pos + 1);
 		}
 
@@ -270,11 +270,11 @@ namespace Hazel {
 				{
 					++index;
 					// Jump over ':'
-					HZ_CORE_VERIFY(tokens[index] == ":", "Stage pragma is invalid");
+					ZONG_CORE_VERIFY(tokens[index] == ":", "Stage pragma is invalid");
 					++index;
 
 					const std::string_view stage = tokens[index];
-					HZ_CORE_VERIFY(stage == "vert" || stage == "frag" || stage == "comp", "Invalid shader type specified");
+					ZONG_CORE_VERIFY(stage == "vert" || stage == "frag" || stage == "comp", "Invalid shader type specified");
 					auto shaderStage = ShaderUtils::ShaderTypeFromString(stage);
 
 					stagePositions.emplace_back(shaderStage, startOfStage);
@@ -283,7 +283,7 @@ namespace Hazel {
 			else if (tokens[index] == "ifdef")
 			{
 				++index;
-				if (tokens[index].rfind("__HZ_", 0) == 0) // Hazel special macros start with "__HZ_"
+				if (tokens[index].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
 				{
 					specialMacros.emplace(tokens[index]);
 				}
@@ -293,7 +293,7 @@ namespace Hazel {
 				++index;
 				for (size_t i = index; i < tokens.size(); ++i)
 				{
-					if (tokens[i].rfind("__HZ_", 0) == 0) // Hazel special macros start with "__HZ_"
+					if (tokens[i].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
 					{
 						specialMacros.emplace(tokens[i]);
 					}
@@ -311,7 +311,7 @@ namespace Hazel {
 			pos = newSource.find('#', pos + 1);
 		}
 
-		HZ_CORE_VERIFY(stagePositions.size(), "Could not pre-process shader! There are no known stages defined in file.");
+		ZONG_CORE_VERIFY(stagePositions.size(), "Could not pre-process shader! There are no known stages defined in file.");
 		auto& [firstStage, firstStagePos] = stagePositions[0];
 		if (stagePositions.size() > 1)
 		{

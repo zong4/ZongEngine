@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "FieldStorage.h"
 #include "ScriptUtils.h"
 #include "ScriptEngine.h"
@@ -184,7 +184,7 @@ namespace Hazel {
 			MonoClassField* field = mono_class_get_field_from_name(mono_object_get_class(runtimeObject), m_FieldInfo->Name.c_str());
 			MonoArray* arrayObject = (MonoArray*)mono_field_get_value_object(ScriptEngine::GetScriptDomain(), field, runtimeObject);
 			uint32_t length = (uint32_t)mono_array_length(arrayObject);
-			HZ_CORE_VERIFY(index < length, "Index out of range");
+			ZONG_CORE_VERIFY(index < length, "Index out of range");
 
 			if (index == length - 1)
 			{

@@ -2,7 +2,7 @@
 
 #include "Engine/Physics/PhysicsAPI.h"
 
-#ifdef HZ_ENABLE_ASSERTS
+#ifdef ZONG_ENABLE_ASSERTS
 #define JPH_ENABLE_ASSERTS
 #endif
 

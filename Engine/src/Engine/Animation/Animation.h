@@ -141,7 +141,7 @@ namespace Hazel {
 			{
 				m_Values[NextIndex(i)] = keys[i].Value;
 				m_FrameTimes[NextIndex(i)] = keys[i].FrameTime;
-				HZ_CORE_ASSERT(m_FrameTimes[NextIndex(i)] == 0.0f);
+				ZONG_CORE_ASSERT(m_FrameTimes[NextIndex(i)] == 0.0f);
 			}
 			m_Cursor = 0;
 		}
@@ -193,7 +193,7 @@ namespace Hazel {
 			for (uint32_t i = 0, N = static_cast<uint32_t>(m_Values.size()); i < N; i += 2)
 			{
 				const float t = (sampleTime - m_FrameTimes[i]) / (m_FrameTimes[i + 1] - m_FrameTimes[i]);
-				//HZ_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
+				//ZONG_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
 				localTransform[i / 2].Translation = interpolater(m_Values[i], m_Values[i + 1], t);
 			}
 		}
@@ -204,7 +204,7 @@ namespace Hazel {
 			for (uint32_t i = 0, N = static_cast<uint32_t>(m_Values.size()); i < N; i += 2)
 			{
 				const float t = (sampleTime - m_FrameTimes[i]) / (m_FrameTimes[i + 1] - m_FrameTimes[i]);
-				//HZ_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
+				//ZONG_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
 				localTransform[i / 2].Rotation = interpolater(m_Values[i], m_Values[i + 1], t);
 			}
 		}
@@ -215,7 +215,7 @@ namespace Hazel {
 			for (uint32_t i = 0, N = static_cast<uint32_t>(m_Values.size()); i < N; i += 2)
 			{
 				const float t = (sampleTime - m_FrameTimes[i]) / (m_FrameTimes[i + 1] - m_FrameTimes[i]);
-				//HZ_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
+				//ZONG_CORE_ASSERT(t > -0.0000001f && t < 1.0000001f);
 				localTransform[i / 2].Scale = interpolater(m_Values[i], m_Values[i + 1], t);
 			}
 		}

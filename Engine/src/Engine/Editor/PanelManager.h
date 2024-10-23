@@ -60,7 +60,7 @@ namespace Hazel {
 			uint32_t id = Hash::GenerateFNVHash(panelData.ID);
 			if (panelMap.find(id) != panelMap.end())
 			{
-				HZ_CORE_ERROR_TAG("PanelManager", "A panel with the id '{0}' has already been added.", panelData.ID);
+				ZONG_CORE_ERROR_TAG("PanelManager", "A panel with the id '{0}' has already been added.", panelData.ID);
 				return nullptr;
 			}
 
@@ -95,7 +95,7 @@ namespace Hazel {
 				return panelMap.at(id).Panel.As<TPanel>();
 			}
 
-			HZ_CORE_ERROR_TAG("PanelManager", "Couldn't find panel with id '{0}'", strID);
+			ZONG_CORE_ERROR_TAG("PanelManager", "Couldn't find panel with id '{0}'", strID);
 			return nullptr;
 		}
 

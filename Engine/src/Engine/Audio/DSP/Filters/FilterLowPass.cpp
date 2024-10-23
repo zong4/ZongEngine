@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "FilterLowPass.h"
 
 namespace Hazel::Audio::DSP
@@ -52,13 +52,13 @@ namespace Hazel::Audio::DSP
 
     bool LowPassFilter::Initialize(ma_engine* engine, ma_node_base* nodeToInsertAfter)
     {
-        HZ_CORE_ASSERT(!m_Initialized);
+        ZONG_CORE_ASSERT(!m_Initialized);
         
         auto abortIfFailed = [&](ma_result result, const char* errorMessage)
         {
             if (result != MA_SUCCESS)
             {
-                HZ_CORE_ASSERT(false && errorMessage);
+                ZONG_CORE_ASSERT(false && errorMessage);
                 Uninitialize();
                 return true;
             }

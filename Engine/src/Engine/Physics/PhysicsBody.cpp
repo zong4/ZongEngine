@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PhysicsBody.h"
 #include "PhysicsSystem.h"
 #include "PhysicsAPI.h"
@@ -77,7 +77,7 @@ namespace Hazel {
 			const auto& component = entity.GetComponent<MeshColliderComponent>();
 
 			auto colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
-			HZ_CORE_VERIFY(colliderAsset);
+			ZONG_CORE_VERIFY(colliderAsset);
 
 			auto& meshCache = PhysicsSystem::GetMeshCache();
 
@@ -87,7 +87,7 @@ namespace Hazel {
 
 				if (simpleColliderResult != ECookingResult::Success && complexColliderResult != ECookingResult::Success)
 				{
-					HZ_CORE_WARN_TAG("Physics", "Tried to add an Mesh Collider with an invalid collider asset. Please make sure your collider has been cooked.");
+					ZONG_CORE_WARN_TAG("Physics", "Tried to add an Mesh Collider with an invalid collider asset. Please make sure your collider has been cooked.");
 					return;
 				}
 			}
@@ -96,7 +96,7 @@ namespace Hazel {
 
 			if (colliderAsset->CollisionComplexity == ECollisionComplexity::UseComplexAsSimple && rigidBodyComponent.BodyType == EBodyType::Dynamic)
 			{
-				HZ_CONSOLE_LOG_ERROR("Entity '{0}' ({1}) has a dynamic RigidBodyComponent along with a Complex MeshColliderComponent! This isn't allowed.", m_Entity.Name(), m_Entity.GetUUID());
+				ZONG_CONSOLE_LOG_ERROR("Entity '{0}' ({1}) has a dynamic RigidBodyComponent along with a Complex MeshColliderComponent! This isn't allowed.", m_Entity.Name(), m_Entity.GetUUID());
 				return;
 			}
 

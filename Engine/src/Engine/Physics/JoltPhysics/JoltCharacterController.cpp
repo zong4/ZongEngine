@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltCharacterController.h"
 #include "JoltUtils.h"
 #include "JoltAPI.h"
@@ -142,7 +142,7 @@ namespace Hazel {
 	void JoltCharacterController::Create()
 	{
 		Ref<Scene> scene = Scene::GetScene(m_Entity.GetSceneUUID());
-		HZ_CORE_VERIFY(scene, "No scene active?");
+		ZONG_CORE_VERIFY(scene, "No scene active?");
 
 		const auto transformComponent = scene->GetWorldSpaceTransform(m_Entity);
 		const auto& characterControllerComponent = m_Entity.GetComponent<CharacterControllerComponent>();

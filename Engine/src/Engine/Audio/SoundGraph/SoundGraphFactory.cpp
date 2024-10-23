@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphFactory.h"
 
 #include "Nodes/NodeTypes.h"
@@ -96,9 +96,9 @@ namespace Hazel::SoundGraph
 		{
 			// TODO: other node types
 			if (!nodeTypeID.GetDBGName().empty())
-				HZ_CORE_ERROR("SoundGraph::Factory::Create - Node with type ID {} is not in the registry", nodeTypeID.GetDBGName());
+				ZONG_CORE_ERROR("SoundGraph::Factory::Create - Node with type ID {} is not in the registry", nodeTypeID.GetDBGName());
 			else
-				HZ_CORE_ERROR("SoundGraph::Factory::Create - Node with type ID {} is not in the registry", (uint32_t)nodeTypeID);
+				ZONG_CORE_ERROR("SoundGraph::Factory::Create - Node with type ID {} is not in the registry", (uint32_t)nodeTypeID);
 				
 			return nullptr;
 		}

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 
 #include <unordered_set>
 
@@ -12,21 +12,21 @@ namespace Hazel {
 		void AddToLiveReferences(void* instance)
 		{
 			std::scoped_lock<std::mutex> lock(s_LiveReferenceMutex);
-			HZ_CORE_ASSERT(instance);
+			ZONG_CORE_ASSERT(instance);
 			s_LiveReferences.insert(instance);
 		}
 
 		void RemoveFromLiveReferences(void* instance)
 		{
 			std::scoped_lock<std::mutex> lock(s_LiveReferenceMutex);
-			HZ_CORE_ASSERT(instance);
-			HZ_CORE_ASSERT(s_LiveReferences.find(instance) != s_LiveReferences.end());
+			ZONG_CORE_ASSERT(instance);
+			ZONG_CORE_ASSERT(s_LiveReferences.find(instance) != s_LiveReferences.end());
 			s_LiveReferences.erase(instance);
 		}
 
 		bool IsLive(void* instance)
 		{
-			HZ_CORE_ASSERT(instance);
+			ZONG_CORE_ASSERT(instance);
 			return s_LiveReferences.find(instance) != s_LiveReferences.end();
 		}
 	}

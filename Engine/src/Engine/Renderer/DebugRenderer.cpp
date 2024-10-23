@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "DebugRenderer.h"
 
 namespace Hazel {

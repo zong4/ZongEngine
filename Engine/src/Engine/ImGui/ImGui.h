@@ -29,10 +29,10 @@
 
 namespace Hazel::UI {
 
-#define HZ_MESSAGE_BOX_OK_BUTTON BIT(0)
-#define HZ_MESSAGE_BOX_CANCEL_BUTTON BIT(1)
-#define HZ_MESSAGE_BOX_USER_FUNC BIT(2)
-#define HZ_MESSAGE_BOX_AUTO_SIZE BIT(3)
+#define ZONG_MESSAGE_BOX_OK_BUTTON BIT(0)
+#define ZONG_MESSAGE_BOX_CANCEL_BUTTON BIT(1)
+#define ZONG_MESSAGE_BOX_USER_FUNC BIT(2)
+#define ZONG_MESSAGE_BOX_AUTO_SIZE BIT(3)
 
 	struct MessageBoxData
 	{
@@ -81,12 +81,12 @@ namespace Hazel::UI {
 		messageBoxData.ShouldOpen = true;
 	}
 
-	static void ShowMessageBox(const char* title, const std::function<void()>& renderFunction, uint32_t width = 600, uint32_t height = 0, uint32_t minWidth = 0, uint32_t minHeight = 0, uint32_t maxWidth = -1, uint32_t maxHeight = -1, uint32_t flags = HZ_MESSAGE_BOX_AUTO_SIZE)
+	static void ShowMessageBox(const char* title, const std::function<void()>& renderFunction, uint32_t width = 600, uint32_t height = 0, uint32_t minWidth = 0, uint32_t minHeight = 0, uint32_t maxWidth = -1, uint32_t maxHeight = -1, uint32_t flags = ZONG_MESSAGE_BOX_AUTO_SIZE)
 	{
 		auto& messageBoxData = s_MessageBoxes[title];
 		messageBoxData.Title = fmt::format("{0}##MessageBox{1}", title, s_MessageBoxes.size() + 1);
 		messageBoxData.UserRenderFunction = renderFunction;
-		messageBoxData.Flags = HZ_MESSAGE_BOX_USER_FUNC | flags;
+		messageBoxData.Flags = ZONG_MESSAGE_BOX_USER_FUNC | flags;
 		messageBoxData.Width = width;
 		messageBoxData.Height = height;
 		messageBoxData.MinWidth = minWidth;
@@ -124,7 +124,7 @@ namespace Hazel::UI {
 			}
 
 			ImGuiWindowFlags windowFlags = 0;
-			if(messageBoxData.Flags & HZ_MESSAGE_BOX_AUTO_SIZE)
+			if(messageBoxData.Flags & ZONG_MESSAGE_BOX_AUTO_SIZE)
 			{
 				windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 			}
@@ -135,25 +135,25 @@ namespace Hazel::UI {
 
 			if (ImGui::BeginPopupModal(messageBoxData.Title.c_str(), &messageBoxData.IsOpen, windowFlags))
 			{
-				if (messageBoxData.Flags & HZ_MESSAGE_BOX_USER_FUNC)
+				if (messageBoxData.Flags & ZONG_MESSAGE_BOX_USER_FUNC)
 				{
-					HZ_CORE_VERIFY(messageBoxData.UserRenderFunction, "No render function provided for message box!");
+					ZONG_CORE_VERIFY(messageBoxData.UserRenderFunction, "No render function provided for message box!");
 					messageBoxData.UserRenderFunction();
 				}
 				else
 				{
 					ImGui::TextWrapped(messageBoxData.Body.c_str());
 
-					if (messageBoxData.Flags & HZ_MESSAGE_BOX_OK_BUTTON)
+					if (messageBoxData.Flags & ZONG_MESSAGE_BOX_OK_BUTTON)
 					{
 						if (ImGui::Button("Ok"))
 							ImGui::CloseCurrentPopup();
 
-						if (messageBoxData.Flags & HZ_MESSAGE_BOX_CANCEL_BUTTON)
+						if (messageBoxData.Flags & ZONG_MESSAGE_BOX_CANCEL_BUTTON)
 							ImGui::SameLine();
 					}
 
-					if (messageBoxData.Flags & HZ_MESSAGE_BOX_CANCEL_BUTTON && ImGui::Button("Cancel"))
+					if (messageBoxData.Flags & ZONG_MESSAGE_BOX_CANCEL_BUTTON && ImGui::Button("Cancel"))
 					{
 						ImGui::CloseCurrentPopup();
 					}
@@ -2245,8 +2245,8 @@ namespace Hazel::UI {
 		/*if (field->HasAttribute("Hazel.ClampValueAttribute"))
 		{
 			MonoObject* attr = field->GetAttribute("Hazel.ClampValueAttribute");
-			HZ_TRY_GET_FIELD_VALUE(min, "Hazel.ClampValueAttribute", "Min", attr);
-			HZ_TRY_GET_FIELD_VALUE(max, "Hazel.ClampValueAttribute", "Max", attr);
+			ZONG_TRY_GET_FIELD_VALUE(min, "Hazel.ClampValueAttribute", "Min", attr);
+			ZONG_TRY_GET_FIELD_VALUE(max, "Hazel.ClampValueAttribute", "Max", attr);
 		}*/
 
 		std::string id = fmt::format("{0}-{1}", fieldName, field->ID);

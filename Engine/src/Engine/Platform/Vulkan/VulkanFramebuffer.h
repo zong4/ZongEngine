@@ -28,7 +28,7 @@ namespace Hazel {
 		virtual RendererID GetColorAttachmentRendererID() const { return 0; }
 		virtual RendererID GetDepthAttachmentRendererID() const { return 0; }
 		
-		virtual Ref<Image2D> GetImage(uint32_t attachmentIndex = 0) const override { HZ_CORE_ASSERT(attachmentIndex < m_AttachmentImages.size()); return m_AttachmentImages[attachmentIndex]; }
+		virtual Ref<Image2D> GetImage(uint32_t attachmentIndex = 0) const override { ZONG_CORE_ASSERT(attachmentIndex < m_AttachmentImages.size()); return m_AttachmentImages[attachmentIndex]; }
 		virtual Ref<Image2D> GetDepthImage() const override { return m_DepthAttachmentImage; }
 		virtual size_t GetColorAttachmentCount() const override { return m_Specification.SwapChainTarget ? 1 : m_AttachmentImages.size(); }
 		virtual bool HasDepthAttachment() const override { return (bool)m_DepthAttachmentImage; }

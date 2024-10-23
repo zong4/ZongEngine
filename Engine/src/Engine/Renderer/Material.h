@@ -69,7 +69,7 @@ namespace Hazel {
 		T& Get(const std::string& name)
 		{
 			auto decl = m_Material->FindUniformDeclaration(name);
-			HZ_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
+			ZONG_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
 			auto& buffer = m_UniformStorageBuffer;
 			return buffer.Read<T>(decl->GetOffset());
 		}
@@ -78,9 +78,9 @@ namespace Hazel {
 		Ref<T> GetResource(const std::string& name)
 		{
 			auto decl = m_Material->FindResourceDeclaration(name);
-			HZ_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
+			ZONG_CORE_ASSERT(decl, "Could not find uniform with name 'x'");
 			uint32_t slot = decl->GetRegister();
-			HZ_CORE_ASSERT(slot < m_Textures.size(), "Texture slot is invalid!");
+			ZONG_CORE_ASSERT(slot < m_Textures.size(), "Texture slot is invalid!");
 			return Ref<T>(m_Textures[slot]);
 		}
 

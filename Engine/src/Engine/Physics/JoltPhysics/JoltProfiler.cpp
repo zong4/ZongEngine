@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Engine/Core/Application.h"
 #include "Engine/Debug/Profiler.h"
 
@@ -9,9 +9,9 @@
 
 namespace JPH {
 
-#define HZ_ENABLE_JOLT_PROFILING 0
+#define ZONG_ENABLE_JOLT_PROFILING 0
 
-#if HZ_ENABLE_PROFILING && defined(JPH_EXTERNAL_PROFILE) && HZ_ENABLE_JOLT_PROFILING
+#if ZONG_ENABLE_PROFILING && defined(JPH_EXTERNAL_PROFILE) && ZONG_ENABLE_JOLT_PROFILING
 
 	static std::mutex s_Mutex;
 	static std::unordered_map<std::string_view, Optick::EventDescription*> s_EventDescriptions;

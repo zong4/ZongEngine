@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Application.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -74,7 +74,7 @@ namespace Hazel {
 		// Load editor settings (will generate default settings if the file doesn't exist yet)
 		EditorApplicationSettingsSerializer::Init();
 
-		HZ_CORE_VERIFY(NFD::Init() == NFD_OKAY);
+		ZONG_CORE_VERIFY(NFD::Init() == NFD_OKAY);
 
 		// Init renderer and execute command queue to compile all shaders
 		Renderer::Init();
@@ -152,8 +152,8 @@ namespace Hazel {
 	
 	void Application::RenderImGui()
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("Application::RenderImGui");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("Application::RenderImGui");
 
 		m_ImGuiLayer->Begin();
 
@@ -168,7 +168,7 @@ namespace Hazel {
 		{
 			// Wait for render thread to finish frame
 			{
-				HZ_PROFILE_SCOPE("Wait");
+				ZONG_PROFILE_SCOPE("Wait");
 				Timer timer;
 
 				m_RenderThread.BlockUntilRenderComplete();
@@ -177,7 +177,7 @@ namespace Hazel {
 			}
 
 			static uint64_t frameCounter = 0;
-			//HZ_CORE_INFO("-- BEGIN FRAME {0}", frameCounter);
+			//ZONG_CORE_INFO("-- BEGIN FRAME {0}", frameCounter);
 			
 			ProcessEvents(); // Poll events when both threads are idle
 
@@ -201,7 +201,7 @@ namespace Hazel {
 
 				Renderer::BeginFrame();
 				{
-					HZ_SCOPE_PERF("Application Layer::OnUpdate");
+					ZONG_SCOPE_PERF("Application Layer::OnUpdate");
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(m_TimeStep);
 				}
@@ -242,10 +242,10 @@ namespace Hazel {
 			m_TimeStep = glm::min<float>(m_Frametime, 0.0333f);
 			m_LastFrameTime = time;
 
-			//HZ_CORE_INFO("-- END FRAME {0}", frameCounter);
+			//ZONG_CORE_INFO("-- END FRAME {0}", frameCounter);
 			frameCounter++;
 
-			HZ_PROFILE_MARK_FRAME;
+			ZONG_PROFILE_MARK_FRAME;
 		}
 		OnShutdown();
 	}
@@ -347,11 +347,11 @@ namespace Hazel {
 
 	const char* Application::GetConfigurationName()
 	{
-#if defined(HZ_DEBUG)
+#if defined(ZONG_DEBUG)
 		return "Debug";
-#elif defined(HZ_RELEASE)
+#elif defined(ZONG_RELEASE)
 		return "Release";
-#elif defined(HZ_DIST)
+#elif defined(ZONG_DIST)
 		return "Dist";
 #else
 	#error Undefined configuration?
@@ -360,9 +360,9 @@ namespace Hazel {
 
 	const char* Application::GetPlatformName()
 	{
-#if defined(HZ_PLATFORM_WINDOWS)
+#if defined(ZONG_PLATFORM_WINDOWS)
         return "Windows x64";
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		return "Linux";
 #else
         return "Unknown"

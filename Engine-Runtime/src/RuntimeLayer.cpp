@@ -85,7 +85,7 @@ namespace Hazel {
 		renderPassSpec.DebugName = "SceneComposite";
 		renderPassSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 		m_SwapChainRP = RenderPass::Create(renderPassSpec);
-		HZ_CORE_VERIFY(m_SwapChainRP->Validate());
+		ZONG_CORE_VERIFY(m_SwapChainRP->Validate());
 		m_SwapChainRP->Bake();
 
 		m_SwapChainMaterial = Material::Create(pipelineSpecification.Shader);
@@ -102,7 +102,7 @@ namespace Hazel {
 		ScriptEngine::SetSceneContext(nullptr, nullptr);
 		m_SceneRenderer->SetScene(nullptr);
 
-		HZ_CORE_VERIFY(m_RuntimeScene->GetRefCount() == 1);
+		ZONG_CORE_VERIFY(m_RuntimeScene->GetRefCount() == 1);
 		m_RuntimeScene = nullptr;
 	}
 
@@ -438,7 +438,7 @@ namespace Hazel {
 
 	void RuntimeLayer::OpenScene(const std::string& filepath)
 	{
-		HZ_CORE_VERIFY(false); // Not supported in runtime
+		ZONG_CORE_VERIFY(false); // Not supported in runtime
 		Ref<Scene> newScene = Ref<Scene>::Create("New Scene", false);
 		SceneSerializer serializer(newScene);
 		serializer.Deserialize(filepath);
@@ -463,8 +463,8 @@ namespace Hazel {
 		m_RuntimeScene->OnEvent(e);
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(RuntimeLayer::OnKeyPressedEvent));
-		dispatcher.Dispatch<MouseButtonPressedEvent>(HZ_BIND_EVENT_FN(RuntimeLayer::OnMouseButtonPressed));
+		dispatcher.Dispatch<KeyPressedEvent>(ZONG_BIND_EVENT_FN(RuntimeLayer::OnKeyPressedEvent));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(ZONG_BIND_EVENT_FN(RuntimeLayer::OnMouseButtonPressed));
 	}
 
 	bool RuntimeLayer::OnKeyPressedEvent(KeyPressedEvent& e)

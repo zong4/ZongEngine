@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanImGuiLayer.h"
 
 #include "imgui.h"
@@ -67,7 +67,7 @@ namespace Hazel {
 			robotoDefault.Size = 15.0f;
 			UI::Fonts::Add(robotoDefault, true);
 
-			static const ImWchar s_FontAwesomeRanges[] = { HZ_ICON_MIN, HZ_ICON_MAX, 0 };
+			static const ImWchar s_FontAwesomeRanges[] = { ZONG_ICON_MIN, ZONG_ICON_MAX, 0 };
 			UI::FontConfiguration fontAwesome;
 			fontAwesome.FontName = "FontAwesome";
 			fontAwesome.FilePath = "Resources/Fonts/FontAwesome/fontawesome-webfont.ttf";

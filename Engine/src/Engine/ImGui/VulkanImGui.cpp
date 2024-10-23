@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "UICore.h"
 
 #include "Engine/Renderer/RendererAPI.h"
@@ -104,7 +104,7 @@ namespace Hazel::UI {
 			return ImGui::ImageButtonEx(id, textureID, size, uv0, uv1, ImVec2{ (float)frame_padding, (float)frame_padding }, bg_col, tint_col);
 		}
 
-		HZ_CORE_VERIFY(false, "Not supported");
+		ZONG_CORE_VERIFY(false, "Not supported");
 		return false;
 	}
 
@@ -115,7 +115,7 @@ namespace Hazel::UI {
 
 	bool ImageButton(const char* stringID, const Ref<Texture2D>& texture, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, int frame_padding, const ImVec4& bg_col, const ImVec4& tint_col)
 	{
-		HZ_CORE_VERIFY(texture);
+		ZONG_CORE_VERIFY(texture);
 		if (!texture)
 			return false;
 
@@ -124,7 +124,7 @@ namespace Hazel::UI {
 			Ref<VulkanTexture2D> vulkanTexture = texture.As<VulkanTexture2D>();
 			
 			// This is technically okay, could mean that GPU just hasn't created the texture yet
-			HZ_CORE_VERIFY(vulkanTexture->GetImage()); 
+			ZONG_CORE_VERIFY(vulkanTexture->GetImage()); 
 			if (!vulkanTexture->GetImage())
 				return false;
 
@@ -139,7 +139,7 @@ namespace Hazel::UI {
 			return ImGui::ImageButtonEx(id, textureID, size, uv0, uv1, ImVec2{ (float)frame_padding, (float)frame_padding }, bg_col, tint_col);
 		}
 
-		HZ_CORE_VERIFY(false, "Not supported");
+		ZONG_CORE_VERIFY(false, "Not supported");
 		return false;
 	}
 

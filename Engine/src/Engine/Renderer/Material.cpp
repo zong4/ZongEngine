@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Material.h"
 
 #include "Engine/Platform/Vulkan/VulkanMaterial.h"
@@ -14,7 +14,7 @@ namespace Hazel {
 			case RendererAPIType::None: return nullptr;
 			case RendererAPIType::Vulkan: return Ref<VulkanMaterial>::Create(shader, name);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 	
@@ -25,7 +25,7 @@ namespace Hazel {
 			case RendererAPIType::None: return nullptr;
 			case RendererAPIType::Vulkan: return Ref<VulkanMaterial>::Create(other, name);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

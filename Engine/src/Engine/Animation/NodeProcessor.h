@@ -89,14 +89,14 @@ namespace Hazel::AnimationGraph {
 		InputEvent& AddInEvent(Identifier id, InputEvent::TEvent function = nullptr)
 		{
 			const auto& [element, inserted] = InEvs.try_emplace(id, function);
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 			return element->second;
 		}
 
 		void AddOutEvent(/* Type */ Identifier id, OutputEvent& out)
 		{
 			const auto& [element, inserted] = OutEvs.insert({ id, out });
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 		}
 
 		choc::value::ValueView& AddInStream(Identifier id, choc::value::ValueView* source = nullptr)
@@ -105,7 +105,7 @@ namespace Hazel::AnimationGraph {
 			if (source)
 				element->second = *source;
 
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 			return element->second;
 		}
 
@@ -115,7 +115,7 @@ namespace Hazel::AnimationGraph {
 			if constexpr (std::is_same_v<std::remove_const_t<T>, choc::value::Value> || std::is_same_v<std::remove_const_t<T>, choc::value::ValueView>)
 			{
 				const auto& [element, inserted] = Outs.try_emplace(id, memberVariable);
-				HZ_CORE_ASSERT(inserted);
+				ZONG_CORE_ASSERT(inserted);
 				return element->second;
 			}
 			else
@@ -125,7 +125,7 @@ namespace Hazel::AnimationGraph {
 					choc::value::ValueView(choc::value::Type::createPrimitive<T>(), &memberVariable, nullptr)
 				);
 
-				HZ_CORE_ASSERT(inserted);
+				ZONG_CORE_ASSERT(inserted);
 				return element->second;
 			}
 		}

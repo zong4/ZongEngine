@@ -65,7 +65,7 @@ namespace Hazel {
 		static void RegisterEditor(AssetType type)
 		{
 			static_assert(std::is_base_of<AssetEditor, T>::value, "AssetEditorPanel::RegisterEditor requires template type to inherit from AssetEditor");
-			HZ_CORE_ASSERT(s_Editors.find(type) == s_Editors.end(), "There's already an editor for that asset!");
+			ZONG_CORE_ASSERT(s_Editors.find(type) == s_Editors.end(), "There's already an editor for that asset!");
 			s_Editors[type] = CreateScope<T>();
 		}
 

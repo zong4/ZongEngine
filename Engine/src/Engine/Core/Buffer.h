@@ -75,7 +75,7 @@ namespace Hazel {
 
 		byte* ReadBytes(uint64_t size, uint64_t offset) const
 		{
-			HZ_CORE_ASSERT(offset + size <= Size, "Buffer overflow!");
+			ZONG_CORE_ASSERT(offset + size <= Size, "Buffer overflow!");
 			byte* buffer = hnew byte[size];
 			memcpy(buffer, (byte*)Data + offset, size);
 			return buffer;
@@ -83,7 +83,7 @@ namespace Hazel {
 				
 		void Write(const void* data, uint64_t size, uint64_t offset = 0)
 		{
-			HZ_CORE_ASSERT(offset + size <= Size, "Buffer overflow!");
+			ZONG_CORE_ASSERT(offset + size <= Size, "Buffer overflow!");
 			memcpy((byte*)Data + offset, data, size);
 		}
 

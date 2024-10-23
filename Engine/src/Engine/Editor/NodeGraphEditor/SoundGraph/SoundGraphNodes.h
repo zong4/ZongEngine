@@ -156,7 +156,7 @@ namespace Hazel::SoundGraph {
 					const SGTypes::ESGPinType type = opt.value_or(SGTypes::GetPinTypeForMember<TProcNode, TMemberPtr>()); //! no constexpr
 
 					Pin* pin = SGTypes::CreatePinForType(type);
-					HZ_CORE_ASSERT(pin);
+					ZONG_CORE_ASSERT(pin);
 
 					if (!pin)
 					{

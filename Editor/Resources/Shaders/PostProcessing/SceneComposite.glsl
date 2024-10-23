@@ -21,8 +21,8 @@ void main()
 #version 450 core
 #pragma stage : frag
 
-#define HZ_RENDERER_EDGE_OUTLINE_EFFECT 0
-#define HZ_RENDERER_FOG_EFFECT 0
+#define ZONG_RENDERER_EDGE_OUTLINE_EFFECT 0
+#define ZONG_RENDERER_FOG_EFFECT 0
 
 #include <Buffers.glslh>
 
@@ -41,7 +41,7 @@ layout (set = 1, binding = 2) uniform sampler2D u_BloomDirtTexture;
 layout (set = 1, binding = 3) uniform sampler2D u_DepthTexture;
 layout (set = 1, binding = 4) uniform sampler2D u_TransparentDepthTexture;
 
-#if HZ_RENDERER_EDGE_OUTLINE_EFFECT
+#if ZONG_RENDERER_EDGE_OUTLINE_EFFECT
 layout (set = 1, binding = 5) uniform sampler2D u_EdgeTexture;
 #endif
 
@@ -119,7 +119,7 @@ void main()
 
 	vec3 color = texture(u_Texture, Input.TexCoord).rgb;
 
-#if HZ_RENDERER_EDGE_OUTLINE_EFFECT
+#if ZONG_RENDERER_EDGE_OUTLINE_EFFECT
 	{
 		const vec4 edgeColor = vec4(0.2, 0.2, 0.15, 1.0);
 		const vec4 backgroundColor = vec4(1,0.95,0.85,1);
@@ -158,7 +158,7 @@ void main()
 	vec3 bloomDirt = texture(u_BloomDirtTexture, Input.TexCoord).rgb * u_Uniforms.BloomDirtIntensity;
 
 	// Fog
-#if HZ_RENDERER_FOG_EFFECT
+#if ZONG_RENDERER_FOG_EFFECT
 	{
 		float depth = texture(u_DepthTexture, Input.TexCoord).r;
 		depth = LinearizeDepth(depth);

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Log.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -7,7 +7,7 @@
 
 #include <filesystem>
 
-#define HZ_HAS_CONSOLE !HZ_DIST
+#define ZONG_HAS_CONSOLE !ZONG_DIST
 
 namespace Hazel {
 
@@ -25,7 +25,7 @@ namespace Hazel {
 		std::vector<spdlog::sink_ptr> hazelSinks =
 		{
 			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/HAZEL.log", true),
-#if HZ_HAS_CONSOLE
+#if ZONG_HAS_CONSOLE
 			std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
 #endif
 		};
@@ -33,7 +33,7 @@ namespace Hazel {
 		std::vector<spdlog::sink_ptr> appSinks =
 		{
 			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/APP.log", true),
-#if HZ_HAS_CONSOLE
+#if ZONG_HAS_CONSOLE
 			std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
 #endif
 		};
@@ -41,7 +41,7 @@ namespace Hazel {
 		std::vector<spdlog::sink_ptr> editorConsoleSinks =
 		{
 			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/APP.log", true),
-#if HZ_HAS_CONSOLE
+#if ZONG_HAS_CONSOLE
 			std::make_shared<EditorConsoleSink>(1)
 #endif
 		};
@@ -49,7 +49,7 @@ namespace Hazel {
 		hazelSinks[0]->set_pattern("[%T] [%l] %n: %v");
 		appSinks[0]->set_pattern("[%T] [%l] %n: %v");
 
-#if HZ_HAS_CONSOLE
+#if ZONG_HAS_CONSOLE
 		hazelSinks[1]->set_pattern("%^[%T] %n: %v%$");
 		appSinks[1]->set_pattern("%^[%T] %n: %v%$");
 		for (auto sink : editorConsoleSinks)

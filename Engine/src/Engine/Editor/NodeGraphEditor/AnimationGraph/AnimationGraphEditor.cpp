@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationGraphEditor.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -40,7 +40,7 @@ namespace Hazel {
 				if (asset && asset->GetAssetType() == AssetType::Animation)
 				{
 					auto* node = model->CreateNode("StateMachine", "Quick State");
-					HZ_CORE_ASSERT(node);
+					ZONG_CORE_ASSERT(node);
 					ed::SetNodePosition(ed::NodeId(node->ID), ed::ScreenToCanvas(ImGui::GetMousePos()));
 					node->Inputs[0]->Value = Utils::CreateAssetHandleValue<AssetType::Animation>(assetHandle);
 					if(GetModel()->onPinValueChanged)
@@ -174,7 +174,7 @@ namespace Hazel {
 					{
 						auto currentTail = currentPath.back();
 						auto selectedTransition = model->FindNode(*m_SelectedTransitionNodes.begin());
-						HZ_CORE_ASSERT(selectedTransition);
+						ZONG_CORE_ASSERT(selectedTransition);
 						//EnsureWindowIsDocked(ImGui::GetCurrentWindow());
 						model->SetCurrentPath(selectedTransition);
 						DrawGraph("Subgraph");
@@ -194,7 +194,7 @@ namespace Hazel {
 
 						auto startNode = model->GetNodeConnectedToPin(selectedTransition->Inputs[0]->ID);
 						auto endNode = model->GetNodeConnectedToPin(selectedTransition->Outputs[0]->ID);
-						HZ_CORE_ASSERT(startNode && endNode);
+						ZONG_CORE_ASSERT(startNode && endNode);
 						{
 							UI::ScopedFont largeFont(ImGui::GetIO().Fonts->Fonts[1]);
 							UI::ScopedColour darkText(ImGuiCol_Text, ImColor(255, 255, 255, 60));
@@ -254,7 +254,7 @@ namespace Hazel {
 		m_CopiedNodeIDs.clear();
 		m_SelectedTransitionNodes.clear();
 
-		HZ_CORE_ASSERT(ed::GetCurrentEditor() == m_Editor);
+		ZONG_CORE_ASSERT(ed::GetCurrentEditor() == m_Editor);
 
 		if (m_SubGraph)
 		{
@@ -630,7 +630,7 @@ namespace Hazel {
 
 	void AnimationGraphEditor::DrawNode(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext)
 	{
-		HZ_CORE_ASSERT(node->Type != NodeType::Comment);
+		ZONG_CORE_ASSERT(node->Type != NodeType::Comment);
 
 		struct ScopedEdColor
 		{
@@ -658,7 +658,7 @@ namespace Hazel {
 			return IONodeGraphEditor::DrawNode(node, builder, pinContext);
 		}
 
-		HZ_CORE_ASSERT((node->GetTypeID() == AG::Types::ENodeType::State) || (node->GetTypeID() == AG::Types::QuickState) || (node->GetTypeID() == AG::Types::ENodeType::StateMachine) || (node->GetTypeID() == AG::Types::ENodeType::Transition));
+		ZONG_CORE_ASSERT((node->GetTypeID() == AG::Types::ENodeType::State) || (node->GetTypeID() == AG::Types::QuickState) || (node->GetTypeID() == AG::Types::ENodeType::StateMachine) || (node->GetTypeID() == AG::Types::ENodeType::Transition));
 
 		if ((node->GetTypeID() == AG::Types::ENodeType::State) || (node->GetTypeID() == AG::Types::QuickState) || (node->GetTypeID() == AG::Types::ENodeType::StateMachine))
 		{
@@ -708,7 +708,7 @@ namespace Hazel {
 			// We custom draw these as arrows rather than as imgui_node_editor nodes
 			Node* startNode = model->GetNodeConnectedToPin(node->Inputs[0]->ID);
 			Node* endNode = model->GetNodeConnectedToPin(node->Outputs[0]->ID);
-			HZ_CORE_ASSERT(startNode && endNode);
+			ZONG_CORE_ASSERT(startNode && endNode);
 
 			ImVec2 startPoint;
 			ImVec2 endPoint;
@@ -811,7 +811,7 @@ namespace Hazel {
 			{
 				auto currentTail = currentPath.back();
 				auto selectedTransition = model->FindNode(*m_SelectedTransitionNodes.begin());
-				HZ_CORE_ASSERT(selectedTransition);
+				ZONG_CORE_ASSERT(selectedTransition);
 				model->SetCurrentPath(selectedTransition);
 				IONodeGraphEditor::DrawGraphIO();
 				model->SetCurrentPath(currentTail);
@@ -910,7 +910,7 @@ namespace Hazel {
 	{
 		if (startNodeID == endNodeID)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return nullptr;
 		}
 
@@ -922,7 +922,7 @@ namespace Hazel {
 
 			Node* startNode = GetModel()->FindNode(startNodeID);
 			Node* endNode = GetModel()->FindNode(endNodeID);
-			HZ_CORE_ASSERT(startNode && endNode);
+			ZONG_CORE_ASSERT(startNode && endNode);
 
 			Pin* pin = startNode->Outputs.emplace_back(AnimationGraph::Types::CreatePinForType(AG::Types::EPinType::Flow, "Transition"));
 			pin->ID = UUID();
@@ -1071,7 +1071,7 @@ namespace Hazel {
 				else
 				{
 					// we don't have graph output properties (yet)
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 				}
 			}
 			else
@@ -1148,7 +1148,7 @@ namespace Hazel {
 						}
 					}
 
-					HZ_CORE_ASSERT(newStartPin && newEndPin);
+					ZONG_CORE_ASSERT(newStartPin && newEndPin);
 
 					linksToCreate.emplace_back(newStartPin, newEndPin);
 				}
@@ -1193,7 +1193,7 @@ namespace Hazel {
 
 			auto newNodeID = oldToNewNodeIDMap[oldNodeID];
 			Node* newNode = model->FindInAllNodes(newNodeID);
-			HZ_CORE_ASSERT(newNode);
+			ZONG_CORE_ASSERT(newNode);
 
 			auto* previousRootNode = model->SetCurrentPath(newNode);
 

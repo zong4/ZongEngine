@@ -178,7 +178,7 @@ namespace YAML {
 			if (isUUID)
 			{
 				const auto& value = object["Value"];
-				HZ_CORE_ASSERT(value.isInt64());
+				ZONG_CORE_ASSERT(value.isInt64());
 
 				out["Value"] = (uint64_t)(value.get<int64_t>());
 			}
@@ -223,7 +223,7 @@ namespace YAML {
 			else	if (type == "Array")	return decodeArrayOrVector(node["Value"], rhs);
 			else
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -248,7 +248,7 @@ namespace YAML {
 				if (!decode(node[index], element))
 					success = false;
 
-				HZ_CORE_ASSERT(success);
+				ZONG_CORE_ASSERT(success);
 
 				return element;
 			};

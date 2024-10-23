@@ -92,7 +92,7 @@ namespace Hazel {
 			if (typeString == "Texture2D") return FieldType::Texture2D;
 			if (typeString == "Scene") return FieldType::Scene;
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return FieldType::Void;
 		}
 
@@ -127,7 +127,7 @@ namespace Hazel {
 				case FieldType::Scene: return "Scene";
 			}
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return "Unknown";
 		}
 
@@ -162,7 +162,7 @@ namespace Hazel {
 					return sizeof(UUID);
 			}
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return 0;
 		}
 		
@@ -276,7 +276,7 @@ namespace Hazel {
 		template<typename T>
 		void SetValue(const T& value)
 		{
-			HZ_CORE_VERIFY(sizeof(T) == m_FieldInfo->Size);
+			ZONG_CORE_VERIFY(sizeof(T) == m_FieldInfo->Size);
 
 			if (m_RuntimeInstance != nullptr)
 			{
@@ -411,7 +411,7 @@ namespace Hazel {
 		template<typename T>
 		void SetValue(uint32_t index, const T& value)
 		{
-			HZ_CORE_VERIFY(sizeof(T) == m_FieldInfo->Size);
+			ZONG_CORE_VERIFY(sizeof(T) == m_FieldInfo->Size);
 
 			if (m_RuntimeInstance != nullptr)
 			{

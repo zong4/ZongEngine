@@ -426,7 +426,7 @@ namespace Hazel {
 
 		if (!FileSystem::Rename(target, destination))
 		{
-			HZ_CORE_ERROR("Couldn't rename {0} to {1}!", m_DirectoryInfo->FilePath.filename().string(), newName);
+			ZONG_CORE_ERROR("Couldn't rename {0} to {1}!", m_DirectoryInfo->FilePath.filename().string(), newName);
 		}
 	}
 
@@ -468,7 +468,7 @@ namespace Hazel {
 		bool deleted = FileSystem::DeleteFile(Project::GetActive()->GetAssetDirectory() / m_DirectoryInfo->FilePath);
 		if (!deleted)
 		{
-			HZ_CORE_ERROR("Failed to delete folder {0}", m_DirectoryInfo->FilePath);
+			ZONG_CORE_ERROR("Failed to delete folder {0}", m_DirectoryInfo->FilePath);
 			return;
 		}
 
@@ -501,7 +501,7 @@ namespace Hazel {
 		bool deleted = FileSystem::DeleteFile(filepath);
 		if (!deleted)
 		{
-			HZ_CORE_ERROR("Couldn't delete {0}", m_AssetInfo.FilePath);
+			ZONG_CORE_ERROR("Couldn't delete {0}", m_AssetInfo.FilePath);
 			return;
 		}
 
@@ -517,7 +517,7 @@ namespace Hazel {
 		bool wasMoved = FileSystem::MoveFile(filepath, Project::GetActive()->GetAssetDirectory() / destination);
 		if (!wasMoved)
 		{
-			HZ_CORE_ERROR("Couldn't move {0} to {1}", m_AssetInfo.FilePath, destination);
+			ZONG_CORE_ERROR("Couldn't move {0} to {1}", m_AssetInfo.FilePath, destination);
 			return false;
 		}
 
@@ -545,7 +545,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_ERROR("Couldn't rename {0} to {1}!", filepath.filename().string(), newName);
+			ZONG_CORE_ERROR("Couldn't rename {0} to {1}!", filepath.filename().string(), newName);
 		}
 	}
 

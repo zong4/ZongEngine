@@ -18,7 +18,7 @@ layout(push_constant) uniform DenoiseConstants
     bool HalfRes;
 } u_Settings;
 
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
 #define AOTermType vec4           // .xyz is bent normal, .w is visibility term
 #else
 #define AOTermType float          // .x is visibility term
@@ -47,7 +47,7 @@ void XeGTAO_DecodeGatherPartial(const uvec4 packedValue, out AOTermType outDecod
 {
     for( int i = 0; i < 4; i++ )
     {
-    #if __HZ_GTAO_COMPUTE_BENT_NORMALS
+    #if __ZONG_GTAO_COMPUTE_BENT_NORMALS
         XeGTAO_DecodeVisibilityBentNormal(packedValue[i], outDecoded[i].w, outDecoded[i].xyz);
     #else
         outDecoded[i] = float(packedValue[i]) / 255.0;
@@ -91,7 +91,7 @@ uint XeGTAO_EncodeVisibilityBentNormal(float visibility, vec3 bentNormal)
 
 void XeGTAO_Output(ivec2 pixCoord, AOTermType outputValue)
 {
-#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
     float     visibility = outputValue.w;
     vec3    bentNormal = normalize(outputValue.xyz);
     imageStore(o_AOTerm, pixCoord, uint(XeGTAO_EncodeVisibilityBentNormal(visibility, bentNormal)).xxxx);

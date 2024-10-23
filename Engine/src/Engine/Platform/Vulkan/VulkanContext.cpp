@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanContext.h"
 #include "Vulkan.h"
 
@@ -6,7 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
 
@@ -16,7 +16,7 @@
 
 namespace Hazel {
 
-#if defined(HZ_DEBUG) || defined(HZ_RELEASE)
+#if defined(ZONG_DEBUG) || defined(ZONG_RELEASE)
 	static bool s_Validation = true;
 #else
 	static bool s_Validation = false; // Let's leave this on for now...
@@ -26,11 +26,11 @@ namespace Hazel {
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugReportCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode, const char* pLayerPrefix, const char* pMessage, void* pUserData)
 	{
 		(void)flags; (void)object; (void)location; (void)messageCode; (void)pUserData; (void)pLayerPrefix; // Unused arguments
-		HZ_CORE_WARN_TAG("Renderer", "VulkanDebugCallback:\n  Object Type: {0}\n  Message: {1}", objectType, pMessage);
+		ZONG_CORE_WARN_TAG("Renderer", "VulkanDebugCallback:\n  Object Type: {0}\n  Message: {1}", objectType, pMessage);
 
 		const auto& imageRefs = VulkanImage2D::GetImageRefs();
 		if (strstr(pMessage, "CoreValidation-DrawState-InvalidImageLayout"))
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 
 		return VK_FALSE;
 	}
@@ -92,7 +92,7 @@ namespace Hazel {
 			}
 		}
 
-		HZ_CORE_WARN("{0} {1} message: \n\t{2}\n {3} {4}", VkDebugUtilsMessageType(messageType), VkDebugUtilsMessageSeverity(messageSeverity), pCallbackData->pMessage, labels, objects);
+		ZONG_CORE_WARN("{0} {1} message: \n\t{2}\n {3} {4}", VkDebugUtilsMessageType(messageType), VkDebugUtilsMessageSeverity(messageSeverity), pCallbackData->pMessage, labels, objects);
 		[[maybe_unused]] const auto& imageRefs = VulkanImage2D::GetImageRefs();
 
 		return VK_FALSE;
@@ -105,9 +105,9 @@ namespace Hazel {
 
 		if (instanceVersion < minimumSupportedVersion)
 		{
-			HZ_CORE_FATAL("Incompatible Vulkan driver version!");
-			HZ_CORE_FATAL("  You have {}.{}.{}", VK_API_VERSION_MAJOR(instanceVersion), VK_API_VERSION_MINOR(instanceVersion), VK_API_VERSION_PATCH(instanceVersion));
-			HZ_CORE_FATAL("  You need at least {}.{}.{}", VK_API_VERSION_MAJOR(minimumSupportedVersion), VK_API_VERSION_MINOR(minimumSupportedVersion), VK_API_VERSION_PATCH(minimumSupportedVersion));
+			ZONG_CORE_FATAL("Incompatible Vulkan driver version!");
+			ZONG_CORE_FATAL("  You have {}.{}.{}", VK_API_VERSION_MAJOR(instanceVersion), VK_API_VERSION_MINOR(instanceVersion), VK_API_VERSION_PATCH(instanceVersion));
+			ZONG_CORE_FATAL("  You need at least {}.{}.{}", VK_API_VERSION_MAJOR(minimumSupportedVersion), VK_API_VERSION_MINOR(minimumSupportedVersion), VK_API_VERSION_PATCH(minimumSupportedVersion));
 
 			return false;
 		}
@@ -131,18 +131,18 @@ namespace Hazel {
 
 	void VulkanContext::Init()
 	{
-		HZ_CORE_INFO_TAG("Renderer", "VulkanContext::Create");
+		ZONG_CORE_INFO_TAG("Renderer", "VulkanContext::Create");
 
-		HZ_CORE_ASSERT(glfwVulkanSupported(), "GLFW must support Vulkan!");
+		ZONG_CORE_ASSERT(glfwVulkanSupported(), "GLFW must support Vulkan!");
 
 		if (!CheckDriverAPIVersionSupport(VK_API_VERSION_1_2))
 		{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 			MessageBox(nullptr, L"Incompatible Vulkan driver version.\nUpdate your GPU drivers!", L"Hazel Error", MB_OK | MB_ICONERROR);
 #else
-			HZ_CORE_ERROR("Incompatible Vulkan driver version.\nUpdate your GPU drivers!");
+			ZONG_CORE_ERROR("Incompatible Vulkan driver version.\nUpdate your GPU drivers!");
 #endif
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,9 +158,9 @@ namespace Hazel {
 		// Extensions and Validation
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TODO(Emily): GLFW can handle this for us
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 #define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 #define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
 #endif
 		std::vector<const char*> instanceExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
@@ -194,10 +194,10 @@ namespace Hazel {
 			std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
 			vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
 			bool validationLayerPresent = false;
-			HZ_CORE_TRACE_TAG("Renderer", "Vulkan Instance Layers:");
+			ZONG_CORE_TRACE_TAG("Renderer", "Vulkan Instance Layers:");
 			for (const VkLayerProperties& layer : instanceLayerProperties)
 			{
-				HZ_CORE_TRACE_TAG("Renderer", "  {0}", layer.layerName);
+				ZONG_CORE_TRACE_TAG("Renderer", "  {0}", layer.layerName);
 				if (strcmp(layer.layerName, validationLayerName) == 0)
 				{
 					validationLayerPresent = true;
@@ -211,7 +211,7 @@ namespace Hazel {
 			}
 			else
 			{
-				HZ_CORE_ERROR_TAG("Renderer", "Validation layer VK_LAYER_KHRONOS_validation not present, validation is disabled");
+				ZONG_CORE_ERROR_TAG("Renderer", "Validation layer VK_LAYER_KHRONOS_validation not present, validation is disabled");
 			}
 		}
 
@@ -225,7 +225,7 @@ namespace Hazel {
 		{
 #if 0
 			auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(s_VulkanInstance, "vkCreateDebugReportCallbackEXT");
-			HZ_CORE_ASSERT(vkCreateDebugReportCallbackEXT != NULL, "");
+			ZONG_CORE_ASSERT(vkCreateDebugReportCallbackEXT != NULL, "");
 			VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
 			debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 			debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
@@ -235,7 +235,7 @@ namespace Hazel {
 #endif
 
 			auto vkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(s_VulkanInstance, "vkCreateDebugUtilsMessengerEXT");
-			HZ_CORE_ASSERT(vkCreateDebugUtilsMessengerEXT != NULL, "");
+			ZONG_CORE_ASSERT(vkCreateDebugUtilsMessengerEXT != NULL, "");
 			VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{};
 			debugUtilsCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 			debugUtilsCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;

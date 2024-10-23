@@ -1,4 +1,4 @@
-﻿#include "hzpch.h"
+﻿#include "pch.h"
 #include "Font.h"
 
 #include "MSDFData.h"
@@ -88,7 +88,7 @@ namespace Hazel {
 		if (!stream)
 		{
 			stream.close();
-			HZ_CORE_ERROR_TAG("Renderer", "Failed to cache font atlas to {0}", filepath.string());
+			ZONG_CORE_ERROR_TAG("Renderer", "Failed to cache font atlas to {0}", filepath.string());
 			return;
 		}
 
@@ -216,7 +216,7 @@ namespace Hazel {
 		} font;
 
 		bool success = font.load(fontInput.fontData);
-		HZ_CORE_ASSERT(success);
+		ZONG_CORE_ASSERT(success);
 
 		if (fontInput.fontScale <= 0)
 			fontInput.fontScale = 1;
@@ -255,12 +255,12 @@ namespace Hazel {
 				break;
 		}
 
-		HZ_CORE_ASSERT(glyphsLoaded >= 0);
-		HZ_CORE_TRACE_TAG("Renderer", "Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, (int)charset.size());
+		ZONG_CORE_ASSERT(glyphsLoaded >= 0);
+		ZONG_CORE_TRACE_TAG("Renderer", "Loaded geometry of {0} out of {1} glyphs", glyphsLoaded, (int)charset.size());
 		// List missing glyphs
 		if (glyphsLoaded < (int)charset.size())
 		{
-			HZ_CORE_WARN_TAG("Renderer", "Missing {0} {1}", (int)charset.size() - glyphsLoaded, fontInput.glyphIdentifierType == GlyphIdentifierType::UNICODE_CODEPOINT ? "codepoints" : "glyphs");
+			ZONG_CORE_WARN_TAG("Renderer", "Missing {0} {1}", (int)charset.size() - glyphsLoaded, fontInput.glyphIdentifierType == GlyphIdentifierType::UNICODE_CODEPOINT ? "codepoints" : "glyphs");
 		}
 
 		if (fontInput.fontName)
@@ -291,22 +291,22 @@ namespace Hazel {
 		{
 			if (remaining < 0)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 			}
 			else
 			{
-				HZ_CORE_ERROR_TAG("Renderer", "Error: Could not fit {0} out of {1} glyphs into the atlas.", remaining, (int)m_MSDFData->Glyphs.size());
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ERROR_TAG("Renderer", "Error: Could not fit {0} out of {1} glyphs into the atlas.", remaining, (int)m_MSDFData->Glyphs.size());
+				ZONG_CORE_ASSERT(false);
 			}
 		}
 		atlasPacker.getDimensions(config.width, config.height);
-		HZ_CORE_ASSERT(config.width > 0 && config.height > 0);
+		ZONG_CORE_ASSERT(config.width > 0 && config.height > 0);
 		config.emSize = atlasPacker.getScale();
 		config.pxRange = atlasPacker.getPixelRange();
 		if (!fixedScale)
-			HZ_CORE_TRACE_TAG("Renderer", "Glyph size: {0} pixels/EM", config.emSize);
+			ZONG_CORE_TRACE_TAG("Renderer", "Glyph size: {0} pixels/EM", config.emSize);
 		if (!fixedDimensions)
-			HZ_CORE_TRACE_TAG("Renderer", "Atlas dimensions: {0} x {1}", config.width, config.height);
+			ZONG_CORE_TRACE_TAG("Renderer", "Atlas dimensions: {0} x {1}", config.width, config.height);
 
 
 		// Edge coloring

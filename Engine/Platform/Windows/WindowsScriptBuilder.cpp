@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Engine/Script/ScriptBuilder.h"
 
 #include <ShlObj.h>

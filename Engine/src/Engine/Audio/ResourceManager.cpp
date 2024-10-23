@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ResourceManager.h"
 
 #include "AudioEngine.h"
@@ -37,7 +37,7 @@ namespace Hazel::Audio
 		if (std::filesystem::exists(bankPath) && std::filesystem::is_regular_file(bankPath))
 		{
 			m_SoundBank = Ref<SoundBank>::Create(bankPath);
-			HZ_CORE_ASSERT(m_SoundBank->IsLoaded());
+			ZONG_CORE_ASSERT(m_SoundBank->IsLoaded());
 		}
 	}
 
@@ -51,7 +51,7 @@ namespace Hazel::Audio
 		{
 			const std::string sourceFileKey = std::to_string(handle);
 			ma_result result = ma_resource_manager_unregister_data(m_AudioEngine.m_Engine.pResourceManager, sourceFileKey.c_str());
-			HZ_CORE_ASSERT(result == MA_SUCCESS);
+			ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 			data.Release();
 		}
@@ -59,14 +59,14 @@ namespace Hazel::Audio
 		const bool anyUnloaded = m_LoadedFiles.size();
 		m_LoadedFiles.clear();
 
-		if (!bankFilepath.empty())	HZ_CONSOLE_LOG_INFO("Sound Bank '{0}' has been unloaded.", bankFilepath);
-		else if (anyUnloaded)		HZ_CONSOLE_LOG_INFO("Sounds loaded with Sound Bank has been unloaded.");
-		else						HZ_CONSOLE_LOG_INFO("No sounds were unloaded with Sound Bank because none has been loaded.");
+		if (!bankFilepath.empty())	ZONG_CONSOLE_LOG_INFO("Sound Bank '{0}' has been unloaded.", bankFilepath);
+		else if (anyUnloaded)		ZONG_CONSOLE_LOG_INFO("Sounds loaded with Sound Bank has been unloaded.");
+		else						ZONG_CONSOLE_LOG_INFO("No sounds were unloaded with Sound Bank because none has been loaded.");
 	}
 
 	std::vector<AssetHandle> ResourceManager::CollectWaveHandlesForPlayAction(const TriggerAction& playAction) const
 	{
-		HZ_CORE_ASSERT(playAction.Type == EActionType::Play);
+		ZONG_CORE_ASSERT(playAction.Type == EActionType::Play);
 
 		std::vector<AssetHandle> waveAssets;
 
@@ -119,7 +119,7 @@ namespace Hazel::Audio
 
 		if (waveAssets.empty())
 		{
-			HZ_CONSOLE_LOG_INFO("No referenced audio source assets detected, Sound Bank generation aborted.");
+			ZONG_CONSOLE_LOG_INFO("No referenced audio source assets detected, Sound Bank generation aborted.");
 			return nullptr;
 		}
 		
@@ -142,7 +142,7 @@ namespace Hazel::Audio
 		if (m_SoundBank)
 		{
 			const auto soundBankFileSize = std::filesystem::file_size(m_SoundBank->GetSoundBankFilePath());
-			HZ_CONSOLE_LOG_INFO("Successfully packaged Sound Bank. Number of audio files packaged {0}, Sound Bank size {1}, file path {2}",
+			ZONG_CONSOLE_LOG_INFO("Successfully packaged Sound Bank. Number of audio files packaged {0}, Sound Bank size {1}, file path {2}",
 				waveAssets.size(), Utils::BytesToString(soundBankFileSize), bankPath.string());
 		}
 
@@ -193,7 +193,7 @@ namespace Hazel::Audio
 
 	StreamReader* ResourceManager::CreateReaderFor(const std::string& sourceFile) const
 	{
-		HZ_CORE_ASSERT(!std::filesystem::exists(sourceFile));
+		ZONG_CORE_ASSERT(!std::filesystem::exists(sourceFile));
 
 		// We access audio files only by AssetHandle, stringified for miniaudio
 		const AssetHandle handle = std::stoull(sourceFile);
@@ -202,7 +202,7 @@ namespace Hazel::Audio
 
 	size_t ResourceManager::GetFileSize(const std::string& sourceFile) const
 	{
-		HZ_CORE_ASSERT(!std::filesystem::exists(sourceFile));
+		ZONG_CORE_ASSERT(!std::filesystem::exists(sourceFile));
 
 		// We access audio files only by AssetHandle, stringified for miniaudio
 		const AssetHandle handle = std::stoull(sourceFile);
@@ -245,7 +245,7 @@ namespace Hazel::Audio
 		ma_result result = ma_resource_manager_register_encoded_data(m_AudioEngine.m_Engine.pResourceManager, sourceFileKey.data(), encodedFile.Data, fileInfo->FileSize);
 		if (result != MA_SUCCESS)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -265,7 +265,7 @@ namespace Hazel::Audio
 		ma_result result = ma_resource_manager_unregister_data(m_AudioEngine.m_Engine.pResourceManager, sourceFileKey.c_str());
 		if (result != MA_SUCCESS)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 

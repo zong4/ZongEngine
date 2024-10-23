@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PropertySet.h"
 
 #include "NodeGraphUtils.h"
@@ -88,13 +88,13 @@ namespace Hazel::Utils {
 
 	choc::value::Value PropertySet::GetValue(std::string_view name) const
 	{
-		HZ_CORE_ASSERT(!name.empty());
+		ZONG_CORE_ASSERT(!name.empty());
 		return GetValue(name, {});
 	}
 
 	choc::value::Value PropertySet::GetValue(std::string_view name, const choc::value::Value& defaultReturnValue) const
 	{
-		HZ_CORE_ASSERT(!name.empty());
+		ZONG_CORE_ASSERT(!name.empty());
 
 		if (properties != nullptr)
 			for (auto& p : *properties)
@@ -106,7 +106,7 @@ namespace Hazel::Utils {
 
 	bool PropertySet::HasValue(std::string_view name) const
 	{
-		HZ_CORE_ASSERT(!name.empty());
+		ZONG_CORE_ASSERT(!name.empty());
 
 		if (properties != nullptr)
 			for (auto& p : *properties)
@@ -194,7 +194,7 @@ namespace Hazel::Utils {
 
 	void PropertySet::SetInternal(std::string_view name, choc::value::Value newValue)
 	{
-		HZ_CORE_ASSERT(!name.empty());
+		ZONG_CORE_ASSERT(!name.empty());
 
 		if (properties == nullptr)
 		{
@@ -250,7 +250,7 @@ namespace Hazel::Utils {
 
 	void PropertySet::Remove(std::string_view name)
 	{
-		HZ_CORE_ASSERT(!name.empty());
+		ZONG_CORE_ASSERT(!name.empty());
 
 		if (properties != nullptr)
 			RemoveIf(*properties, [&](const Property& p) { return p.name == name; });
@@ -366,12 +366,12 @@ namespace Hazel::Utils {
 	{
 		if (value.isVoid())
 		{
-			HZ_CORE_WARN("Failed to deserialize custom value type, value is not an object.");
+			ZONG_CORE_WARN("Failed to deserialize custom value type, value is not an object.");
 			return choc::value::Value(value);
 		}
 		if (value["TypeName"].isVoid())
 		{
-			HZ_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
+			ZONG_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
 			return {};
 		}
 
@@ -386,7 +386,7 @@ namespace Hazel::Utils {
 		}
 		else
 		{
-			HZ_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
+			ZONG_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
 		}
 
 		return customObject;
@@ -397,14 +397,14 @@ namespace Hazel::Utils {
 		if (value["Value"].isArray())
 		{
 			// TODO: implement arrays of custom value types
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 #if 0 
 			choc::value::ValueView inArray = value["Value"];
 			std::string type = value["Type"].get<std::string>();
 			const uint32_t inArraySize = inArray.size();
 
-			HZ_CORE_ASSERT(type == "AssetHandle", "The only custom type is supported for now is \"AssetHandle\".");
-			HZ_CORE_ASSERT(inArraySize > 0);
+			ZONG_CORE_ASSERT(type == "AssetHandle", "The only custom type is supported for now is \"AssetHandle\".");
+			ZONG_CORE_ASSERT(inArraySize > 0);
 
 			choc::value::Value valueArray = choc::value::createEmptyArray();
 
@@ -414,7 +414,7 @@ namespace Hazel::Utils {
 				vobj["Value"].set(inArray[i]["Value"].get<std::string>());
 				valueArray.addArrayElement(vobj);
 			}
-			HZ_CORE_ASSERT(valueArray.size() == inArraySize)
+			ZONG_CORE_ASSERT(valueArray.size() == inArraySize)
 
 				ps.Set(std::string(name), valueArray);
 
@@ -428,7 +428,7 @@ namespace Hazel::Utils {
 #if 0
 	PropertySet PropertySet::FromJSON(const choc::value::ValueView& v)
 	{
-		HZ_CORE_ASSERT(false, "Should use ..ExternalValue() serialization instead.");
+		ZONG_CORE_ASSERT(false, "Should use ..ExternalValue() serialization instead.");
 
 		//? old way of restoring from JSON string
 
@@ -466,7 +466,7 @@ namespace Hazel::Utils {
 		return a;
 	}
 
-	std::string PropertySet::ToJSON() const { HZ_CORE_ASSERT(false, "Should use ..ExternalValue() serialization instead."); return PropertySetToString(properties.get()); }
+	std::string PropertySet::ToJSON() const { ZONG_CORE_ASSERT(false, "Should use ..ExternalValue() serialization instead."); return PropertySetToString(properties.get()); }
 #endif
 
 	choc::value::Value PropertySet::ToExternalValue() const

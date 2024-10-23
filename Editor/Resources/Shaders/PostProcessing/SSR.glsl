@@ -21,8 +21,8 @@ layout(set = 1, binding = 4) uniform sampler2D u_HiZBuffer;
 layout(set = 1, binding = 5) uniform sampler2D u_MetalnessRoughness;
 layout(set = 1, binding = 6) uniform sampler2D u_VisibilityBuffer;
 
-#define GTAO_REFLECTION_OCCLUSION (__HZ_REFLECTION_OCCLUSION_METHOD & HZ_REFLECTION_OCCLUSION_METHOD_GTAO)
-#define HBAO_REFLECTION_OCCLUSION (__HZ_REFLECTION_OCCLUSION_METHOD & HZ_REFLECTION_OCCLUSION_METHOD_HBAO)
+#define GTAO_REFLECTION_OCCLUSION (__ZONG_REFLECTION_OCCLUSION_METHOD & ZONG_REFLECTION_OCCLUSION_METHOD_GTAO)
+#define HBAO_REFLECTION_OCCLUSION (__ZONG_REFLECTION_OCCLUSION_METHOD & ZONG_REFLECTION_OCCLUSION_METHOD_HBAO)
 
 #if GTAO_REFLECTION_OCCLUSION
 	layout(set = 1, binding = 7) uniform usampler2D u_GTAOTex;
@@ -380,7 +380,7 @@ void main()
 	float ao = 1.0f;
 
 #if GTAO_REFLECTION_OCCLUSION
-	#if __HZ_GTAO_COMPUTE_BENT_NORMALS
+	#if __ZONG_GTAO_COMPUTE_BENT_NORMALS
 		ao = (texture(u_GTAOTex, positionSS.xy).x >> 24) / 255.f;
 	#else
 		ao = texture(u_GTAOTex, positionSS.xy).x / 255.f;

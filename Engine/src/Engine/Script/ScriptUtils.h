@@ -8,16 +8,16 @@
 #include <mono/metadata/object.h>
 #include <yaml-cpp/yaml.h>
 
-#ifdef HZ_PLATFORM_WINDOWS
-#define HZ_MONO_STDCALL __stdcall
+#ifdef ZONG_PLATFORM_WINDOWS
+#define ZONG_MONO_STDCALL __stdcall
 #else
-#define HZ_MONO_STDCALL
+#define ZONG_MONO_STDCALL
 #endif
 
-#ifdef HZ_DEBUG
-#define HZ_CHECK_MANAGED_METHOD(x) HZ_CORE_ASSERT(x)
+#ifdef ZONG_DEBUG
+#define ZONG_CHECK_MANAGED_METHOD(x) ZONG_CORE_ASSERT(x)
 #else
-#define HZ_CHECK_MANAGED_METHOD(x) HZ_CORE_VERIFY(x)
+#define ZONG_CHECK_MANAGED_METHOD(x) ZONG_CORE_VERIFY(x)
 #endif
 
 extern "C" {
@@ -29,10 +29,10 @@ extern "C" {
 	typedef struct _MonoException MonoException;
 }
 
-#ifndef HZ_DIST
-#define HZ_THROW_INVALID_OPERATION(msg) mono_raise_exception(mono_get_exception_invalid_operation(msg))
+#ifndef ZONG_DIST
+#define ZONG_THROW_INVALID_OPERATION(msg) mono_raise_exception(mono_get_exception_invalid_operation(msg))
 #else
-#define HZ_THROW_INVALID_OPERATION(msg)
+#define ZONG_THROW_INVALID_OPERATION(msg)
 #endif
 
 namespace Hazel {
@@ -42,7 +42,7 @@ namespace Hazel {
 	template<typename... TParameterTypes>
 	struct ManagedMethodThunk
 	{
-		typedef void(HZ_MONO_STDCALL* M)(TParameterTypes... params, MonoException**);
+		typedef void(ZONG_MONO_STDCALL* M)(TParameterTypes... params, MonoException**);
 
 		M Method = nullptr;
 
@@ -64,7 +64,7 @@ namespace Hazel {
 	/*template<typename TReturn, typename... TParameterTypes>
 	struct ManagedMethodThunkR
 	{
-		typedef TReturn(HZ_MONO_STDCALL* M)(TParameterTypes... params, MonoException**);
+		typedef TReturn(ZONG_MONO_STDCALL* M)(TParameterTypes... params, MonoException**);
 
 		M Method = nullptr;
 
@@ -82,16 +82,16 @@ namespace Hazel {
 
 		void SetThunkFromMethod(const ManagedMethod* method)
 		{
-			HZ_CHECK_MANAGED_METHOD(method->Method);
-			HZ_CHECK_MANAGED_METHOD(!method->ReturnType.IsVoid());
+			ZONG_CHECK_MANAGED_METHOD(method->Method);
+			ZONG_CHECK_MANAGED_METHOD(!method->ReturnType.IsVoid());
 
 			if (method->IsStatic)
 			{
-				HZ_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes));
+				ZONG_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes));
 			}
 			else
 			{
-				HZ_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes) - 1);
+				ZONG_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes) - 1);
 			}
 
 			Method = (M)ScriptUtils::GetUnmanagedMethodTunk(method->Method);
@@ -201,7 +201,7 @@ namespace Hazel {
 
 		template<typename T>
 		static MonoArray* Create(uintptr_t length) {
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
             return nullptr;
         }
 
@@ -245,16 +245,16 @@ namespace Hazel {
     template<typename... TParameterTypes>
     void ManagedMethodThunk<TParameterTypes...>::SetThunkFromMethod(const ManagedMethod* method)
     {
-        HZ_CHECK_MANAGED_METHOD(method->Method);
-        //HZ_CHECK_MANAGED_METHOD(method->ReturnType.IsVoid());
+        ZONG_CHECK_MANAGED_METHOD(method->Method);
+        //ZONG_CHECK_MANAGED_METHOD(method->ReturnType.IsVoid());
 
         if (method->IsStatic)
         {
-            HZ_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes));
+            ZONG_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes));
         }
         else
         {
-            HZ_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes) - 1);
+            ZONG_CHECK_MANAGED_METHOD(method->ParameterCount == sizeof...(TParameterTypes) - 1);
         }
 
         Method = (M)ScriptUtils::GetUnmanagedMethodTunk(method->Method);

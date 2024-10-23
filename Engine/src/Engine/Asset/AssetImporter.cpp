@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssetImporter.h"
 #include "AssetManager.h"
 #include "AnimationAssetSerializer.h"
@@ -33,7 +33,7 @@ namespace Hazel {
 	{
 		if (s_Serializers.find(metadata.Type) == s_Serializers.end())
 		{
-			HZ_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
+			ZONG_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
 			return;
 		}
 
@@ -50,11 +50,11 @@ namespace Hazel {
 	{
 		if (s_Serializers.find(metadata.Type) == s_Serializers.end())
 		{
-			HZ_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
+			ZONG_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
 			return false;
 		}
 
-		// HZ_CORE_TRACE("AssetImporter::TryLoadData - {}", metadata.FilePath);
+		// ZONG_CORE_TRACE("AssetImporter::TryLoadData - {}", metadata.FilePath);
 		return s_Serializers[metadata.Type]->TryLoadData(metadata, asset);
 	}
 
@@ -66,7 +66,7 @@ namespace Hazel {
 		const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
 		if (s_Serializers.find(metadata.Type) == s_Serializers.end())
 		{
-			HZ_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
+			ZONG_CORE_WARN("There's currently no importer for assets of type {0}", metadata.FilePath.stem().string());
 			return false;
 		}
 

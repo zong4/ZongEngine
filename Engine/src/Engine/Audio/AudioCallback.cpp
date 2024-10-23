@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "AudioCallback.h"
 
 namespace Hazel::Audio
@@ -29,9 +29,9 @@ namespace Hazel::Audio
 		uint32_t sampleRate = engine->pDevice->sampleRate;
 		uint32_t blockSize = engine->pDevice->playback.internalPeriodSizeInFrames;
 
-		HZ_CORE_ASSERT(!busConfig.InputBuses.empty() && !busConfig.OutputBuses.empty()); //? input might want to allow 0 buses
-		for (auto& b : busConfig.InputBuses)  HZ_CORE_ASSERT(b > 0);
-		for (auto& b : busConfig.OutputBuses) HZ_CORE_ASSERT(b > 0);
+		ZONG_CORE_ASSERT(!busConfig.InputBuses.empty() && !busConfig.OutputBuses.empty()); //? input might want to allow 0 buses
+		for (auto& b : busConfig.InputBuses)  ZONG_CORE_ASSERT(b > 0);
+		for (auto& b : busConfig.OutputBuses) ZONG_CORE_ASSERT(b > 0);
 
 		if (m_Node.bInitialized)
 		{
@@ -61,11 +61,11 @@ namespace Hazel::Audio
 		nodeConfig.vtable = &processing_node_vtable;
 		result = ma_node_init(&engine->nodeGraph, &nodeConfig, nullptr, &m_Node);
 
-		HZ_CORE_ASSERT(result == MA_SUCCESS);
+		ZONG_CORE_ASSERT(result == MA_SUCCESS);
 		m_Node.bInitialized = true;
 
 		result = ma_node_attach_output_bus(&m_Node, 0u, &engine->nodeGraph.endpoint, 0u);
-		HZ_CORE_ASSERT(result == MA_SUCCESS);
+		ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
 		return InitBase(sampleRate, blockSize, busConfig);
 	}

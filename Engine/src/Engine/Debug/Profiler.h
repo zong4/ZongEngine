@@ -1,23 +1,23 @@
 #pragma once
 
-#define HZ_ENABLE_PROFILING !HZ_DIST
+#define ZONG_ENABLE_PROFILING !ZONG_DIST
 
-#if HZ_ENABLE_PROFILING 
+#if ZONG_ENABLE_PROFILING 
 #include <tracy/Tracy.hpp>
 #endif
 
-#if HZ_ENABLE_PROFILING
-#define HZ_PROFILE_MARK_FRAME			FrameMark;
-// NOTE(Peter): Use HZ_PROFILE_FUNC ONLY at the top of a function
-//				Use HZ_PROFILE_SCOPE / HZ_PROFILE_SCOPE_DYNAMIC for an inner scope
-#define HZ_PROFILE_FUNC(...)			ZoneScoped##__VA_OPT__(N(__VA_ARGS__))
-#define HZ_PROFILE_SCOPE(...)			HZ_PROFILE_FUNC(__VA_ARGS__)
-#define HZ_PROFILE_SCOPE_DYNAMIC(NAME)  ZoneScoped; ZoneName(NAME, strlen(NAME))
-#define HZ_PROFILE_THREAD(...)          tracy::SetThreadName(__VA_ARGS__)
+#if ZONG_ENABLE_PROFILING
+#define ZONG_PROFILE_MARK_FRAME			FrameMark;
+// NOTE(Peter): Use ZONG_PROFILE_FUNC ONLY at the top of a function
+//				Use ZONG_PROFILE_SCOPE / ZONG_PROFILE_SCOPE_DYNAMIC for an inner scope
+#define ZONG_PROFILE_FUNC(...)			ZoneScoped##__VA_OPT__(N(__VA_ARGS__))
+#define ZONG_PROFILE_SCOPE(...)			ZONG_PROFILE_FUNC(__VA_ARGS__)
+#define ZONG_PROFILE_SCOPE_DYNAMIC(NAME)  ZoneScoped; ZoneName(NAME, strlen(NAME))
+#define ZONG_PROFILE_THREAD(...)          tracy::SetThreadName(__VA_ARGS__)
 #else
-#define HZ_PROFILE_MARK_FRAME
-#define HZ_PROFILE_FUNC(...)
-#define HZ_PROFILE_SCOPE(...)
-#define HZ_PROFILE_SCOPE_DYNAMIC(NAME)
-#define HZ_PROFILE_THREAD(...)
+#define ZONG_PROFILE_MARK_FRAME
+#define ZONG_PROFILE_FUNC(...)
+#define ZONG_PROFILE_SCOPE(...)
+#define ZONG_PROFILE_SCOPE_DYNAMIC(NAME)
+#define ZONG_PROFILE_THREAD(...)
 #endif

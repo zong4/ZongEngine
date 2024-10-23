@@ -2,7 +2,7 @@
 
 #include "Engine/Physics/PhysicsCaptureManager.h"
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 	#include <Jolt/Core/StreamOut.h>
 	#include <Jolt/Renderer/DebugRendererRecorder.h>
 	#include <Jolt/Physics/Body/BodyManager.h>
@@ -10,7 +10,7 @@
 
 namespace Hazel {
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 	class JoltCaptureOutStream : public JPH::StreamOut
 	{
 	public:

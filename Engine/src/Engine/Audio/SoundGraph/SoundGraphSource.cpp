@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "SoundGraphSource.h"
 #include "WaveSource.h"
 
@@ -28,7 +28,7 @@ namespace Hazel
         // Check how many samples we need to refill
 		const int32_t available = buffer.Channels.Available() / numChannels;
         const int32_t samplesToRefill = numFrames - available;
-        HZ_CORE_ASSERT(samplesToRefill <= 960 / 2);
+        ZONG_CORE_ASSERT(samplesToRefill <= 960 / 2);
 
         if (samplesToRefill > 0 /*buffer.Channels[0].available() < numFrames*/)
         {
@@ -50,17 +50,17 @@ namespace Hazel
         {
             if (message[0] == '!')
             {
-                HZ_CORE_ERROR(R"sgMessage([Sound Graph] Frame index: {0}
+                ZONG_CORE_ERROR(R"sgMessage([Sound Graph] Frame index: {0}
     Message: {1}", message, frameIndex)sgMessage", frameIndex, message);
             }
             else if (message[0] == '*')
             {
-                HZ_CORE_WARN(R"sgMessage([Sound Graph] Frame index: {0}
+                ZONG_CORE_WARN(R"sgMessage([Sound Graph] Frame index: {0}
     Message: {1}", message, frameIndex)sgMessage", frameIndex, message);
             }
             else
             {
-                HZ_CORE_TRACE(R"sgMessage([Sound Graph] Frame index: {0}
+                ZONG_CORE_TRACE(R"sgMessage([Sound Graph] Frame index: {0}
     Message: {1}", message, frameIndex)sgMessage", frameIndex, message);
             }
         };
@@ -71,7 +71,7 @@ namespace Hazel
 			const auto endpointName = !endpointID.GetDBGName().empty() ? endpointID.GetDBGName() : "unknown";
             
 			//? DBG
-			//HZ_CORE_INFO("[SoundGraph Patch Event] Endpoint name: {0} | frame index: {1} | event data: {2}", endpointName, frameIndex, choc::json::toString(eventData));
+			//ZONG_CORE_INFO("[SoundGraph Patch Event] Endpoint name: {0} | frame index: {1} | event data: {2}", endpointName, frameIndex, choc::json::toString(eventData));
 
 			if (endpointID == SoundGraph::SoundGraph::IDs::OnFinished)
 			{
@@ -118,10 +118,10 @@ namespace Hazel
 
         ma_result result;
         result = ma_engine_node_init(&nodeConfig, nullptr, &m_EngineNode);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         result = ma_node_attach_output_bus(GetNode(), 0u, &m_EngineNode, 0u);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         result = ma_node_attach_output_bus(&m_EngineNode, 0u, &m_Engine->nodeGraph.endpoint, 0u);
 
@@ -162,7 +162,7 @@ namespace Hazel
                 {
 					m_Graph->SendInputEvent(SoundGraph::SoundGraph::IDs::Play, choc::value::Value(2.0f));
 
-                    //HZ_CORE_WARN("Play request sent");
+                    //ZONG_CORE_WARN("Play request sent");
                     m_CurrentFrame.store(0);
                     m_IsPlaying.store(true);
                 }
@@ -171,7 +171,7 @@ namespace Hazel
                 //      Although in that case it won't be able to recieve any events.
 
                 // miniaudio might request different amount of frames based on pitch settings 
-                //HZ_CORE_ASSERT(numFramesRequested <= outBuffer[0].getNumFrames());
+                //ZONG_CORE_ASSERT(numFramesRequested <= outBuffer[0].getNumFrames());
                 const uint32_t numFrames = *pFrameCountOut;
                 const uint32_t numOutChannels = 2; // TODO: ???
                 float* mainOutputBus = ppFramesOut[0];
@@ -287,11 +287,11 @@ namespace Hazel
     /// Patch Parameter Interface
     bool SoundGraphSource::SetParameter(std::string_view parameter, choc::value::ValueView value)
     {
-        HZ_PROFILE_FUNC();
+        ZONG_PROFILE_FUNC();
 
         if (!m_Graph || value.isVoid())
         {
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             return false;
         }
 
@@ -300,19 +300,19 @@ namespace Hazel
 
     bool SoundGraphSource::SetParameter(uint32_t parameterID, choc::value::ValueView value)
     {
-        HZ_PROFILE_FUNC();
+        ZONG_PROFILE_FUNC();
 
         const auto& parameterInfo = m_ParameterHandles.find(parameterID);
         if (parameterInfo != m_ParameterHandles.end())
         {
-			//HZ_CONSOLE_LOG_INFO("Parameter: id {0}, value {1}", parameterInfo->first, choc::json::toString(value));
+			//ZONG_CONSOLE_LOG_INFO("Parameter: id {0}, value {1}", parameterInfo->first, choc::json::toString(value));
 
             PresetWrite presetSafe(m_Preset);
             return presetSafe->SetParameter(parameterInfo->second.Handle, value);
         }
         else
         {
-            HZ_CONSOLE_LOG_WARN("SetParameter(parameterID {0}, value {1}) - Parameter with ID {0} doesn't exist in current context."
+            ZONG_CONSOLE_LOG_WARN("SetParameter(parameterID {0}, value {1}) - Parameter with ID {0} doesn't exist in current context."
                                 , parameterID, choc::json::toString(value));
             return false;
         }
@@ -322,11 +322,11 @@ namespace Hazel
     {
         if (!m_Graph)
         {
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             return false;
         }
 
-        HZ_CORE_ASSERT(!m_ParameterHandles.empty());
+        ZONG_CORE_ASSERT(!m_ParameterHandles.empty());
 
         const std::vector<std::string>& names = preset.GetNames();
         std::vector<uint32_t> handles;
@@ -343,7 +343,7 @@ namespace Hazel
 			}
 			else
 			{
-				HZ_CORE_WARN_TAG("SoundGraphSource", "ApplyParameterPreset - SoundGraphSource doesn't have parameter '{}'", name);
+				ZONG_CORE_WARN_TAG("SoundGraphSource", "ApplyParameterPreset - SoundGraphSource doesn't have parameter '{}'", name);
 				return false;
 			}
 		}
@@ -388,12 +388,12 @@ namespace Hazel
             numParametersSet += inserted;
         }
 
-        HZ_CORE_ASSERT(numParametersSet == totalNumberOfParameters);
+        ZONG_CORE_ASSERT(numParametersSet == totalNumberOfParameters);
     }
 
     bool SoundGraphSource::ApplyParameterPresetInternal()
     {
-        HZ_CORE_ASSERT(m_Graph);
+        ZONG_CORE_ASSERT(m_Graph);
 
         PresetRead presetSafe(m_Preset);
         uint32_t numParametersSet = 0;
@@ -405,13 +405,13 @@ namespace Hazel
             {
                 ++numParametersSet;
                 //? DBG. Careful, too many calls can caus audio glitches.
-               /* HZ_CORE_INFO("parameter set: {}", param->Name);
+               /* ZONG_CORE_INFO("parameter set: {}", param->Name);
                 if (value.isFloat())
-                    HZ_CORE_INFO("value: {}", value.get<float>());*/
+                    ZONG_CORE_INFO("value: {}", value.get<float>());*/
             }
             else
             {
-                HZ_CORE_ASSERT(false, "Failed to send input event to SoundGraph instance. Most likely endpoint handle was invalid.")
+                ZONG_CORE_ASSERT(false, "Failed to send input event to SoundGraph instance. Most likely endpoint handle was invalid.")
             }
         }
 
@@ -420,7 +420,7 @@ namespace Hazel
 
     void SoundGraphSource::UpdateChangedParameters()
     {
-        HZ_CORE_ASSERT(m_Graph);
+        ZONG_CORE_ASSERT(m_Graph);
 
         PresetRead presetSafe(m_Preset);
         const auto* changedEnd = presetSafe->GetLastChangedParameter();
@@ -435,13 +435,13 @@ namespace Hazel
             if (m_Graph->SendInputValue(param->Handle, param->Value, true))
             {
                 //? DBG. Careful, too many calls can caus audio glitches.
-               /* HZ_CORE_INFO("parameter set: {}", param->Name);
+               /* ZONG_CORE_INFO("parameter set: {}", param->Name);
                 if (value.isFloat())
-                    HZ_CORE_INFO("value: {}", value.get<float>());*/
+                    ZONG_CORE_INFO("value: {}", value.get<float>());*/
             }
             else
             {
-                HZ_CORE_ASSERT(false, "Failed to send input event to SoundGraph instance. Most likely endpoint handle was invalid.")
+                ZONG_CORE_ASSERT(false, "Failed to send input event to SoundGraph instance. Most likely endpoint handle was invalid.")
             }
         }
 

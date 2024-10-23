@@ -33,7 +33,7 @@ namespace Hazel {
 
 		VkCommandBuffer GetCommandBuffer(uint32_t frameIndex) const
 		{
-			HZ_CORE_ASSERT(frameIndex < m_CommandBuffers.size());
+			ZONG_CORE_ASSERT(frameIndex < m_CommandBuffers.size());
 			return m_CommandBuffers[frameIndex];
 		}
 	private:

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Image.h"
 
 #include "Engine/Platform/Vulkan/VulkanImage.h"
@@ -14,7 +14,7 @@ namespace Hazel {
 			case RendererAPIType::None: return nullptr;
 			case RendererAPIType::Vulkan: return Ref<VulkanImage2D>::Create(specification);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 
@@ -25,7 +25,7 @@ namespace Hazel {
 			case RendererAPIType::None: return nullptr;
 			case RendererAPIType::Vulkan: return Ref<VulkanImage2D>::Create(specification);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 
@@ -36,7 +36,7 @@ namespace Hazel {
 			case RendererAPIType::None: return nullptr;
 			case RendererAPIType::Vulkan: return Ref<VulkanImageView>::Create(specification);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

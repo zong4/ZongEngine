@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
 
@@ -27,7 +27,7 @@
 #include <Engine/Core/Delegate.h>
 
 // Jolt (Safety because this file has to be included before all other Jolt headers, at all times)
-#ifdef HZ_DEBUG // NOTE(Emily): This is a bit of a hacky fix for some dark magic that happens in Jolt
+#ifdef ZONG_DEBUG // NOTE(Emily): This is a bit of a hacky fix for some dark magic that happens in Jolt
 				// 				We'll need to address this in future.
 #define JPH_ENABLE_ASSERTS
 #endif

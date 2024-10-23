@@ -106,7 +106,7 @@ namespace Hazel
 
 			LockType lock{ m_Mutex };
 
-			//HZ_CORE_ASSERT(newIndex >= 0 && newIndex < order.size());
+			//ZONG_CORE_ASSERT(newIndex >= 0 && newIndex < order.size());
 			newIndex = std::clamp(newIndex, 0, (int)order.size() - 1);
 
 			if(newIndex == oldIndex || oldIndex < 0)
@@ -321,7 +321,7 @@ namespace Hazel
 		template<class T>
 		static bool SetNewPosition(std::vector<T>& vector, const T& value, int newIndex)
 		{
-			//HZ_CORE_ASSERT(newIndex >= 0 && newIndex < order.size());
+			//ZONG_CORE_ASSERT(newIndex >= 0 && newIndex < order.size());
 			newIndex = std::clamp(newIndex, 0, (int)vector.size() - 1);
 
 			const int oldIndex = GetIndex(vector, value);

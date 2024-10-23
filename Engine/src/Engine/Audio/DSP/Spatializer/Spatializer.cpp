@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "Spatializer.h"
 
 #include "Engine/Audio/Sound.h"
@@ -217,7 +217,7 @@ namespace Hazel::Audio::DSP
 			auto it = m_Sources.begin();
 			if (!ReleaseSource(it->first))
 			{
-				HZ_CORE_ASSERT(false, "Failed to uninitialize Spatializer Source while uninitializing Spatializer! Source ID: {0}", it->first);
+				ZONG_CORE_ASSERT(false, "Failed to uninitialize Spatializer Source while uninitializing Spatializer! Source ID: {0}", it->first);
 				break;
 			}
 		}
@@ -232,19 +232,19 @@ namespace Hazel::Audio::DSP
 
     float Spatializer::GetCurrentDistanceAttenuation(uint32_t sourceID) const
     {
-        HZ_CORE_ASSERT(IsInitialized(sourceID))
+        ZONG_CORE_ASSERT(IsInitialized(sourceID))
         return m_Sources.at(sourceID).DistanceAttenuationFactor;
     }
 
     float Spatializer::GetCurrentConeAngleAttenuation(uint32_t sourceID) const
     {
-        HZ_CORE_ASSERT(IsInitialized(sourceID))
+        ZONG_CORE_ASSERT(IsInitialized(sourceID))
         return m_Sources.at(sourceID).AngleAttenuationFactor;
     }
 
     float Spatializer::GetCurrentDistance(uint32_t sourceID) const
     {
-        HZ_CORE_ASSERT(IsInitialized(sourceID));
+        ZONG_CORE_ASSERT(IsInitialized(sourceID));
         return m_Sources.at(sourceID).Distance;
     }
 
@@ -256,7 +256,7 @@ namespace Hazel::Audio::DSP
     {
         if (!IsInitialized(sourceID))
         {
-            HZ_CORE_ERROR_TAG("Sound Spatializer", "SetSpread({0}, {1}) - invalid sourseID.", sourceID, newSpread);
+            ZONG_CORE_ERROR_TAG("Sound Spatializer", "SetSpread({0}, {1}) - invalid sourseID.", sourceID, newSpread);
             return;
         }
 
@@ -264,7 +264,7 @@ namespace Hazel::Audio::DSP
 
         if (source.SpatializationConfig->bSpreadFromSourceSize)
         {
-            HZ_CORE_WARN_TAG("Sound Spatializer", "Trying to update sound Spread value while using SpreadFromSourceSize.");
+            ZONG_CORE_WARN_TAG("Sound Spatializer", "Trying to update sound Spread value while using SpreadFromSourceSize.");
             return;
         }
 
@@ -277,7 +277,7 @@ namespace Hazel::Audio::DSP
     {
         if (!IsInitialized(sourceID))
         {
-            HZ_CORE_ERROR_TAG("Sound Spatializer", "SetFocus({0}, {1}) - invalid sourseID.", sourceID, newFocus);
+            ZONG_CORE_ERROR_TAG("Sound Spatializer", "SetFocus({0}, {1}) - invalid sourseID.", sourceID, newFocus);
             return;
         }
 
@@ -364,7 +364,7 @@ namespace Hazel::Audio::DSP
 
                 angleAttenuation *= ProcessAngularAttenuation(listenerDirection, glm::normalize(positionRelative), listenerInnerAngle, listenerOuterAngle, listenerOuterGain);
 
-                //HZ_CORE_TRACE_TAG("Sound Spatializer", "Angle Attenuation: {}", angleAttenuation);
+                //ZONG_CORE_TRACE_TAG("Sound Spatializer", "Angle Attenuation: {}", angleAttenuation);
             }
 
             gainAttenuation *= angleAttenuation;
@@ -380,7 +380,7 @@ namespace Hazel::Audio::DSP
         // TODO: make this affect where the curve starts and where it hits 0.0f instead of just clamping the multiplier
         gainAttenuation = std::clamp(gainAttenuation, source.SpatializationConfig->MinGain, source.SpatializationConfig->MaxGain);
 
-        //HZ_CORE_TRACE_TAG("Sound Spatializer", "Gain attenuation: {}", gainAttenuation);
+        //ZONG_CORE_TRACE_TAG("Sound Spatializer", "Gain attenuation: {}", gainAttenuation);
 
         glm::vec3 listenerVel(0.0f);
         if (listener)
@@ -436,7 +436,7 @@ namespace Hazel::Audio::DSP
 
     bool Spatializer::InitSource(uint32_t sourceID, ma_engine_node* nodeToInsertAfter, const Ref<SpatializationConfig>& config)
     {
-        HZ_CORE_ASSERT(m_Sources.find(sourceID) == m_Sources.end());
+        ZONG_CORE_ASSERT(m_Sources.find(sourceID) == m_Sources.end());
         
         //Source source;
         //source.sourceID = sourceID;
@@ -448,7 +448,7 @@ namespace Hazel::Audio::DSP
         {
             if (result != MA_SUCCESS)
             {
-                HZ_CORE_ASSERT(false && errorMessage);
+                ZONG_CORE_ASSERT(false && errorMessage);
                 ReleaseSource(sourceID);
                 return true;
             }
@@ -548,7 +548,7 @@ namespace Hazel::Audio::DSP
         if (sIt == m_Sources.end())
         {
 			//? Disabled the error massage to prevent the spam. Neen to not update position on audio objects with disabled spatializer.
-			//HZ_CORE_ERROR_TAG("Sound Spatializer", "Invalid sourceID {}.", sourceID);
+			//ZONG_CORE_ERROR_TAG("Sound Spatializer", "Invalid sourceID {}.", sourceID);
             return false;
         }
 
@@ -556,7 +556,7 @@ namespace Hazel::Audio::DSP
         {
             if (result != MA_SUCCESS)
             {
-                HZ_CORE_ASSERT(false && errorMessage);
+                ZONG_CORE_ASSERT(false && errorMessage);
                 Uninitialize();
                 return true;
             }
@@ -607,7 +607,7 @@ namespace Hazel::Audio::DSP
         {
             //? For now this is going to be firing for all of the entities with disabled spatialization.
             //? Disabled the error massage to prevent the spam. Neen to not update position on audio objects with disabled spatializer.
-            //HZ_CORE_ERROR_TAG("Sound Spatializer", "UpdateSourcePosition() Invalid sourceID {}.", sourceID);
+            //ZONG_CORE_ERROR_TAG("Sound Spatializer", "UpdateSourcePosition() Invalid sourceID {}.", sourceID);
             return;
         }
 
@@ -615,7 +615,7 @@ namespace Hazel::Audio::DSP
 
         if (!source.bInitialized)
         {
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             return;
         }
 
@@ -652,9 +652,9 @@ namespace Hazel::Audio::DSP
         // Angle of source relative to listener in XZ plane
         float azimuth = VectorAngle(glm::normalize(relativePos));
 
-        //HZ_CORE_INFO_TAG("Sound Spatializer", "Relative Pos: X {0} | Y {1} | Z {2}", relativePos.x, relativePos.y, relativePos.z);
+        //ZONG_CORE_INFO_TAG("Sound Spatializer", "Relative Pos: X {0} | Y {1} | Z {2}", relativePos.x, relativePos.y, relativePos.z);
 
-        //HZ_CORE_TRACE_TAG("Sound Spatializer", "Angle degrees: {}", glm::degrees(azimuth));
+        //ZONG_CORE_TRACE_TAG("Sound Spatializer", "Angle degrees: {}", glm::degrees(azimuth));
 
         source.Distance = distance;
         source.vbapAzimuth = azimuth;
@@ -713,7 +713,7 @@ namespace Hazel::Audio::DSP
             // Angle of source relative to listener in XZ plane
             float azimuth = VectorAngle(glm::normalize(relativePos));
 
-            //HZ_CORE_TRACE_TAG("Sound Spatializer", "Angle degrees: {}", glm::degrees(azimuth));
+            //ZONG_CORE_TRACE_TAG("Sound Spatializer", "Angle degrees: {}", glm::degrees(azimuth));
 
             source.Distance = distance;
             source.vbapAzimuth = azimuth;

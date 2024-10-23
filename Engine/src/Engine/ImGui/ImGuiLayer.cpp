@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ImGuiLayer.h"
 
 #include "Colors.h"
@@ -24,7 +24,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return hnew VulkanImGuiLayer();
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

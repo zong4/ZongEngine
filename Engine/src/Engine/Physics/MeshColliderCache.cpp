@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshColliderCache.h"
 #include "PhysicsSystem.h"
 
@@ -44,9 +44,9 @@ namespace Hazel {
 
 		// Create/load collision mesh
 	/*	auto[simpleMeshResult, complexMeshResult] = CookingFactory::CookMesh(colliderAsset->Handle);
-		HZ_CORE_ASSERT(m_MeshData.find(collisionMesh) != m_MeshData.end());*/
+		ZONG_CORE_ASSERT(m_MeshData.find(collisionMesh) != m_MeshData.end());*/
 		const auto& meshDataMap = m_MeshData.at(collisionMesh);
-		HZ_CORE_ASSERT(meshDataMap.find(colliderAsset->Handle) != meshDataMap.end());
+		ZONG_CORE_ASSERT(meshDataMap.find(colliderAsset->Handle) != meshDataMap.end());
 		return meshDataMap.at(colliderAsset->Handle);
 	}
 
@@ -106,11 +106,11 @@ namespace Hazel {
 
 	void MeshColliderCache::Rebuild()
 	{
-		/*HZ_CORE_INFO_TAG("Physics", "Rebuilding collider cache");
+		/*ZONG_CORE_INFO_TAG("Physics", "Rebuilding collider cache");
 
 		if (!FileSystem::DeleteFile(Utils::GetCacheDirectory()))
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to delete collider cache!");
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to delete collider cache!");
 			return;
 		}
 
@@ -127,10 +127,10 @@ namespace Hazel {
 			auto [simpleMeshResult, complexMeshResult] = CookingFactory::CookMesh(metadata.Handle, true);
 
 			if (simpleMeshResult != CookingResult::Success)
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook simple collider for '{0}'", metadata.Handle);
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook simple collider for '{0}'", metadata.Handle);
 
 			if (complexMeshResult != CookingResult::Success)
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook complex collider for '{0}'", metadata.Handle);
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook complex collider for '{0}'", metadata.Handle);
 		}
 
 		for (const auto& [handle, asset] : memoryAssets)
@@ -141,13 +141,13 @@ namespace Hazel {
 			auto[simpleMeshResult, complexMeshResult] = CookingFactory::CookMesh(handle, true);
 
 			if (simpleMeshResult != CookingResult::Success)
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook simple collider for '{0}'", handle);
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook simple collider for '{0}'", handle);
 
 			if (complexMeshResult != CookingResult::Success)
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook complex collider for '{0}'", handle);
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook complex collider for '{0}'", handle);
 		}
 	
-		HZ_CORE_INFO_TAG("Physics", "Finished rebuilding collider cache");*/
+		ZONG_CORE_INFO_TAG("Physics", "Finished rebuilding collider cache");*/
 	}
 
 	void MeshColliderCache::Clear()

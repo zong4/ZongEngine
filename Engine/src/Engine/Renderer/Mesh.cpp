@@ -1,4 +1,4 @@
-#include "hzpch.h" 
+#include "pch.h" 
 #include "Mesh.h"
 
 #include "Engine/Debug/Profiler.h"
@@ -22,11 +22,11 @@ namespace Hazel
 
 #define MESH_DEBUG_LOG 0
 #if MESH_DEBUG_LOG
-#define HZ_MESH_LOG(...) HZ_CORE_TRACE_TAG("Mesh", __VA_ARGS__)
-#define HZ_MESH_ERROR(...) HZ_CORE_ERROR_TAG("Mesh", __VA_ARGS__)
+#define ZONG_MESH_LOG(...) ZONG_CORE_TRACE_TAG("Mesh", __VA_ARGS__)
+#define ZONG_MESH_ERROR(...) ZONG_CORE_ERROR_TAG("Mesh", __VA_ARGS__)
 #else
-#define HZ_MESH_LOG(...)
-#define HZ_MESH_ERROR(...)
+#define ZONG_MESH_LOG(...)
+#define ZONG_MESH_ERROR(...)
 #endif
 
 	////////////////////////////////////////////////////////
@@ -76,21 +76,21 @@ namespace Hazel
 	void MeshSource::DumpVertexBuffer()
 	{
 		// TODO: Convert to ImGui
-		HZ_MESH_LOG("------------------------------------------------------");
-		HZ_MESH_LOG("Vertex Buffer Dump");
-		HZ_MESH_LOG("Mesh: {0}", m_FilePath);
+		ZONG_MESH_LOG("------------------------------------------------------");
+		ZONG_MESH_LOG("Vertex Buffer Dump");
+		ZONG_MESH_LOG("Mesh: {0}", m_FilePath);
 		for (size_t i = 0; i < m_Vertices.size(); i++)
 		{
 			auto& vertex = m_Vertices[i];
-			HZ_MESH_LOG("Vertex: {0}", i);
-			HZ_MESH_LOG("Position: {0}, {1}, {2}", vertex.Position.x, vertex.Position.y, vertex.Position.z);
-			HZ_MESH_LOG("Normal: {0}, {1}, {2}", vertex.Normal.x, vertex.Normal.y, vertex.Normal.z);
-			HZ_MESH_LOG("Binormal: {0}, {1}, {2}", vertex.Binormal.x, vertex.Binormal.y, vertex.Binormal.z);
-			HZ_MESH_LOG("Tangent: {0}, {1}, {2}", vertex.Tangent.x, vertex.Tangent.y, vertex.Tangent.z);
-			HZ_MESH_LOG("TexCoord: {0}, {1}", vertex.Texcoord.x, vertex.Texcoord.y);
-			HZ_MESH_LOG("--");
+			ZONG_MESH_LOG("Vertex: {0}", i);
+			ZONG_MESH_LOG("Position: {0}, {1}, {2}", vertex.Position.x, vertex.Position.y, vertex.Position.z);
+			ZONG_MESH_LOG("Normal: {0}, {1}, {2}", vertex.Normal.x, vertex.Normal.y, vertex.Normal.z);
+			ZONG_MESH_LOG("Binormal: {0}, {1}, {2}", vertex.Binormal.x, vertex.Binormal.y, vertex.Binormal.z);
+			ZONG_MESH_LOG("Tangent: {0}, {1}, {2}", vertex.Tangent.x, vertex.Tangent.y, vertex.Tangent.z);
+			ZONG_MESH_LOG("TexCoord: {0}, {1}", vertex.Texcoord.x, vertex.Texcoord.y);
+			ZONG_MESH_LOG("--");
 		}
-		HZ_MESH_LOG("------------------------------------------------------");
+		ZONG_MESH_LOG("------------------------------------------------------");
 	}
 
 
@@ -99,7 +99,7 @@ namespace Hazel
 	{
 		if (!m_Skeleton)
 		{
-			HZ_CORE_VERIFY(!m_Runtime);
+			ZONG_CORE_VERIFY(!m_Runtime);
 			auto path = Project::GetEditorAssetManager()->GetFileSystemPath(Handle);
 			AssimpMeshImporter importer(path);
 			return importer.IsCompatibleSkeleton(animationIndex, skeleton);
@@ -125,14 +125,14 @@ namespace Hazel
 			//    This means we need to wait until we know what the skeleton is before we can load the animations.
 			// 2) We don't have any way to pass the root motion parameters to the mesh source constructor
 
-			HZ_CORE_VERIFY(!m_Runtime);
+			ZONG_CORE_VERIFY(!m_Runtime);
 			auto path = Project::GetEditorAssetManager()->GetFileSystemPath(Handle);
 			AssimpMeshImporter importer(path);
 			importer.ImportAnimation(animationIndex, skeleton, isMaskedRootMotion, rootTranslationMask, rootRotationMask, m_Animations[animationIndex]);
 		}
 
-		HZ_CORE_ASSERT(animationIndex < m_Animations.size(), "Animation index out of range!");
-		HZ_CORE_ASSERT(m_Animations[animationIndex], "Attempted to access null animation!");
+		ZONG_CORE_ASSERT(animationIndex < m_Animations.size(), "Animation index out of range!");
+		ZONG_CORE_ASSERT(m_Animations[animationIndex], "Attempted to access null animation!");
 		if (animationIndex < m_Animations.size())
 		{
 			return m_Animations[animationIndex].get();

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Engine/Core/Thread.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32

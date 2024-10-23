@@ -20,13 +20,13 @@ namespace Hazel {
 
 		Layer* operator[](size_t index)
 		{
-			HZ_CORE_ASSERT(index >= 0 && index < m_Layers.size());
+			ZONG_CORE_ASSERT(index >= 0 && index < m_Layers.size());
 			return m_Layers[index];
 		}
 
 		const Layer* operator[](size_t index) const
 		{
-			HZ_CORE_ASSERT(index >= 0 && index < m_Layers.size());
+			ZONG_CORE_ASSERT(index >= 0 && index < m_Layers.size());
 			return m_Layers[index];
 		}
 

@@ -61,7 +61,7 @@ namespace Hazel {
 		{
 			if (weight < 0.0f || weight > 1.0f)
 			{
-				HZ_CORE_WARN("Vertex bone weight is out of range. We will clamp it to [0, 1] (BoneID={0}, Weight={1})", boneInfoIndex, weight);
+				ZONG_CORE_WARN("Vertex bone weight is out of range. We will clamp it to [0, 1] (BoneID={0}, Weight={1})", boneInfoIndex, weight);
 				weight = std::clamp(weight, 0.0f, 1.0f);
 			}
 			if (weight > 0.0f)
@@ -79,7 +79,7 @@ namespace Hazel {
 				// Note: when importing from assimp we are passing aiProcess_LimitBoneWeights which automatically keeps only the top N (where N defaults to 4)
 				//       bone weights (and normalizes the sum to 1), which is exactly what we want.
 				//       So, we should never get here.
-				HZ_CORE_WARN("Vertex has more than four bones affecting it, extra bone influences will be discarded (BoneID={0}, Weight={1})", boneInfoIndex, weight);
+				ZONG_CORE_WARN("Vertex has more than four bones affecting it, extra bone influences will be discarded (BoneID={0}, Weight={1})", boneInfoIndex, weight);
 			}
 		}
 
@@ -226,7 +226,7 @@ namespace Hazel {
 
 		bool HasSkeleton() const { return (bool)m_Skeleton; }
 		bool IsSubmeshRigged(uint32_t submeshIndex) const { return m_Submeshes[submeshIndex].IsRigged; }
-		const Skeleton& GetSkeleton() const { HZ_CORE_ASSERT(m_Skeleton, "Attempted to access null skeleton!"); return *m_Skeleton; }
+		const Skeleton& GetSkeleton() const { ZONG_CORE_ASSERT(m_Skeleton, "Attempted to access null skeleton!"); return *m_Skeleton; }
 		bool IsCompatibleSkeleton(const uint32_t animationIndex, const Skeleton& skeleton) const;
 
 		std::vector<std::string> GetAnimationNames() const;

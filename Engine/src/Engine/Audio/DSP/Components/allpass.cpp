@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 // Allpass filter implementation
 //
 // Written by Jezar at Dreampoint, June 2000

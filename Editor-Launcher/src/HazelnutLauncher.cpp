@@ -43,21 +43,21 @@ private:
 		std::filesystem::path hazelDir = Hazel::FileSystem::GetEnvironmentVariable("HAZEL_DIR");
 		Hazel::ProcessInfo hazelnutProcessInfo;
 
-#ifdef HZ_DEBUG
-	#define HZ_BINDIR_PREFIX "Debug"
+#ifdef ZONG_DEBUG
+	#define ZONG_BINDIR_PREFIX "Debug"
 #else
-	#define HZ_BINDIR_PREFIX "Release"
+	#define ZONG_BINDIR_PREFIX "Release"
 #endif
 
-#ifdef HZ_PLATFORM_WINDOWS
-	#define HZ_BINDIR_PLATFORM "windows"
-	#define HZ_BIN_SUFFIX ".exe"
-#elif defined(HZ_PLATFORM_LINUX)
-	#define HZ_BINDIR_PLATFORM "linux"
-	#define HZ_BIN_SUFFIX ""
+#ifdef ZONG_PLATFORM_WINDOWS
+	#define ZONG_BINDIR_PLATFORM "windows"
+	#define ZONG_BIN_SUFFIX ".exe"
+#elif defined(ZONG_PLATFORM_LINUX)
+	#define ZONG_BINDIR_PLATFORM "linux"
+	#define ZONG_BIN_SUFFIX ""
 #endif
 
-		hazelnutProcessInfo.FilePath = hazelDir / "bin" / HZ_BINDIR_PREFIX "-" HZ_BINDIR_PLATFORM "-x86_64" / "Editor" / "Editor" HZ_BIN_SUFFIX;
+		hazelnutProcessInfo.FilePath = hazelDir / "bin" / ZONG_BINDIR_PREFIX "-" ZONG_BINDIR_PLATFORM "-x86_64" / "Editor" / "Editor" ZONG_BIN_SUFFIX;
 
 		hazelnutProcessInfo.CommandLine = projectPath;
 		hazelnutProcessInfo.WorkingDirectory = hazelDir / "Editor";

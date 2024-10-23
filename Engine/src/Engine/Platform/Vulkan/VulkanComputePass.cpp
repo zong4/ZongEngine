@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanComputePass.h"
 
 #include "VulkanAPI.h"
@@ -17,7 +17,7 @@ namespace Hazel {
 	VulkanComputePass::VulkanComputePass(const ComputePassSpecification& spec)
 		: m_Specification(spec)
 	{
-		HZ_CORE_VERIFY(spec.Pipeline);
+		ZONG_CORE_VERIFY(spec.Pipeline);
 
 		DescriptorSetManagerSpecification dmSpec;
 		dmSpec.DebugName = spec.DebugName;
@@ -72,13 +72,13 @@ namespace Hazel {
 
 	Ref<Image2D> VulkanComputePass::GetOutput(uint32_t index)
 	{
-		HZ_CORE_VERIFY(false, "Not implemented");
+		ZONG_CORE_VERIFY(false, "Not implemented");
 		return nullptr;
 	}
 
 	Ref<Image2D> VulkanComputePass::GetDepthOutput()
 	{
-		HZ_CORE_VERIFY(false, "Not implemented");
+		ZONG_CORE_VERIFY(false, "Not implemented");
 		return nullptr;
 	}
 

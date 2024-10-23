@@ -13,7 +13,7 @@ namespace Hazel {
 		{
 			InitializeCore();
 			Application* app = CreateApplication(argc, argv);
-			HZ_CORE_ASSERT(app, "Client Application is null!");
+			ZONG_CORE_ASSERT(app, "Client Application is null!");
 			app->Run();
 			delete app;
 			ShutdownCore();
@@ -23,7 +23,7 @@ namespace Hazel {
 
 }
 
-#if HZ_DIST && HZ_PLATFORM_WINDOWS
+#if ZONG_DIST && ZONG_PLATFORM_WINDOWS
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {
@@ -37,4 +37,4 @@ int main(int argc, char** argv)
 	return Hazel::Main(argc, argv);
 }
 
-#endif // HZ_DIST
+#endif // ZONG_DIST

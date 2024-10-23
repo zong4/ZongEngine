@@ -24,7 +24,7 @@ project "Engine-Runtime"
 
 	filter "system:windows"
 		systemversion "latest"
-		defines { "HZ_PLATFORM_WINDOWS" }
+		defines { "ZONG_PLATFORM_WINDOWS" }
 
 	filter { "system:windows", "configurations:Debug" }
 		postbuildcommands {
@@ -53,7 +53,7 @@ project "Engine-Runtime"
 		}
 
 	filter "system:linux"
-		defines { "HZ_PLATFORM_LINUX", "__EMULATE_UUID" }
+		defines { "ZONG_PLATFORM_LINUX", "__EMULATE_UUID" }
 
 		links {
 			"pthread"
@@ -68,7 +68,7 @@ project "Engine-Runtime"
 
 	filter "configurations:Debug or configurations:Debug-AS"
 		symbols "On"
-		defines { "HZ_DEBUG", }
+		defines { "ZONG_DEBUG", }
 
 		ProcessDependencies("Debug")
 
@@ -80,13 +80,13 @@ project "Engine-Runtime"
 		optimize "On"
         vectorextensions "AVX2"
         isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_RELEASE", "HZ_TRACK_MEMORY", }
+		defines { "ZONG_RELEASE", "ZONG_TRACK_MEMORY", }
 
 		ProcessDependencies("Release")
 
 	filter "configurations:Debug or configurations:Release"
 		defines {
-			"HZ_TRACK_MEMORY",
+			"ZONG_TRACK_MEMORY",
 			
             "JPH_DEBUG_RENDERER",
             "JPH_FLOATING_POINT_EXCEPTIONS_ENABLED",
@@ -99,7 +99,7 @@ project "Engine-Runtime"
 		symbols "Off"
         vectorextensions "AVX2"
         isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_DIST" }
+		defines { "ZONG_DIST" }
 
 		ProcessDependencies("Dist")
 

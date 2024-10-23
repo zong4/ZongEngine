@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Base.h"
 
 #include "Log.h"
@@ -13,13 +13,13 @@ namespace Hazel {
 		Allocator::Init();
 		Log::Init();
 
-		HZ_CORE_TRACE_TAG("Core", "Hazel Engine {}", HAZEL_BUILD_ID);
-		HZ_CORE_TRACE_TAG("Core", "Initializing...");
+		ZONG_CORE_TRACE_TAG("Core", "Hazel Engine {}", HAZEL_BUILD_ID);
+		ZONG_CORE_TRACE_TAG("Core", "Initializing...");
 	}
 
 	void ShutdownCore()
 	{
-		HZ_CORE_TRACE_TAG("Core", "Shutting down...");
+		ZONG_CORE_TRACE_TAG("Core", "Shutting down...");
 		
 		Log::Shutdown();
 	}

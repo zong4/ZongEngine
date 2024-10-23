@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Sound.h"
 #include "AudioEngine.h"
 
@@ -13,7 +13,7 @@ namespace Hazel
     using EPlayState = ESoundPlayState;
 
 #if 0 // Enable logging of playback state changes
-    #define LOG_PLAYBACK(...) HZ_CORE_INFO(__VA_ARGS__)
+    #define LOG_PLAYBACK(...) ZONG_CORE_INFO(__VA_ARGS__)
 #else
     #define LOG_PLAYBACK(...)
 #endif
@@ -28,8 +28,8 @@ namespace Hazel
 
     bool Sound::InitializeDataSource(const Ref<SoundConfig>& config, MiniAudioEngine* audioEngine)
     {
-        HZ_CORE_ASSERT(!IsPlaying());
-        HZ_CORE_ASSERT(!bIsReadyToPlay);
+        ZONG_CORE_ASSERT(!IsPlaying());
+        ZONG_CORE_ASSERT(!bIsReadyToPlay);
         
         // Reset Finished flag so that we don't accidentally release this voice again while it's starting for the new source
         bFinished = false;
@@ -46,7 +46,7 @@ namespace Hazel
 		{
 			if (!audioEngine->GetResourceManager()->GetSoundBank()->Contains(config->DataSourceAsset))
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -56,7 +56,7 @@ namespace Hazel
 		{
 			if (AssetManager::GetAssetType(config->DataSourceAsset) != AssetType::Audio)
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return false;
 			}
 
@@ -124,27 +124,27 @@ namespace Hazel
                                         &m_Sound.engineNode.pEngine->pResourceManager->config.allocationCallbacks, 
                                         &m_MasterSplitter);
 
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Store the node the sound was connected to
         auto* oldOutput = currentHeaderNode->pOutputBuses[0].pInputNode;
 
         // Attach splitter node to the old output of the sound
         result = ma_node_attach_output_bus(&m_MasterSplitter, 0, oldOutput, 0);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Attach sound node to splitter node
         result = ma_node_attach_output_bus(currentHeaderNode, 0, &m_MasterSplitter, 0);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
         //result = ma_node_attach_output_bus(&m_MasterSplitter, 0, oldOutput, 0);
 
         // Set volume of the main pass-through output of the splitter to 1.0
         result = ma_node_set_output_bus_volume(&m_MasterSplitter, 0, 1.0f);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Mute the "FX send" output of the splitter
         result = ma_node_set_output_bus_volume(&m_MasterSplitter, 1, 0.0f);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         /* TODO: Refactore this to
             - InitializeFXSend()
@@ -195,7 +195,7 @@ namespace Hazel
             m_PlayState = EPlayState::Starting;
             break;
         case EPlayState::Starting:
-            HZ_CORE_ASSERT(false);
+            ZONG_CORE_ASSERT(false);
             break;
         case EPlayState::Playing:
             StopNow(false, true);
@@ -227,7 +227,7 @@ namespace Hazel
             break;
         }
         LOG_PLAYBACK("New state: " + StringFromState(m_PlayState));
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
         return result == MA_SUCCESS;
 
         // TODO: consider marking this sound for stop-fade and switching to new one to prevent click on restart
@@ -313,7 +313,7 @@ namespace Hazel
 
     bool Sound::StopFade(int milliseconds)
     {
-        HZ_CORE_ASSERT(milliseconds > 0);
+        ZONG_CORE_ASSERT(milliseconds > 0);
 
         const uint64_t fadeInFrames = (milliseconds * m_Sound.engineNode.fader.config.sampleRate) / 1000;
 
@@ -489,7 +489,7 @@ namespace Hazel
             // Mark this voice to be released.
             bFinished = true;
 
-            HZ_CORE_ASSERT(m_PlayState != EPlayState::Starting);
+            ZONG_CORE_ASSERT(m_PlayState != EPlayState::Starting);
             m_PlayState = EPlayState::Stopped;
         }
         m_Sound.engineNode.fader.volumeEnd = 1.0f;

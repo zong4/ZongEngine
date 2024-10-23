@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltBody.h"
 
 #include "JoltUtils.h"
@@ -61,7 +61,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		lock.GetBody().GetMotionProperties()->SetGravityFactor(isEnabled ? 1.0f : 0.0f);
 	}
 
@@ -71,7 +71,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		auto& body = lock.GetBody();
 
 		switch (forceMode)
@@ -112,7 +112,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		auto& body = lock.GetBody();
 
 		switch (forceMode)
@@ -159,14 +159,14 @@ namespace Hazel {
 	void JoltBody::ChangeTriggerState(bool isTrigger)
 	{
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		lock.GetBody().SetIsSensor(isTrigger);
 	}
 
 	bool JoltBody::IsTrigger() const
 	{
 		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		return lock.GetBody().IsSensor();
 	}
 
@@ -176,7 +176,7 @@ namespace Hazel {
 			return 0.0f;
 
 		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		const JPH::Body& body = lock.GetBody();
 		return 1.0f / body.GetMotionProperties()->GetInverseMass();
 	}
@@ -184,7 +184,7 @@ namespace Hazel {
 	void JoltBody::SetMass(float mass)
 	{
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 
 		JPH::Body& body = lock.GetBody();
 		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
@@ -196,7 +196,7 @@ namespace Hazel {
 	void JoltBody::SetLinearDrag(float inLinearDrag)
 	{
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		JPH::Body& body = lock.GetBody();
 		body.GetMotionProperties()->SetLinearDamping(inLinearDrag);
 	}
@@ -204,7 +204,7 @@ namespace Hazel {
 	void JoltBody::SetAngularDrag(float inAngularDrag)
 	{
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		JPH::Body& body = lock.GetBody();
 		body.GetMotionProperties()->SetAngularDamping(inAngularDrag);
 	}
@@ -239,7 +239,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		auto& body = lock.GetBody();
 		auto velocity = JoltUtils::ToJoltVector(inVelocity);
 		body.SetAngularVelocityClamped(velocity);
@@ -254,7 +254,7 @@ namespace Hazel {
 			return 0.0f;
 
 		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		return lock.GetBody().GetMotionProperties()->GetMaxLinearVelocity();
 	}
 
@@ -264,7 +264,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		lock.GetBody().GetMotionProperties()->SetMaxLinearVelocity(inMaxVelocity);
 	}
 
@@ -274,7 +274,7 @@ namespace Hazel {
 			return 0.0f;
 
 		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		return lock.GetBody().GetMotionProperties()->GetMaxAngularVelocity();
 	}
 
@@ -284,7 +284,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		lock.GetBody().GetMotionProperties()->SetMaxAngularVelocity(inMaxVelocity);
 	}
 
@@ -294,7 +294,7 @@ namespace Hazel {
 			return false;
 
 		JPH::BodyLockRead lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		return !lock.GetBody().IsActive();
 	}
 
@@ -326,7 +326,7 @@ namespace Hazel {
 			return;
 
 		JPH::BodyLockRead readLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(readLock.Succeeded());
+		ZONG_CORE_VERIFY(readLock.Succeeded());
 
 		const JPH::Body& bodyRead = readLock.GetBody();
 		
@@ -351,7 +351,7 @@ namespace Hazel {
 		glm::vec3 impulse = direction * impulseMagnitude;
 		
 		JPH::BodyLockWrite writeLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(writeLock.Succeeded());
+		ZONG_CORE_VERIFY(writeLock.Succeeded());
 		JPH::Body& bodyWrite = writeLock.GetBody();
 
 		if (velocityChange)
@@ -379,7 +379,7 @@ namespace Hazel {
 	void JoltBody::MoveKinematic(const glm::vec3& targetPosition, const glm::quat& targetRotation, float deltaSeconds)
 	{
 		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 
 		JPH::Body& body = bodyLock.GetBody();
 
@@ -392,7 +392,7 @@ namespace Hazel {
 	void JoltBody::SetTranslation(const glm::vec3& translation)
 	{
 		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 		JPH::Body& body = bodyLock.GetBody();
 
 		if (!body.IsStatic())
@@ -413,7 +413,7 @@ namespace Hazel {
 	void JoltBody::SetRotation(const glm::quat& rotation)
 	{
 		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 		JPH::Body& body = bodyLock.GetBody();
 
 		if (!body.IsStatic())
@@ -434,14 +434,14 @@ namespace Hazel {
 	void JoltBody::Rotate(const glm::vec3& inRotationTimesDeltaTime)
 	{
 		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 		bodyLock.GetBody().AddRotationStep(JoltUtils::ToJoltVector(inRotationTimesDeltaTime));
 	}
 
 	void JoltBody::OnAxisLockUpdated(bool forceWake)
 	{
 		JPH::BodyLockWrite bodyLock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 
 		if (m_AxisLockConstraint)
 		{
@@ -457,7 +457,7 @@ namespace Hazel {
 	void JoltBody::CreateStaticBody(JPH::BodyInterface& bodyInterface)
 	{
 		Ref<Scene> scene = Scene::GetScene(m_Entity.GetSceneUUID());
-		HZ_CORE_VERIFY(scene, "No scene active?");
+		ZONG_CORE_VERIFY(scene, "No scene active?");
 
 		const TransformComponent worldTransform = scene->GetWorldSpaceTransform(m_Entity);
 		const auto& rigidBodyComponent = m_Entity.GetComponent<RigidBodyComponent>();
@@ -488,7 +488,7 @@ namespace Hazel {
 
 		if (firstShape == nullptr)
 		{
-			HZ_CORE_INFO_TAG("Physics", "Failed to create static PhysicsBody, no collision shape provided!");
+			ZONG_CORE_INFO_TAG("Physics", "Failed to create static PhysicsBody, no collision shape provided!");
 			m_Shapes.clear();
 			return;
 		}
@@ -508,7 +508,7 @@ namespace Hazel {
 
 		if (body == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create PhysicsBody! This means we don't have enough space to store more RigidBodies!");
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create PhysicsBody! This means we don't have enough space to store more RigidBodies!");
 			return;
 		}
 
@@ -519,7 +519,7 @@ namespace Hazel {
 	void JoltBody::CreateDynamicBody(JPH::BodyInterface& bodyInterface)
 	{
 		Ref<Scene> scene = Scene::GetScene(m_Entity.GetSceneUUID());
-		HZ_CORE_VERIFY(scene, "No scene active?");
+		ZONG_CORE_VERIFY(scene, "No scene active?");
 
 		const TransformComponent worldTransform = scene->GetWorldSpaceTransform(m_Entity);
 		auto& rigidBodyComponent = m_Entity.GetComponent<RigidBodyComponent>();
@@ -550,7 +550,7 @@ namespace Hazel {
 
 		if (firstShape == nullptr)
 		{
-			HZ_CORE_INFO_TAG("Physics", "Failed to create dynamic PhysicsBody, no collision shape provided!");
+			ZONG_CORE_INFO_TAG("Physics", "Failed to create dynamic PhysicsBody, no collision shape provided!");
 			m_Shapes.clear();
 			return;
 		}
@@ -558,7 +558,7 @@ namespace Hazel {
 		if (!PhysicsLayerManager::IsLayerValid(rigidBodyComponent.LayerID))
 		{
 			rigidBodyComponent.LayerID = 0; // Use the default layer
-			HZ_CONSOLE_LOG_WARN("Entity '{}' has a RigidBodyComponent with an invalid layer set! Using the Default layer.", m_Entity.Name());
+			ZONG_CONSOLE_LOG_WARN("Entity '{}' has a RigidBodyComponent with an invalid layer set! Using the Default layer.", m_Entity.Name());
 		}
 
 		JPH::BodyCreationSettings bodySettings(
@@ -582,7 +582,7 @@ namespace Hazel {
 		JPH::Body* body = bodyInterface.CreateBody(bodySettings);
 		if (body == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create PhysicsBody! This means we don't have enough space to store more RigidBodies!");
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create PhysicsBody! This means we don't have enough space to store more RigidBodies!");
 			return;
 		}
 
@@ -625,7 +625,7 @@ namespace Hazel {
 	void JoltBody::Release()
 	{
 		JPH::BodyLockWrite lock(JoltScene::GetBodyLockInterface(), m_BodyID);
-		HZ_CORE_VERIFY(lock.Succeeded());
+		ZONG_CORE_VERIFY(lock.Succeeded());
 		auto& body = lock.GetBody();
 
 		if (m_AxisLockConstraint != nullptr)

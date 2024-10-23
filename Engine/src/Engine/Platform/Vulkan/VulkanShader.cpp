@@ -1,7 +1,7 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanShader.h"
 
-#if HZ_HAS_SHADER_COMPILER
+#if ZONG_HAS_SHADER_COMPILER
 #include "ShaderCompiler/VulkanShaderCompiler.h"
 #endif
 
@@ -65,10 +65,10 @@ namespace Hazel {
 
 	void VulkanShader::RT_Reload(const bool forceCompile)
 	{
-#if HZ_HAS_SHADER_COMPILER 
+#if ZONG_HAS_SHADER_COMPILER 
 		if (!VulkanShaderCompiler::TryRecompile(this))
 		{
-			HZ_CORE_FATAL("Failed to recompile shader!");
+			ZONG_CORE_FATAL("Failed to recompile shader!");
 		}
 #endif
 	}
@@ -95,7 +95,7 @@ namespace Hazel {
 		std::string moduleName;
 		for (auto [stage, data] : shaderData)
 		{
-			HZ_CORE_ASSERT(data.size());
+			ZONG_CORE_ASSERT(data.size());
 			VkShaderModuleCreateInfo moduleCreateInfo{};
 
 			moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -209,7 +209,7 @@ namespace Hazel {
 				layoutBinding.stageFlags = storageBuffer.ShaderStage;
 				layoutBinding.pImmutableSamplers = nullptr;
 				layoutBinding.binding = binding;
-				HZ_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
 
 				VkWriteDescriptorSet& writeDescriptorSet = shaderDescriptorSet.WriteDescriptorSets[storageBuffer.Name];
 				writeDescriptorSet = {};
@@ -228,8 +228,8 @@ namespace Hazel {
 				layoutBinding.pImmutableSamplers = nullptr;
 				layoutBinding.binding = binding;
 
-				HZ_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
 
 				VkWriteDescriptorSet& writeDescriptorSet = shaderDescriptorSet.WriteDescriptorSets[imageSampler.Name];
 				writeDescriptorSet = {};
@@ -248,9 +248,9 @@ namespace Hazel {
 				layoutBinding.pImmutableSamplers = nullptr;
 				layoutBinding.binding = binding;
 
-				HZ_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
 
 				VkWriteDescriptorSet& writeDescriptorSet = shaderDescriptorSet.WriteDescriptorSets[imageSampler.Name];
 				writeDescriptorSet = {};
@@ -269,10 +269,10 @@ namespace Hazel {
 				layoutBinding.pImmutableSamplers = nullptr;
 				layoutBinding.binding = binding;
 
-				HZ_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.SeparateTextures.find(binding) == shaderDescriptorSet.SeparateTextures.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.SeparateTextures.find(binding) == shaderDescriptorSet.SeparateTextures.end(), "Binding is already present!");
 
 				VkWriteDescriptorSet& writeDescriptorSet = shaderDescriptorSet.WriteDescriptorSets[imageSampler.Name];
 				writeDescriptorSet = {};
@@ -294,11 +294,11 @@ namespace Hazel {
 				//uint32_t descriptorSet = (bindingAndSet >> 32);
 				layoutBinding.binding = binding;
 
-				HZ_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.SeparateTextures.find(binding) == shaderDescriptorSet.SeparateTextures.end(), "Binding is already present!");
-				HZ_CORE_ASSERT(shaderDescriptorSet.SeparateSamplers.find(binding) == shaderDescriptorSet.SeparateSamplers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.UniformBuffers.find(binding) == shaderDescriptorSet.UniformBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.StorageBuffers.find(binding) == shaderDescriptorSet.StorageBuffers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.ImageSamplers.find(binding) == shaderDescriptorSet.ImageSamplers.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.SeparateTextures.find(binding) == shaderDescriptorSet.SeparateTextures.end(), "Binding is already present!");
+				ZONG_CORE_ASSERT(shaderDescriptorSet.SeparateSamplers.find(binding) == shaderDescriptorSet.SeparateSamplers.end(), "Binding is already present!");
 
 				VkWriteDescriptorSet& writeDescriptorSet = shaderDescriptorSet.WriteDescriptorSets[imageSampler.Name];
 				writeDescriptorSet = {};
@@ -314,7 +314,7 @@ namespace Hazel {
 			descriptorLayout.bindingCount = (uint32_t)(layoutBindings.size());
 			descriptorLayout.pBindings = layoutBindings.data();
 
-			HZ_CORE_INFO_TAG("Renderer", "Creating descriptor set {0} with {1} ubo's, {2} ssbo's, {3} samplers, {4} separate textures, {5} separate samplers and {6} storage images", set,
+			ZONG_CORE_INFO_TAG("Renderer", "Creating descriptor set {0} with {1} ubo's, {2} ssbo's, {3} samplers, {4} separate textures, {5} separate samplers and {6} storage images", set,
 				shaderDescriptorSet.UniformBuffers.size(),
 				shaderDescriptorSet.StorageBuffers.size(),
 				shaderDescriptorSet.ImageSamplers.size(),
@@ -329,7 +329,7 @@ namespace Hazel {
 
 	VulkanShader::ShaderMaterialDescriptorSet VulkanShader::AllocateDescriptorSet(uint32_t set)
 	{
-		HZ_CORE_ASSERT(set < m_DescriptorSetLayouts.size());
+		ZONG_CORE_ASSERT(set < m_DescriptorSetLayouts.size());
 		ShaderMaterialDescriptorSet result;
 
 		if (m_ReflectionData.ShaderDescriptorSets.empty())
@@ -343,7 +343,7 @@ namespace Hazel {
 		allocInfo.descriptorSetCount = 1;
 		allocInfo.pSetLayouts = &m_DescriptorSetLayouts[set];
 		VkDescriptorSet descriptorSet = VulkanRenderer::RT_AllocateDescriptorSet(allocInfo);
-		HZ_CORE_ASSERT(descriptorSet);
+		ZONG_CORE_ASSERT(descriptorSet);
 		result.DescriptorSets.push_back(descriptorSet);
 		return result;
 	}
@@ -354,7 +354,7 @@ namespace Hazel {
 
 		VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 
-		HZ_CORE_ASSERT(m_TypeCounts.find(set) != m_TypeCounts.end());
+		ZONG_CORE_ASSERT(m_TypeCounts.find(set) != m_TypeCounts.end());
 
 		// TODO: Move this to the centralized renderer
 		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
@@ -441,7 +441,7 @@ namespace Hazel {
 
 		}
 
-		HZ_CORE_ASSERT(poolSizes.find(set) != poolSizes.end());
+		ZONG_CORE_ASSERT(poolSizes.find(set) != poolSizes.end());
 
 		// TODO: Move this to the centralized renderer
 		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
@@ -470,11 +470,11 @@ namespace Hazel {
 
 	const VkWriteDescriptorSet* VulkanShader::GetDescriptorSet(const std::string& name, uint32_t set) const
 	{
-		HZ_CORE_ASSERT(set < m_ReflectionData.ShaderDescriptorSets.size());
-		HZ_CORE_ASSERT(m_ReflectionData.ShaderDescriptorSets[set]);
+		ZONG_CORE_ASSERT(set < m_ReflectionData.ShaderDescriptorSets.size());
+		ZONG_CORE_ASSERT(m_ReflectionData.ShaderDescriptorSets[set]);
 		if (m_ReflectionData.ShaderDescriptorSets.at(set).WriteDescriptorSets.find(name) == m_ReflectionData.ShaderDescriptorSets.at(set).WriteDescriptorSets.end())
 		{
-			HZ_CORE_WARN_TAG("Renderer", "Shader {0} does not contain requested descriptor set {1}", m_Name, name);
+			ZONG_CORE_WARN_TAG("Renderer", "Shader {0} does not contain requested descriptor set {1}", m_Name, name);
 			return nullptr;
 		}
 		return &m_ReflectionData.ShaderDescriptorSets.at(set).WriteDescriptorSets.at(name);

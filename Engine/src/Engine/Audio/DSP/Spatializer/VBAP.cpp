@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "VBAP.h"
 
 #include "Engine/Audio/Audio.h"
@@ -93,7 +93,7 @@ namespace Hazel::Audio::DSP
         uint32_t gainSmoothTimeInFrames = 360; // ~7ms with 48kHz sampling rate
         ma_gainer_config gainerConfig = ma_gainer_config_init(numberOfOutputChannels, gainSmoothTimeInFrames);
         result = ma_gainer_init(&gainerConfig, NULL, &Gainer);
-        HZ_CORE_ASSERT(result == MA_SUCCESS);
+        ZONG_CORE_ASSERT(result == MA_SUCCESS);
 
         // Setting gains to 0.0 to prevent loud volume jump in case initial position was not set.
         // Technically not necessary because we don't start the node until the initial position has been set.
@@ -129,7 +129,7 @@ namespace Hazel::Audio::DSP
 
     bool VBAP::InitVBAP(VBAPData* vbap, const uint32_t numOfInputs, const uint32_t numOfOutputs, const ma_channel* sourceChannelMap, const ma_channel* outPutChannelMap)
     {
-        HZ_CORE_ASSERT(numOfInputs > 0 && numOfOutputs > 0);
+        ZONG_CORE_ASSERT(numOfInputs > 0 && numOfOutputs > 0);
 
         ClearVBAP(vbap);
 
@@ -145,7 +145,7 @@ namespace Hazel::Audio::DSP
 
             const float angle = VectorAngle(vector);
             angles[i] = angle;
-            //HZ_CORE_TRACE("Angle degrees: {}", glm::degrees(angle));
+            //ZONG_CORE_TRACE("Angle degrees: {}", glm::degrees(angle));
 
             vbap->spPos[i] = glm::vec2{ vector.x, vector.z };
         }
@@ -159,7 +159,7 @@ namespace Hazel::Audio::DSP
             auto& [p, idx] = vbap->spPosSorted.at(i);
             auto& [p2, idx2] = vbap->spPosSorted.at((i + 1) % vbap->spPosSorted.size());
 
-            //HZ_CORE_TRACE("Sorted degrees: {}", glm::degrees(VectorAngle({ p.x, 0.0f, p.y })));
+            //ZONG_CORE_TRACE("Sorted degrees: {}", glm::degrees(VectorAngle({ p.x, 0.0f, p.y })));
 
             const glm::mat2 L(glm::vec2(p.x, p.y), glm::vec2(p2.x, p2.y));
             vbap->InverseMats.push_back(glm::inverse(L));
@@ -221,8 +221,8 @@ namespace Hazel::Audio::DSP
             //? DBG. Input channel angle
             /*const auto an = g_maChannelDirections[m_SurrChannelMap[i]];
               const float originalAngle = glm::degrees(VectorAngle(g_maChannelDirections[m_SurrChannelMap[id]]));
-              HZ_CORE_TRACE("-----------------------------");
-              HZ_CORE_TRACE("Channel GRP ID {0}, angle: {1}, original angle {2}", id, channelAngle, originalAngle);*/
+              ZONG_CORE_TRACE("-----------------------------");
+              ZONG_CORE_TRACE("Channel GRP ID {0}, angle: {1}, original angle {2}", id, channelAngle, originalAngle);*/
 
             for (uint32_t vi = 0; vi < vsPerChannel; vi++)
             {
@@ -244,9 +244,9 @@ namespace Hazel::Audio::DSP
 
                 //? DBG. Virtual Source angle
                 /*if (channelAngle < 0.0f)
-                        HZ_CORE_TRACE("Left Channel VS: channelAngle {0}, vsAngle {1}", channelAngle, sa);
+                        ZONG_CORE_TRACE("Left Channel VS: channelAngle {0}, vsAngle {1}", channelAngle, sa);
                     else
-                        HZ_CORE_TRACE("Right Channel VS: channelAngle {0}, vsAngle {1}", channelAngle, sa);*/
+                        ZONG_CORE_TRACE("Right Channel VS: channelAngle {0}, vsAngle {1}", channelAngle, sa);*/
 
             }
 
@@ -258,7 +258,7 @@ namespace Hazel::Audio::DSP
 
     void VBAP::ClearVBAP(VBAPData* vbap)
     {
-        HZ_CORE_ASSERT(vbap != nullptr);
+        ZONG_CORE_ASSERT(vbap != nullptr);
         *vbap = VBAPData();
 
         //vbap.spPos.clear();
@@ -270,7 +270,7 @@ namespace Hazel::Audio::DSP
 
     void VBAP::UpdateVBAP(VBAPData* vbap, const PositionUpdateData& positionData, const ma_channel_converter& converter, bool isInitialPosition /*= false*/)
     {
-        HZ_CORE_ASSERT(!vbap->VirtualSources.empty());
+        ZONG_CORE_ASSERT(!vbap->VirtualSources.empty());
 
         const float panAngle = positionData.PanAngle;
         const float spread = positionData.Spread;
@@ -410,7 +410,7 @@ namespace Hazel::Audio::DSP
         }
         else
         {
-            //HZ_CONSOLE_LOG_ERROR("Faild to find Active Arch.");
+            //ZONG_CONSOLE_LOG_ERROR("Faild to find Active Arch.");
         }
     }
 

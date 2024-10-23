@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "NodeGraphEditor.h"
 
 #include "NodeEditorModel.h"
@@ -171,7 +171,7 @@ namespace Hazel
 
 	bool NodeEditorDraw::PropertyEnum(int enumValue, Pin* pin, bool& openEnumPopup, std::function<choc::value::Value(int selected)> constructValue)
 	{
-		HZ_CORE_VERIFY(pin);
+		ZONG_CORE_VERIFY(pin);
 
 		bool modified = false;
 
@@ -180,7 +180,7 @@ namespace Hazel
 		std::optional<const std::vector<Token>*> optTokens = pin->EnumTokens;
 		if (optTokens.has_value() && optTokens.value() != nullptr)
 		{
-			HZ_CORE_ASSERT(pinValue >= 0);
+			ZONG_CORE_ASSERT(pinValue >= 0);
 			UI::ScopedColour bg(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_FrameBg));
 
 			const auto& tokens = *optTokens.value();
@@ -521,7 +521,7 @@ namespace Hazel
 			case EPinType::Enum:    modified = NodeEditorDraw::PropertyEnum(pin->Value.get<int>(), pin, context.OpenEnumPopup,
 				[](int selected) {return choc::value::createInt32(selected);}); break;
 			default:
-				HZ_CORE_ASSERT(false, "Unhandled pin type")
+				ZONG_CORE_ASSERT(false, "Unhandled pin type")
 				break;
 		}
 
@@ -726,7 +726,7 @@ namespace Hazel
 						if (auto* startPin = GetModel()->FindPin(m_State->NewNodeLinkPinId))
 						{
 							auto& pins = startPin->Kind == PinKind::Input ? node->Outputs : node->Inputs;
-							HZ_CORE_ASSERT(!pins.empty());
+							ZONG_CORE_ASSERT(!pins.empty());
 							for (auto& pin : pins)
 							{
 								if (GetModel()->CanCreateLink(startPin, pin))
@@ -1228,7 +1228,7 @@ namespace Hazel
 
 	void NodeGraphEditorBase::DrawNode(Node* node, NodeBuilder& builder, PinPropertyContext& pinContext)
 	{
-		HZ_CORE_ASSERT(node->Type != NodeType::Comment);
+		ZONG_CORE_ASSERT(node->Type != NodeType::Comment);
 		builder.Begin(ed::NodeId(node->ID));
 
 		if (node->Type != NodeType::Simple)
@@ -1248,7 +1248,7 @@ namespace Hazel
 
 	void NodeGraphEditorBase::DrawCommentNode(Node* node)
 	{
-		HZ_CORE_ASSERT(node->Type == NodeType::Comment);
+		ZONG_CORE_ASSERT(node->Type == NodeType::Comment);
 
 		const float commentAlpha = 0.75f;
 
@@ -1492,7 +1492,7 @@ namespace Hazel
 				if (auto pin = GetModel()->FindPin(s_SelectedEnumContext.PinID))
 				{
 					bool changed = false;
-					HZ_CORE_ASSERT(pin->EnumTokens.has_value() && pin->EnumTokens.value() != nullptr);
+					ZONG_CORE_ASSERT(pin->EnumTokens.has_value() && pin->EnumTokens.value() != nullptr);
 					const auto& tokens = **pin->EnumTokens;
 
 					ImGui::SetNextWindowSize({ GetBestWidthForEnumCombo(tokens), 0.0f });
@@ -2175,7 +2175,7 @@ namespace Hazel
 			}
 			if (selected == -1)
 			{
-				HZ_CORE_ERROR("Invalid type of Graph Input!");
+				ZONG_CORE_ERROR("Invalid type of Graph Input!");
 				selected = 0;
 			}
 
@@ -2315,7 +2315,7 @@ namespace Hazel
 				else if (Utils::IsAssetHandle<AssetType::Skeleton>(valueView))  changed = EditAssetField<SkeletonAsset, AssetType::Skeleton>(id, valueView, changed);
 				else
 				{
-					HZ_CORE_ERROR("Invalid type of Graph Input!");
+					ZONG_CORE_ERROR("Invalid type of Graph Input!");
 				}
 
 				ImGui::PopItemWidth();
@@ -2536,7 +2536,7 @@ namespace Hazel
 		//	if (ImGui::SmallButton("Add Output"))
 		//	{
 		//		// TODO: add output
-		//		HZ_CORE_WARN("Add Output to Graph not implemented.");
+		//		ZONG_CORE_WARN("Add Output to Graph not implemented.");
 		//	}
 		//};
 		//

@@ -173,7 +173,7 @@ namespace Hazel {
 				return RenderPassInputType::StorageBuffer;
 		}
 
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 		return RenderPassInputType::None;
 	}
 

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "UniformBuffer.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -17,7 +17,7 @@ namespace Hazel {
 			case RendererAPIType::Vulkan:  return Ref<VulkanUniformBuffer>::Create(size);
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 

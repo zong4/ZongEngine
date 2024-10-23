@@ -25,7 +25,7 @@ namespace Hazel {
 		};
 	public:
 		RenderThread(ThreadingPolicy coreThreadingPolicy);
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		~RenderThread();
 #endif
 

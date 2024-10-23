@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanFramebuffer.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -85,7 +85,7 @@ namespace Hazel {
 			}
 		}
 
-		HZ_CORE_ASSERT(specification.Attachments.Attachments.size());
+		ZONG_CORE_ASSERT(specification.Attachments.Attachments.size());
 		Resize(m_Width, m_Height, true);
 	}
 
@@ -176,7 +176,7 @@ namespace Hazel {
 
 	void VulkanFramebuffer::RT_Invalidate()
 	{
-		// HZ_CORE_TRACE("VulkanFramebuffer::RT_Invalidate ({})", m_Specification.DebugName);
+		// ZONG_CORE_TRACE("VulkanFramebuffer::RT_Invalidate ({})", m_Specification.DebugName);
 
 		auto device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 
@@ -213,7 +213,7 @@ namespace Hazel {
 				else if (m_Specification.ExistingImages.find(attachmentIndex) != m_Specification.ExistingImages.end())
 				{
 					Ref<Image2D> existingImage = m_Specification.ExistingImages.at(attachmentIndex);
-					HZ_CORE_ASSERT(Utils::IsDepthFormat(existingImage->GetSpecification().Format), "Trying to attach non-depth image as depth attachment");
+					ZONG_CORE_ASSERT(Utils::IsDepthFormat(existingImage->GetSpecification().Format), "Trying to attach non-depth image as depth attachment");
 					m_DepthAttachmentImage = existingImage;
 				}
 				else
@@ -250,7 +250,7 @@ namespace Hazel {
 			}
 			else
 			{
-				//HZ_CORE_ASSERT(!m_Specification.ExistingImage, "Not supported for color attachments");
+				//ZONG_CORE_ASSERT(!m_Specification.ExistingImage, "Not supported for color attachments");
 
 				Ref<VulkanImage2D> colorAttachment;
 				if (m_Specification.ExistingFramebuffer)
@@ -262,7 +262,7 @@ namespace Hazel {
 				else if (m_Specification.ExistingImages.find(attachmentIndex) != m_Specification.ExistingImages.end())
 				{
 					Ref<Image2D> existingImage = m_Specification.ExistingImages[attachmentIndex];
-					HZ_CORE_ASSERT(!Utils::IsDepthFormat(existingImage->GetSpecification().Format), "Trying to attach depth image as color attachment");
+					ZONG_CORE_ASSERT(!Utils::IsDepthFormat(existingImage->GetSpecification().Format), "Trying to attach depth image as color attachment");
 					colorAttachment = existingImage.As<VulkanImage2D>();
 					m_AttachmentImages[attachmentIndex] = existingImage;
 				}
@@ -277,7 +277,7 @@ namespace Hazel {
 						spec.Width = (uint32_t)(m_Width * m_Specification.Scale);
 						spec.Height = (uint32_t)(m_Height * m_Specification.Scale);
 						colorAttachment = m_AttachmentImages.emplace_back(Image2D::Create(spec)).As<VulkanImage2D>();
-						HZ_CORE_VERIFY(false);
+						ZONG_CORE_VERIFY(false);
 
 					}
 					else
@@ -402,7 +402,7 @@ namespace Hazel {
 				attachments[i] = image->GetLayerImageView(m_Specification.ExistingImageLayers[i]);
 			else
 				attachments[i] = image->GetImageInfo().ImageView;
-			HZ_CORE_ASSERT(attachments[i]);
+			ZONG_CORE_ASSERT(attachments[i]);
 		}
 
 		if (m_DepthAttachmentImage)
@@ -410,13 +410,13 @@ namespace Hazel {
 			Ref<VulkanImage2D> image = m_DepthAttachmentImage.As<VulkanImage2D>();
 			if (m_Specification.ExistingImage && image->GetSpecification().Layers > 1)
 			{
-				HZ_CORE_ASSERT(m_Specification.ExistingImageLayers.size() == 1, "Depth attachments do not support deinterleaving");
+				ZONG_CORE_ASSERT(m_Specification.ExistingImageLayers.size() == 1, "Depth attachments do not support deinterleaving");
 				attachments.emplace_back(image->GetLayerImageView(m_Specification.ExistingImageLayers[0]));
 			}
 			else
 				attachments.emplace_back(image->GetImageInfo().ImageView);
 
-			HZ_CORE_ASSERT(attachments.back());
+			ZONG_CORE_ASSERT(attachments.back());
 		}
 
 		VkFramebufferCreateInfo framebufferCreateInfo = {};

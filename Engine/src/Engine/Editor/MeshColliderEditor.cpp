@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshColliderEditor.h"
 #include "Engine/Asset/AssetImporter.h"
 #include "Engine/Renderer/Renderer.h"
@@ -125,7 +125,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::OnImGuiRender()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_OpenTabs.empty() || !m_WindowOpen)
 			return;
@@ -254,7 +254,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::RenderTab(const std::shared_ptr<MeshColliderTabData>& tabData)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		const std::string dockspaceName = fmt::format("##{}-DockSpace", tabData->Name);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -315,7 +315,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::RenderViewportPanel(const std::shared_ptr<MeshColliderTabData>& tabData)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		UI::ScopedStyle windowPadding(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin(tabData->ViewportPanelName.c_str(), nullptr, ImGuiWindowFlags_NoCollapse);
 
@@ -372,7 +372,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::RenderSettingsPanel(const std::shared_ptr<MeshColliderTabData>& tabData)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		const auto& meshMetadata = Project::GetEditorAssetManager()->GetMetadata(tabData->ColliderAsset->ColliderMesh);
 		const bool hasValidMesh = meshMetadata.IsValid() && (meshMetadata.Type == AssetType::Mesh || meshMetadata.Type == AssetType::StaticMesh);
 
@@ -511,7 +511,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::UpdatePreviewEntity(const std::shared_ptr<MeshColliderTabData>& tabData)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		const auto& colliderMetadata = Project::GetEditorAssetManager()->GetMetadata(tabData->ColliderAsset->ColliderMesh);
 
 		if (!colliderMetadata.IsValid())
@@ -583,7 +583,7 @@ namespace Hazel {
 
 	void MeshColliderEditor::RenderCookingOutput()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		if (m_IsCookingResultsOpen && !ImGui::IsPopupOpen("Mesh Collider Cooking Output"))
 		{
 			ImGui::OpenPopup("Mesh Collider Cooking Output");

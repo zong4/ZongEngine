@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptProfiler.h"
 #include "ScriptEngine.h"
 #include "ScriptCache.h"
@@ -13,7 +13,7 @@
 
 namespace Hazel {
 
-#define HZ_IGNORE_EXTERNAL_ALLOCATIONS
+#define ZONG_IGNORE_EXTERNAL_ALLOCATIONS
 
 	struct ProfilerState
 	{
@@ -25,7 +25,7 @@ namespace Hazel {
 	static ProfilerState* s_ProfilerState = nullptr;
 	void ScriptProfiler::Init()
 	{
-		HZ_CORE_ASSERT(!s_ProfilerState, "Trying to initialize Script Profiler multiple times!");
+		ZONG_CORE_ASSERT(!s_ProfilerState, "Trying to initialize Script Profiler multiple times!");
 		s_ProfilerState = hnew ProfilerState();
 		s_ProfilerState->ProfilerHandle = mono_profiler_create(NULL);
 
@@ -82,7 +82,7 @@ namespace Hazel {
 		if (s_ProfilerState->ReloadingDomain)
 			return;
 
-#ifdef HZ_IGNORE_EXTERNAL_ALLOCATIONS
+#ifdef ZONG_IGNORE_EXTERNAL_ALLOCATIONS
 
 		if (mono_object_get_domain(obj) != ScriptEngine::GetScriptDomain())
 			return;

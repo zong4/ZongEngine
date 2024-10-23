@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltCaptureManager.h"
 #include "JoltScene.h"
 
@@ -8,10 +8,10 @@
 
 namespace Hazel {
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 	void JoltCaptureOutStream::Open(const std::filesystem::path& inPath)
 	{
-		HZ_CORE_VERIFY(!m_Stream.is_open());
+		ZONG_CORE_VERIFY(!m_Stream.is_open());
 		m_Stream.open(inPath, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
 	}
 
@@ -35,7 +35,7 @@ namespace Hazel {
 	{
 	}
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 
 	void JoltCaptureManager::BeginCapture()
 	{

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MaterialAsset.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -210,7 +210,7 @@ namespace Hazel {
 
 	void MaterialTable::ClearMaterial(uint32_t index)
 	{
-		HZ_CORE_ASSERT(HasMaterial(index));
+		ZONG_CORE_ASSERT(HasMaterial(index));
 		m_Materials.erase(index);
 		if (index >= m_MaterialCount)
 			m_MaterialCount = index + 1;

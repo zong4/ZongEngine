@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanShaderCompiler.h"
 
 #include "Engine/Utilities/StringUtils.h"
@@ -24,7 +24,7 @@
 
 #include <cstdlib>
 
-#if defined(HZ_PLATFORM_LINUX)
+#if defined(ZONG_PLATFORM_LINUX)
 #include <spawn.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -73,7 +73,7 @@ namespace Hazel {
 					if (type.vecsize == 4)            return ShaderUniformType::Vec4;
 					break;
 			}
-			HZ_CORE_ASSERT(false, "Unknown type!");
+			ZONG_CORE_ASSERT(false, "Unknown type!");
 			return ShaderUniformType::None;
 		}
 	}
@@ -93,16 +93,16 @@ namespace Hazel {
 
 		Utils::CreateCacheDirectoryIfNeeded();
 		const std::string source = Utils::ReadFileAndSkipBOM(m_ShaderSourcePath);
-		HZ_CORE_VERIFY(source.size(), "Failed to load shader!");
+		ZONG_CORE_VERIFY(source.size(), "Failed to load shader!");
 
-		HZ_CORE_TRACE_TAG("Renderer", "Compiling shader: {}", m_ShaderSourcePath.string());
+		ZONG_CORE_TRACE_TAG("Renderer", "Compiling shader: {}", m_ShaderSourcePath.string());
 		m_ShaderSource = PreProcess(source);
 		const VkShaderStageFlagBits changedStages = VulkanShaderCache::HasChanged(this);
 
 		bool compileSucceeded = CompileOrGetVulkanBinaries(m_SPIRVDebugData, m_SPIRVData, changedStages, forceCompile);
 		if (!compileSucceeded)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -131,7 +131,7 @@ namespace Hazel {
 			case ShaderUtils::SourceLang::HLSL: return PreProcessHLSL(source);
 		}
 
-		HZ_CORE_VERIFY(false);
+		ZONG_CORE_VERIFY(false);
 		return {};
 	}
 
@@ -160,7 +160,7 @@ namespace Hazel {
 			options.SetIncluder(std::unique_ptr<GlslIncluder>(includer));
 			const auto preProcessingResult = compiler.PreprocessGlsl(shaderSource, ShaderUtils::ShaderStageToShaderC(stage), m_ShaderSourcePath.string().c_str(), options);
 			if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
-				HZ_CORE_ERROR_TAG("Renderer", fmt::format("Failed to pre-process \"{}\"'s {} shader.\nError: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage), preProcessingResult.GetErrorMessage()));
+				ZONG_CORE_ERROR_TAG("Renderer", fmt::format("Failed to pre-process \"{}\"'s {} shader.\nError: {}", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage), preProcessingResult.GetErrorMessage()));
 
 			m_StagesMetadata[stage].HashValue = Hash::GenerateFNVHash(shaderSource);
 			m_StagesMetadata[stage].Headers = std::move(includer->GetIncludeData());
@@ -176,7 +176,7 @@ namespace Hazel {
 	{
 		std::map<VkShaderStageFlagBits, std::string> shaderSources = ShaderPreprocessor::PreprocessShader<ShaderUtils::SourceLang::HLSL>(source, m_AcknowledgedMacros);
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		std::wstring buffer = m_ShaderSourcePath.wstring();
 #else
 		std::wstring buffer;
@@ -209,7 +209,7 @@ namespace Hazel {
 
 		if (!DxcInstances::Compiler)
 		{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 			DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&DxcInstances::Compiler));
 			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&DxcInstances::Utils));
 #endif
@@ -217,7 +217,7 @@ namespace Hazel {
 
 		for (auto& [stage, shaderSource] : shaderSources)
 		{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 			IDxcBlobEncoding* pSource;
 			DxcInstances::Utils->CreateBlob(shaderSource.c_str(), (uint32_t)shaderSource.size(), CP_UTF8, &pSource);
 
@@ -252,7 +252,7 @@ namespace Hazel {
 			}
 			else
 			{
-				HZ_CORE_ERROR_TAG("Renderer", error);
+				ZONG_CORE_ERROR_TAG("Renderer", error);
 			}
 
 			m_StagesMetadata[stage].HashValue = Hash::GenerateFNVHash(shaderSource);
@@ -293,7 +293,7 @@ namespace Hazel {
 		}
 		else if (m_Language == ShaderUtils::SourceLang::HLSL)
 		{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 			std::wstring buffer = m_ShaderSourcePath.wstring();
 			std::vector<const wchar_t*> arguments{ buffer.c_str(), L"-E", L"main", L"-T",ShaderUtils::HLSLShaderProfile(stage), L"-spirv", L"-fspv-target-env=vulkan1.2",
 				DXC_ARG_PACK_MATRIX_COLUMN_MAJOR, DXC_ARG_WARNINGS_ARE_ERRORS
@@ -349,7 +349,7 @@ namespace Hazel {
 			pSource->Release();
 
 			return error;
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 			// Note(Emily): This is *atrocious* but dxc's integration refuses to process builtin HLSL without ICE'ing
 			//				from the integration.
 
@@ -505,15 +505,15 @@ namespace Hazel {
 
 			if (std::string error = Compile(outputBinary, stage, options); error.size())
 			{
-				HZ_CORE_ERROR_TAG("Renderer", "{}", error);
+				ZONG_CORE_ERROR_TAG("Renderer", "{}", error);
 				TryGetVulkanCachedBinary(cacheDirectory, extension, outputBinary);
 				if (outputBinary.empty())
 				{
-					HZ_CONSOLE_LOG_ERROR("Failed to compile shader and couldn't find a cached version.");
+					ZONG_CONSOLE_LOG_ERROR("Failed to compile shader and couldn't find a cached version.");
 				}
 				else
 				{
-					HZ_CONSOLE_LOG_ERROR("Failed to compile {}:{} so a cached version was loaded instead.", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
+					ZONG_CONSOLE_LOG_ERROR("Failed to compile {}:{} so a cached version was loaded instead.", m_ShaderSourcePath.string(), ShaderUtils::ShaderStageToString(stage));
 #if 0
 					if (GImGui) // Guaranteed to be null before first ImGui frame
 					{
@@ -531,7 +531,7 @@ namespace Hazel {
 
 				FILE* f = fopen(cachedFilePath.c_str(), "wb");
 				if (!f)
-					HZ_CORE_ERROR("Failed to cache shader binary!");
+					ZONG_CORE_ERROR("Failed to cache shader binary!");
 				fwrite(outputBinary.data(), sizeof(uint32_t), outputBinary.size(), f);
 				fclose(f);
 			}
@@ -581,7 +581,7 @@ namespace Hazel {
 		serializer.ReadRaw(header);
 
 		bool validHeader = memcmp(&header, "HZSR", 4) == 0;
-		HZ_CORE_VERIFY(validHeader);
+		ZONG_CORE_VERIFY(validHeader);
 		if (!validHeader)
 			return false;
 
@@ -656,14 +656,14 @@ namespace Hazel {
 	{
 		VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 
-		HZ_CORE_TRACE_TAG("Renderer", "===========================");
-		HZ_CORE_TRACE_TAG("Renderer", " Vulkan Shader Reflection");
-		HZ_CORE_TRACE_TAG("Renderer", "===========================");
+		ZONG_CORE_TRACE_TAG("Renderer", "===========================");
+		ZONG_CORE_TRACE_TAG("Renderer", " Vulkan Shader Reflection");
+		ZONG_CORE_TRACE_TAG("Renderer", "===========================");
 
 		spirv_cross::Compiler compiler(shaderData);
 		auto resources = compiler.get_shader_resources();
 
-		HZ_CORE_TRACE_TAG("Renderer", "Uniform Buffers:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Uniform Buffers:");
 		for (const auto& resource : resources.uniform_buffers)
 		{
 			auto activeBuffers = compiler.get_active_buffer_ranges(resource.id);
@@ -698,14 +698,14 @@ namespace Hazel {
 				}
 				shaderDescriptorSet.UniformBuffers[binding] = s_UniformBuffers.at(descriptorSet).at(binding);
 
-				HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
-				HZ_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
-				HZ_CORE_TRACE_TAG("Renderer", "  Size: {0}", size);
-				HZ_CORE_TRACE_TAG("Renderer", "-------------------");
+				ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+				ZONG_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
+				ZONG_CORE_TRACE_TAG("Renderer", "  Size: {0}", size);
+				ZONG_CORE_TRACE_TAG("Renderer", "-------------------");
 			}
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Storage Buffers:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Storage Buffers:");
 		for (const auto& resource : resources.storage_buffers)
 		{
 			auto activeBuffers = compiler.get_active_buffer_ranges(resource.id);
@@ -741,14 +741,14 @@ namespace Hazel {
 
 				shaderDescriptorSet.StorageBuffers[binding] = s_StorageBuffers.at(descriptorSet).at(binding);
 
-				HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
-				HZ_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
-				HZ_CORE_TRACE_TAG("Renderer", "  Size: {0}", size);
-				HZ_CORE_TRACE_TAG("Renderer", "-------------------");
+				ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+				ZONG_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
+				ZONG_CORE_TRACE_TAG("Renderer", "  Size: {0}", size);
+				ZONG_CORE_TRACE_TAG("Renderer", "-------------------");
 			}
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Push Constant Buffers:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Push Constant Buffers:");
 		for (const auto& resource : resources.push_constant_buffers)
 		{
 			const auto& bufferName = resource.name;
@@ -772,9 +772,9 @@ namespace Hazel {
 			buffer.Name = bufferName;
 			buffer.Size = bufferSize - bufferOffset;
 
-			HZ_CORE_TRACE_TAG("Renderer", "  Name: {0}", bufferName);
-			HZ_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
-			HZ_CORE_TRACE_TAG("Renderer", "  Size: {0}", bufferSize);
+			ZONG_CORE_TRACE_TAG("Renderer", "  Name: {0}", bufferName);
+			ZONG_CORE_TRACE_TAG("Renderer", "  Member Count: {0}", memberCount);
+			ZONG_CORE_TRACE_TAG("Renderer", "  Size: {0}", bufferSize);
 
 			for (uint32_t i = 0; i < memberCount; i++)
 			{
@@ -788,7 +788,7 @@ namespace Hazel {
 			}
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Sampled Images:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Sampled Images:");
 		for (const auto& resource : resources.sampled_images)
 		{
 			const auto& name = resource.name;
@@ -814,10 +814,10 @@ namespace Hazel {
 
 			m_ReflectionData.Resources[name] = ShaderResourceDeclaration(name, descriptorSet, binding, arraySize);
 
-			HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+			ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Separate Images:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Separate Images:");
 		for (const auto& resource : resources.separate_images)
 		{
 			const auto& name = resource.name;
@@ -843,10 +843,10 @@ namespace Hazel {
 
 			m_ReflectionData.Resources[name] = ShaderResourceDeclaration(name, descriptorSet, binding, arraySize);
 
-			HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+			ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Separate Samplers:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Separate Samplers:");
 		for (const auto& resource : resources.separate_samplers)
 		{
 			const auto& name = resource.name;
@@ -872,10 +872,10 @@ namespace Hazel {
 
 			m_ReflectionData.Resources[name] = ShaderResourceDeclaration(name, descriptorSet, binding, arraySize);
 
-			HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+			ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Storage Images:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Storage Images:");
 		for (const auto& resource : resources.storage_images)
 		{
 			const auto& name = resource.name;
@@ -900,16 +900,16 @@ namespace Hazel {
 
 			m_ReflectionData.Resources[name] = ShaderResourceDeclaration(name, descriptorSet, binding, arraySize);
 
-			HZ_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
+			ZONG_CORE_TRACE_TAG("Renderer", "  {0} ({1}, {2})", name, descriptorSet, binding);
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "Special macros:");
+		ZONG_CORE_TRACE_TAG("Renderer", "Special macros:");
 		for (const auto& macro : m_AcknowledgedMacros)
 		{
-			HZ_CORE_TRACE_TAG("Renderer", "  {0}", macro);
+			ZONG_CORE_TRACE_TAG("Renderer", "  {0}", macro);
 		}
 
-		HZ_CORE_TRACE_TAG("Renderer", "===========================");
+		ZONG_CORE_TRACE_TAG("Renderer", "===========================");
 
 
 	}

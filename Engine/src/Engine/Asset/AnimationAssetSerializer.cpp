@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationAssetSerializer.h"
 
 #include "GraphSerializer.h"
@@ -69,7 +69,7 @@ namespace Hazel {
 		Ref<SkeletonAsset> skeleton = asset.As<SkeletonAsset>();
 
 		std::ofstream fout(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(fout.good());
+		ZONG_CORE_VERIFY(fout.good());
 		std::string yamlString = SerializeToYAML(skeleton);
 		fout << yamlString;
 	}
@@ -79,7 +79,7 @@ namespace Hazel {
 	{
 		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -193,7 +193,7 @@ namespace Hazel {
 		Ref<AnimationAsset> animationAsset = asset.As<AnimationAsset>();
 
 		std::ofstream fout(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(fout.good());
+		ZONG_CORE_VERIFY(fout.good());
 		std::string yamlString = SerializeToYAML(animationAsset);
 		fout << yamlString;
 	}
@@ -203,7 +203,7 @@ namespace Hazel {
 	{
 		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -262,7 +262,7 @@ namespace Hazel {
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		{
-			HZ_SERIALIZE_PROPERTY(Skeleton, graph->m_SkeletonHandle, out);
+			ZONG_SERIALIZE_PROPERTY(Skeleton, graph->m_SkeletonHandle, out);
 			for(const auto id : ids) {
 				const auto& nodes = graph->m_Nodes.at(id);
 				out << YAML::Key << id << YAML::Value;
@@ -270,13 +270,13 @@ namespace Hazel {
 				{
 					DefaultGraphSerializer::SerializeNodes(out, nodes);
 					DefaultGraphSerializer::SerializeLinks(out, graph->m_Links.at(id));
-					HZ_SERIALIZE_PROPERTY(GraphState, graph->m_GraphState.at(id), out);
+					ZONG_SERIALIZE_PROPERTY(GraphState, graph->m_GraphState.at(id), out);
 				}
 				out << YAML::EndMap;
 			}
-			HZ_SERIALIZE_PROPERTY(GraphInputs, graph->Inputs.ToExternalValue(), out);
-			HZ_SERIALIZE_PROPERTY(GraphOutputs, graph->Outputs.ToExternalValue(), out);
-			HZ_SERIALIZE_PROPERTY(LocalVariables, graph->LocalVariables.ToExternalValue(), out);
+			ZONG_SERIALIZE_PROPERTY(GraphInputs, graph->Inputs.ToExternalValue(), out);
+			ZONG_SERIALIZE_PROPERTY(GraphOutputs, graph->Outputs.ToExternalValue(), out);
+			ZONG_SERIALIZE_PROPERTY(LocalVariables, graph->LocalVariables.ToExternalValue(), out);
 		}
 		out << YAML::EndMap;
 
@@ -294,7 +294,7 @@ namespace Hazel {
 		}
 		catch (const std::exception& e)
 		{
-			HZ_CONSOLE_LOG_FATAL(e.what());
+			ZONG_CONSOLE_LOG_FATAL(e.what());
 			return false;
 		}
 
@@ -306,10 +306,10 @@ namespace Hazel {
 			choc::value::Value graphOutputsValue;
 			choc::value::Value graphLocalVariablesValue;
 
-			HZ_DESERIALIZE_PROPERTY(Skeleton, graph->m_SkeletonHandle, data, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(GraphInputs, graphInputsValue, data, choc::value::Value());
-			HZ_DESERIALIZE_PROPERTY(GraphOutputs, graphOutputsValue, data, choc::value::Value());
-			HZ_DESERIALIZE_PROPERTY(LocalVariables, graphLocalVariablesValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(Skeleton, graph->m_SkeletonHandle, data, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(GraphInputs, graphInputsValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(GraphOutputs, graphOutputsValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(LocalVariables, graphLocalVariablesValue, data, choc::value::Value());
 
 			graph->Inputs = Utils::PropertySet::FromExternalValue(graphInputsValue);
 			graph->Outputs = Utils::PropertySet::FromExternalValue(graphOutputsValue);
@@ -331,13 +331,13 @@ namespace Hazel {
 			{
 				auto getVariableName = [&]()
 				{
-					HZ_CORE_ASSERT(inputs.has_value() || outputs.has_value())
+					ZONG_CORE_ASSERT(inputs.has_value() || outputs.has_value())
 					std::string name;
 					if (outputs && !outputs->empty())
 						name = outputs->at(0).Name;
 					else if (inputs && !inputs->empty())
 						name = inputs->at(0).Name;
-					HZ_CORE_ASSERT(!name.empty());
+					ZONG_CORE_ASSERT(!name.empty());
 					return name;
 				};
 
@@ -347,7 +347,7 @@ namespace Hazel {
 					case EPropertyType::Output: newNode = AG::AnimationGraphNodeFactory::SpawnGraphPropertyNode(graph, getVariableName(), *optType); break;
 					case EPropertyType::LocalVariable: newNode = AG::AnimationGraphNodeFactory::SpawnGraphPropertyNode(graph, getVariableName(), *optType, (bool)candidate.NumOutputs); break;
 					default:
-						HZ_CORE_ASSERT(false, "Deserialized invalid AnimationGraph property type.");
+						ZONG_CORE_ASSERT(false, "Deserialized invalid AnimationGraph property type.");
 						break;
 				}
 			}
@@ -410,7 +410,7 @@ namespace Hazel {
 				}
 			}
 
-			HZ_CORE_ASSERT(!newNode || (newNode->Type == candidate.Type));
+			ZONG_CORE_ASSERT(!newNode || (newNode->Type == candidate.Type));
 			if (newNode)
 			{
 				newNode->Description = candidate.Description;
@@ -435,7 +435,7 @@ namespace Hazel {
 				const std::string_view candidateTypeStr = magic_enum::enum_name<AG::Types::EPinType>(candidateType);
 				const std::string_view factoryPinTypeStr = factoryPin->GetTypeString();
 
-				HZ_CONSOLE_LOG_ERROR(
+				ZONG_CONSOLE_LOG_ERROR(
 					"Pin type of the deserialized Node Pin ({0} - '{1}' ({2})) does not match the Pin type of the factory Node Pin ({0} - '{3}' ({4})).",
 					node.Name, candidate.Name, candidateTypeStr, factoryPin->Name, factoryPinTypeStr
 				);
@@ -444,7 +444,7 @@ namespace Hazel {
 			else if (candidate.Name != factoryPin->Name)
 			{
 				// TODO: JP. this may not be correct when/if we change the Comment node to use Pin to display text instead of Node name
-				HZ_CONSOLE_LOG_ERROR(
+				ZONG_CONSOLE_LOG_ERROR(
 					"Pin name of the deserialized Node Pin ({0} - '{1}') does not match the Pin name of the factory Node Pin ({0} - '{2}').",
 					node.Name, candidate.Name, factoryPin->Name
 				);
@@ -474,7 +474,7 @@ namespace Hazel {
 
 				// This can trigger if we've trying to load old version of a Node.
 				// TODO (0x): make better...  Instead of failing to load, just set some sensible default value and carry on.
-				HZ_CONSOLE_LOG_ERROR(
+				ZONG_CONSOLE_LOG_ERROR(
 					"Value type of the deserialized Node Pin ({0} - '{1}') does not match the Value type of the factory Node Pin ({0} - '{2}').",
 					node.Name, candidate.Name, factoryPin->Name
 				);
@@ -493,7 +493,7 @@ namespace Hazel {
 			}
 			catch (const std::exception& e)
 			{
-				HZ_CONSOLE_LOG_FATAL(e.what());
+				ZONG_CONSOLE_LOG_FATAL(e.what());
 				return false;
 			}
 
@@ -514,7 +514,7 @@ namespace Hazel {
 			DefaultGraphSerializer::TryLoadLinks(node, graph->m_Links[id]);
 
 			// Graph State
-			HZ_DESERIALIZE_PROPERTY(GraphState, graph->m_GraphState[id], node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(GraphState, graph->m_GraphState[id], node, std::string());
 			return true;
 		};
 
@@ -551,7 +551,7 @@ namespace Hazel {
 		Ref<AnimationGraphAsset> animationGraph = asset.As<AnimationGraphAsset>();
 
 		std::ofstream fout(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(fout.good());
+		ZONG_CORE_VERIFY(fout.good());
 
 		std::string yamlString = SerializeToYAML(animationGraph);
 		fout << yamlString;

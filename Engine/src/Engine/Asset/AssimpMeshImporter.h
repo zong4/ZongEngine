@@ -6,7 +6,7 @@
 
 namespace Hazel {
 
-#ifdef HZ_DIST
+#ifdef ZONG_DIST
 	class AssimpMeshImporter
 	{
 	public:

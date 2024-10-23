@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Window.h"
 
 #include "Engine/Core/Events/ApplicationEvent.h"
@@ -20,7 +20,7 @@ namespace Hazel {
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		HZ_CORE_ERROR_TAG("GLFW", "GLFW Error ({0}): {1}", error, description);
+		ZONG_CORE_ERROR_TAG("GLFW", "GLFW Error ({0}): {1}", error, description);
 	}
 
 	static bool s_GLFWInitialized = false;
@@ -46,13 +46,13 @@ namespace Hazel {
 		m_Data.Width = m_Specification.Width;
 		m_Data.Height = m_Specification.Height;
 
-		HZ_CORE_INFO_TAG("GLFW", "Creating window {0} ({1}, {2})", m_Specification.Title, m_Specification.Width, m_Specification.Height);
+		ZONG_CORE_INFO_TAG("GLFW", "Creating window {0} ({1}, {2})", m_Specification.Title, m_Specification.Width, m_Specification.Height);
 
 		if (!s_GLFWInitialized)
 		{
 			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit();
-			HZ_CORE_ASSERT(success, "Could not intialize GLFW!");
+			ZONG_CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 
 			s_GLFWInitialized = true;
@@ -65,7 +65,7 @@ namespace Hazel {
 		{
 			// This removes titlebar on all platforms
 			// and all of the native window effects on non-Windows platforms
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 			glfwWindowHint(GLFW_TITLEBAR, false);
 #else
 			glfwWindowHint(GLFW_DECORATED, false);
@@ -128,7 +128,7 @@ namespace Hazel {
 		if (isRawMouseMotionSupported)
 			glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		else
-			HZ_CORE_WARN_TAG("Platform", "Raw mouse motion not supported.");
+			ZONG_CORE_WARN_TAG("Platform", "Raw mouse motion not supported.");
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

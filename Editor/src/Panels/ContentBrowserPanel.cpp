@@ -394,7 +394,7 @@ namespace Hazel {
 
 							if (!entity)
 							{
-								HZ_CORE_ERROR_TAG("ContentBrowser", "Failed to find Entity with ID {0} in current Scene context!", entityID);
+								ZONG_CORE_ERROR_TAG("ContentBrowser", "Failed to find Entity with ID {0} in current Scene context!", entityID);
 								continue;
 							}
 
@@ -609,14 +609,14 @@ namespace Hazel {
 			{
 				originalFilePath /= item.As<ContentBrowserAsset>()->GetAssetInfo().FilePath;
 				auto filepath = GetUniquePath(originalFilePath);
-				HZ_CORE_VERIFY(!std::filesystem::exists(filepath));
+				ZONG_CORE_VERIFY(!std::filesystem::exists(filepath));
 				std::filesystem::copy_file(originalFilePath, filepath);
 			}
 			else
 			{
 				originalFilePath /= item.As<ContentBrowserDirectory>()->GetDirectoryInfo()->FilePath;
 				auto filepath = GetUniquePath(originalFilePath);
-				HZ_CORE_VERIFY(!std::filesystem::exists(filepath));
+				ZONG_CORE_VERIFY(!std::filesystem::exists(filepath));
 				std::filesystem::copy(originalFilePath, filepath, std::filesystem::copy_options::recursive);
 			}
 		}

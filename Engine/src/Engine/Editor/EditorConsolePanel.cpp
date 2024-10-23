@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "EditorConsolePanel.h"
 #include "Engine/Core/Application.h"
 #include "Engine/Core/Events/SceneEvents.h"
@@ -19,7 +19,7 @@ namespace Hazel {
 
 	EditorConsolePanel::EditorConsolePanel()
 	{
-		HZ_CORE_ASSERT(s_Instance == nullptr);
+		ZONG_CORE_ASSERT(s_Instance == nullptr);
 		s_Instance = this;
 
 		m_MessageBuffer.reserve(500);
@@ -77,7 +77,7 @@ namespace Hazel {
 		ImGui::SameLine();
 
 		const auto& style = ImGui::GetStyle();
-		const std::string clearOnPlayText = fmt::format("{} Clear on Play", m_ClearOnPlay ? HZ_ICON_CHECK : HZ_ICON_TIMES);
+		const std::string clearOnPlayText = fmt::format("{} Clear on Play", m_ClearOnPlay ? ZONG_ICON_CHECK : ZONG_ICON_TIMES);
 		ImVec4 textColor = m_ClearOnPlay ? style.Colors[ImGuiCol_Text] : style.Colors[ImGuiCol_TextDisabled];
 		if (UI::ColoredButton(clearOnPlayText.c_str(), GetToolbarButtonColor(m_ClearOnPlay), textColor, ImVec2(110.0f, 28.0f)))
 			m_ClearOnPlay = !m_ClearOnPlay;
@@ -87,17 +87,17 @@ namespace Hazel {
 
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 100.0f, 0.0f);
 			textColor = (m_MessageFilters & (int16_t)ConsoleMessageFlags::Info) ? s_InfoTint : style.Colors[ImGuiCol_TextDisabled];
-			if (UI::ColoredButton(HZ_ICON_INFO_CIRCLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Info), textColor, buttonSize))
+			if (UI::ColoredButton(ZONG_ICON_INFO_CIRCLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Info), textColor, buttonSize))
 				m_MessageFilters ^= (int16_t)ConsoleMessageFlags::Info;
 
 			ImGui::SameLine();
 			textColor = (m_MessageFilters & (int16_t)ConsoleMessageFlags::Warning) ? s_WarningTint : style.Colors[ImGuiCol_TextDisabled];
-			if (UI::ColoredButton(HZ_ICON_EXCLAMATION_TRIANGLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Warning), textColor, buttonSize))
+			if (UI::ColoredButton(ZONG_ICON_EXCLAMATION_TRIANGLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Warning), textColor, buttonSize))
 				m_MessageFilters ^= (int16_t)ConsoleMessageFlags::Warning;
 
 			ImGui::SameLine();
 			textColor = (m_MessageFilters & (int16_t)ConsoleMessageFlags::Error) ? s_ErrorTint : style.Colors[ImGuiCol_TextDisabled];
-			if (UI::ColoredButton(HZ_ICON_EXCLAMATION_CIRCLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Error), textColor, buttonSize))
+			if (UI::ColoredButton(ZONG_ICON_EXCLAMATION_CIRCLE, GetToolbarButtonColor(m_MessageFilters & (int16_t)ConsoleMessageFlags::Error), textColor, buttonSize))
 				m_MessageFilters ^= (int16_t)ConsoleMessageFlags::Error;
 		}
 

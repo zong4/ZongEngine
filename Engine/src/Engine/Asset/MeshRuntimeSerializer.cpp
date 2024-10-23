@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshRuntimeSerializer.h"
 
 #include "MeshSourceFile.h"
@@ -252,7 +252,7 @@ namespace Hazel {
 		MeshSourceFile file;
 		stream.ReadRaw<MeshSourceFile::FileHeader>(file.Header);
 		bool validHeader = memcmp(file.Header.HEADER, "HZMS", 4) == 0;
-		HZ_CORE_ASSERT(validHeader);
+		ZONG_CORE_ASSERT(validHeader);
 		if (!validHeader)
 			return nullptr;
 

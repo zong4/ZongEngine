@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "RuntimeAssetManager.h"
 
 #include "Engine/Debug/Profiler.h"
@@ -29,8 +29,8 @@ namespace Hazel {
 
 	Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle assetHandle)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("AssetManager::GetAsset");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("AssetManager::GetAsset");
 
 		if (IsMemoryAsset(assetHandle))
 			return m_MemoryAssets[assetHandle];
@@ -97,7 +97,7 @@ namespace Hazel {
 	std::unordered_set<Hazel::AssetHandle> RuntimeAssetManager::GetAllAssetsWithType(AssetType type)
 	{
 		std::unordered_set<AssetHandle> result;
-		HZ_CORE_VERIFY(false, "Not implemented");
+		ZONG_CORE_VERIFY(false, "Not implemented");
 		return result;
 	}
 

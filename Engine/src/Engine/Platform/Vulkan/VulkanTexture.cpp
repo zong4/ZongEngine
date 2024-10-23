@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanTexture.h"
 
 #include "VulkanContext.h"
@@ -20,7 +20,7 @@ namespace Hazel {
 				case TextureWrap::Clamp:   return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 				case TextureWrap::Repeat:  return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 			}
-			HZ_CORE_ASSERT(false, "Unknown wrap mode");
+			ZONG_CORE_ASSERT(false, "Unknown wrap mode");
 			return (VkSamplerAddressMode)0;
 		}
 
@@ -32,7 +32,7 @@ namespace Hazel {
 				case TextureFilter::Nearest:  return VK_FILTER_NEAREST;
 				case TextureFilter::Cubic:   return VK_FILTER_CUBIC_IMG;
 			}
-			HZ_CORE_ASSERT(false, "Unknown filter");
+			ZONG_CORE_ASSERT(false, "Unknown filter");
 			return (VkFilter)0;
 		}
 
@@ -50,7 +50,7 @@ namespace Hazel {
 				case ImageFormat::RGBA32F: return width * height * 4 * sizeof(float);
 				case ImageFormat::B10R11G11UF: return width * height * sizeof(float);
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return 0;
 		}
 
@@ -59,7 +59,7 @@ namespace Hazel {
 			bool result = true;
 
 			result = specification.Width > 0 && specification.Height > 0 && specification.Width < 65536 && specification.Height < 65536;
-			HZ_CORE_VERIFY(result);
+			ZONG_CORE_VERIFY(result);
 
 			return result;
 		}
@@ -91,7 +91,7 @@ namespace Hazel {
 		imageSpec.CreateSampler = false;
 		m_Image = Image2D::Create(imageSpec);
 
-		HZ_CORE_ASSERT(m_Specification.Format != ImageFormat::None);
+		ZONG_CORE_ASSERT(m_Specification.Format != ImageFormat::None);
 
 		Ref<VulkanTexture2D> instance = this;
 		Renderer::Submit([instance]() mutable
@@ -216,7 +216,7 @@ namespace Hazel {
 
 			// Copy data to staging buffer
 			uint8_t* destData = allocator.MapMemory<uint8_t>(stagingBufferAllocation);
-			HZ_CORE_ASSERT(m_ImageData.Data);
+			ZONG_CORE_ASSERT(m_ImageData.Data);
 			memcpy(destData, m_ImageData.Data, size);
 			allocator.UnmapMemory(stagingBufferAllocation);
 
@@ -649,7 +649,7 @@ namespace Hazel {
 
 		Renderer::SubmitResourceFree([image = m_Image, allocation = m_MemoryAlloc, texInfo = m_DescriptorImageInfo]()
 		{
-			HZ_CORE_TRACE_TAG("Renderer", "Destroying VulkanTextureCube");
+			ZONG_CORE_TRACE_TAG("Renderer", "Destroying VulkanTextureCube");
 			auto vulkanDevice = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 			vkDestroyImageView(vulkanDevice, texInfo.imageView, nullptr);
 			Vulkan::DestroySampler(texInfo.sampler);
@@ -1179,7 +1179,7 @@ namespace Hazel {
 
 	void VulkanTextureCube::CopyFromBuffer(const Buffer& buffer, uint32_t mips)
 	{
-		// HZ_CORE_VERIFY(buffer.Size == m_GPUAllocationSize);
+		// ZONG_CORE_VERIFY(buffer.Size == m_GPUAllocationSize);
 
 		auto device = VulkanContext::GetCurrentDevice();
 		auto vulkanDevice = device->GetVulkanDevice();

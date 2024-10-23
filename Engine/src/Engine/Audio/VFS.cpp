@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VFS.h"
 
 #include "Engine/Serialization/StreamReader.h"
@@ -41,7 +41,7 @@ namespace Hazel::Audio
 
 		ma_result OpenW(ma_vfs* pVFS, const wchar_t* pFilePath, ma_uint32 openMode, ma_vfs_file* pFile)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return MA_NOT_IMPLEMENTED;
 		}
 
@@ -77,7 +77,7 @@ namespace Hazel::Audio
 
 		ma_result Write(ma_vfs* pVFS, ma_vfs_file file, const void* pSrc, size_t sizeInBytes, size_t* pBytesWritten)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return MA_NOT_IMPLEMENTED;
 		}
 

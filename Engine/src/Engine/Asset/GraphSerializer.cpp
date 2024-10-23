@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "GraphSerializer.h"
 
 #include "Engine/Editor/NodeGraphEditor/NodeEditorModel.h"
@@ -25,7 +25,7 @@ namespace Hazel {
 			if (auto optValue = magic_enum::enum_cast<StorageKind>(storageKindStr))
 				return *optValue;
 
-			HZ_CORE_ASSERT(false, "Unknown Storage Kind");
+			ZONG_CORE_ASSERT(false, "Unknown Storage Kind");
 			return StorageKind::Value;
 		}
 
@@ -41,7 +41,7 @@ namespace Hazel {
 			if (auto optValue = magic_enum::enum_cast<NodeType>(nodeTypeStr))
 				return *optValue;
 
-			HZ_CORE_ASSERT(false, "Unknown Node Type");
+			ZONG_CORE_ASSERT(false, "Unknown Node Type");
 			return NodeType::Simple;
 		}
 	}
@@ -54,7 +54,7 @@ namespace Hazel {
 
 		// Out
 		std::ofstream fout(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(fout.good());
+		ZONG_CORE_VERIFY(fout.good());
 		std::string yamlString = SerializeToYAML(graph);
 		fout << yamlString;
 	}
@@ -90,7 +90,7 @@ namespace Hazel {
 
 	Ref<Asset> DefaultGraphSerializer::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const
 	{
-		HZ_CORE_VERIFY(false, "DefaultGraphSerialized should not be used.");
+		ZONG_CORE_VERIFY(false, "DefaultGraphSerialized should not be used.");
 
 		stream.SetStreamPosition(assetInfo.PackedOffset);
 		std::string yamlString;
@@ -118,28 +118,28 @@ namespace Hazel {
 			const glm::vec4 nodeColOut(nodeCol.x, nodeCol.y, nodeCol.z, nodeCol.w);
 			const glm::vec2 nodeSizeOut(nodeSize.x, nodeSize.y);
 
-			HZ_SERIALIZE_PROPERTY(ID, node->ID, out);
-			HZ_SERIALIZE_PROPERTY(Category, node->Category, out);
-			HZ_SERIALIZE_PROPERTY(Name, node->Name, out);
+			ZONG_SERIALIZE_PROPERTY(ID, node->ID, out);
+			ZONG_SERIALIZE_PROPERTY(Category, node->Category, out);
+			ZONG_SERIALIZE_PROPERTY(Name, node->Name, out);
 			if (!node->Description.empty())
 			{
-				HZ_SERIALIZE_PROPERTY(Description, node->Description, out);
+				ZONG_SERIALIZE_PROPERTY(Description, node->Description, out);
 			}
-			HZ_SERIALIZE_PROPERTY(Color, nodeColOut, out);
-			HZ_SERIALIZE_PROPERTY(Type, Utils::NodeTypeToString(node->Type), out);
-			HZ_SERIALIZE_PROPERTY(Size, nodeSizeOut, out);
-			HZ_SERIALIZE_PROPERTY(Location, node->State, out);
+			ZONG_SERIALIZE_PROPERTY(Color, nodeColOut, out);
+			ZONG_SERIALIZE_PROPERTY(Type, Utils::NodeTypeToString(node->Type), out);
+			ZONG_SERIALIZE_PROPERTY(Size, nodeSizeOut, out);
+			ZONG_SERIALIZE_PROPERTY(Location, node->State, out);
 
 			out << YAML::Key << "Inputs" << YAML::BeginSeq;
 			for (auto in : node->Inputs)
 			{
 				out << YAML::BeginMap; // in
 
-				HZ_SERIALIZE_PROPERTY(ID, in->ID, out);
-				HZ_SERIALIZE_PROPERTY(Name, in->Name, out);
-				HZ_SERIALIZE_PROPERTY(Type, std::string(in->GetTypeString()), out);
-				HZ_SERIALIZE_PROPERTY(Storage, Utils::StorageKindToString(in->Storage), out);
-				HZ_SERIALIZE_PROPERTY(Value, in->Value, out);
+				ZONG_SERIALIZE_PROPERTY(ID, in->ID, out);
+				ZONG_SERIALIZE_PROPERTY(Name, in->Name, out);
+				ZONG_SERIALIZE_PROPERTY(Type, std::string(in->GetTypeString()), out);
+				ZONG_SERIALIZE_PROPERTY(Storage, Utils::StorageKindToString(in->Storage), out);
+				ZONG_SERIALIZE_PROPERTY(Value, in->Value, out);
 
 				out << YAML::EndMap; // in
 			}
@@ -149,12 +149,12 @@ namespace Hazel {
 			for (auto outp : node->Outputs)
 			{
 				out << YAML::BeginMap; // outp
-				HZ_SERIALIZE_PROPERTY(ID, outp->ID, out);
-				HZ_SERIALIZE_PROPERTY(Name, outp->Name, out);
+				ZONG_SERIALIZE_PROPERTY(ID, outp->ID, out);
+				ZONG_SERIALIZE_PROPERTY(Name, outp->Name, out);
 
-				HZ_SERIALIZE_PROPERTY(Type, std::string(outp->GetTypeString()), out);
-				HZ_SERIALIZE_PROPERTY(Storage, Utils::StorageKindToString(outp->Storage), out);
-				HZ_SERIALIZE_PROPERTY(Value, outp->Value, out);
+				ZONG_SERIALIZE_PROPERTY(Type, std::string(outp->GetTypeString()), out);
+				ZONG_SERIALIZE_PROPERTY(Storage, Utils::StorageKindToString(outp->Storage), out);
+				ZONG_SERIALIZE_PROPERTY(Value, outp->Value, out);
 
 				out << YAML::EndMap; // outp
 			}
@@ -177,10 +177,10 @@ namespace Hazel {
 			const auto& col = link.Color.Value;
 			const glm::vec4 colOut(col.x, col.y, col.z, col.w);
 
-			HZ_SERIALIZE_PROPERTY(ID, link.ID, out);
-			HZ_SERIALIZE_PROPERTY(StartPinID, link.StartPinID, out);
-			HZ_SERIALIZE_PROPERTY(EndPinID, link.EndPinID, out);
-			HZ_SERIALIZE_PROPERTY(Color, colOut, out);
+			ZONG_SERIALIZE_PROPERTY(ID, link.ID, out);
+			ZONG_SERIALIZE_PROPERTY(StartPinID, link.StartPinID, out);
+			ZONG_SERIALIZE_PROPERTY(EndPinID, link.EndPinID, out);
+			ZONG_SERIALIZE_PROPERTY(Color, colOut, out);
 
 			out << YAML::EndMap; // link
 		}
@@ -208,12 +208,12 @@ namespace Hazel {
 			std::string pinType;
 			std::string pinStorage;
 
-			HZ_DESERIALIZE_PROPERTY(ID, ID, in, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(Name, pinName, in, std::string());
-			HZ_DESERIALIZE_PROPERTY(Type, pinType, in, std::string());
-			HZ_DESERIALIZE_PROPERTY(Storage, pinStorage, in, std::string());
-			//HZ_DESERIALIZE_PROPERTY(Value, valueStr, in, std::string());
-			HZ_DESERIALIZE_PROPERTY(Value, value, in, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(ID, ID, in, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(Name, pinName, in, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Type, pinType, in, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Storage, pinStorage, in, std::string());
+			//ZONG_DESERIALIZE_PROPERTY(Value, valueStr, in, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Value, value, in, choc::value::Value());
 
 			// TODO: load legacy saved valueStr, or manually rewrite YAML files for the new format?
 
@@ -235,7 +235,7 @@ namespace Hazel {
 
 				if (value["TypeName"].isVoid())
 				{
-					HZ_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
+					ZONG_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
 					return {};
 				}
 
@@ -250,7 +250,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
+					ZONG_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
 				}
 
 				return customObject;
@@ -319,12 +319,12 @@ namespace Hazel {
 			std::string pinType;
 			std::string pinStorage;
 
-			HZ_DESERIALIZE_PROPERTY(ID, ID, out, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(Name, pinName, out, std::string());
-			HZ_DESERIALIZE_PROPERTY(Type, pinType, out, std::string());
-			HZ_DESERIALIZE_PROPERTY(Storage, pinStorage, out, std::string());
-			//HZ_DESERIALIZE_PROPERTY(Value, valueStr, out, std::string());
-			HZ_DESERIALIZE_PROPERTY(Value, value, out, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(ID, ID, out, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(Name, pinName, out, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Type, pinType, out, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Storage, pinStorage, out, std::string());
+			//ZONG_DESERIALIZE_PROPERTY(Value, valueStr, out, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Value, value, out, choc::value::Value());
 
 			PinCandidate candidate;
 			candidate.ID = ID;
@@ -364,21 +364,21 @@ namespace Hazel {
 			glm::vec4 nodeColor;
 			glm::vec2 nodeSize;
 
-			HZ_DESERIALIZE_PROPERTY(ID, nodeID, node, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(Category, nodeCategory, node, std::string());
-			HZ_DESERIALIZE_PROPERTY(Name, nodeName, node, std::string());
-			HZ_DESERIALIZE_PROPERTY(Description, nodeDesc, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(ID, nodeID, node, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(Category, nodeCategory, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Name, nodeName, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Description, nodeDesc, node, std::string());
 			if (node["Colour"])
 			{
-				HZ_DESERIALIZE_PROPERTY(Colour, nodeColor, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				ZONG_DESERIALIZE_PROPERTY(Colour, nodeColor, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 			else
 			{
-				HZ_DESERIALIZE_PROPERTY(Color, nodeColor, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				ZONG_DESERIALIZE_PROPERTY(Color, nodeColor, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
-			HZ_DESERIALIZE_PROPERTY(Type, nodeTypeStr, node, std::string());	// TODO: YAML serialization for enums to/from string
-			HZ_DESERIALIZE_PROPERTY(Size, nodeSize, node, glm::vec2());
-			HZ_DESERIALIZE_PROPERTY(Location, location, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Type, nodeTypeStr, node, std::string());	// TODO: YAML serialization for enums to/from string
+			ZONG_DESERIALIZE_PROPERTY(Size, nodeSize, node, glm::vec2());
+			ZONG_DESERIALIZE_PROPERTY(Location, location, node, std::string());
 
 			const NodeType nodeType = Utils::NodeTypeFromString(nodeTypeStr);	// TODO: JP. this could also be implmentation specific types
 
@@ -444,7 +444,7 @@ namespace Hazel {
 
 				// Factory Node might have changed and we've deserialized an old version of the Node
 				//throw std::runtime_error("Deserialized Node topology doesn't match factory Node '" + candidate.Name + "'.");
-				HZ_CONSOLE_LOG_WARN("Deserialized Node topology doesn't match factory Node '" + candidate.Name + "'.");
+				ZONG_CONSOLE_LOG_WARN("Deserialized Node topology doesn't match factory Node '" + candidate.Name + "'.");
 			}
 
 			// Implementation specific construction and/or validation of Node Pins
@@ -539,16 +539,16 @@ namespace Hazel {
 			UUID EndPinID;
 			glm::vec4 color;
 
-			HZ_DESERIALIZE_PROPERTY(ID, ID, link, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(StartPinID, StartPinID, link, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(EndPinID, EndPinID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(ID, ID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(StartPinID, StartPinID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(EndPinID, EndPinID, link, uint64_t(0));
 			if (link["Colour"])
 			{
-				HZ_DESERIALIZE_PROPERTY(Colour, color, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				ZONG_DESERIALIZE_PROPERTY(Colour, color, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 			else
 			{
-				HZ_DESERIALIZE_PROPERTY(Color, color, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				ZONG_DESERIALIZE_PROPERTY(Color, color, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 			links.emplace_back(StartPinID, EndPinID);
 			links.back().ID = ID;
@@ -581,23 +581,23 @@ namespace Hazel {
 			const glm::vec4 nodeColOut(nodeCol.x, nodeCol.y, nodeCol.z, nodeCol.w);
 			const glm::vec2 nodeSizeOut(nodeSize.x, nodeSize.y);
 
-			HZ_SERIALIZE_PROPERTY(ID, node.ID, out);
-			HZ_SERIALIZE_PROPERTY(Category, node.Category, out);
-			HZ_SERIALIZE_PROPERTY(Name, node.Name, out);
-			HZ_SERIALIZE_PROPERTY(Colour, nodeColOut, out);
-			HZ_SERIALIZE_PROPERTY(Type, NodeTypeToString(node.Type), out);
-			HZ_SERIALIZE_PROPERTY(Size, nodeSizeOut, out);
-			HZ_SERIALIZE_PROPERTY(Location, node.State, out);
+			ZONG_SERIALIZE_PROPERTY(ID, node.ID, out);
+			ZONG_SERIALIZE_PROPERTY(Category, node.Category, out);
+			ZONG_SERIALIZE_PROPERTY(Name, node.Name, out);
+			ZONG_SERIALIZE_PROPERTY(Colour, nodeColOut, out);
+			ZONG_SERIALIZE_PROPERTY(Type, NodeTypeToString(node.Type), out);
+			ZONG_SERIALIZE_PROPERTY(Size, nodeSizeOut, out);
+			ZONG_SERIALIZE_PROPERTY(Location, node.State, out);
 
 			out << YAML::Key << "Inputs" << YAML::BeginSeq;
 			for (auto& in : node.Inputs)
 			{
 				out << YAML::BeginMap; // in
-				HZ_SERIALIZE_PROPERTY(ID, in.ID, out);
-				HZ_SERIALIZE_PROPERTY(Name, in.Name, out);
-				HZ_SERIALIZE_PROPERTY(Type, PinTypeToString(in.Type), out);
-				HZ_SERIALIZE_PROPERTY(Storage, StorageKindToString(in.Storage), out);
-				HZ_SERIALIZE_PROPERTY(Value, choc::json::toString(in.Value), out);
+				ZONG_SERIALIZE_PROPERTY(ID, in.ID, out);
+				ZONG_SERIALIZE_PROPERTY(Name, in.Name, out);
+				ZONG_SERIALIZE_PROPERTY(Type, PinTypeToString(in.Type), out);
+				ZONG_SERIALIZE_PROPERTY(Storage, StorageKindToString(in.Storage), out);
+				ZONG_SERIALIZE_PROPERTY(Value, choc::json::toString(in.Value), out);
 				out << YAML::EndMap; // in
 			}
 			out << YAML::EndSeq; // Inputs
@@ -606,11 +606,11 @@ namespace Hazel {
 			for (auto& outp : node.Outputs)
 			{
 				out << YAML::BeginMap; // outp
-				HZ_SERIALIZE_PROPERTY(ID, outp.ID, out);
-				HZ_SERIALIZE_PROPERTY(Name, outp.Name, out);
-				HZ_SERIALIZE_PROPERTY(Type, PinTypeToString(outp.Type), out);
-				HZ_SERIALIZE_PROPERTY(Storage, StorageKindToString(outp.Storage), out);
-				HZ_SERIALIZE_PROPERTY(Value, choc::json::toString(outp.Value), out);
+				ZONG_SERIALIZE_PROPERTY(ID, outp.ID, out);
+				ZONG_SERIALIZE_PROPERTY(Name, outp.Name, out);
+				ZONG_SERIALIZE_PROPERTY(Type, PinTypeToString(outp.Type), out);
+				ZONG_SERIALIZE_PROPERTY(Storage, StorageKindToString(outp.Storage), out);
+				ZONG_SERIALIZE_PROPERTY(Value, choc::json::toString(outp.Value), out);
 				out << YAML::EndMap; // outp
 			}
 			out << YAML::EndSeq; // Outputs
@@ -635,10 +635,10 @@ namespace Hazel {
 			const auto& col = link.Color.Value;
 			const glm::vec4 colOut(col.x, col.y, col.z, col.w);
 
-			HZ_SERIALIZE_PROPERTY(ID, link.ID, out);
-			HZ_SERIALIZE_PROPERTY(StartPinID, link.StartPinID, out);
-			HZ_SERIALIZE_PROPERTY(EndPinID, link.EndPinID, out);
-			HZ_SERIALIZE_PROPERTY(Colour, colOut, out);
+			ZONG_SERIALIZE_PROPERTY(ID, link.ID, out);
+			ZONG_SERIALIZE_PROPERTY(StartPinID, link.StartPinID, out);
+			ZONG_SERIALIZE_PROPERTY(EndPinID, link.EndPinID, out);
+			ZONG_SERIALIZE_PROPERTY(Colour, colOut, out);
 
 			out << YAML::EndMap; // link
 		}
@@ -648,7 +648,7 @@ namespace Hazel {
 		//============================================================
 		/// Graph State
 
-		HZ_SERIALIZE_PROPERTY(GraphState, soundGraphAsset->GraphState, out);
+		ZONG_SERIALIZE_PROPERTY(GraphState, soundGraphAsset->GraphState, out);
 
 		out << YAML::EndMap; // Nodes, Links, Graph State
 		return std::string(out.c_str());
@@ -676,13 +676,13 @@ namespace Hazel {
 			glm::vec4 nodeCol;
 			glm::vec2 nodeS;
 
-			HZ_DESERIALIZE_PROPERTY(ID, nodeID, node, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(Category, nodeCategory, node, std::string());
-			HZ_DESERIALIZE_PROPERTY(Name, nodeName, node, std::string());
-			HZ_DESERIALIZE_PROPERTY(Colour, nodeCol, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-			HZ_DESERIALIZE_PROPERTY(Type, nodeType, node, std::string());
-			HZ_DESERIALIZE_PROPERTY(Size, nodeS, node, glm::vec2());
-			HZ_DESERIALIZE_PROPERTY(Location, location, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(ID, nodeID, node, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(Category, nodeCategory, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Name, nodeName, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Colour, nodeCol, node, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+			ZONG_DESERIALIZE_PROPERTY(Type, nodeType, node, std::string());
+			ZONG_DESERIALIZE_PROPERTY(Size, nodeS, node, glm::vec2());
+			ZONG_DESERIALIZE_PROPERTY(Location, location, node, std::string());
 
 			auto& newNode = graph->Nodes.emplace_back(nodeID, nodeName.c_str());
 			newNode.Category = nodeCategory;
@@ -701,11 +701,11 @@ namespace Hazel {
 					std::string pinType;
 					std::string pinStorage;
 
-					HZ_DESERIALIZE_PROPERTY(ID, ID, in, uint64_t(0));
-					HZ_DESERIALIZE_PROPERTY(Name, pinName, in, std::string());
-					HZ_DESERIALIZE_PROPERTY(Type, pinType, in, std::string());
-					HZ_DESERIALIZE_PROPERTY(Storage, pinStorage, in, std::string());
-					HZ_DESERIALIZE_PROPERTY(Value, valueStr, in, std::string());
+					ZONG_DESERIALIZE_PROPERTY(ID, ID, in, uint64_t(0));
+					ZONG_DESERIALIZE_PROPERTY(Name, pinName, in, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Type, pinType, in, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Storage, pinStorage, in, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Value, valueStr, in, std::string());
 
 					bool isCustomValueType = choc::text::contains(valueStr, "Value");
 
@@ -715,7 +715,7 @@ namespace Hazel {
 
 						if (value["TypeName"].isVoid())
 						{
-							HZ_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
+							ZONG_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
 							return {};
 						}
 
@@ -730,7 +730,7 @@ namespace Hazel {
 						}
 						else
 						{
-							HZ_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
+							ZONG_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
 						}
 
 						return customObject;
@@ -754,11 +754,11 @@ namespace Hazel {
 					std::string pinType;
 					std::string pinStorage;
 
-					HZ_DESERIALIZE_PROPERTY(ID, ID, out, uint64_t(0));
-					HZ_DESERIALIZE_PROPERTY(Name, pinName, out, std::string());
-					HZ_DESERIALIZE_PROPERTY(Type, pinType, out, std::string());
-					HZ_DESERIALIZE_PROPERTY(Storage, pinStorage, out, std::string());
-					HZ_DESERIALIZE_PROPERTY(Value, valueStr, out, std::string());
+					ZONG_DESERIALIZE_PROPERTY(ID, ID, out, uint64_t(0));
+					ZONG_DESERIALIZE_PROPERTY(Name, pinName, out, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Type, pinType, out, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Storage, pinStorage, out, std::string());
+					ZONG_DESERIALIZE_PROPERTY(Value, valueStr, out, std::string());
 
 					newNode.Outputs.emplace_back(ID, pinName.c_str(),
 												PinTypeFromString(pinType),
@@ -782,10 +782,10 @@ namespace Hazel {
 			UUID EndPinID;
 			glm::vec4 colour;
 
-			HZ_DESERIALIZE_PROPERTY(ID, ID, link, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(StartPinID, StartPinID, link, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(EndPinID, EndPinID, link, uint64_t(0));
-			HZ_DESERIALIZE_PROPERTY(Colour, colour, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+			ZONG_DESERIALIZE_PROPERTY(ID, ID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(StartPinID, StartPinID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(EndPinID, EndPinID, link, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(Colour, colour, link, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			graph->Links.emplace_back(ID, StartPinID, EndPinID)
 				.Color = ImColor(colour.x, colour.y, colour.z, colour.w);
@@ -795,7 +795,7 @@ namespace Hazel {
 		//============================================================
 		/// Graph State
 
-		HZ_DESERIALIZE_PROPERTY(GraphState, soundGraphAsset->GraphState, data, std::string());
+		ZONG_DESERIALIZE_PROPERTY(GraphState, soundGraphAsset->GraphState, data, std::string());
 		return true;
 	}
 #endif

@@ -10,10 +10,10 @@ namespace Hazel {
 	class Timer
 	{
 	public:
-		HZ_FORCE_INLINE Timer() { Reset(); }
-		HZ_FORCE_INLINE void Reset() { m_Start = std::chrono::high_resolution_clock::now(); }
-		HZ_FORCE_INLINE float Elapsed() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Start).count() * 0.001f * 0.001f; }
-		HZ_FORCE_INLINE float ElapsedMillis() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Start).count() * 0.001f; }
+		ZONG_FORCE_INLINE Timer() { Reset(); }
+		ZONG_FORCE_INLINE void Reset() { m_Start = std::chrono::high_resolution_clock::now(); }
+		ZONG_FORCE_INLINE float Elapsed() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Start).count() * 0.001f * 0.001f; }
+		ZONG_FORCE_INLINE float ElapsedMillis() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Start).count() * 0.001f; }
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_Start;
 	};
@@ -26,7 +26,7 @@ namespace Hazel {
 		~ScopedTimer()
 		{
 			float time = m_Timer.ElapsedMillis();
-			HZ_CORE_TRACE_TAG("TIMER", "{0} - {1}ms", m_Name, time);
+			ZONG_CORE_TRACE_TAG("TIMER", "{0} - {1}ms", m_Name, time);
 		}
 	private:
 		std::string m_Name;
@@ -93,13 +93,13 @@ namespace Hazel {
 	};
 
 #if 1
-#define HZ_SCOPE_PERF(name)\
+#define ZONG_SCOPE_PERF(name)\
 	ScopePerfTimer timer__LINE__(name, Application::Get().GetPerformanceProfiler());
 
-#define HZ_SCOPE_TIMER(name)\
+#define ZONG_SCOPE_TIMER(name)\
 	ScopedTimer timer__LINE__(name);
 #else
-#define HZ_SCOPE_PERF(name)
-#define HZ_SCOPE_TIMER(name)
+#define ZONG_SCOPE_PERF(name)
+#define ZONG_SCOPE_TIMER(name)
 #endif
 }

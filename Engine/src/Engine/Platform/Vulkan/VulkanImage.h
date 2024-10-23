@@ -52,7 +52,7 @@ namespace Hazel {
 
 		virtual VkImageView GetLayerImageView(uint32_t layer)
 		{
-			HZ_CORE_ASSERT(layer < m_PerLayerImageViews.size());
+			ZONG_CORE_ASSERT(layer < m_PerLayerImageViews.size());
 			return m_PerLayerImageViews[layer];
 		}
 
@@ -131,7 +131,7 @@ namespace Hazel {
 			case ImageFormat::DEPTH32F:				return VK_FORMAT_D32_SFLOAT;
 			case ImageFormat::DEPTH24STENCIL8:		return VulkanContext::GetCurrentDevice()->GetPhysicalDevice()->GetDepthFormat();
 			}
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return VK_FORMAT_UNDEFINED;
 		}
 

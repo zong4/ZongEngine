@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "CSharpInstance.h"
 #include "ScriptCache.h"
 #include "ScriptUtils.h"
@@ -84,7 +84,7 @@ namespace Hazel {
 		}
 
 		if (!foundSuitableConstructor)
-			HZ_CORE_WARN_TAG("ScriptEngine", "Failed to call constructor for {} with {} parameters!", m_FullName, paramCount);
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Failed to call constructor for {} with {} parameters!", m_FullName, paramCount);
 	}
 
 }

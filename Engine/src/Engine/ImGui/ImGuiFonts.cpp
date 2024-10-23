@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ImGuiFonts.h"
 
 namespace Hazel::UI {
@@ -9,7 +9,7 @@ namespace Hazel::UI {
 	{
 		if (s_Fonts.find(config.FontName) != s_Fonts.end())
 		{
-			HZ_CORE_WARN_TAG("EditorUI", "Tried to add font with name '{0}' but that name is already taken!", config.FontName);
+			ZONG_CORE_WARN_TAG("EditorUI", "Tried to add font with name '{0}' but that name is already taken!", config.FontName);
 			return;
 		}
 
@@ -17,7 +17,7 @@ namespace Hazel::UI {
 		imguiFontConfig.MergeMode = config.MergeWithLast;
 		auto& io = ImGui::GetIO();
 		ImFont* font = io.Fonts->AddFontFromFileTTF(config.FilePath.data(), config.Size, &imguiFontConfig, config.GlyphRanges == nullptr ? io.Fonts->GetGlyphRangesDefault() : config.GlyphRanges);
-		HZ_CORE_VERIFY(font, "Failed to load font file!");
+		ZONG_CORE_VERIFY(font, "Failed to load font file!");
 		s_Fonts[config.FontName] = font;
 
 		if (isDefault)
@@ -26,7 +26,7 @@ namespace Hazel::UI {
 
 	ImFont* Fonts::Get(const std::string& fontName)
 	{
-		HZ_CORE_VERIFY(s_Fonts.find(fontName) != s_Fonts.end(), "Failed to find font with that name!");
+		ZONG_CORE_VERIFY(s_Fonts.find(fontName) != s_Fonts.end(), "Failed to find font with that name!");
 		return s_Fonts.at(fontName);
 	}
 

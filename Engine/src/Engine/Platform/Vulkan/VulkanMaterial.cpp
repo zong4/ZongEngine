@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanMaterial.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -65,19 +65,19 @@ namespace Hazel {
 				{
 					for (uint32_t i = 0; i < decl.Count; i++)
 						m_DescriptorSetManager.SetInput(name, Renderer::GetWhiteTexture(), i);
-					HZ_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to white 2D texture", name);
+					ZONG_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to white 2D texture", name);
 					break;
 				}
 				case RenderPassInputType::ImageSampler3D:
 				{
 					m_DescriptorSetManager.SetInput(name, Renderer::GetBlackCubeTexture());
-					HZ_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to black cube texture", name);
+					ZONG_CORE_WARN_TAG("Renderer", "VulkanMaterial - setting {} to black cube texture", name);
 					break;
 				}
 			}
 		}
 
-		HZ_CORE_VERIFY(m_DescriptorSetManager.Validate());
+		ZONG_CORE_VERIFY(m_DescriptorSetManager.Validate());
 		m_DescriptorSetManager.Bake();
 	}
 
@@ -128,7 +128,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_WARN_TAG("Renderer", "[Material] - shader {} has no Set 0!", m_Shader->GetName());
+			ZONG_CORE_WARN_TAG("Renderer", "[Material] - shader {} has no Set 0!", m_Shader->GetName());
 		}
 	}
 
@@ -156,7 +156,7 @@ namespace Hazel {
 	{
 		const auto& shaderBuffers = m_Shader->GetShaderBuffers();
 
-		HZ_CORE_ASSERT(shaderBuffers.size() <= 1, "We currently only support ONE material buffer!");
+		ZONG_CORE_ASSERT(shaderBuffers.size() <= 1, "We currently only support ONE material buffer!");
 
 		if (shaderBuffers.size() > 0)
 		{
@@ -195,13 +195,13 @@ namespace Hazel {
 
 	void VulkanMaterial::SetVulkanDescriptor(const std::string& name, const Ref<Image2D>& image)
 	{
-		HZ_CORE_VERIFY(image);
+		ZONG_CORE_VERIFY(image);
 		m_DescriptorSetManager.SetInput(name, image);
 	}
 
 	void VulkanMaterial::SetVulkanDescriptor(const std::string& name, const Ref<ImageView>& image)
 	{
-		HZ_CORE_VERIFY(image);
+		ZONG_CORE_VERIFY(image);
 		m_DescriptorSetManager.SetInput(name, image);
 	}
 

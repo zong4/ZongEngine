@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ProjectSerializer.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/PhysicsLayer.h"
@@ -46,7 +46,7 @@ namespace Hazel {
 			{
 				out << YAML::BeginMap;
 				auto userConfig = MiniAudioEngine::Get().GetUserConfiguration();
-				HZ_SERIALIZE_PROPERTY(FileStreamingDurationThreshold, userConfig.FileStreamingDurationThreshold, out);
+				ZONG_SERIALIZE_PROPERTY(FileStreamingDurationThreshold, userConfig.FileStreamingDurationThreshold, out);
 				out << YAML::EndMap;
 			}
 
@@ -133,7 +133,7 @@ namespace Hazel {
 		PhysicsLayerManager::AddLayer("Default");
 
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -178,7 +178,7 @@ namespace Hazel {
 		if (audioNode)
 		{
 			auto userConfig = MiniAudioEngine::Get().GetUserConfiguration();
-			HZ_DESERIALIZE_PROPERTY(FileStreamingDurationThreshold, userConfig.FileStreamingDurationThreshold, audioNode, userConfig.FileStreamingDurationThreshold);
+			ZONG_DESERIALIZE_PROPERTY(FileStreamingDurationThreshold, userConfig.FileStreamingDurationThreshold, audioNode, userConfig.FileStreamingDurationThreshold);
 			MiniAudioEngine::Get().SetUserConfiguration(userConfig);
 		}
 

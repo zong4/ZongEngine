@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationGraphFactory.h"
 #include "AnimationGraphPrototype.h"
 #include "AnimationGraph.h"
@@ -88,9 +88,9 @@ namespace Hazel::AnimationGraph {
 		if (!NodeProcessors.count(nodeTypeID))
 		{
 			if (!nodeTypeID.GetDBGName().empty())
-				HZ_CORE_ERROR("AnimationGraph::Factory::Create - Node with type ID {} is not in the registry", nodeTypeID.GetDBGName());
+				ZONG_CORE_ERROR("AnimationGraph::Factory::Create - Node with type ID {} is not in the registry", nodeTypeID.GetDBGName());
 			else
-				HZ_CORE_ERROR("AnimationGraph::Factory::Create - Node with type ID {} is not in the registry", (uint32_t)nodeTypeID);
+				ZONG_CORE_ERROR("AnimationGraph::Factory::Create - Node with type ID {} is not in the registry", (uint32_t)nodeTypeID);
 
 			return nullptr;
 		}
@@ -116,7 +116,7 @@ namespace Hazel::AnimationGraph {
 			{
 				if (!test(element))
 				{
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					return false;
 				}
 			}
@@ -139,7 +139,7 @@ namespace Hazel::AnimationGraph {
 			// We probably don't need to test output events, they use vectors of destinations internally, which may be empty
 			//if (!validateElements(graph->OutEvs, [](const std::pair<const Identifier, const NodeProcessor::OutputEvent>& outEv) { return !outEv.second.DestinationEvs.empty(); })) pass = false;
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -165,7 +165,7 @@ namespace Hazel::AnimationGraph {
 		{
 			bool pass = validateElements(graph.EndpointInputStreams, validateEndpoints);
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -174,14 +174,14 @@ namespace Hazel::AnimationGraph {
 		{
 			bool pass = validateElements(graph.LocalVariables, validateEndpoints);
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
 
 		if (!validateElements(graph.EndpointOutputStreams.Ins, [](const std::pair<const Identifier, const choc::value::ValueView>& in) { return (bool)in.second.getRawData(); }))
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -196,7 +196,7 @@ namespace Hazel::AnimationGraph {
 			// We probably don't need to test output events, they use vectors of destinations internally, which may be empty
 			//if (!validateElements(node->OutEvs, [](const std::pair<const Identifier, const NodeProcessor::OutputEvent>& outEv) { return (bool)!outEv.second.DestinationEvs.empty(); })) pass = false;
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -273,8 +273,8 @@ namespace Hazel::AnimationGraph {
 						sourceStateID = connection.Source.NodeID;
 					}
 				}
-				HZ_CORE_ASSERT(sourceStateID != 0, "Transition node should have a source state");
-				HZ_CORE_ASSERT(destStateID != 0, "Transition node should have a destination state");
+				ZONG_CORE_ASSERT(sourceStateID != 0, "Transition node should have a source state");
+				ZONG_CORE_ASSERT(destStateID != 0, "Transition node should have a destination state");
 				StateBase* sourceNode = nullptr;
 				StateBase* destNode = nullptr;
 				for (auto& state : stateMachine->m_States)
@@ -288,8 +288,8 @@ namespace Hazel::AnimationGraph {
 						destNode = state.get();
 					}
 				}
-				HZ_CORE_ASSERT(sourceNode, "Transition node source state does not exist");
-				HZ_CORE_ASSERT(destNode, "Transition node destination state does not exist");
+				ZONG_CORE_ASSERT(sourceNode, "Transition node source state does not exist");
+				ZONG_CORE_ASSERT(destNode, "Transition node destination state does not exist");
 				if (!sourceNode->m_Transitions.emplace_back(CreateTransitionInstance(root, subnode.ID, *subnode.Subroutine, sourceNode, destNode))) {
 					return false;
 				}
@@ -364,7 +364,7 @@ namespace Hazel::AnimationGraph {
 					if (!instance->AddInputValueRouteToGraphOutput(root->EndpointInputStreams, source.EndpointID, dest.EndpointID)) return false;
 					break;
 				case Prototype::Connection::GraphEvent_NodeEvent:
-					HZ_CORE_ASSERT(false, "GraphEvent_NodeEvent not implemented");
+					ZONG_CORE_ASSERT(false, "GraphEvent_NodeEvent not implemented");
 					//					if (!instance->AddInputEventsRoute(source.EndpointID, dest.NodeID, dest.EndpointID)) return nullptr;
 					break;
 				case Prototype::Connection::NodeValue_GraphValue:
@@ -376,7 +376,7 @@ namespace Hazel::AnimationGraph {
 				case Prototype::Connection::LocalVariable_NodeValue:
 					if (!instance->AddLocalVariableRoute(source.EndpointID, dest.NodeID, dest.EndpointID)) return false;
 					break;
-				default: HZ_CORE_ASSERT(false);
+				default: ZONG_CORE_ASSERT(false);
 					return false;
 					break;
 			}

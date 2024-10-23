@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "UserPreferences.h"
 
 #include "yaml-cpp/yaml.h"
@@ -56,7 +56,7 @@ namespace Hazel {
 	void UserPreferencesSerializer::Deserialize(const std::filesystem::path& filepath)
 	{
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 

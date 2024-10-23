@@ -80,7 +80,7 @@ namespace Hazel {
 		template<typename... TConstructorArgs>
 		static MonoObject* CreateManagedObject(const std::string& className, TConstructorArgs&&... args)
 		{
-			return CreateManagedObject_Internal(ScriptCache::GetManagedClassByID(HZ_SCRIPT_CLASS_ID(className)), std::forward<TConstructorArgs>(args)...);
+			return CreateManagedObject_Internal(ScriptCache::GetManagedClassByID(ZONG_SCRIPT_CLASS_ID(className)), std::forward<TConstructorArgs>(args)...);
 		}
 
 		template<typename... TConstructorArgs>
@@ -107,11 +107,11 @@ namespace Hazel {
 		template<typename... TArgs>
 		static void CallMethod(MonoObject* managedObject, const std::string& methodName, TArgs&&... args)
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(methodName.c_str());
+			ZONG_PROFILE_SCOPE_DYNAMIC(methodName.c_str());
 
 			if (managedObject == nullptr)
 			{
-				HZ_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
+				ZONG_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
 				return;
 			}
 
@@ -120,14 +120,14 @@ namespace Hazel {
 			ManagedClass* clazz = ScriptCache::GetMonoObjectClass(managedObject);
 			if (clazz == nullptr)
 			{
-				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to find ManagedClass!");
+				ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to find ManagedClass!");
 				return;
 			}
 
 			ManagedMethod* method = ScriptCache::GetSpecificManagedMethod(clazz, methodName, argsCount);
 			if (method == nullptr)
 			{
-				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to find a C# method called {0} with {1} parameters", methodName, argsCount);
+				ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to find a C# method called {0} with {1} parameters", methodName, argsCount);
 				return;
 			}
 
@@ -147,7 +147,7 @@ namespace Hazel {
 		{
 			if (instance == nullptr)
 			{
-				HZ_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
+				ZONG_CORE_WARN_TAG("ScriptEngine", "Attempting to call method {0} on an invalid instance!", methodName);
 				return;
 			}
 
@@ -177,11 +177,11 @@ namespace Hazel {
 		template<typename... TConstructorArgs>
 		static MonoObject* CreateManagedObject_Internal(ManagedClass* managedClass, TConstructorArgs&&... args)
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC(managedClass->FullName.c_str());
+			ZONG_PROFILE_SCOPE_DYNAMIC(managedClass->FullName.c_str());
 
 			if (managedClass == nullptr)
 			{
-				HZ_CORE_ERROR_TAG("ScriptEngine", "Attempting to create managed object with a null class!");
+				ZONG_CORE_ERROR_TAG("ScriptEngine", "Attempting to create managed object with a null class!");
 				return nullptr;
 			}
 
@@ -205,7 +205,7 @@ namespace Hazel {
 			{
 				if (ctor == nullptr)
 				{
-					HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to call constructor with {} parameters for class '{}'.", argsCount, managedClass->FullName);
+					ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to call constructor with {} parameters for class '{}'.", argsCount, managedClass->FullName);
 					return obj;
 				}
 

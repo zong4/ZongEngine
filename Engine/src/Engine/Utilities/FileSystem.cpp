@@ -1,8 +1,8 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "FileSystem.h"
 #include "StringUtils.h"
 
-#ifdef HZ_PLATFORM_LINUX
+#ifdef ZONG_PLATFORM_LINUX
 #include <libgen.h>
 #endif
 
@@ -96,9 +96,9 @@ namespace Hazel {
 		if (!Exists(absolutePath))
 			return false;
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		std::string cmd = fmt::format("explorer.exe /select,\"{0}\"", absolutePath.string());
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		std::string cmd = fmt::format("xdg-open \"{0}\"", dirname(absolutePath.string().data()));
 #endif
 		system(cmd.c_str());
@@ -107,14 +107,14 @@ namespace Hazel {
 
 	bool FileSystem::OpenDirectoryInExplorer(const std::filesystem::path& path)
 	{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		auto absolutePath = std::filesystem::canonical(path);
 		if (!Exists(absolutePath))
 			return false;
 
 		ShellExecute(NULL, L"explore", absolutePath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		return true;
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		return ShowFileInExplorer(path);
 #endif		
 	}
@@ -125,10 +125,10 @@ namespace Hazel {
 		if (!Exists(absolutePath))
 			return false;
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		ShellExecute(NULL, L"open", absolutePath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		return true;
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		std::string cmd = fmt::format("xdg-open \"{0}\"", absolutePath.string().data());
 		system(cmd.c_str());
 		return true;
@@ -176,7 +176,7 @@ namespace Hazel {
 			case NFD_CANCEL: return "";
 			case NFD_ERROR:
 			{
-				HZ_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
+				ZONG_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
 				return "";
 			}
 		}
@@ -193,7 +193,7 @@ namespace Hazel {
 			case NFD_CANCEL: return "";
 			case NFD_ERROR:
 			{
-				HZ_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
+				ZONG_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
 				return "";
 			}
 		}
@@ -210,7 +210,7 @@ namespace Hazel {
 			case NFD_CANCEL: return "";
 			case NFD_ERROR:
 			{
-				HZ_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
+				ZONG_CORE_VERIFY(false, "NFD-Extended threw an error: {}", NFD::GetError());
 				return "";
 			}
 		}

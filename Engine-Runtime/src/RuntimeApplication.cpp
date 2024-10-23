@@ -60,7 +60,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	specification.IconPath = "Resources/Icon.png";
 
 	// IMPORTANT: Disable for ACTUAL Dist builds
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 	//specification.WorkingDirectory = "../Editor";
 #endif
 

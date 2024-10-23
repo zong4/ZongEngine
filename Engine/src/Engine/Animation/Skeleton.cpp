@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Skeleton.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -46,10 +46,10 @@ namespace Hazel {
 
 	void Skeleton::SetBones(std::vector<std::string> boneNames, std::vector<uint32_t> parentBoneIndices, std::vector<glm::vec3> boneTranslations, std::vector<glm::quat> boneRotations, std::vector<glm::vec3> boneScales)
 	{
-		HZ_CORE_ASSERT(parentBoneIndices.size() == boneNames.size());
-		HZ_CORE_ASSERT(boneTranslations.size()  == boneNames.size());
-		HZ_CORE_ASSERT(boneRotations.size()     == boneNames.size());
-		HZ_CORE_ASSERT(boneScales.size()        == boneNames.size());
+		ZONG_CORE_ASSERT(parentBoneIndices.size() == boneNames.size());
+		ZONG_CORE_ASSERT(boneTranslations.size()  == boneNames.size());
+		ZONG_CORE_ASSERT(boneRotations.size()     == boneNames.size());
+		ZONG_CORE_ASSERT(boneScales.size()        == boneNames.size());
 		m_BoneNames = std::move(boneNames);
 		m_ParentBoneIndices = std::move(parentBoneIndices);
 		m_BoneTranslations = std::move(boneTranslations);
@@ -73,7 +73,7 @@ namespace Hazel {
 
 	const Hazel::Skeleton& SkeletonAsset::GetSkeleton() const
 	{
-		HZ_CORE_ASSERT(m_MeshSource && m_MeshSource->HasSkeleton());
+		ZONG_CORE_ASSERT(m_MeshSource && m_MeshSource->HasSkeleton());
 		return m_MeshSource->GetSkeleton();
 	}
 

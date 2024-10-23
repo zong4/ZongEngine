@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "DescriptorSetManager.h"
 
 #include "Engine/Renderer/Renderer.h"
@@ -29,7 +29,7 @@ namespace Hazel {
 					return RenderPassResourceType::StorageBuffer;
 			}
 
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return RenderPassResourceType::None;
 		}
 
@@ -154,7 +154,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(uniformBufferSet);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<UniformBuffer> uniformBuffer)
@@ -163,7 +163,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(uniformBuffer);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<StorageBufferSet> storageBufferSet)
@@ -172,7 +172,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(storageBufferSet);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<StorageBuffer> storageBuffer)
@@ -181,17 +181,17 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(storageBuffer);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<Texture2D> texture, uint32_t index)
 	{
 		const RenderPassInputDeclaration* decl = GetInputDeclaration(name);
-		HZ_CORE_VERIFY(index < decl->Count);
+		ZONG_CORE_VERIFY(index < decl->Count);
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(texture, index);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<TextureCube> textureCube)
@@ -200,7 +200,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(textureCube);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<Image2D> image)
@@ -209,7 +209,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(image);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	void DescriptorSetManager::SetInput(std::string_view name, Ref<ImageView> image)
@@ -218,7 +218,7 @@ namespace Hazel {
 		if (decl)
 			InputResources.at(decl->Set).at(decl->Binding).Set(image);
 		else
-			HZ_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
+			ZONG_CORE_WARN_TAG("Renderer", "[RenderPass ({})] Input {} not found", m_Specification.DebugName, name);
 	}
 
 	bool DescriptorSetManager::IsInvalidated(uint32_t set, uint32_t binding) const
@@ -274,7 +274,7 @@ namespace Hazel {
 
 			if (InputResources.find(set) == InputResources.end())
 			{
-				HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] No input resources for Set {}", m_Specification.DebugName, set);
+				ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] No input resources for Set {}", m_Specification.DebugName, set);
 				return false;
 			}
 
@@ -286,21 +286,21 @@ namespace Hazel {
 				uint32_t binding = wd.dstBinding;
 				if (setInputResources.find(binding) == setInputResources.end())
 				{
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] No input resource for {}.{}", m_Specification.DebugName, set, binding);
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is {} ({})", m_Specification.DebugName, name, wd.descriptorType);
+					ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] No input resource for {}.{}", m_Specification.DebugName, set, binding);
+					ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is {} ({})", m_Specification.DebugName, name, wd.descriptorType);
 					return false;
 				}
 
 				const auto& resource = setInputResources.at(binding);
 				if (!IsCompatibleInput(resource.Type, wd.descriptorType))
 				{
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is wrong type! {} but needs {}", m_Specification.DebugName, resource.Type, wd.descriptorType);
+					ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Required resource is wrong type! {} but needs {}", m_Specification.DebugName, resource.Type, wd.descriptorType);
 					return false;
 				}
 
 				if (resource.Type != RenderPassResourceType::Image2D && resource.Input[0] == nullptr)
 				{
-					HZ_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Resource is null! {} ({}.{})", m_Specification.DebugName, name, set, binding);
+					ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass ({})] Resource is null! {} ({}.{})", m_Specification.DebugName, name, set, binding);
 					return false;
 				}
 			}
@@ -315,7 +315,7 @@ namespace Hazel {
 		// Make sure all resources are present and we can properly bake
 		if (!Validate())
 		{
-			HZ_CORE_ERROR_TAG("Renderer", "[RenderPass] Bake - Validate failed! {}", m_Specification.DebugName);
+			ZONG_CORE_ERROR_TAG("Renderer", "[RenderPass] Bake - Validate failed! {}", m_Specification.DebugName);
 			return;
 		}
 		
@@ -510,7 +510,7 @@ namespace Hazel {
 
 				if (!writeDescriptors.empty())
 				{
-					HZ_CORE_INFO_TAG("Renderer", "Render pass update {} descriptors in set {}", writeDescriptors.size(), set);
+					ZONG_CORE_INFO_TAG("Renderer", "Render pass update {} descriptors in set {}", writeDescriptors.size(), set);
 					vkUpdateDescriptorSets(device, (uint32_t)writeDescriptors.size(), writeDescriptors.data(), 0, nullptr);
 				}
 			}
@@ -520,8 +520,8 @@ namespace Hazel {
 
 	void DescriptorSetManager::InvalidateAndUpdate()
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("DescriptorSetManager::InvalidateAndUpdate");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("DescriptorSetManager::InvalidateAndUpdate");
 
 		uint32_t currentFrameIndex = Renderer::RT_GetCurrentFrameIndex();
 
@@ -724,15 +724,15 @@ namespace Hazel {
 						{
 							Ref<RendererResource> image = input.Input[0].As<RendererResource>();
 							writeDescriptor.pImageInfo = (VkDescriptorImageInfo*)image->GetDescriptorInfo();
-							HZ_CORE_VERIFY(writeDescriptor.pImageInfo->imageView);
+							ZONG_CORE_VERIFY(writeDescriptor.pImageInfo->imageView);
 							wd.ResourceHandles[0] = writeDescriptor.pImageInfo->imageView;
 							break;
 						}
 					}
 					writeDescriptorsToUpdate.emplace_back(writeDescriptor);
 				}
-				// HZ_CORE_INFO_TAG("Renderer", "RenderPass::Prepare ({}) - updating {} descriptors in set {} (frameIndex={})", m_Specification.DebugName, writeDescriptorsToUpdate.size(), set, frameIndex);
-				HZ_CORE_INFO_TAG("Renderer", "DescriptorSetManager::InvalidateAndUpdate ({}) - updating {} descriptors in set {} (frameIndex={})", m_Specification.DebugName, writeDescriptorsToUpdate.size(), set, frameIndex);
+				// ZONG_CORE_INFO_TAG("Renderer", "RenderPass::Prepare ({}) - updating {} descriptors in set {} (frameIndex={})", m_Specification.DebugName, writeDescriptorsToUpdate.size(), set, frameIndex);
+				ZONG_CORE_INFO_TAG("Renderer", "DescriptorSetManager::InvalidateAndUpdate ({}) - updating {} descriptors in set {} (frameIndex={})", m_Specification.DebugName, writeDescriptorsToUpdate.size(), set, frameIndex);
 				VkDevice device = VulkanContext::GetCurrentDevice()->GetVulkanDevice();
 				vkUpdateDescriptorSets(device, (uint32_t)writeDescriptorsToUpdate.size(), writeDescriptorsToUpdate.data(), 0, nullptr);
 			}
@@ -757,7 +757,7 @@ namespace Hazel {
 
 	const std::vector<VkDescriptorSet>& DescriptorSetManager::GetDescriptorSets(uint32_t frameIndex) const
 	{
-		HZ_CORE_ASSERT(!m_DescriptorSets.empty());
+		ZONG_CORE_ASSERT(!m_DescriptorSets.empty());
 
 		if (frameIndex > 0 && m_DescriptorSets.size() == 1)
 			return m_DescriptorSets[0]; // Frame index is irrelevant for this type of render pass

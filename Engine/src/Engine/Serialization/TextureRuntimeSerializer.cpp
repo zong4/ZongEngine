@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "TextureRuntimeSerializer.h"
 
 #include "Engine/Platform/Vulkan/VulkanTexture.h"
@@ -28,7 +28,7 @@ namespace Hazel {
 
 			using namespace std::chrono_literals;
 			std::this_thread::sleep_for(1000ms);
-			HZ_CORE_WARN("Waiting for env map...");
+			ZONG_CORE_WARN("Waiting for env map...");
 		}
 
 		Buffer buffer;

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanStorageBuffer.h"
 
 #include "VulkanContext.h"
@@ -77,11 +77,11 @@ namespace Hazel {
 
 	void VulkanStorageBuffer::RT_SetData(const void* data, uint32_t size, uint32_t offset)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("VulkanStorageBuffer::RT_SetData");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("VulkanStorageBuffer::RT_SetData");
 
 		// Cannot call SetData if GPU only
-		HZ_CORE_VERIFY(!m_Specification.GPUOnly);
+		ZONG_CORE_VERIFY(!m_Specification.GPUOnly);
 
 #if NO_STAGING
 		VulkanAllocator allocator("StorageBuffer");
@@ -92,14 +92,14 @@ namespace Hazel {
 		VulkanAllocator allocator("Staging");
 
 		{
-			HZ_SCOPE_PERF("VulkanStorageBuffer::RT_SetData - MemoryMap");
+			ZONG_SCOPE_PERF("VulkanStorageBuffer::RT_SetData - MemoryMap");
 			uint8_t* pData = allocator.MapMemory<uint8_t>(m_StagingAlloc);
 			memcpy(pData, data, size);
 			allocator.UnmapMemory(m_StagingAlloc);
 		}
 
 		{
-			HZ_SCOPE_PERF("VulkanStorageBuffer::RT_SetData - CommandBuffer");
+			ZONG_SCOPE_PERF("VulkanStorageBuffer::RT_SetData - CommandBuffer");
 			VkCommandBuffer commandBuffer = VulkanContext::GetCurrentDevice()->GetCommandBuffer(true);
 
 			VkBufferCopy copyRegion = {

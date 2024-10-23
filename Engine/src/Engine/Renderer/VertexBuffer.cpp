@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VertexBuffer.h"
 
 #include "Renderer.h"
@@ -16,7 +16,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanVertexBuffer>::Create(data, size, usage);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 
@@ -27,7 +27,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanVertexBuffer>::Create(size, usage);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

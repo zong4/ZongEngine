@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundObject.h"
 
 namespace Hazel
@@ -44,7 +44,7 @@ namespace Hazel
 
     ISound* SoundObject::SetSound(Scope<ISound>&& sound)
     {
-        //HZ_CORE_ASSERT(!m_Sound);
+        //ZONG_CORE_ASSERT(!m_Sound);
         m_Sound = /*CreateScope<ISound>*/(std::move(sound));
         return m_Sound.get();
     }

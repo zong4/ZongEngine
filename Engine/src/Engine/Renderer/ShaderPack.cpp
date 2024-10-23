@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ShaderPack.h"
 
 #include "Engine/Core/Hash.h"
@@ -25,7 +25,7 @@ namespace Hazel {
 				case ShaderStage::Compute:  return VK_SHADER_STAGE_COMPUTE_BIT;
 			}
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return (VkShaderStageFlagBits)0;
 		}
 
@@ -38,7 +38,7 @@ namespace Hazel {
 				case VK_SHADER_STAGE_COMPUTE_BIT:  return ShaderStage::Compute;
 			}
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return (ShaderStage)0;
 		}
 
@@ -78,7 +78,7 @@ namespace Hazel {
 	Ref<Shader> ShaderPack::LoadShader(std::string_view name)
 	{
 		uint32_t nameHash = Hash::GenerateFNVHash(name);
-		HZ_CORE_VERIFY(Contains(name));
+		ZONG_CORE_VERIFY(Contains(name));
 
 		const auto& shaderProgramInfo = m_File.Index.ShaderPrograms.at(nameHash);
 

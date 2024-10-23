@@ -60,7 +60,7 @@ filter "system:windows"
 	
 		defines 
 		{ 
-			"HZ_PLATFORM_WINDOWS",
+			"ZONG_PLATFORM_WINDOWS",
 			"WL_PLATFORM_WINDOWS"
 		}
 	
@@ -69,7 +69,7 @@ filter "system:windows"
 	
 		defines 
 		{
-			"HZ_DEBUG",
+			"ZONG_DEBUG",
 			"WL_DEBUG"
 		}
 	
@@ -80,7 +80,7 @@ filter "system:windows"
 	
 		defines 
 		{
-			"HZ_RELEASE",
+			"ZONG_RELEASE",
 			"WL_RELEASE"
 		}
 	
@@ -90,10 +90,10 @@ filter "system:windows"
 		symbols "Off"
 		vectorextensions "AVX2"
 		isaextensions { "BMI", "POPCNT", "LZCNT", "F16C" }
-		defines { "HZ_DIST" }
+		defines { "ZONG_DIST" }
 
 		defines 
 		{
-			"HZ_DIST",
+			"ZONG_DIST",
 			"WL_DIST"
 		}

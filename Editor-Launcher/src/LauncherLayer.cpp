@@ -110,7 +110,7 @@ namespace Hazel {
 				if (ImGui::Button("Confirm"))
 				{
 					bool success = FileSystem::SetEnvironmentVariable("HAZEL_DIR", m_Properties.InstallPath);
-					HZ_CORE_ASSERT(success, "Failed to set Environment Variable!");
+					ZONG_CORE_ASSERT(success, "Failed to set Environment Variable!");
 					ImGui::CloseCurrentPopup();
 				}
 
@@ -351,7 +351,7 @@ namespace Hazel {
 		{
 			// premake5.lua
 			std::ifstream stream(projectPath / "premake5.lua");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();
@@ -367,7 +367,7 @@ namespace Hazel {
 		{
 			// Project File
 			std::ifstream stream(projectPath / "Project.hproj");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();
@@ -386,7 +386,7 @@ namespace Hazel {
 		{
 			// VS Project Gen File
 			std::ifstream stream(projectPath / "Win-CreateScriptProjects.bat");
-			HZ_CORE_VERIFY(stream.is_open());
+			ZONG_CORE_VERIFY(stream.is_open());
 			std::stringstream ss;
 			ss << stream.rdbuf();
 			stream.close();

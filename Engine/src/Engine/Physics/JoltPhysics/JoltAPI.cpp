@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltAPI.h"
 
 #include "JoltScene.h"
@@ -35,14 +35,14 @@ namespace Hazel {
 		vsnprintf(buffer, sizeof(buffer), format, list);
 
 		s_JoltData->LastErrorMessage = buffer;
-		HZ_CORE_TRACE_TAG("Physics", buffer);
+		ZONG_CORE_TRACE_TAG("Physics", buffer);
 	}
 
 #ifdef JPH_ENABLE_ASSERTS
 
 	static bool JoltAssertFailedCallback(const char* expression, const char* message, const char* file, uint32_t line)
 	{
-		HZ_CORE_FATAL_TAG("Physics", "{}:{}: ({}) {}", file, line, expression, message != nullptr ? message : "");
+		ZONG_CORE_FATAL_TAG("Physics", "{}:{}: ({}) {}", file, line, expression, message != nullptr ? message : "");
 		return true;
 	}
 
@@ -58,11 +58,11 @@ namespace Hazel {
 
 	}
 
-#define HZ_ENABLE_MALLOC_ALLOC 0
+#define ZONG_ENABLE_MALLOC_ALLOC 0
 
 	void JoltAPI::Init()
 	{
-		HZ_CORE_VERIFY(!s_JoltData, "Can't initialize Jolt multiple times!");
+		ZONG_CORE_VERIFY(!s_JoltData, "Can't initialize Jolt multiple times!");
 
 		JPH::RegisterDefaultAllocator();
 
@@ -78,7 +78,7 @@ namespace Hazel {
 
 		s_JoltData = hnew JoltData();
 
-#if HZ_ENABLE_MALLOC_ALLOC
+#if ZONG_ENABLE_MALLOC_ALLOC
 		// NOTE(Peter): We shouldn't be using this allocator if we want the best performance
 		s_JoltData->TemporariesAllocator = new JPH::TempAllocatorMalloc();
 #else

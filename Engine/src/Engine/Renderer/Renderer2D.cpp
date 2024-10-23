@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Renderer2D.h"
 
 #include "Engine/Renderer/Pipeline.h"
@@ -73,7 +73,7 @@ namespace Hazel {
 			quadSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 			m_QuadPass = RenderPass::Create(quadSpec);
 			m_QuadPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_QuadPass->Validate());
+			ZONG_CORE_VERIFY(m_QuadPass->Validate());
 			m_QuadPass->Bake();
 
 			m_QuadVertexBuffers.resize(1);
@@ -143,7 +143,7 @@ namespace Hazel {
 				lineSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_LinePass = RenderPass::Create(lineSpec);
 				m_LinePass->SetInput("Camera", m_UBSCamera);
-				HZ_CORE_VERIFY(m_LinePass->Validate());
+				ZONG_CORE_VERIFY(m_LinePass->Validate());
 				m_LinePass->Bake();
 			}
 
@@ -154,7 +154,7 @@ namespace Hazel {
 				lineOnTopSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 				m_LineOnTopPass = RenderPass::Create(lineOnTopSpec);
 				m_LineOnTopPass->SetInput("Camera", m_UBSCamera);
-				HZ_CORE_VERIFY(m_LineOnTopPass->Validate());
+				ZONG_CORE_VERIFY(m_LineOnTopPass->Validate());
 				m_LineOnTopPass->Bake();
 			}
 
@@ -203,7 +203,7 @@ namespace Hazel {
 			textSpec.Pipeline = Pipeline::Create(pipelineSpecification);
 			m_TextPass = RenderPass::Create(textSpec);
 			m_TextPass->SetInput("Camera", m_UBSCamera);
-			HZ_CORE_VERIFY(m_TextPass->Validate());
+			ZONG_CORE_VERIFY(m_TextPass->Validate());
 			m_TextPass->Bake();
 
 			m_TextMaterial = Material::Create(pipelineSpecification.Shader);
@@ -327,7 +327,7 @@ namespace Hazel {
 			ubsCamera->RT_Get()->RT_SetData(&viewProj, sizeof(UBCamera));
 		});
 
-		HZ_CORE_TRACE_TAG("Renderer", "Renderer2D::BeginScene frame {}", frameIndex);
+		ZONG_CORE_TRACE_TAG("Renderer", "Renderer2D::BeginScene frame {}", frameIndex);
 
 		m_QuadIndexCount = 0;
 		for (uint32_t i = 0; i < m_QuadVertexBufferPtr.size(); i++)
@@ -363,7 +363,7 @@ namespace Hazel {
 
 		m_RenderCommandBuffer->Begin();
 
-		HZ_CORE_TRACE_TAG("Renderer", "Renderer2D::EndScene frame {}", frameIndex);
+		ZONG_CORE_TRACE_TAG("Renderer", "Renderer2D::EndScene frame {}", frameIndex);
 		uint32_t dataSize = 0;
 		
 		// Quads
@@ -1243,7 +1243,7 @@ namespace Hazel {
 		std::u32string utf32string = To_UTF32(string);
 
 		Ref<Texture2D> fontAtlas = font->GetFontAtlas();
-		HZ_CORE_ASSERT(fontAtlas);
+		ZONG_CORE_ASSERT(fontAtlas);
 
 		for (uint32_t i = 0; i < m_FontTextureSlotIndex; i++)
 		{

@@ -103,7 +103,7 @@ namespace Hazel::Utils {
 		if (actionType == "SeekAll")	return Audio::EActionType::SeekAll;
 		if (actionType == "PostTrigger")return Audio::EActionType::PostTrigger;
 		
-		HZ_CORE_ASSERT(false, "Unknown Action Type");
+		ZONG_CORE_ASSERT(false, "Unknown Action Type");
 		return Audio::EActionType::Play;
 	}
 
@@ -124,7 +124,7 @@ namespace Hazel::Utils {
 		case Audio::EActionType::PostTrigger:	return "PostTrigger";
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown Action Type");
+		ZONG_CORE_ASSERT(false, "Unknown Action Type");
 		return "None";
 	}
 
@@ -133,7 +133,7 @@ namespace Hazel::Utils {
 		if (context == "GameObject")	return Audio::EActionContext::GameObject;
 		if (context == "Global")		return Audio::EActionContext::Global;
 
-		HZ_CORE_ASSERT(false, "Unknown Context Type");
+		ZONG_CORE_ASSERT(false, "Unknown Context Type");
 		return Audio::EActionContext::GameObject;
 	}
 
@@ -145,7 +145,7 @@ namespace Hazel::Utils {
 		case Audio::EActionContext::Global:		return "Global";
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown Context Type");
+		ZONG_CORE_ASSERT(false, "Unknown Context Type");
 		return "None";
 	}
 

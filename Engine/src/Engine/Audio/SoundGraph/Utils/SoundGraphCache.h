@@ -38,7 +38,7 @@ namespace Hazel
 				if (!stream)
 				{
 					stream.close();
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					return;
 				}
 
@@ -77,7 +77,7 @@ namespace Hazel
 					auto end = fin.tellg();
 					fin.seekg(0, std::ios::beg);
 					auto size = end - fin.tellg();
-					HZ_CORE_ASSERT(size != 0);
+					ZONG_CORE_ASSERT(size != 0);
 
 					if (destSize != size)
 					{

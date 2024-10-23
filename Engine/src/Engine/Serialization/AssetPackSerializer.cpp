@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssetPackSerializer.h"
 #include "Engine/Asset/AssetImporter.h"
 
@@ -20,12 +20,12 @@ namespace Hazel {
 	void AssetPackSerializer::Serialize(const std::filesystem::path& path, AssetPackFile& file, Buffer appBinary, std::atomic<float>& progress)
 	{
 		// Print Info
-		HZ_CORE_TRACE("Serializing AssetPack to {}", path.string());
-		HZ_CORE_TRACE("  {} scenes", file.Index.Scenes.size());
+		ZONG_CORE_TRACE("Serializing AssetPack to {}", path.string());
+		ZONG_CORE_TRACE("  {} scenes", file.Index.Scenes.size());
 		uint32_t assetCount = 0;
 		for (const auto& [sceneHandle, sceneInfo] : file.Index.Scenes)
 			assetCount += uint32_t(sceneInfo.Assets.size());
-		HZ_CORE_TRACE("  {} assets (including duplicates)", assetCount);
+		ZONG_CORE_TRACE("  {} assets (including duplicates)", assetCount);
 
 		FileStreamWriter serializer(path);
 
@@ -81,7 +81,7 @@ namespace Hazel {
 			progress = progress + progressIncrement;
 		}
 
-		HZ_CORE_TRACE("Serialized {} assets into AssetPack", serializedAssets.size());
+		ZONG_CORE_TRACE("Serialized {} assets into AssetPack", serializedAssets.size());
 
 		serializer.SetStreamPosition(indexPos);
 		serializer.WriteRaw<uint64_t>(file.Index.PackedAppBinaryOffset);
@@ -105,7 +105,7 @@ namespace Hazel {
 	bool AssetPackSerializer::DeserializeIndex(const std::filesystem::path& path, AssetPackFile& file)
 	{
 		// Print Info
-		HZ_CORE_TRACE("Deserializing AssetPack from {}", path.string());
+		ZONG_CORE_TRACE("Deserializing AssetPack from {}", path.string());
 
 		FileStreamReader stream(path);
 		if (!stream.IsStreamGood())
@@ -113,7 +113,7 @@ namespace Hazel {
 
 		stream.ReadRaw<AssetPackFile::FileHeader>(file.Header);
 		bool validHeader = memcmp(file.Header.HEADER, "HZAP", 4) == 0;
-		HZ_CORE_ASSERT(validHeader);
+		ZONG_CORE_ASSERT(validHeader);
 		if (!validHeader)
 			return false;
 
@@ -136,7 +136,7 @@ namespace Hazel {
 			stream.ReadMap(sceneInfo.Assets);
 		}
 
-		HZ_CORE_TRACE("Deserialized index with {} scenes from AssetPack", sceneCount);
+		ZONG_CORE_TRACE("Deserialized index with {} scenes from AssetPack", sceneCount);
 		return true;
 	}
 

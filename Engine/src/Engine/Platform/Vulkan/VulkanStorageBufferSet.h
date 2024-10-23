@@ -36,7 +36,7 @@ namespace Hazel {
 
 		virtual Ref<StorageBuffer> Get(uint32_t frame) override
 		{
-			HZ_CORE_ASSERT(m_StorageBuffers.find(frame) != m_StorageBuffers.end());
+			ZONG_CORE_ASSERT(m_StorageBuffers.find(frame) != m_StorageBuffers.end());
 			return m_StorageBuffers.at(frame);
 		}
 

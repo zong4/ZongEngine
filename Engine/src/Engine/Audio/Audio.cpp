@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Audio.h"
 
 #include "Engine/Debug/Profiler.h"
@@ -19,8 +19,8 @@ namespace Hazel::Audio
         s_ThreadActive = true;
         s_AudioThread = hnew std::thread([]
             {
-                HZ_PROFILE_THREAD("AudioThread");
-#if defined(HZ_PLATFORM_WINDOWS)
+                ZONG_PROFILE_THREAD("AudioThread");
+#if defined(ZONG_PLATFORM_WINDOWS)
 
                 HRESULT r;
                 r = SetThreadDescription(
@@ -29,12 +29,12 @@ namespace Hazel::Audio
                 );
 #endif
                 
-                HZ_CORE_INFO_TAG("Audio", "Spinning up Audio Thread.");
+                ZONG_CORE_INFO_TAG("Audio", "Spinning up Audio Thread.");
                 while (s_ThreadActive)
                 {
                     OnUpdate();
                 }
-                HZ_CORE_INFO_TAG("Audio", "Audio Thread stopped.");
+                ZONG_CORE_INFO_TAG("Audio", "Audio Thread stopped.");
             });
 
         s_AudioThreadID = s_AudioThread->get_id();
@@ -70,7 +70,7 @@ namespace Hazel::Audio
 
     void AudioThread::AddTask(AudioFunctionCallback*&& funcCb)
     {
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
         std::scoped_lock lock(s_AudioThreadJobsLock);
         s_AudioThreadJobs.emplace(std::move(funcCb));
@@ -78,7 +78,7 @@ namespace Hazel::Audio
 
     void AudioThread::OnUpdate()
     {
-        HZ_PROFILE_FUNC();
+        ZONG_PROFILE_FUNC();
 
         s_Timer.Reset();
 
@@ -86,7 +86,7 @@ namespace Hazel::Audio
         //--- Handle AudioThread Jobs
 
         {
-            HZ_PROFILE_SCOPE_DYNAMIC("AudioThread::OnUpdate - Execution");
+            ZONG_PROFILE_SCOPE_DYNAMIC("AudioThread::OnUpdate - Execution");
 
             auto& jobs = s_AudioThreadJobsLocal;
             {
@@ -100,7 +100,7 @@ namespace Hazel::Audio
                 for (int i = (int)jobs.size() - 1; i >= 0; i--)
                 {
                     auto job = jobs.front();
-                    //HZ_CONSOLE_LOG_INFO("AudioThread. Executing: {}", job->GetID());
+                    //ZONG_CONSOLE_LOG_INFO("AudioThread. Executing: {}", job->GetID());
                     job->Execute();
 
                     // TODO: check if job ran successfully, if not, notify and/or add back to the queue
@@ -110,7 +110,7 @@ namespace Hazel::Audio
             }
         }
 
-        HZ_CORE_ASSERT(onUpdateCallback.IsBound(), "Update Function is not bound!");
+        ZONG_CORE_ASSERT(onUpdateCallback.IsBound(), "Update Function is not bound!");
         onUpdateCallback.Invoke(s_TimeStep);
 
         // Sleeping to let at least a single audio block to render before next OnUpdate
@@ -126,12 +126,12 @@ namespace Hazel::Audio
 	//==============================================================================
 	AudioThreadFence::AudioThreadFence()
 	{
-		HZ_CORE_ASSERT(!IsAudioThread());
+		ZONG_CORE_ASSERT(!IsAudioThread());
 	}
 
 	AudioThreadFence::~AudioThreadFence()
 	{
-		HZ_CORE_ASSERT(!IsAudioThread());
+		ZONG_CORE_ASSERT(!IsAudioThread());
 
 		Wait();
 		delete m_Counter;
@@ -139,7 +139,7 @@ namespace Hazel::Audio
 
 	void AudioThreadFence::Begin()
 	{
-		HZ_CORE_ASSERT(!IsAudioThread());
+		ZONG_CORE_ASSERT(!IsAudioThread());
 
 		if (!AudioThread::IsRunning())
 			return;
@@ -164,7 +164,7 @@ namespace Hazel::Audio
 
 	void AudioThreadFence::Wait() const
 	{
-		HZ_CORE_ASSERT(!IsAudioThread());
+		ZONG_CORE_ASSERT(!IsAudioThread());
 
 		while (!IsReady()) 
 		{

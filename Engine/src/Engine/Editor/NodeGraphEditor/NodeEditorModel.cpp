@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "NodeEditorModel.h"
 #include "NodeGraphEditor.h"
 #include "NodeGraphUtils.h"
@@ -262,7 +262,7 @@ namespace Hazel {
 		std::for_each(links.begin(), links.end(), [&](Link& link)
 		{
 			auto pin = FindPin(link.StartPinID);
-			HZ_CORE_ASSERT(pin); // this can fail if node implementation has been changed since the graph was first created
+			ZONG_CORE_ASSERT(pin); // this can fail if node implementation has been changed since the graph was first created
 			if (pin && pin->NodeID == nodeId)
 			{
 				if (auto* pin = FindPin(link.EndPinID))
@@ -316,7 +316,7 @@ namespace Hazel {
 
 	void NodeEditorModel::CreateLink(Pin* startPin, Pin* endPin)
 	{
-		HZ_CORE_ASSERT(startPin && endPin);
+		ZONG_CORE_ASSERT(startPin && endPin);
 
 		auto& links = GetLinks();
 
@@ -565,7 +565,7 @@ namespace Hazel {
 			case EPropertyType::Output:          return GetOutputs();
 			case EPropertyType::LocalVariable:   return GetLocalVariables();
 			case EPropertyType::Invalid:
-			default:                             HZ_CORE_ASSERT(false); return GetInputs();
+			default:                             ZONG_CORE_ASSERT(false); return GetInputs();
 		}
 	}
 
@@ -578,7 +578,7 @@ namespace Hazel {
 			case EPropertyType::Output:          return GetOutputs();
 			case EPropertyType::LocalVariable:   return GetLocalVariables();
 			case EPropertyType::Invalid:
-			default:                             HZ_CORE_ASSERT(false); return GetInputs();
+			default:                             ZONG_CORE_ASSERT(false); return GetInputs();
 		}
 	}
 
@@ -589,7 +589,7 @@ namespace Hazel {
 
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return name;
 		}
 
@@ -626,8 +626,8 @@ namespace Hazel {
 		InvalidatePlayer();
 
 		//? DBG
-		//HZ_CORE_WARN("Added Input {} to the graph. Inputs:", name);
-		//HZ_LOG_TRACE(m_GraphInputs.ToJSON());
+		//ZONG_CORE_WARN("Added Input {} to the graph. Inputs:", name);
+		//ZONG_LOG_TRACE(m_GraphInputs.ToJSON());
 
 		return name;
 	}
@@ -637,7 +637,7 @@ namespace Hazel {
 	{
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -657,7 +657,7 @@ namespace Hazel {
 		InvalidatePlayer();
 
 		//? DBG
-		//HZ_CORE_WARN("Removed Input {} from the graph. Inputs:", name);
+		//ZONG_CORE_WARN("Removed Input {} from the graph. Inputs:", name);
 	}
 
 
@@ -665,7 +665,7 @@ namespace Hazel {
 	{
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -682,7 +682,7 @@ namespace Hazel {
 	{
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -704,7 +704,7 @@ namespace Hazel {
 	{
 		if (type == EPropertyType::Invalid)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -729,7 +729,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin*
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return node->Outputs[0];
@@ -786,7 +786,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin**
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return &node->Outputs[0];
@@ -858,7 +858,7 @@ namespace Hazel {
 
 		const auto getPropertyValuePin = [](Node* node, std::string_view propertyName) -> Pin*
 		{
-			HZ_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
+			ZONG_CORE_ASSERT(!node->Outputs.empty() || !node->Inputs.empty());
 
 			if (!node->Outputs.empty())
 				return node->Outputs[0];
@@ -996,13 +996,13 @@ namespace Hazel {
 		{
 			auto* startPin = FindPin(newLink->StartPinID);
 			auto* endPin = FindPin(newLink->EndPinID);
-			HZ_CORE_ASSERT(endPin);
+			ZONG_CORE_ASSERT(endPin);
 
 			auto* startNode = FindNode(startPin->NodeID);
-			HZ_CORE_ASSERT(startNode);
+			ZONG_CORE_ASSERT(startNode);
 
 			auto* endNode = FindNode(endPin->NodeID);
-			HZ_CORE_ASSERT(startPin && endNode);
+			ZONG_CORE_ASSERT(startPin && endNode);
 
 			//? JP. no idea why we needed this :shrug:
 #if 0

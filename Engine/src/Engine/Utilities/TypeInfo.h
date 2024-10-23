@@ -1,7 +1,7 @@
 #pragma once
 
 #if __has_include(<cxxabi.h>)
-#define HZ_ABI_SUPPORTED
+#define ZONG_ABI_SUPPORTED
 #include <cxxabi.h>
 #endif
 
@@ -18,7 +18,7 @@ namespace Hazel {
 	//				We could of course handle non-MSVC compilers explicitly just like we do with MSVC, but it's not worth it imo. I may end up merging this with Jay's TypeDescriptor
 	//				file if he thinks they fit together.
 
-#if defined(HZ_ABI_SUPPORTED)
+#if defined(ZONG_ABI_SUPPORTED)
 	using TypeNameString = std::string;
 
 	template<typename T, bool ExcludeNamespace>
@@ -37,7 +37,7 @@ namespace Hazel {
 			{
 				size_t namespacePos = result.find("::");
 
-#ifndef HZ_PLATFORM_WINDOWS
+#ifndef ZONG_PLATFORM_WINDOWS
 				if (namespacePos != TypeNameString::npos)
 					return result.substr(namespacePos + 2);
 #endif

@@ -1,4 +1,4 @@
-﻿#include "hzpch.h"
+﻿#include "pch.h"
 #include "SceneHierarchyPanel.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -57,7 +57,7 @@ namespace Hazel {
 
 	void SceneHierarchyPanel::OnImGuiRender(bool& isOpen)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		if (m_IsWindow)
 		{
 			UI::ScopedStyle padding(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -316,7 +316,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -346,7 +346,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -377,7 +377,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -410,7 +410,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -443,7 +443,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -476,7 +476,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -509,7 +509,7 @@ namespace Hazel {
 						}
 					}
 					else
-						HZ_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
+						ZONG_CONSOLE_LOG_WARN("Please import the default mesh source files to the following path: {0}", filePath);
 				}
 			}
 
@@ -821,7 +821,7 @@ namespace Hazel {
 						if (prefab)
 							prefab->Create(entity);
 						else
-							HZ_ERROR("Prefab has invalid asset handle: {0}", prefabAssetHandle);
+							ZONG_ERROR("Prefab has invalid asset handle: {0}", prefabAssetHandle);
 					}
 				}
 

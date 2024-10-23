@@ -30,7 +30,7 @@ namespace Hazel::Audio
 
 		inline T Get() noexcept
 		{
-			HZ_CORE_ASSERT(m_avail > 0);
+			ZONG_CORE_ASSERT(m_avail > 0);
 			T x = m_buf[m_readpos];
 			++m_readpos;
 			--m_avail;
@@ -43,7 +43,7 @@ namespace Hazel::Audio
 
 		inline int GetMultiple(T* buf, int len) noexcept
 		{
-			HZ_CORE_ASSERT(m_avail > 0);
+			ZONG_CORE_ASSERT(m_avail > 0);
 			if (len > m_avail)
 				len = m_avail;
 			for (int i = 0; i < len; ++i)
@@ -74,14 +74,14 @@ namespace Hazel::Audio
 
 			m_avail += len;
 
-			HZ_CORE_ASSERT(m_avail < m_buf.size());
+			ZONG_CORE_ASSERT(m_avail < m_buf.size());
 		}
 
 		// Fast version without checking how many available
 		template<unsigned int count>
 		void GetMultiple(T* dest)
 		{
-			HZ_CORE_ASSERT(m_avail >= count);
+			ZONG_CORE_ASSERT(m_avail >= count);
 
 			std::memcpy(dest, &m_buf[m_readpos], count * sizeof(T));
 

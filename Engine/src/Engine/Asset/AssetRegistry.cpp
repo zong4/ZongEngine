@@ -1,11 +1,11 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssetRegistry.h"
 
 namespace Hazel {
 
-#define HZ_ASSETREGISTRY_LOG 0
-#if HZ_ASSETREGISTRY_LOG
-#define ASSET_LOG(...) HZ_CORE_TRACE_TAG("ASSET", __VA_ARGS__)
+#define ZONG_ASSETREGISTRY_LOG 0
+#if ZONG_ASSETREGISTRY_LOG
+#define ASSET_LOG(...) ZONG_CORE_TRACE_TAG("ASSET", __VA_ARGS__)
 #else 
 #define ASSET_LOG(...)
 #endif
@@ -24,7 +24,7 @@ namespace Hazel {
 	{
 		std::scoped_lock<std::mutex> lock(s_AssetRegistryMutex);
 
-		HZ_CORE_ASSERT(m_AssetRegistry.find(handle) != m_AssetRegistry.end());
+		ZONG_CORE_ASSERT(m_AssetRegistry.find(handle) != m_AssetRegistry.end());
 		ASSET_LOG("Retrieving const handle {}", handle);
 		return m_AssetRegistry.at(handle);
 	}

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphNodeEditorModel.h"
 
 #include "Engine/Audio/AudioEngine.h"
@@ -31,16 +31,16 @@ namespace Hazel {
 	{
 		if (const auto* node = soundGraph->FindNodeByID(7220023940811122597))
 		{
-			HZ_CORE_WARN("======================");
-			HZ_CORE_WARN("NODE DUMP");
-			HZ_CORE_WARN(dumpIdentifier);
-			HZ_CORE_TRACE("----------------------");
-			HZ_CORE_TRACE("{}", node->dbgName);
+			ZONG_CORE_WARN("======================");
+			ZONG_CORE_WARN("NODE DUMP");
+			ZONG_CORE_WARN(dumpIdentifier);
+			ZONG_CORE_TRACE("----------------------");
+			ZONG_CORE_TRACE("{}", node->dbgName);
 			for (const auto& [id, value] : node->Ins)
 			{
-				HZ_CORE_TRACE("[{0}] {1}", id, choc::json::toString(value));
+				ZONG_CORE_TRACE("[{0}] {1}", id, choc::json::toString(value));
 			}
-			HZ_CORE_TRACE("----------------------");
+			ZONG_CORE_TRACE("----------------------");
 		}
 	}
 
@@ -128,7 +128,7 @@ namespace Hazel {
 				bool parametersSet = m_SoundGraphSource->ApplyParameterPreset(graph->GraphInputs);
 
 				// Preset must match parameters (input events) of the compiled patch player 
-				HZ_CORE_ASSERT(parametersSet);
+				ZONG_CORE_ASSERT(parametersSet);
 			}
 
 			return soundGraph != nullptr;
@@ -148,7 +148,7 @@ namespace Hazel {
 			if (m_SoundGraphSource->SendPlayEvent())
 			{
 				//? DBG
-				//HZ_CORE_INFO("Posted Play");
+				//ZONG_CORE_INFO("Posted Play");
 			}
 		};
 
@@ -171,7 +171,7 @@ namespace Hazel {
 					bool parametersSet = m_SoundGraphSource->ApplyParameterPreset(m_GraphAsset->GraphInputs);
 
 					// Preset must match parameters (input events) of the compiled patch player 
-					HZ_CORE_ASSERT(parametersSet);
+					ZONG_CORE_ASSERT(parametersSet);
 				}
 			}
 		};
@@ -226,7 +226,7 @@ namespace Hazel {
 
 	void SoundGraphNodeEditorModel::OnCompileGraph()
 	{
-		HZ_CORE_INFO_TAG("Audio", "Compiling graph...");
+		ZONG_CORE_INFO_TAG("Audio", "Compiling graph...");
 		
 		//SaveAll();
 
@@ -236,11 +236,11 @@ namespace Hazel {
 			{
 				InvalidatePlayer(false);
 
-				HZ_CORE_INFO_TAG("Audio", "Graph has been compiled.");
+				ZONG_CORE_INFO_TAG("Audio", "Graph has been compiled.");
 				if (onCompiledSuccessfully)
 					onCompiledSuccessfully();
 
-				HZ_CONSOLE_LOG_TRACE("Sound graph successfully compiled.");
+				ZONG_CONSOLE_LOG_TRACE("Sound graph successfully compiled.");
 
 				// Saving newly created prototype.
 				// If failed to compile, the old prototype is going to be used
@@ -249,12 +249,12 @@ namespace Hazel {
 			}
 			else
 			{
-				HZ_CONSOLE_LOG_ERROR("Failed to compile sound graph!");
+				ZONG_CONSOLE_LOG_ERROR("Failed to compile sound graph!");
 			}
 		}
 		else
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to compile sound graph!");
+			ZONG_CONSOLE_LOG_ERROR("Failed to compile sound graph!");
 		}
 	}
 
@@ -279,8 +279,8 @@ namespace Hazel {
 			//		editor shouldn't crash in that case, need to handle it softer
 			// TODO: JP. perhaps we could display a warning or error icon on top of the "Compile" button
 			//		to show that compilation has failed and the graph is invalid
-			HZ_CORE_ERROR("Failed to find endpoint node to sort the graph!");
-			//HZ_CORE_ASSERT(false);
+			ZONG_CORE_ERROR("Failed to find endpoint node to sort the graph!");
+			//ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -342,7 +342,7 @@ namespace Hazel {
 						break;
 					}
 				}
-				HZ_CORE_ASSERT(localVarSortIndex != Node::UndefinedSortIndex);
+				ZONG_CORE_ASSERT(localVarSortIndex != Node::UndefinedSortIndex);
 
 				// Collect outputs from all instances of getter nodes
 				for (auto* n : localVarNodes)
@@ -422,7 +422,7 @@ namespace Hazel {
 			auto getIndex = [](auto vec, auto valueFunc)
 			{
 				auto it = std::find_if(vec.begin(), vec.end(), valueFunc);
-				HZ_CORE_ASSERT(it != vec.end());
+				ZONG_CORE_ASSERT(it != vec.end());
 				return it - vec.begin();
 			};
 
@@ -529,7 +529,7 @@ namespace Hazel {
 			// Call parameter change for the live preview player
 			auto newValue = GetPropertySet(type).GetValue(inputName);
 			bool set = m_SoundGraphSource->SetParameter(choc::text::replace(inputName, " ", ""), newValue);
-			HZ_CORE_ASSERT(set);
+			ZONG_CORE_ASSERT(set);
 		}
 	}
 
@@ -559,7 +559,7 @@ namespace Hazel {
 					&& node->Inputs.size() == 1
 					&& node->Inputs[0]->Name == variableName)
 				{
-					HZ_CONSOLE_LOG_TRACE("Setter node for the variable '{}' already exists!", variableName);
+					ZONG_CONSOLE_LOG_TRACE("Setter node for the variable '{}' already exists!", variableName);
 					ax::NodeEditor::SelectNode((uint64_t)node->ID, false);
 					ax::NodeEditor::NavigateToSelection();
 					return nullptr;

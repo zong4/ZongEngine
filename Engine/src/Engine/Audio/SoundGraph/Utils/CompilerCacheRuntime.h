@@ -26,7 +26,7 @@ namespace Hazel {
 		void StoreItemInCache(const char* key, const void* sourceData, uint64_t size) override
 		{
 			// TODO: might still want to store items, e.g. if compiled while loading the Runtime
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -41,7 +41,7 @@ namespace Hazel {
 			if (fileSize == 0)
 			{
 				StoreCacheResult({ key, EError::FailedToFindFile });
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return 0;
 			}
 
@@ -57,7 +57,7 @@ namespace Hazel {
 					std::streampos end = fin.tellg();
 					fin.seekg(0, std::ios::beg);
 					uint32_t size = end - fin.tellg();
-					HZ_CORE_ASSERT(size != 0);
+					ZONG_CORE_ASSERT(size != 0);
 
 					if (destSize != size)
 					{
@@ -84,7 +84,7 @@ namespace Hazel {
 
 			if (!readEntireFile())
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				return 0;
 			}
 
@@ -95,7 +95,7 @@ namespace Hazel {
 
 		void SetCacheDirectoryIfNotSet(const std::filesystem::path& newDirectory)
 		{
-			HZ_CORE_ASSERT(!newDirectory.empty());
+			ZONG_CORE_ASSERT(!newDirectory.empty());
 			if (m_Folder.empty())
 				m_Folder = newDirectory;
 		}

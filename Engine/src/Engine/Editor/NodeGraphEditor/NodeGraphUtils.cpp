@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "NodeGraphUtils.h"
 
 namespace Hazel::Utils {
@@ -16,7 +16,7 @@ namespace Hazel::Utils {
 		else if (IsAssetHandle<AssetType::Audio>(type))     return "AudioAsset";
 		else if (IsAssetHandle<AssetType::Animation>(type)) return "AnimationAsset";
 		else if (IsAssetHandle<AssetType::Skeleton>(type))  return "SkeletonAsset";
-		else HZ_CORE_ERROR("Custom object type encountered.  This needs to be handled!");
+		else ZONG_CORE_ERROR("Custom object type encountered.  This needs to be handled!");
 
 		return "invalid";
 	}
@@ -33,7 +33,7 @@ namespace Hazel::Utils {
 		else if (name == "AnimationAsset") return CreateAssetHandleType<AssetType::Animation>();
 		else if (name == "SkeletonAsset")  return CreateAssetHandleType<AssetType::Skeleton>();
 
-		HZ_CORE_ERROR("Unsupported type");
+		ZONG_CORE_ERROR("Unsupported type");
 		return choc::value::Type::createInt32();
 	}
 

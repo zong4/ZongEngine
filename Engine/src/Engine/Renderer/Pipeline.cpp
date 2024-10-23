@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Pipeline.h"
 
 #include "Renderer.h"
@@ -16,7 +16,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanPipeline>::Create(spec);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

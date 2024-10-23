@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Prefab.h"
 
 #include "Scene.h"
@@ -13,7 +13,7 @@ namespace Hazel {
 
 	Entity Prefab::CreatePrefabFromEntity(Entity entity)
 	{
-		HZ_CORE_ASSERT(Handle);
+		ZONG_CORE_ASSERT(Handle);
 
 		Entity newEntity = m_Scene->CreateEntity();
 
@@ -58,7 +58,7 @@ namespace Hazel {
 				foundAll = foundAll && foundOne;
 			}
 		});
-		HZ_CORE_ASSERT(foundAll, "At least one component was not duplicated - have you added a new component type and not dealt with it here?");
+		ZONG_CORE_ASSERT(foundAll, "At least one component was not duplicated - have you added a new component type and not dealt with it here?");
 #endif
 
 		if (newEntity.HasComponent<AnimationComponent>())

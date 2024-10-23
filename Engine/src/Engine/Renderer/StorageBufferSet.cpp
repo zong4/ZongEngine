@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 
 #include "UniformBufferSet.h"
 
@@ -19,7 +19,7 @@ namespace Hazel {
 			case RendererAPIType::Vulkan: return Ref<VulkanStorageBufferSet>::Create(specification, size, framesInFlight);
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 

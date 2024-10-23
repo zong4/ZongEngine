@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanSwapChain.h"
 
 #include "Engine/Debug/Profiler.h"
@@ -9,14 +9,14 @@
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                        \
 {                                                                       \
 	fp##entrypoint = reinterpret_cast<PFN_vk##entrypoint>(vkGetInstanceProcAddr(inst, "vk"#entrypoint)); \
-	HZ_CORE_ASSERT(fp##entrypoint);                                     \
+	ZONG_CORE_ASSERT(fp##entrypoint);                                     \
 }
 
 // Macro to get a procedure address based on a vulkan device
 #define GET_DEVICE_PROC_ADDR(dev, entrypoint)                           \
 {                                                                       \
 	fp##entrypoint = reinterpret_cast<PFN_vk##entrypoint>(vkGetDeviceProcAddr(dev, "vk"#entrypoint));   \
-	HZ_CORE_ASSERT(fp##entrypoint);                                     \
+	ZONG_CORE_ASSERT(fp##entrypoint);                                     \
 }
 
 static PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
@@ -80,7 +80,7 @@ namespace Hazel {
 		// Get available queue family properties
 		uint32_t queueCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, NULL);
-		HZ_CORE_ASSERT(queueCount >= 1);
+		ZONG_CORE_ASSERT(queueCount >= 1);
 
 		std::vector<VkQueueFamilyProperties> queueProps(queueCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, queueProps.data());
@@ -129,8 +129,8 @@ namespace Hazel {
 			}
 		}
 
-		HZ_CORE_ASSERT(graphicsQueueNodeIndex != UINT32_MAX);
-		HZ_CORE_ASSERT(presentQueueNodeIndex != UINT32_MAX);
+		ZONG_CORE_ASSERT(graphicsQueueNodeIndex != UINT32_MAX);
+		ZONG_CORE_ASSERT(presentQueueNodeIndex != UINT32_MAX);
 
 		m_QueueNodeIndex = graphicsQueueNodeIndex;
 
@@ -153,7 +153,7 @@ namespace Hazel {
 		// Get available present modes
 		uint32_t presentModeCount;
 		VK_CHECK_RESULT(fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface, &presentModeCount, NULL));
-		HZ_CORE_ASSERT(presentModeCount > 0);
+		ZONG_CORE_ASSERT(presentModeCount > 0);
 		std::vector<VkPresentModeKHR> presentModes(presentModeCount);
 		VK_CHECK_RESULT(fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_Surface, &presentModeCount, presentModes.data()));
 
@@ -453,7 +453,7 @@ namespace Hazel {
 
 	void VulkanSwapChain::Destroy()
 	{
-		HZ_CORE_WARN_TAG("Renderer", "VulkanSwapChain::OnDestroy");
+		ZONG_CORE_WARN_TAG("Renderer", "VulkanSwapChain::OnDestroy");
 
 		auto device = m_Device->GetVulkanDevice();
 		vkDeviceWaitIdle(device);
@@ -487,7 +487,7 @@ namespace Hazel {
 
 	void VulkanSwapChain::OnResize(uint32_t width, uint32_t height)
 	{
-		HZ_CORE_WARN_TAG("Renderer", "VulkanSwapChain::OnResize");
+		ZONG_CORE_WARN_TAG("Renderer", "VulkanSwapChain::OnResize");
 
 		auto device = m_Device->GetVulkanDevice();
 		vkDeviceWaitIdle(device);
@@ -497,7 +497,7 @@ namespace Hazel {
 
 	void VulkanSwapChain::BeginFrame()
 	{
-		HZ_SCOPE_PERF("VulkanSwapChain::BeginFrame");
+		ZONG_SCOPE_PERF("VulkanSwapChain::BeginFrame");
 
 		// Resource release queue
 		auto& queue = Renderer::GetRenderResourceReleaseQueue(m_CurrentBufferIndex);
@@ -510,8 +510,8 @@ namespace Hazel {
 
 	void VulkanSwapChain::Present()
 	{
-		HZ_PROFILE_FUNC();
-		HZ_SCOPE_PERF("VulkanSwapChain::Present");
+		ZONG_PROFILE_FUNC();
+		ZONG_SCOPE_PERF("VulkanSwapChain::Present");
 
 		const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
 
@@ -535,7 +535,7 @@ namespace Hazel {
 		// This ensures that the image is not presented to the windowing system until all commands have been submitted
 		VkResult result;
 		{
-			HZ_SCOPE_PERF("VulkanSwapChain::Present - QueuePresent");
+			ZONG_SCOPE_PERF("VulkanSwapChain::Present - QueuePresent");
 
 			VkPresentInfoKHR presentInfo = {};
 			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -562,7 +562,7 @@ namespace Hazel {
 		}
 
 		{
-			HZ_PROFILE_SCOPE("VulkanSwapChain::Present - WaitForFences");
+			ZONG_PROFILE_SCOPE("VulkanSwapChain::Present - WaitForFences");
 
 			auto& performanceTimers = Application::Get().GetPerformanceTimers();
 			Timer gpuWaitTimer;
@@ -599,7 +599,7 @@ namespace Hazel {
 		// Get list of supported surface formats
 		uint32_t formatCount;
 		VK_CHECK_RESULT(fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface, &formatCount, NULL));
-		HZ_CORE_ASSERT(formatCount > 0);
+		ZONG_CORE_ASSERT(formatCount > 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
 		VK_CHECK_RESULT(fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_Surface, &formatCount, surfaceFormats.data()));

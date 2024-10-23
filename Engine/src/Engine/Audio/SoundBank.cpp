@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundBank.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -65,7 +65,7 @@ namespace Hazel
 			reader.ReadRaw(audioFileInfo);
 		}
 
-		HZ_CONSOLE_LOG_TRACE("Audio: SoundBank: Successfully loaded SoundBank. Number of files in the SoundBank - {}", m_File.Header.AudioFileCount);
+		ZONG_CONSOLE_LOG_TRACE("Audio: SoundBank: Successfully loaded SoundBank. Number of files in the SoundBank - {}", m_File.Header.AudioFileCount);
 	}
 
 	bool SoundBank::Contains(AssetHandle audioFileAsset) const
@@ -102,7 +102,7 @@ namespace Hazel
 			}
 			else
 			{
-				HZ_CORE_VERIFY(false);
+				ZONG_CORE_VERIFY(false);
 			}
 		}
 
@@ -121,7 +121,7 @@ namespace Hazel
 
 	Ref<SoundBank> SoundBank::Create(const std::vector<AssetHandle>& waveAssets, const std::filesystem::path& path)
 	{
-		HZ_CORE_VERIFY(!Application::IsRuntime());
+		ZONG_CORE_VERIFY(!Application::IsRuntime());
 
 		// Error checking
 		{
@@ -136,7 +136,7 @@ namespace Hazel
 
 			if (!errorMsg.empty())
 			{
-				HZ_CONSOLE_LOG_ERROR("Failed to create Sound Bank. {}", errorMsg);
+				ZONG_CONSOLE_LOG_ERROR("Failed to create Sound Bank. {}", errorMsg);
 				return nullptr;
 			}
 		}
@@ -176,7 +176,7 @@ namespace Hazel
 		
 			if (!std::filesystem::exists(fileSystemPath))
 			{
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ASSERT(false);
 				continue;
 			}	
 			
@@ -187,13 +187,13 @@ namespace Hazel
 				info.PackedSize = audioFile->FileSize;
 
 				auto optInfo = AudioFileUtils::GetFileInfo(fileSystemPath.string());
-				HZ_CORE_ASSERT(optInfo);
+				ZONG_CORE_ASSERT(optInfo);
 				info.Info = *optInfo;
 				
 				// Print filepath relative to Assets dir path
 				auto serializedPath = std::filesystem::relative(fileSystemPath, Project::GetAssetDirectory());
 				const std::string serializedPathString = serializedPath.string();
-				HZ_CORE_WARN("SoundBank - {}", serializedPathString);
+				ZONG_CORE_WARN("SoundBank - {}", serializedPathString);
 
 				soundBankFile.Index.AudioFiles[handle] = info;
 			}

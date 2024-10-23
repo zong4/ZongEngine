@@ -80,7 +80,7 @@ namespace Hazel {
 
 		AssetHandle GetMaterial(uint32_t materialIndex) const
 		{
-			HZ_CORE_ASSERT(HasMaterial(materialIndex));
+			ZONG_CORE_ASSERT(HasMaterial(materialIndex));
 			return m_Materials.at(materialIndex);
 		}
 		std::map<uint32_t, AssetHandle>& GetMaterials() { return m_Materials; }

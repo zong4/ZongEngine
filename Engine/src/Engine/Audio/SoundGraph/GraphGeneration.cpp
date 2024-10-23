@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "GraphGeneration.h"
 
 #include "Engine/Audio/SoundGraph/Nodes/NodeTypes.h"
@@ -22,9 +22,9 @@ namespace Hazel::SoundGraph {
 		Parser(GraphGeneratorOptions& options, Ref<Prototype>& outSoundGraph)
 			: Options(options), Graph(options.Graph), OutSoundGraph(outSoundGraph)
 		{
-			HZ_CORE_ASSERT(Options.Model);
-			HZ_CORE_ASSERT(Options.Graph);
-			HZ_CORE_ASSERT(OutSoundGraph);
+			ZONG_CORE_ASSERT(Options.Model);
+			ZONG_CORE_ASSERT(Options.Graph);
+			ZONG_CORE_ASSERT(OutSoundGraph);
 		}
 
 		//==============================================================================
@@ -140,7 +140,7 @@ namespace Hazel::SoundGraph {
 				}
 				else
 				{
-					HZ_CORE_ASSERT(!type.isObject());
+					ZONG_CORE_ASSERT(!type.isObject());
 				}
 
 				OutSoundGraph->Inputs.emplace_back(Identifier(choc::text::replace(inputName, " ", "")), value);
@@ -237,8 +237,8 @@ namespace Hazel::SoundGraph {
 
 			if (!node)
 			{
-				HZ_CORE_ERROR("[SoundGraph] Parser. Node type '{}' is not implemented!", nodeName);
-				HZ_CORE_ASSERT(false);
+				ZONG_CORE_ERROR("[SoundGraph] Parser. Node type '{}' is not implemented!", nodeName);
+				ZONG_CORE_ASSERT(false);
 			}
 
 			return node;
@@ -295,7 +295,7 @@ namespace Hazel::SoundGraph {
 
 						if (!sourceNode)
 						{
-							HZ_CORE_ERROR("Failed to find source node while parsing Local Variable.");
+							ZONG_CORE_ERROR("Failed to find source node while parsing Local Variable.");
 							continue;
 						}
 						sourcePinName = Utils::MakeSafeIdentifier(sourcePin->Name);
@@ -316,7 +316,7 @@ namespace Hazel::SoundGraph {
 						else
 						{
 							// TODO: in this case the graph should not crash, just the getters of this LV wouldn't be ever triggered
-							HZ_CORE_ERROR("We can't have default plugs for Local Variables of function type!");
+							ZONG_CORE_ERROR("We can't have default plugs for Local Variables of function type!");
 						}
 
 						continue;
@@ -329,12 +329,12 @@ namespace Hazel::SoundGraph {
 				if (sourceNodeName == "Input_Action")
 				{
 					Prototype::Node* destination = FindNodeByID(destNode->ID);
-					HZ_CORE_ASSERT(destination);
+					ZONG_CORE_ASSERT(destination);
 
 					const Identifier inputActionID = sourcePinName == "Play" ? SoundGraph::IDs::Play : Identifier();
 					// Invalid Input Action ID
 					{
-						HZ_CORE_ASSERT(inputActionID != Identifier());
+						ZONG_CORE_ASSERT(inputActionID != Identifier());
 						// TODO: collect error and terminate compilation
 					}
 
@@ -348,7 +348,7 @@ namespace Hazel::SoundGraph {
 					//? For now only supporting Stereo channel layout
 
 					Prototype::Node* source = FindNodeByID(sourceNode->ID); //? don't think this is needed anymore, should validate nodes before this point
-					HZ_CORE_ASSERT(source);
+					ZONG_CORE_ASSERT(source);
 
 					// TODO: ensure we can only connect one NodeProcessor to Output Audio, or implement some sort of automatic stream mixing plug
 
@@ -370,7 +370,7 @@ namespace Hazel::SoundGraph {
 				else if (sourceNodeName == "Input")
 				{
 					Prototype::Node* destination = FindNodeByID(destNode->ID);
-					HZ_CORE_ASSERT(destination);
+					ZONG_CORE_ASSERT(destination);
 
 					// Route Graph Inputs to events of node processors
 					// Differentiate between Events and Values
@@ -396,8 +396,8 @@ namespace Hazel::SoundGraph {
 					Prototype::Node* source = FindNodeByID(sourceNode->ID);
 					Prototype::Node* destination = FindNodeByID(destNode->ID);
 
-					HZ_CORE_ASSERT(source);
-					HZ_CORE_ASSERT(destination);
+					ZONG_CORE_ASSERT(source);
+					ZONG_CORE_ASSERT(destination);
 
 					if (sourcePin->IsType(SGTypes::ESGPinType::Flow))
 					{
@@ -446,7 +446,7 @@ namespace Hazel::SoundGraph {
 					{
 						if (const auto assetId = Utils::GetAssetHandleFromValue(value))
 						{
-							//HZ_CORE_WARN("ParseWaveReferences() - Found Wave Asset reference pin!");
+							//ZONG_CORE_WARN("ParseWaveReferences() - Found Wave Asset reference pin!");
 
 							// TODO: gather all used wave refs somewhere else, perhaps directly by parsing WavePlayer nodes and GraphInputs
 							Utils::AppendIfNotPresent(OutWaveAssets, assetId);
@@ -540,7 +540,7 @@ namespace Hazel::SoundGraph {
 		if (!errors.empty())
 		{
 			errors.insert(errors.begin(), "Graph is invalid.");
-			HZ_CONSOLE_LOG_ERROR("Failed to construct Sound Graph Prototype! " + choc::text::joinStrings(errors, "\n"));
+			ZONG_CONSOLE_LOG_ERROR("Failed to construct Sound Graph Prototype! " + choc::text::joinStrings(errors, "\n"));
 			return nullptr;
 		}
 
@@ -584,7 +584,7 @@ namespace Hazel::SoundGraph {
 			{
 				if (!test(el))
 				{
-					HZ_CORE_ASSERT(false);
+					ZONG_CORE_ASSERT(false);
 					return false;
 				}
 			}
@@ -602,7 +602,7 @@ namespace Hazel::SoundGraph {
 			// We probably don't need to test output events, they use vectors of destinations internally, which may be empty
 			//if (!validateElements(graph->OutEvs, [](const std::pair<const Identifier, const NodeProcessor::OutputEvent>& outEv) { return !outEv.second.DestinationEvs.empty(); })) pass = false;
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -628,7 +628,7 @@ namespace Hazel::SoundGraph {
 		{
 			bool pass = validateElements(graph->EndpointInputStreams, validateEndpoints);
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -637,14 +637,14 @@ namespace Hazel::SoundGraph {
 		{
 			bool pass = validateElements(graph->LocalVariables, validateEndpoints);
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
 
 		if (!validateElements(graph->EndpointOutputStreams.Ins, [](const std::pair<const Identifier, const choc::value::ValueView>& in) { return (bool)in.second.getRawData(); }))
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -659,7 +659,7 @@ namespace Hazel::SoundGraph {
 			// We probably don't need to test output events, they use vectors of destinations internally, which may be empty
 			//if (!validateElements(node->OutEvs, [](const std::pair<const Identifier, const NodeProcessor::OutputEvent>& outEv) { return (bool)!outEv.second.DestinationEvs.empty(); })) pass = false;
 
-			HZ_CORE_ASSERT(pass);
+			ZONG_CORE_ASSERT(pass);
 			if (!pass)
 				return false;
 		}
@@ -672,7 +672,7 @@ namespace Hazel::SoundGraph {
 	{
 		if (!prototype || !prototype->Nodes.size())
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return nullptr;
 		}
 
@@ -741,7 +741,7 @@ namespace Hazel::SoundGraph {
 			case Prototype::Connection::LocalVariable_NodeValue:
 				if (!instance->AddLocalVariableRoute(source.EndpointID, dest.NodeID, dest.EndpointID)) return nullptr;
 				break;
-			default: HZ_CORE_ASSERT(false);
+			default: ZONG_CORE_ASSERT(false);
 				return nullptr;
 				break;
 			}

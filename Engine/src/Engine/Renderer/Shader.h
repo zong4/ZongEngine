@@ -10,7 +10,7 @@
 #include <string>
 #include <glm/glm.hpp>
 
-#define HZ_HAS_SHADER_COMPILER !HZ_DIST
+#define ZONG_HAS_SHADER_COMPILER !ZONG_DIST
 
 namespace Hazel
 {

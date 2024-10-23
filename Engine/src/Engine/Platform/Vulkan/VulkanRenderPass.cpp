@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanRenderPass.h"
 
 #include "VulkanAPI.h"
@@ -17,7 +17,7 @@ namespace Hazel {
 	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec)
 		: m_Specification(spec)
 	{
-		HZ_CORE_VERIFY(spec.Pipeline);
+		ZONG_CORE_VERIFY(spec.Pipeline);
 
 		DescriptorSetManagerSpecification dmSpec;
 		dmSpec.DebugName = spec.DebugName;
@@ -116,7 +116,7 @@ namespace Hazel {
 	}
 	const std::vector<VkDescriptorSet>& VulkanRenderPass::GetDescriptorSets(uint32_t frameIndex) const
 	{
-		HZ_CORE_ASSERT(!m_DescriptorSetManager.m_DescriptorSets.empty());
+		ZONG_CORE_ASSERT(!m_DescriptorSetManager.m_DescriptorSets.empty());
 		if (frameIndex > 0 && m_DescriptorSetManager.m_DescriptorSets.size() == 1)
 			return m_DescriptorSetManager.m_DescriptorSets[0]; // Frame index is irrelevant for this type of render pass
 		return m_DescriptorSetManager.m_DescriptorSets[frameIndex];

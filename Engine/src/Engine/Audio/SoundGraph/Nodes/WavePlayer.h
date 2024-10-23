@@ -10,7 +10,7 @@
 #define LOG_DBG_MESSAGES 0
 
 #if LOG_DBG_MESSAGES
-#define DBG(...) HZ_CORE_WARN(__VA_ARGS__)
+#define DBG(...) ZONG_CORE_WARN(__VA_ARGS__)
 #else
 #define DBG(...)
 #endif
@@ -107,12 +107,12 @@ namespace Hazel::SoundGraph
 		{
 			if (!isInitialized)
 			{
-				HZ_CORE_WARN("!WavePlayer::Play() - Wave Player is not initialized.");
+				ZONG_CORE_WARN("!WavePlayer::Play() - Wave Player is not initialized.");
 				return;
 			}
 
 			startSample = int64_t(*in_StartTime * sampleRate /*currentBuffer.sampleRate*/);
-			HZ_CORE_ASSERT(startSample >= 0);
+			ZONG_CORE_ASSERT(startSample >= 0);
 
 			loopCount = 0; // TODO: might not want to reset loopCount in some cases
 			frameNumber = startSample;
@@ -128,7 +128,7 @@ namespace Hazel::SoundGraph
 			{
 				// TODO: proper console out
 				// TODO: log macros should be sending to output message queue, for thread safety
-				//HZ_CORE_WARN("!WavePlayer::Play() - invalid wave source id.");
+				//ZONG_CORE_WARN("!WavePlayer::Play() - invalid wave source id.");
 
 				StopPlayback(true);
 				
@@ -264,7 +264,7 @@ namespace Hazel::SoundGraph
 				if (buffer.WaveHandle)
 				{
 					const bool refilled = buffer.Refill();
-					HZ_CORE_ASSERT(refilled);
+					ZONG_CORE_ASSERT(refilled);
 
 					totalFrames = buffer.TotalFrames;
 					framePlaybackFraction = double(1.0 / totalFrames);
@@ -280,11 +280,11 @@ namespace Hazel::SoundGraph
 
 		void ForceRefillBuffer()
 		{
-			HZ_CORE_ASSERT(waveAsset)
+			ZONG_CORE_ASSERT(waveAsset)
 			
 			buffer.ReadPosition = frameNumber;
 			const bool refilled = buffer.Refill();
-			HZ_CORE_ASSERT(refilled);
+			ZONG_CORE_ASSERT(refilled);
 		}
 
 		inline void OutputSilence() noexcept

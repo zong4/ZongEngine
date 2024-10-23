@@ -1,4 +1,4 @@
-#include <hzpch.h>
+#include <pch.h>
 #include "AudioEventsEditor.h"
 
 #include "imgui.h"
@@ -268,7 +268,7 @@ namespace Hazel {
 				return true;
 				break;
 		}
-		//if (Input::IsKeyPressed(HZ_KEY_LEFT_SHIFT))
+		//if (Input::IsKeyPressed(ZONG_KEY_LEFT_SHIFT))
 		//{
 		//	switch (e.GetKeyCode())
 		//	{
@@ -689,7 +689,7 @@ namespace Hazel {
 				auto& map = treeNode->Parent->Children;
 				auto it = map.find(treeNode->Name);
 
-				HZ_CORE_ASSERT(it != map.end());
+				ZONG_CORE_ASSERT(it != map.end());
 
 				Ref<CommandsTree::Node>& nodeRef = it->second;
 				ImGui::SetDragDropPayload("audio_events_editor", &nodeRef, sizeof(Ref<CommandsTree::Node>));
@@ -860,11 +860,11 @@ namespace Hazel {
 
 			nodeHandle.key() = newName;
 			bool inserted = parent->Children.insert(std::move(nodeHandle)).inserted;
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 		}
 		else
 		{
-			HZ_CORE_ERROR("Trigger with the name {0} already exists! Audio command names must be unique.", newName);
+			ZONG_CORE_ERROR("Trigger with the name {0} already exists! Audio command names must be unique.", newName);
 		}
 
 		m_Renaming = false;
@@ -1737,8 +1737,8 @@ namespace Hazel {
 				// Serialize Triger
 
 				out << YAML::BeginMap; // Trigger entry
-				HZ_SERIALIZE_PROPERTY(Name, treeNode->Name, out);
-				HZ_SERIALIZE_PROPERTY(CommandID, (uint32_t)(*treeNode->Value), out);
+				ZONG_SERIALIZE_PROPERTY(Name, treeNode->Name, out);
+				ZONG_SERIALIZE_PROPERTY(CommandID, (uint32_t)(*treeNode->Value), out);
 				out << YAML::EndMap;
 
 			}
@@ -1758,7 +1758,7 @@ namespace Hazel {
 
 		if (it == data.end())
 		{
-			HZ_CORE_ERROR("Invalid, or missing TriggersTreeView cache.");
+			ZONG_CORE_ERROR("Invalid, or missing TriggersTreeView cache.");
 			return;
 		}
 
@@ -1772,7 +1772,7 @@ namespace Hazel {
 				auto folder = Ref<CommandsTree::Node>::Create();
 
 				folder->Tree = &s_Tree;
-				HZ_DESERIALIZE_PROPERTY(Name, folder->Name, node, std::string(""));
+				ZONG_DESERIALIZE_PROPERTY(Name, folder->Name, node, std::string(""));
 				folder->Parent = parentFolder;
 
 				for (auto childNode : node["Children"])
@@ -1785,7 +1785,7 @@ namespace Hazel {
 				auto trigger = Ref<CommandsTree::Node>::Create();
 
 				trigger->Tree = &s_Tree;
-				HZ_DESERIALIZE_PROPERTY(Name, trigger->Name, node, std::string(""));
+				ZONG_DESERIALIZE_PROPERTY(Name, trigger->Name, node, std::string(""));
 				trigger->Value = node["CommandID"] ? CommandID::FromUnsignedInt(node["CommandID"].as<uint32_t>()) : CommandID::InvalidID();
 				trigger->Parent = parentFolder;
 

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltScene.h"
 #include "JoltAPI.h"
 #include "JoltUtils.h"
@@ -69,7 +69,7 @@ namespace Hazel {
 	JoltScene::JoltScene(const Ref<Scene>& scene)
 		: PhysicsScene(scene)
 	{
-		HZ_CORE_VERIFY(s_CurrentInstance == nullptr, "Shouldn't have multiple instances of a physics scene!");
+		ZONG_CORE_VERIFY(s_CurrentInstance == nullptr, "Shouldn't have multiple instances of a physics scene!");
 		s_CurrentInstance = this;
 
 		const auto& settings = PhysicsSystem::GetSettings();
@@ -126,7 +126,7 @@ namespace Hazel {
 
 	void JoltScene::Simulate(float ts)
 	{
-		HZ_PROFILE_FUNC("JoltScene::Simulate");
+		ZONG_PROFILE_FUNC("JoltScene::Simulate");
 
 		ProcessBulkStorage();
 
@@ -136,7 +136,7 @@ namespace Hazel {
 
 		if (m_CollisionSteps > 0)
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC("JoltSystem::Update");
+			ZONG_PROFILE_SCOPE_DYNAMIC("JoltSystem::Update");
 			m_JoltSystem->Update(m_FixedTimeStep, m_CollisionSteps, 1, api->GetTempAllocator(), api->GetJobThreadPool());
 		}
 		
@@ -144,7 +144,7 @@ namespace Hazel {
 			characterController.As<JoltCharacterController>()->Simulate(ts);
 
 		{
-			HZ_PROFILE_SCOPE_DYNAMIC("JoltScene::SynchronizeTransform");
+			ZONG_PROFILE_SCOPE_DYNAMIC("JoltScene::SynchronizeTransform");
 			const auto& bodyLockInterface = m_JoltSystem->GetBodyLockInterface();
 			JPH::BodyIDVector activeBodies;
 			m_JoltSystem->GetActiveBodies(activeBodies);
@@ -224,7 +224,7 @@ namespace Hazel {
 				}*/
 			case BodyAddType::AddImmediate:
 			{
-				//HZ_CORE_INFO_TAG("Physics", "Adding body immediately.");
+				//ZONG_CORE_INFO_TAG("Physics", "Adding body immediately.");
 				bodyInterface.AddBody(rigidBody->m_BodyID, JPH::EActivation::Activate);
 				break;
 			}
@@ -248,10 +248,10 @@ namespace Hazel {
 	void JoltScene::SetBodyType(Entity entity, EBodyType bodyType)
 	{
 		auto entityBody = GetEntityBody(entity);
-		HZ_CORE_VERIFY(entityBody);
+		ZONG_CORE_VERIFY(entityBody);
 
 		JPH::BodyLockWrite bodyLock(m_JoltSystem->GetBodyLockInterface(), entityBody.As<JoltBody>()->m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 		JPH::Body& body = bodyLock.GetBody();
 
 		if (bodyType == EBodyType::Static && body.IsActive())
@@ -363,10 +363,10 @@ namespace Hazel {
 			break;
 		}
 		default:
-			HZ_CORE_VERIFY(false, "Cannot cast mesh shapes!");
+			ZONG_CORE_VERIFY(false, "Cannot cast mesh shapes!");
 		}
 
-		HZ_CORE_VERIFY(shape, "Failed to create shape?");
+		ZONG_CORE_VERIFY(shape, "Failed to create shape?");
 
 		JPH::ShapeCast shapeCast = JPH::ShapeCast::sFromWorldTransform(
 			shape,
@@ -469,10 +469,10 @@ namespace Hazel {
 				break;
 			}
 			default:
-				HZ_CORE_VERIFY(false, "Cannot overlap mesh shapes!");
+				ZONG_CORE_VERIFY(false, "Cannot overlap mesh shapes!");
 		}
 
-		HZ_CORE_VERIFY(shape, "Failed to create shape?");
+		ZONG_CORE_VERIFY(shape, "Failed to create shape?");
 
 		JPH::Mat44 worldTransform = JPH::Mat44::sTranslation(JoltUtils::ToJoltVector(shapeOverlapInfo->Origin));
 		JPH::Vec3 shapeScale = JPH::Vec3(1.0f, 1.0f, 1.0f);
@@ -553,7 +553,7 @@ namespace Hazel {
 
 	Ref<CharacterController> JoltScene::CreateCharacterController(Entity entity)
 	{
-		HZ_CORE_VERIFY(entity.HasComponent<CharacterControllerComponent>());
+		ZONG_CORE_VERIFY(entity.HasComponent<CharacterControllerComponent>());
 
 		if (!entity.HasAny<BoxColliderComponent, CapsuleColliderComponent, SphereColliderComponent>() || entity.HasComponent<MeshColliderComponent>())
 			return nullptr;
@@ -571,13 +571,13 @@ namespace Hazel {
 
 	JPH::BodyInterface& JoltScene::GetBodyInterface(bool inShouldLock)
 	{
-		HZ_CORE_VERIFY(s_CurrentInstance != nullptr);
+		ZONG_CORE_VERIFY(s_CurrentInstance != nullptr);
 		return inShouldLock ? s_CurrentInstance->m_JoltSystem->GetBodyInterface() : s_CurrentInstance->m_JoltSystem->GetBodyInterfaceNoLock();
 	}
 
 	const JPH::BodyLockInterface& JoltScene::GetBodyLockInterface(bool inShouldLock)
 	{
-		HZ_CORE_VERIFY(s_CurrentInstance != nullptr);
+		ZONG_CORE_VERIFY(s_CurrentInstance != nullptr);
 
 		if (inShouldLock)
 			return s_CurrentInstance->m_JoltSystem->GetBodyLockInterface();
@@ -589,12 +589,12 @@ namespace Hazel {
 
 	void JoltScene::ProcessBulkStorage()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (m_BulkBufferCount == 0)
 			return;
 
-		HZ_CORE_INFO_TAG("Physics", "Adding {} bodies in bulk!", m_BulkBufferCount);
+		ZONG_CORE_INFO_TAG("Physics", "Adding {} bodies in bulk!", m_BulkBufferCount);
 
 		// NOTE(Peter): This could be made to happen on a separate background thread, possibly even using Jolt's job system.
 		//				The only consideration we'd have to make is that m_BulkAddBuffer can't change until AddBodiesFinalize has finished.
@@ -611,7 +611,7 @@ namespace Hazel {
 		//				Optimizing does happen on a background thread, but it does mean JoltSystem::Update has to wait for the new quad trees to be built.
 		if (m_BodiesAddedSinceOptimization >= s_BroadPhaseOptimizationThreashold)
 		{
-			HZ_CORE_INFO_TAG("Physics", "Optimizing Broad Phase!");
+			ZONG_CORE_INFO_TAG("Physics", "Optimizing Broad Phase!");
 			m_JoltSystem->OptimizeBroadPhase();
 			m_BodiesAddedSinceOptimization = 0;
 		}
@@ -621,7 +621,7 @@ namespace Hazel {
 	//				But I'm sure it's fine for the most part, this shouldn't be a hot path
 	void JoltScene::SynchronizeBodyTransform(WeakRef<PhysicsBody> body)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!body.IsValid() || !body->GetEntity())
 			return;
@@ -629,7 +629,7 @@ namespace Hazel {
 		auto joltBody = body.As<JoltBody>();
 
 		JPH::BodyLockRead bodyLock(JoltScene::GetBodyLockInterface(), joltBody->m_BodyID);
-		HZ_CORE_VERIFY(bodyLock.Succeeded());
+		ZONG_CORE_VERIFY(bodyLock.Succeeded());
 		const JPH::Body& bodyRef = bodyLock.GetBody();
 
 		Entity entity = m_EntityScene->GetEntityWithUUID(bodyRef.GetUserData());

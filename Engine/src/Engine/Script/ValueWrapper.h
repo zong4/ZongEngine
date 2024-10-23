@@ -88,7 +88,7 @@ namespace Hazel::Utils {
 		template<typename TValueType>
 		TValueType Get() const
 		{
-			HZ_CORE_VERIFY(HasValue(), "ValueWrapper::Get - No value!");
+			ZONG_CORE_VERIFY(HasValue(), "ValueWrapper::Get - No value!");
 
 			if constexpr (std::is_same<TValueType, std::string>::value)
 				return TValueType((char*)m_ValueBuffer, m_Size);
@@ -114,7 +114,7 @@ namespace Hazel::Utils {
 		template<typename TValueType>
 		void Set(TValueType value)
 		{
-			HZ_CORE_VERIFY(HasValue(), "Trying to set the value of an empty ValueWrapper!");
+			ZONG_CORE_VERIFY(HasValue(), "Trying to set the value of an empty ValueWrapper!");
 
 			if constexpr (std::is_same<TValueType, std::string>::value)
 			{
@@ -129,7 +129,7 @@ namespace Hazel::Utils {
 			}
 			else
 			{
-				HZ_CORE_VERIFY(m_Size == sizeof(value));
+				ZONG_CORE_VERIFY(m_Size == sizeof(value));
 				memcpy(m_ValueBuffer, &value, sizeof(value));
 			}
 		}

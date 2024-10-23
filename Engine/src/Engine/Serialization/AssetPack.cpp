@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssetPack.h"
 
 #include "Engine/Asset/AssetManager.h"
@@ -23,14 +23,14 @@ namespace Hazel {
 #if 0
 		if (!asset)
 			return;
-		HZ_CORE_ASSERT(asset);
+		ZONG_CORE_ASSERT(asset);
 
 		AssetHandle handle = asset->Handle;
 
 		auto& assetMap = m_File.Index.Assets;
 		if (assetMap.find(handle) != assetMap.end())
 		{
-			HZ_CORE_WARN_TAG("AssetPack", "Asset already present in asset pack");
+			ZONG_CORE_WARN_TAG("AssetPack", "Asset already present in asset pack");
 			return;
 		}
 
@@ -98,7 +98,7 @@ namespace Hazel {
 
 		FileStreamReader stream(m_Path);
 		Ref<Asset> asset = AssetImporter::DeserializeFromAssetPack(stream, *assetInfo);
-		//HZ_CORE_VERIFY(asset);
+		//ZONG_CORE_VERIFY(asset);
 		if (!asset)
 			return nullptr;
 
@@ -127,7 +127,7 @@ namespace Hazel {
 		stream.SetStreamPosition(m_File.Index.PackedAppBinaryOffset);
 		Buffer buffer;
 		stream.ReadBuffer(buffer);
-		HZ_CORE_VERIFY(m_File.Index.PackedAppBinarySize == (buffer.Size + sizeof(uint32_t)));
+		ZONG_CORE_VERIFY(m_File.Index.PackedAppBinarySize == (buffer.Size + sizeof(uint32_t)));
 		return buffer;
 	}
 
@@ -177,11 +177,11 @@ namespace Hazel {
 			{
 				Ref<Scene> scene = Ref<Scene>::Create("AssetPack", true, false);
 				SceneSerializer serializer(scene);
-				HZ_CORE_TRACE("Deserializing Scene: {}", metadata.FilePath);
+				ZONG_CORE_TRACE("Deserializing Scene: {}", metadata.FilePath);
 				if (serializer.Deserialize(Project::GetAssetDirectory() / metadata.FilePath))
 				{
 					std::unordered_set<AssetHandle> sceneAssetList = scene->GetAssetList();
-					HZ_CORE_TRACE("  Scene has {} used assets", sceneAssetList.size());
+					ZONG_CORE_TRACE("  Scene has {} used assets", sceneAssetList.size());
 
 					std::unordered_set<AssetHandle> sceneAssetListWithoutPrefabs = sceneAssetList;
 					for (AssetHandle assetHandle : sceneAssetListWithoutPrefabs)
@@ -211,7 +211,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CONSOLE_LOG_ERROR("Failed to deserialize Scene: {} ({})", metadata.FilePath, handle);
+					ZONG_CONSOLE_LOG_ERROR("Failed to deserialize Scene: {} ({})", metadata.FilePath, handle);
 				}
 				progress = progress + progressIncrement;
 			}
@@ -231,15 +231,15 @@ namespace Hazel {
 		}
 #endif
 
-		HZ_CONSOLE_LOG_INFO("Project contains {} used assets", fullAssetList.size());
+		ZONG_CONSOLE_LOG_INFO("Project contains {} used assets", fullAssetList.size());
 
 #if DEBUG_PRINT
-		HZ_CORE_TRACE("Complete AssetPack:");
+		ZONG_CORE_TRACE("Complete AssetPack:");
 
 		for (AssetHandle handle : fullAssetList)
 		{
 			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(handle);
-			HZ_CORE_TRACE("{}: {} ({})", Utils::AssetTypeToString(metadata.Type), metadata.FilePath, metadata.Handle);
+			ZONG_CORE_TRACE("{}: {} ({})", Utils::AssetTypeToString(metadata.Type), metadata.FilePath, metadata.Handle);
 		}
 #endif
 
@@ -263,7 +263,7 @@ namespace Hazel {
 		Ref<AssetPack> assetPack = Ref<AssetPack>::Create();
 		assetPack->m_Path = path;
 		bool success = AssetPackSerializer::DeserializeIndex(assetPack->m_Path, assetPack->m_File);
-		HZ_CORE_VERIFY(success);
+		ZONG_CORE_VERIFY(success);
 		if (!success)
 			return nullptr;
 
@@ -279,19 +279,19 @@ namespace Hazel {
 		}
 
 		// Debug log
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 		{
-			HZ_CORE_INFO("-----------------------------------------------------");
-			HZ_CORE_INFO("AssetPack Dump {}", assetPack->m_Path);
-			HZ_CORE_INFO("-----------------------------------------------------");
+			ZONG_CORE_INFO("-----------------------------------------------------");
+			ZONG_CORE_INFO("AssetPack Dump {}", assetPack->m_Path);
+			ZONG_CORE_INFO("-----------------------------------------------------");
 			std::unordered_map<AssetType, uint32_t> typeCounts;
 			std::unordered_set<AssetHandle> duplicatePreventionSet;
 			for (const auto& [sceneHandle, sceneInfo] : index.Scenes)
 			{
-				HZ_CORE_INFO("Scene {}:", sceneHandle);
+				ZONG_CORE_INFO("Scene {}:", sceneHandle);
 				for (const auto& [assetHandle, assetInfo] : sceneInfo.Assets)
 				{
-					HZ_CORE_INFO("  {} - {}", Utils::AssetTypeToString((AssetType)assetInfo.Type), assetHandle);
+					ZONG_CORE_INFO("  {} - {}", Utils::AssetTypeToString((AssetType)assetInfo.Type), assetHandle);
 
 					if (duplicatePreventionSet.find(assetHandle) == duplicatePreventionSet.end())
 					{
@@ -300,13 +300,13 @@ namespace Hazel {
 					}
 				}
 			}
-			HZ_CORE_INFO("-----------------------------------------------------");
-			HZ_CORE_INFO("Summary:");
+			ZONG_CORE_INFO("-----------------------------------------------------");
+			ZONG_CORE_INFO("Summary:");
 			for (const auto& [type, count] : typeCounts)
 			{
-				HZ_CORE_INFO("  {} {}", count, Utils::AssetTypeToString(type));
+				ZONG_CORE_INFO("  {} {}", count, Utils::AssetTypeToString(type));
 			}
-			HZ_CORE_INFO("-----------------------------------------------------");
+			ZONG_CORE_INFO("-----------------------------------------------------");
 		}
 #endif
 

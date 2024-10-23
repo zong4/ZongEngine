@@ -55,7 +55,7 @@ namespace Hazel::Utils {
 		case VK_OPERATION_NOT_DEFERRED_KHR: return "VK_OPERATION_NOT_DEFERRED_KHR";
 		case VK_PIPELINE_COMPILE_REQUIRED_EXT: return "VK_PIPELINE_COMPILE_REQUIRED_EXT";
 		}
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 		return nullptr;
 	}
 
@@ -106,7 +106,7 @@ namespace Hazel::Utils {
 		case VK_OBJECT_TYPE_UNKNOWN: return "VK_OBJECT_TYPE_UNKNOWN";
 		case VK_OBJECT_TYPE_MAX_ENUM: return "VK_OBJECT_TYPE_MAX_ENUM";
 		}
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 		return "";
 	}
 
@@ -116,7 +116,7 @@ namespace Hazel::Utils {
 	{
 		if (result != VK_SUCCESS)
 		{
-			HZ_CORE_ERROR("VkResult is '{0}'");
+			ZONG_CORE_ERROR("VkResult is '{0}'");
 			if (result == VK_ERROR_DEVICE_LOST)
 			{
 				using namespace std::chrono_literals;
@@ -124,7 +124,7 @@ namespace Hazel::Utils {
 				//Utils::RetrieveDiagnosticCheckpoints();
 				Utils::DumpGPUInfo();
 			}
-			HZ_CORE_ASSERT(result == VK_SUCCESS);
+			ZONG_CORE_ASSERT(result == VK_SUCCESS);
 		}
 	}
 
@@ -132,7 +132,7 @@ namespace Hazel::Utils {
 	{
 		if (result != VK_SUCCESS)
 		{
-			HZ_CORE_ERROR("VkResult is '{0}' in {1}:{2}", Utils::VKResultToString(result), file, line);
+			ZONG_CORE_ERROR("VkResult is '{0}' in {1}:{2}", Utils::VKResultToString(result), file, line);
 			if (result == VK_ERROR_DEVICE_LOST)
 			{
 				using namespace std::chrono_literals;
@@ -140,7 +140,7 @@ namespace Hazel::Utils {
 				//Utils::RetrieveDiagnosticCheckpoints();
 				Utils::DumpGPUInfo();
 			}
-			HZ_CORE_ASSERT(result == VK_SUCCESS);
+			ZONG_CORE_ASSERT(result == VK_SUCCESS);
 		}
 	}
 }

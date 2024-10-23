@@ -40,7 +40,7 @@ namespace Hazel {
 		template<typename T, AssetType assetType>
 		static bool PropertyAsset(choc::value::Value& value, Pin* inputPin, bool& openAssetPopup)
 		{
-			HZ_CORE_VERIFY(inputPin);
+			ZONG_CORE_VERIFY(inputPin);
 
 			bool modified = false;
 
@@ -66,7 +66,7 @@ namespace Hazel {
 			// Initialize choc::Value class object with correct asset type using helper function
 			if (UI::AssetReferenceDropTargetButton("Asset", asset, assetType, assetDropped))
 			{
-				//HZ_CORE_WARN("Asset clicked");
+				//ZONG_CORE_WARN("Asset clicked");
 				openAssetPopup = true;
 
 				s_SelectAssetContext = { inputPin->ID, selected, assetType };

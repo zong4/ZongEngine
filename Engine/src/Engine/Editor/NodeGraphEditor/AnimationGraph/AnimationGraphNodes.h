@@ -50,7 +50,7 @@ namespace Hazel::AnimationGraph {
 					const Types::EPinType type = opt.value_or(Types::GetPinTypeForMember<TProcNode, TMemberPtr>()); //! no constexpr
 
 					Pin* pin = Types::CreatePinForType(type);
-					HZ_CORE_ASSERT(pin);
+					ZONG_CORE_ASSERT(pin);
 
 					if (!pin)
 					{

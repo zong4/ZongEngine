@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptEngine.h"
 #include "ScriptUtils.h"
 #include "Engine/Utilities/StringUtils.h"
@@ -27,7 +27,7 @@
 #include <stack>
 
 namespace Hazel {
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 	using WatcherString = std::wstring;
 #else
 	using WatcherString = std::string;
@@ -64,7 +64,7 @@ namespace Hazel {
 	static ScriptEngineState* s_State = nullptr;
 	void ScriptEngine::Init(const ScriptEngineConfig& config)
 	{
-		HZ_CORE_ASSERT(!s_State, "[ScriptEngine]: Trying to call ScriptEngine::Init multiple times!");
+		ZONG_CORE_ASSERT(!s_State, "[ScriptEngine]: Trying to call ScriptEngine::Init multiple times!");
 		s_State = hnew ScriptEngineState();
 		s_State->Config = config;
 		s_State->CoreAssemblyInfo = Ref<AssemblyInfo>::Create();
@@ -77,23 +77,23 @@ namespace Hazel {
 		if (!LoadCoreAssembly())
 		{
 			// NOTE(Peter): In theory this should work for all Visual Studio 2022 instances as long as it's installed in the default location!
-			HZ_CORE_INFO_TAG("ScriptEngine", "Failed to load Hazels C# core, attempting to build automatically using MSBuild");
+			ZONG_CORE_INFO_TAG("ScriptEngine", "Failed to load Hazels C# core, attempting to build automatically using MSBuild");
 
 			auto scriptCoreAssemblyFile = std::filesystem::current_path().parent_path() / "Engine-ScriptCore" / "Engine-ScriptCore.csproj";
 			ScriptBuilder::BuildCSProject(scriptCoreAssemblyFile);
 
 			if (!LoadCoreAssembly())
-				HZ_CORE_FATAL_TAG("ScriptEngine", "Failed to build Engine-ScriptCore! Most likely there were compile errors!");
+				ZONG_CORE_FATAL_TAG("ScriptEngine", "Failed to build Engine-ScriptCore! Most likely there were compile errors!");
 		}
 
 		for(const auto& x : s_State->CoreAssemblyInfo.Raw()->ReferencedAssemblies)
 		{
-			HZ_CORE_INFO("Loaded Core Assembly {}", x.Name);
+			ZONG_CORE_INFO("Loaded Core Assembly {}", x.Name);
 		}
 
 		for(const auto& x : s_State->AppAssemblyInfo.Raw()->ReferencedAssemblies)
 		{
-			HZ_CORE_INFO("Loaded App Assembly {}", x.Name);
+			ZONG_CORE_INFO("Loaded App Assembly {}", x.Name);
 		}
 	}
 
@@ -125,9 +125,9 @@ namespace Hazel {
 
 	void ScriptEngine::InitializeRuntime(bool skipInitializedEntities)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(s_State->SceneContext, "Tring to initialize script runtime without setting the scene context!");
-		HZ_CORE_ASSERT(s_State->SceneContext->IsPlaying(), "Don't call ScriptEngine::InitializeRuntime if the scene isn't being played!");
+		ZONG_PROFILE_FUNC();
+		ZONG_CORE_ASSERT(s_State->SceneContext, "Tring to initialize script runtime without setting the scene context!");
+		ZONG_CORE_ASSERT(s_State->SceneContext->IsPlaying(), "Don't call ScriptEngine::InitializeRuntime if the scene isn't being played!");
 
 		auto view = s_State->SceneContext->GetAllEntitiesWith<IDComponent, ScriptComponent>();
 		for (auto enttID : view)
@@ -139,10 +139,10 @@ namespace Hazel {
 		
 	void ScriptEngine::ShutdownRuntime()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		UUID runtimeSceneID = s_State->SceneContext->GetUUID();
-		HZ_CORE_INFO_TAG("ScriptEngine", "Shutting down runtime scene {0}, with {1} scripts active.", runtimeSceneID, s_State->ScriptInstances.size());
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Shutting down runtime scene {0}, with {1} scripts active.", runtimeSceneID, s_State->ScriptInstances.size());
 
 		for (auto it = s_State->ScriptInstances.begin(); it != s_State->ScriptInstances.end(); )
 		{
@@ -188,7 +188,7 @@ namespace Hazel {
 
 	void ScriptEngine::OnProjectChanged(Ref<Project> inProject)
 	{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		auto filepath = Project::GetScriptModulePath().wstring();
 #else
 		auto filepath = Project::GetScriptModulePath().string();
@@ -205,7 +205,7 @@ namespace Hazel {
 
 	bool ScriptEngine::ReloadAppAssembly(const bool scheduleReload)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (scheduleReload)
 		{
@@ -213,7 +213,7 @@ namespace Hazel {
 			return false;
 		}
 
-		HZ_CORE_INFO_TAG("ScriptEngine", "Reloading {0}", Project::GetScriptModuleFilePath());
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Reloading {0}", Project::GetScriptModuleFilePath());
 
 		// Cache old field values and destroy all previous script instances
 		std::unordered_map<UUID, std::unordered_map<UUID, std::unordered_map<uint32_t, Buffer>>> oldFieldValues;
@@ -288,7 +288,7 @@ namespace Hazel {
 		}
 
 		GCManager::CollectGarbage();
-		HZ_CORE_INFO_TAG("ScriptEngine", "Done!");
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Done!");
 
 		if (s_State->SceneContext->IsPlaying())
 			InitializeRuntime(false);
@@ -301,7 +301,7 @@ namespace Hazel {
 
 	void ScriptEngine::UnloadAppAssembly()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		for (auto& [sceneID, entityInstances] : s_State->ScriptEntities)
 		{
@@ -327,8 +327,8 @@ namespace Hazel {
 	{
 		if (!FileSystem::Exists(Project::GetScriptModuleFilePath()))
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly! Invalid filepath");
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Filepath = {}", Project::GetScriptModuleFilePath());
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly! Invalid filepath");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Filepath = {}", Project::GetScriptModuleFilePath());
 			return false;
 		}
 
@@ -348,7 +348,7 @@ namespace Hazel {
 
 		if (appAssembly == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly!");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly!");
 			return false;
 		}
 
@@ -381,7 +381,7 @@ namespace Hazel {
 
 		if (coreMetadataIt == s_State->AppAssemblyInfo->ReferencedAssemblies.end())
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
+			ZONG_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
 			return false;
 		}
 
@@ -389,8 +389,8 @@ namespace Hazel {
 
 		if (coreMetadataIt->MajorVersion != coreMetadata.MajorVersion || coreMetadataIt->MinorVersion != coreMetadata.MinorVersion)
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project referencing an incompatible script core version!");
-			HZ_CONSOLE_LOG_ERROR("Expected version: {0}.{1}, referenced version: {2}.{3}",
+			ZONG_CONSOLE_LOG_ERROR("C# project referencing an incompatible script core version!");
+			ZONG_CONSOLE_LOG_ERROR("Expected version: {0}.{1}, referenced version: {2}.{3}",
 				coreMetadata.MajorVersion, coreMetadata.MinorVersion, coreMetadataIt->MajorVersion, coreMetadataIt->MinorVersion);
 
 			return false;
@@ -398,7 +398,7 @@ namespace Hazel {
 
 		LoadReferencedAssemblies(s_State->AppAssemblyInfo);
 
-		HZ_CORE_INFO_TAG("ScriptEngine", "Successfully loaded app assembly from: {0}", s_State->AppAssemblyInfo->FilePath);
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Successfully loaded app assembly from: {0}", s_State->AppAssemblyInfo->FilePath);
 
 		ScriptGlue::RegisterGlue();
 		ScriptCache::GenerateCacheForAssembly(s_State->AppAssemblyInfo);
@@ -422,7 +422,7 @@ namespace Hazel {
 		auto appAssembly = LoadMonoAssemblyRuntime(appAssemblyData);
 		if (appAssembly == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly!");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load app assembly!");
 			return false;
 		}
 
@@ -455,7 +455,7 @@ namespace Hazel {
 
 		if (coreMetadataIt == s_State->AppAssemblyInfo->ReferencedAssemblies.end())
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
+			ZONG_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
 			return false;
 		}
 
@@ -463,8 +463,8 @@ namespace Hazel {
 
 		if (coreMetadataIt->MajorVersion != coreMetadata.MajorVersion || coreMetadataIt->MinorVersion != coreMetadata.MinorVersion)
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project referencing an incompatible script core version!");
-			HZ_CONSOLE_LOG_ERROR("Expected version: {0}.{1}, referenced version: {2}.{3}",
+			ZONG_CONSOLE_LOG_ERROR("C# project referencing an incompatible script core version!");
+			ZONG_CONSOLE_LOG_ERROR("Expected version: {0}.{1}, referenced version: {2}.{3}",
 				coreMetadata.MajorVersion, coreMetadata.MinorVersion, coreMetadataIt->MajorVersion, coreMetadataIt->MinorVersion);
 
 			return false;
@@ -472,7 +472,7 @@ namespace Hazel {
 
 		LoadReferencedAssemblies(s_State->AppAssemblyInfo);
 
-		HZ_CORE_INFO_TAG("ScriptEngine", "Successfully loaded app assembly from: {0}", s_State->AppAssemblyInfo->FilePath);
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Successfully loaded app assembly from: {0}", s_State->AppAssemblyInfo->FilePath);
 
 		ScriptGlue::RegisterGlue();
 		ScriptCache::GenerateCacheForAssembly(s_State->AppAssemblyInfo);
@@ -490,7 +490,7 @@ namespace Hazel {
 
 	void ScriptEngine::InitializeScriptEntity(Entity entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!entity.HasComponent<ScriptComponent>())
 			return;
@@ -498,7 +498,7 @@ namespace Hazel {
 		auto& sc = entity.GetComponent<ScriptComponent>();
 		if (!IsModuleValid(sc.ScriptClassHandle))
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Tried to initialize script entity with an invalid script!");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Tried to initialize script entity with an invalid script!");
 			return;
 		}
 
@@ -537,11 +537,11 @@ namespace Hazel {
 
 	void ScriptEngine::RuntimeInitializeScriptEntity(Entity entity, bool skipInitializedEntities)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!entity.HasComponent<ScriptComponent>())
 		{
-			HZ_CORE_WARN_TAG("ScriptEngine", "Trying to instantiate a script on an entity that doesn't have a ScriptComponent");
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Trying to instantiate a script on an entity that doesn't have a ScriptComponent");
 			return;
 		}
 
@@ -559,8 +559,8 @@ namespace Hazel {
 			if (managedClass != nullptr)
 				className = managedClass->FullName;
 
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Tried to instantiate an entity ({1}) with an invalid C# class '{0}'!", className, entity.Name());
-			HZ_CONSOLE_LOG_ERROR("Tried to instantiate an entity ({1}) with an invalid C# class '{0}'!", className, entity.Name());
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Tried to instantiate an entity ({1}) with an invalid C# class '{0}'!", className, entity.Name());
+			ZONG_CONSOLE_LOG_ERROR("Tried to instantiate an entity ({1}) with an invalid C# class '{0}'!", className, entity.Name());
 			return;
 		}
 
@@ -587,7 +587,7 @@ namespace Hazel {
 
 	void ScriptEngine::DuplicateScriptInstance(Entity entity, Entity targetEntity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!entity.HasComponent<ScriptComponent>() || !targetEntity.HasComponent<ScriptComponent>())
 			return;
@@ -599,7 +599,7 @@ namespace Hazel {
 		{
 			const auto srcClass = ScriptCache::GetManagedClassByID(GetScriptClassIDFromComponent(srcScriptComp));
 			const auto dstClass = ScriptCache::GetManagedClassByID(GetScriptClassIDFromComponent(dstScriptComp));
-			HZ_CORE_WARN_TAG("ScriptEngine", "Attempting to duplicate instance of: {0} to an instance of: {1}", srcClass->FullName, dstClass->FullName);
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Attempting to duplicate instance of: {0} to an instance of: {1}", srcClass->FullName, dstClass->FullName);
 			return;
 		}
 
@@ -666,7 +666,7 @@ namespace Hazel {
 
 	void ScriptEngine::ShutdownScriptEntity(Entity entity, bool erase)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!entity.HasComponent<ScriptComponent>())
 			return;
@@ -705,7 +705,7 @@ namespace Hazel {
 
 	void ScriptEngine::InitializeRuntimeDuplicatedEntities()
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		while (s_State->RuntimeDuplicatedScriptEntities.size() > 0)
 		{
@@ -724,7 +724,7 @@ namespace Hazel {
 
 	bool ScriptEngine::IsEntityInstantiated(Entity entity, bool checkOnCreateCalled)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (!s_State->SceneContext || !s_State->SceneContext->IsPlaying())
 			return false;
@@ -745,7 +745,7 @@ namespace Hazel {
 
 	GCHandle ScriptEngine::GetEntityInstance(UUID entityID)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		if (s_State->ScriptInstances.find(entityID) == s_State->ScriptInstances.end())
 			return nullptr;
@@ -790,9 +790,9 @@ namespace Hazel {
 		if (s_State->IsMonoInitialized)
 			return;
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		mono_set_dirs("mono/lib", "mono/etc");
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		mono_set_dirs("mono/linux/lib", "mono/etc");
 #endif
 
@@ -821,7 +821,7 @@ namespace Hazel {
 		}
 
 		s_State->RootDomain = mono_jit_init("HazelJITRuntime");
-		HZ_CORE_ASSERT(s_State->RootDomain, "Unable to initialize Mono JIT");
+		ZONG_CORE_ASSERT(s_State->RootDomain, "Unable to initialize Mono JIT");
 
 		if (s_State->Config.EnableDebugging)
 			mono_debug_domain_create(s_State->RootDomain);
@@ -829,14 +829,14 @@ namespace Hazel {
 		mono_thread_set_main(mono_thread_current());
 
 		s_State->IsMonoInitialized = true;
-		HZ_CORE_INFO_TAG("ScriptEngine", "Initialized Mono");
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Initialized Mono");
 	}
 
 	void ScriptEngine::ShutdownMono()
 	{
 		if (!s_State->IsMonoInitialized)
 		{
-			HZ_CORE_WARN_TAG("ScriptEngine", "Trying to shutdown Mono multiple times!");
+			ZONG_CORE_WARN_TAG("ScriptEngine", "Trying to shutdown Mono multiple times!");
 			return;
 		}
 
@@ -853,7 +853,7 @@ namespace Hazel {
 
 	void ScriptEngine::CallMethod(MonoObject* monoObject, ManagedMethod* managedMethod, const void** parameters)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		MonoObject* exception = NULL;
 		mono_runtime_invoke(managedMethod->Method, monoObject, const_cast<void**>(parameters), &exception);
@@ -863,7 +863,7 @@ namespace Hazel {
 	MonoObject* ScriptEngine::CreateManagedObject(ManagedClass* managedClass)
 	{
 		MonoObject* monoObject = mono_object_new(s_State->ScriptsDomain, managedClass->Class);
-		HZ_CORE_VERIFY(monoObject, "Failed to create MonoObject!");
+		ZONG_CORE_VERIFY(monoObject, "Failed to create MonoObject!");
 		return monoObject;
 	}
 
@@ -889,7 +889,7 @@ namespace Hazel {
 		if (status != MONO_IMAGE_OK)
 		{
 			const char* errorMessage = mono_image_strerror(status);
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to open C# assembly '{0}'\n\t\tMessage: {1}", assemblyPath, errorMessage);
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to open C# assembly '{0}'\n\t\tMessage: {1}", assemblyPath, errorMessage);
 			return nullptr;
 		}
 
@@ -907,14 +907,14 @@ namespace Hazel {
 
 				if (!FileSystem::Exists(pdbPath))
 				{
-					HZ_CORE_WARN_TAG("ScriptEngine", "Couldn't find .pdb file for assembly {0}, no debug symbols will be loaded.", assemblyPath.string());
+					ZONG_CORE_WARN_TAG("ScriptEngine", "Couldn't find .pdb file for assembly {0}, no debug symbols will be loaded.", assemblyPath.string());
 					loadDebugSymbols = false;
 				}
 			}
 
 			if (loadDebugSymbols)
 			{
-				HZ_CORE_INFO_TAG("ScriptEngine", "Loading debug symbols from '{0}'", pdbPath.string());
+				ZONG_CORE_INFO_TAG("ScriptEngine", "Loading debug symbols from '{0}'", pdbPath.string());
 				Buffer buffer = FileSystem::ReadBytes(pdbPath);
 				mono_debug_open_image_from_memory(image, buffer.As<mono_byte>(), uint32_t(buffer.Size));
 				buffer.Release();
@@ -935,7 +935,7 @@ namespace Hazel {
 		if (status != MONO_IMAGE_OK)
 		{
 			const char* errorMessage = mono_image_strerror(status);
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load C# assembly");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load C# assembly");
 			return nullptr;
 		}
 
@@ -946,10 +946,10 @@ namespace Hazel {
 
 	bool ScriptEngine::LoadCoreAssembly()
 	{
-		HZ_CORE_TRACE_TAG("ScriptEngine", "Trying to load core assembly: {}", s_State->Config.CoreAssemblyPath.string());
+		ZONG_CORE_TRACE_TAG("ScriptEngine", "Trying to load core assembly: {}", s_State->Config.CoreAssemblyPath.string());
 		if (!FileSystem::Exists(s_State->Config.CoreAssemblyPath))
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Could not load core assembly! Path: {}", s_State->Config.CoreAssemblyPath.string());
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Could not load core assembly! Path: {}", s_State->Config.CoreAssemblyPath.string());
 			return false;
 		}
 
@@ -982,7 +982,7 @@ namespace Hazel {
 
 		if (s_State->CoreAssemblyInfo->Assembly == nullptr)
 		{
-			HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load core assembly!");
+			ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load core assembly!");
 			return false;
 		}
 
@@ -994,7 +994,7 @@ namespace Hazel {
 
 		LoadReferencedAssemblies(s_State->CoreAssemblyInfo);
 
-		HZ_CORE_INFO_TAG("ScriptEngine", "Successfully loaded core assembly from: {0}", s_State->Config.CoreAssemblyPath);
+		ZONG_CORE_INFO_TAG("ScriptEngine", "Successfully loaded core assembly from: {0}", s_State->Config.CoreAssemblyPath);
 
 		ScriptCache::Init();
 		ScriptUtils::Init();
@@ -1016,9 +1016,9 @@ namespace Hazel {
 
 	void ScriptEngine::LoadReferencedAssemblies(const Ref<AssemblyInfo>& assemblyInfo)
 	{
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef ZONG_PLATFORM_WINDOWS
 		static std::filesystem::path s_AssembliesBasePath = std::filesystem::absolute("mono") / "lib" / "mono" / "4.5";
-#elif defined(HZ_PLATFORM_LINUX)
+#elif defined(ZONG_PLATFORM_LINUX)
 		static std::filesystem::path s_AssembliesBasePath = std::filesystem::absolute("mono") / "linux" / "lib" / "mono" / "4.5";
 #endif
 
@@ -1032,13 +1032,13 @@ namespace Hazel {
 				continue;
 
 			std::filesystem::path assemblyPath = s_AssembliesBasePath / (fmt::format("{0}.dll", assemblyMetadata.Name));
-			HZ_CORE_INFO_TAG("ScriptEngine", "Loading assembly {0} referenced by {1}", assemblyPath.string(), assemblyInfo->FilePath.filename().string());
+			ZONG_CORE_INFO_TAG("ScriptEngine", "Loading assembly {0} referenced by {1}", assemblyPath.string(), assemblyInfo->FilePath.filename().string());
 
 			MonoAssembly* assembly = LoadMonoAssembly(assemblyPath);
 
 			if (assembly == nullptr)
 			{
-				HZ_CORE_ERROR_TAG("ScriptEngine", "Failed to load assembly {0} referenced by {1}", assemblyMetadata.Name, assemblyInfo->FilePath);
+				ZONG_CORE_ERROR_TAG("ScriptEngine", "Failed to load assembly {0} referenced by {1}", assemblyMetadata.Name, assemblyInfo->FilePath);
 				continue;
 			}
 

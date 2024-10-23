@@ -16,7 +16,7 @@
 #define LOG_DBG_MESSAGES 0
 
 #if LOG_DBG_MESSAGES
-#define DBG(...) HZ_CORE_WARN(__VA_ARGS__)
+#define DBG(...) ZONG_CORE_WARN(__VA_ARGS__)
 #else
 #define DBG(...)
 #endif
@@ -161,14 +161,14 @@ namespace Hazel::SoundGraph
 		InputEvent& AddInEvent( /* Type */ Identifier id, InputEvent::TEvent function = nullptr)
 		{
 			const auto& [element, inserted] = InEvs.try_emplace(id, *this, function);
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 			return element->second;
 		}
 
 		void AddOutEvent(/* Type */ Identifier id, OutputEvent& out)
 		{
 			const auto& [element, inserted] = OutEvs.insert({ id, out });
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 		}
 
 		choc::value::ValueView& AddInStream(/* Type */Identifier id, choc::value::ValueView* source = nullptr)
@@ -177,7 +177,7 @@ namespace Hazel::SoundGraph
 			if (source)
 				element->second = *source;
 
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 			return element->second;
 		}
 
@@ -190,7 +190,7 @@ namespace Hazel::SoundGraph
 																					  &memberVariable,
 																					  nullptr));
 			
-			HZ_CORE_ASSERT(inserted);
+			ZONG_CORE_ASSERT(inserted);
 			return element->second;
 		}
 

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphSerializer.h"
 
 #include "GraphSerializer.h"
@@ -39,7 +39,7 @@ namespace Hazel {
 
 		// Out
 		std::ofstream fout(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(fout.good());
+		ZONG_CORE_VERIFY(fout.good());
 		std::string yamlString = SerializeToYAML(graph);
 		fout << yamlString;
 	}
@@ -51,7 +51,7 @@ namespace Hazel {
 		std::ifstream stream(filepath);
 		if (!stream.is_open())
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to open SoundGraph asset file to deserialize: {}", filepath.string());
+			ZONG_CONSOLE_LOG_ERROR("Failed to open SoundGraph asset file to deserialize: {}", filepath.string());
 			return false;
 		}
 
@@ -61,7 +61,7 @@ namespace Hazel {
 		Ref<SoundGraphAsset> soundGraph;
 		if (!DeserializeFromYAML(strStream.str(), soundGraph))
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to deserialize SoundGraph: {}", filepath.string());
+			ZONG_CONSOLE_LOG_ERROR("Failed to deserialize SoundGraph: {}", filepath.string());
 			return false;
 		}
 
@@ -152,12 +152,12 @@ namespace Hazel {
 		DefaultGraphSerializer::SerializeLinks(out, graph->Links);
 
 		// Graph IO
-		HZ_SERIALIZE_PROPERTY(GraphInputs, graph->GraphInputs.ToExternalValue(), out);
-		HZ_SERIALIZE_PROPERTY(GraphOutputs, graph->GraphOutputs.ToExternalValue(), out);
-		HZ_SERIALIZE_PROPERTY(LocalVariables, graph->LocalVariables.ToExternalValue(), out);
+		ZONG_SERIALIZE_PROPERTY(GraphInputs, graph->GraphInputs.ToExternalValue(), out);
+		ZONG_SERIALIZE_PROPERTY(GraphOutputs, graph->GraphOutputs.ToExternalValue(), out);
+		ZONG_SERIALIZE_PROPERTY(LocalVariables, graph->LocalVariables.ToExternalValue(), out);
 
 		// Graph State
-		HZ_SERIALIZE_PROPERTY(GraphState, graph->GraphState, out);
+		ZONG_SERIALIZE_PROPERTY(GraphState, graph->GraphState, out);
 
 		// Wave Sources
 		out << YAML::Key << "Waves" << YAML::Value;
@@ -166,7 +166,7 @@ namespace Hazel {
 		{
 			out << YAML::BeginMap; // wave
 			{
-				HZ_SERIALIZE_PROPERTY(WaveAssetHandle, wave, out);
+				ZONG_SERIALIZE_PROPERTY(WaveAssetHandle, wave, out);
 			}
 			out << YAML::EndMap; // wave
 		}
@@ -182,15 +182,15 @@ namespace Hazel {
 
 			const auto& prototype = graph->Prototype;
 
-			HZ_SERIALIZE_PROPERTY(PrototypeName, prototype->DebugName, out);
-			HZ_SERIALIZE_PROPERTY(PrototypeID, prototype->ID, out);
+			ZONG_SERIALIZE_PROPERTY(PrototypeName, prototype->DebugName, out);
+			ZONG_SERIALIZE_PROPERTY(PrototypeID, prototype->ID, out);
 
 			auto serializeEndpoint = [&out](const SG::Prototype::Endpoint& endpoint)
 			{
 				out << YAML::BeginMap; // endpoing
 				{
-					HZ_SERIALIZE_PROPERTY(EndpointID, (uint32_t)endpoint.EndpointID, out);
-					HZ_SERIALIZE_PROPERTY(DefaultValue, choc::json::toString(endpoint.DefaultValue), out); // TODO: need to store type
+					ZONG_SERIALIZE_PROPERTY(EndpointID, (uint32_t)endpoint.EndpointID, out);
+					ZONG_SERIALIZE_PROPERTY(DefaultValue, choc::json::toString(endpoint.DefaultValue), out); // TODO: need to store type
 				}
 				out << YAML::EndMap; // endpoint
 			};
@@ -224,7 +224,7 @@ namespace Hazel {
 				for (const auto& id : prototype->OutputChannelIDs)
 				{
 					out << YAML::BeginMap;
-					HZ_SERIALIZE_PROPERTY(ID, (uint32_t)id, out);
+					ZONG_SERIALIZE_PROPERTY(ID, (uint32_t)id, out);
 					out << YAML::EndMap;
 				}
 			});
@@ -234,8 +234,8 @@ namespace Hazel {
 				for (const auto& node : prototype->Nodes)
 				{
 					out << YAML::BeginMap;
-					HZ_SERIALIZE_PROPERTY(NodeTypeID, (uint32_t)node.NodeTypeID, out);
-					HZ_SERIALIZE_PROPERTY(ID, (uint64_t)node.ID, out);
+					ZONG_SERIALIZE_PROPERTY(NodeTypeID, (uint32_t)node.NodeTypeID, out);
+					ZONG_SERIALIZE_PROPERTY(ID, (uint64_t)node.ID, out);
 
 					serializeSequence("DefaultValuePlugs", [&]
 					{
@@ -257,20 +257,20 @@ namespace Hazel {
 						out << YAML::Key << "Source" << YAML::Value;
 						out << YAML::BeginMap; // endpoing
 						{
-							HZ_SERIALIZE_PROPERTY(NodeID, (uint64_t)connection.Source.NodeID, out);
-							HZ_SERIALIZE_PROPERTY(EndpointID, (uint32_t)connection.Source.EndpointID, out);
+							ZONG_SERIALIZE_PROPERTY(NodeID, (uint64_t)connection.Source.NodeID, out);
+							ZONG_SERIALIZE_PROPERTY(EndpointID, (uint32_t)connection.Source.EndpointID, out);
 						}
 						out << YAML::EndMap; // endpoint
 
 						out << YAML::Key << "Destination" << YAML::Value;
 						out << YAML::BeginMap; // endpoing
 						{
-							HZ_SERIALIZE_PROPERTY(NodeID, (uint64_t)connection.Destination.NodeID, out);
-							HZ_SERIALIZE_PROPERTY(EndpointID, (uint32_t)connection.Destination.EndpointID, out);
+							ZONG_SERIALIZE_PROPERTY(NodeID, (uint64_t)connection.Destination.NodeID, out);
+							ZONG_SERIALIZE_PROPERTY(EndpointID, (uint32_t)connection.Destination.EndpointID, out);
 						}
 						out << YAML::EndMap; // endpoint
 
-						HZ_SERIALIZE_PROPERTY(Type, (uint32_t)connection.Type, out);
+						ZONG_SERIALIZE_PROPERTY(Type, (uint32_t)connection.Type, out);
 					}
 					out << YAML::EndMap; // connection
 				}
@@ -280,7 +280,7 @@ namespace Hazel {
 		}
 #endif
 		const std::string pathStr = graph->CachedPrototype.empty() ? std::string("") : graph->CachedPrototype.string();
-		HZ_SERIALIZE_PROPERTY(CachedPrototype, pathStr, out);
+		ZONG_SERIALIZE_PROPERTY(CachedPrototype, pathStr, out);
 
 		out << YAML::EndMap; // Nodes, Links, Graph State, Waves, Prototype
 
@@ -298,7 +298,7 @@ namespace Hazel {
 		}
 		catch (const std::exception& e)
 		{
-			HZ_CONSOLE_LOG_FATAL(e.what());
+			ZONG_CONSOLE_LOG_FATAL(e.what());
 			return false;
 		}
 
@@ -310,9 +310,9 @@ namespace Hazel {
 			choc::value::Value graphOutputsValue;
 			choc::value::Value graphLocalVariablesValue;
 
-			HZ_DESERIALIZE_PROPERTY(GraphInputs, graphInputsValue, data, choc::value::Value());
-			HZ_DESERIALIZE_PROPERTY(GraphOutputs, graphOutputsValue, data, choc::value::Value());
-			HZ_DESERIALIZE_PROPERTY(LocalVariables, graphLocalVariablesValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(GraphInputs, graphInputsValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(GraphOutputs, graphOutputsValue, data, choc::value::Value());
+			ZONG_DESERIALIZE_PROPERTY(LocalVariables, graphLocalVariablesValue, data, choc::value::Value());
 
 			graph->GraphInputs = Utils::PropertySet::FromExternalValue(graphInputsValue);
 			graph->GraphOutputs = Utils::PropertySet::FromExternalValue(graphOutputsValue);
@@ -334,11 +334,11 @@ namespace Hazel {
 			{
 				auto getLocalVariableName = [&]()
 				{
-					HZ_CORE_ASSERT(inputs.has_value() || outputs.has_value())
+					ZONG_CORE_ASSERT(inputs.has_value() || outputs.has_value())
 					std::string name;
 					if (outputs && !outputs->empty())    name = outputs->at(0).Name;
 					else if (inputs && !inputs->empty()) name = inputs->at(0).Name;
-					HZ_CORE_ASSERT(!name.empty());
+					ZONG_CORE_ASSERT(!name.empty());
 					return name;
 				};
 
@@ -348,7 +348,7 @@ namespace Hazel {
 					case EPropertyType::Output: newNode = SG::SoundGraphNodeFactory::SpawnGraphPropertyNode(graph, getLocalVariableName(), *optType); break;
 					case EPropertyType::LocalVariable: newNode = SG::SoundGraphNodeFactory::SpawnGraphPropertyNode(graph, candidate.Name, *optType, (bool)candidate.NumOutputs); break;
 					default:
-						HZ_CORE_ASSERT(false, "Deserialized invalid SoundGraph property type.");
+						ZONG_CORE_ASSERT(false, "Deserialized invalid SoundGraph property type.");
 						break;
 				}
 			}
@@ -367,7 +367,7 @@ namespace Hazel {
 				}
 			}
 
-			HZ_CORE_ASSERT(!newNode ^ (newNode->Type == candidate.Type));
+			ZONG_CORE_ASSERT(!newNode ^ (newNode->Type == candidate.Type));
 
 			return newNode;
 		};
@@ -390,14 +390,14 @@ namespace Hazel {
 				const std::string_view candidateTypeStr = magic_enum::enum_name<SG::SGTypes::ESGPinType>(candidateType);
 				const std::string_view factoryPinTypeStr = factoryPin->GetTypeString();
 
-				HZ_CONSOLE_LOG_ERROR("Pin type of the deserialized Node Pin ({0} - '{1}' ({2})) does not match the Pin type of the factory Node Pin ({0} - '{3}' ({4})).",
+				ZONG_CONSOLE_LOG_ERROR("Pin type of the deserialized Node Pin ({0} - '{1}' ({2})) does not match the Pin type of the factory Node Pin ({0} - '{3}' ({4})).",
 									node.Name, candidate.Name, candidateTypeStr, factoryPin->Name, factoryPinTypeStr);
 				return false;
 			}
 			else if (candidate.Name != factoryPin->Name)
 			{
 				// TODO: JP. this may not be correct when/if we change the Comment node to use Pin to display text instead of Node name
-				HZ_CONSOLE_LOG_ERROR("Pin name of the deserialized Node Pin ({0} - '{1}') does not match the Pin name of the factory Node Pin ({0} - '{2}').", node.Name, candidate.Name, factoryPin->Name);
+				ZONG_CONSOLE_LOG_ERROR("Pin name of the deserialized Node Pin ({0} - '{1}') does not match the Pin name of the factory Node Pin ({0} - '{2}').", node.Name, candidate.Name, factoryPin->Name);
 				return false;
 			}
 
@@ -458,7 +458,7 @@ namespace Hazel {
 				else
 				{
 					// This can trigger if we've trying to load old version of a Node.
-					HZ_CORE_ASSERT(false, "Type of the deserialized Node Pin does not match the type of the factory Node Pin.");
+					ZONG_CORE_ASSERT(false, "Type of the deserialized Node Pin does not match the type of the factory Node Pin.");
 
 					return choc::value::Value();
 				}
@@ -470,7 +470,7 @@ namespace Hazel {
 
 				if (value["TypeName"].isVoid())
 				{
-					HZ_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
+					ZONG_CORE_ASSERT(false, "Failed to deserialize custom value type, missing \"TypeName\" property.");
 					return {};
 				}
 
@@ -485,7 +485,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
+					ZONG_CORE_ASSERT(false, "Failed to load custom value type. It must be serialized as object.")
 				}
 
 				return customObject;
@@ -510,7 +510,7 @@ namespace Hazel {
 			else
 			{
 				// This can trigger if we've trying to load old version of a Node.
-				HZ_CONSOLE_LOG_ERROR("Value type of the deserialized Node Pin ({0} - '{1}') does not match the Value type of the factory Node Pin ({0} - '{2}').", node.Name, candidate.Name, factoryPin->Name);
+				ZONG_CONSOLE_LOG_ERROR("Value type of the deserialized Node Pin ({0} - '{1}') does not match the Value type of the factory Node Pin ({0} - '{2}').", node.Name, candidate.Name, factoryPin->Name);
 				return false;
 			}
 		};
@@ -523,7 +523,7 @@ namespace Hazel {
 		}
 		catch (const std::exception& e)
 		{
-			HZ_CONSOLE_LOG_FATAL(e.what());
+			ZONG_CONSOLE_LOG_FATAL(e.what());
 
 			graph = Ref<SoundGraphAsset>::Create();
 			return false;
@@ -546,19 +546,19 @@ namespace Hazel {
 		DefaultGraphSerializer::TryLoadLinks(data, graph->Links);
 
 		// Graph State
-		HZ_DESERIALIZE_PROPERTY(GraphState, graph->GraphState, data, std::string());
+		ZONG_DESERIALIZE_PROPERTY(GraphState, graph->GraphState, data, std::string());
 
 		// Wave Sources
 		for (auto wave : data["Waves"])
 		{
 			UUID ID;
 
-			HZ_DESERIALIZE_PROPERTY(WaveAssetHandle, ID, wave, uint64_t(0));
+			ZONG_DESERIALIZE_PROPERTY(WaveAssetHandle, ID, wave, uint64_t(0));
 			graph->WaveSources.push_back(ID);
 		}
 
 		// Graph Prototype
-		HZ_DESERIALIZE_PROPERTY(CachedPrototype, graph->CachedPrototype, data, std::string());
+		ZONG_DESERIALIZE_PROPERTY(CachedPrototype, graph->CachedPrototype, data, std::string());
 		return true;
 	}
 

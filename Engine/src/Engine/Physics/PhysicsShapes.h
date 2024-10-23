@@ -22,7 +22,7 @@ namespace Hazel {
 				case ShapeType::TriangleMesh: return "TriangleMesh";
 			}
 
-			HZ_CORE_VERIFY(false);
+			ZONG_CORE_VERIFY(false);
 			return "";
 		}
 

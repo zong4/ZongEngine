@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Vulkan.h"
 
 #include "VulkanContext.h"
@@ -32,7 +32,7 @@ namespace Hazel::Utils {
 		case VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT";
 		case VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT: return "VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT";
 		}
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 		return nullptr;
 	}
 
@@ -51,11 +51,11 @@ namespace Hazel::Utils {
 
 			uint32_t retrievedCount = checkpointCount;
 			vkGetQueueCheckpointDataNV(::Hazel::VulkanContext::GetCurrentDevice()->GetGraphicsQueue(), &retrievedCount, data);
-			HZ_CORE_ERROR("RetrieveDiagnosticCheckpoints (Graphics Queue):");
+			ZONG_CORE_ERROR("RetrieveDiagnosticCheckpoints (Graphics Queue):");
 			for (uint32_t i = 0; i < retrievedCount; i++)
 			{
 				VulkanCheckpointData* checkpoint = (VulkanCheckpointData*)data[i].pCheckpointMarker;
-				HZ_CORE_ERROR("Checkpoint: {0} (stage: {1})", checkpoint->Data, StageToString(data[i].stage));
+				ZONG_CORE_ERROR("Checkpoint: {0} (stage: {1})", checkpoint->Data, StageToString(data[i].stage));
 			}
 		}
 		{
@@ -66,11 +66,11 @@ namespace Hazel::Utils {
 
 			uint32_t retrievedCount = checkpointCount;
 			vkGetQueueCheckpointDataNV(::Hazel::VulkanContext::GetCurrentDevice()->GetComputeQueue(), &retrievedCount, data);
-			HZ_CORE_ERROR("RetrieveDiagnosticCheckpoints (Compute Queue):");
+			ZONG_CORE_ERROR("RetrieveDiagnosticCheckpoints (Compute Queue):");
 			for (uint32_t i = 0; i < retrievedCount; i++)
 			{
 				VulkanCheckpointData* checkpoint = (VulkanCheckpointData*)data[i].pCheckpointMarker;
-				HZ_CORE_ERROR("Checkpoint: {0} (stage: {1})", checkpoint->Data, StageToString(data[i].stage));
+				ZONG_CORE_ERROR("Checkpoint: {0} (stage: {1})", checkpoint->Data, StageToString(data[i].stage));
 			}
 		}
 		//__debugbreak();

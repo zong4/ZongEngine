@@ -24,7 +24,7 @@ namespace Hazel
 		void WriteRaw(const T& type)
 		{
 			bool success = WriteData((char*)&type, sizeof(T));
-			HZ_CORE_ASSERT(success);
+			ZONG_CORE_ASSERT(success);
 		}
 
 		template<typename T>

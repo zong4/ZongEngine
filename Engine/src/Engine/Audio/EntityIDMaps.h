@@ -29,7 +29,7 @@ namespace Hazel {
 		void Remove(UUID sceneID, UUID entityID)
 		{
 			std::scoped_lock lock{ m_Mutex };
-			HZ_CORE_ASSERT(m_EntityIDMap.at(sceneID).find(entityID) != m_EntityIDMap.at(sceneID).end(),
+			ZONG_CORE_ASSERT(m_EntityIDMap.at(sceneID).find(entityID) != m_EntityIDMap.at(sceneID).end(),
 				"Could not find entityID in the registry to remove.");
 
 			m_EntityIDMap.at(sceneID).erase(entityID);

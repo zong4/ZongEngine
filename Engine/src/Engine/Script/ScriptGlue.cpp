@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "ScriptGlue.h"
 #include "ScriptEngine.h"
 #include "ScriptUtils.h"
@@ -49,20 +49,20 @@
 
 namespace Hazel {
 
-#ifdef HZ_PLATFORM_WINDOWS
-#define HZ_FUNCTION_NAME __func__
+#ifdef ZONG_PLATFORM_WINDOWS
+#define ZONG_FUNCTION_NAME __func__
 #else
-#define HZ_FUNCTION_NAME __FUNCTION__
+#define ZONG_FUNCTION_NAME __FUNCTION__
 #endif
 
-#define HZ_ADD_INTERNAL_CALL(icall) mono_add_internal_call("Hazel.InternalCalls::"#icall, (void*)InternalCalls::icall)
+#define ZONG_ADD_INTERNAL_CALL(icall) mono_add_internal_call("Hazel.InternalCalls::"#icall, (void*)InternalCalls::icall)
 
-#ifdef HZ_DIST
-#define HZ_ICALL_VALIDATE_PARAM(param) HZ_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'", HZ_FUNCTION_NAME, param, #param)
-#define HZ_ICALL_VALIDATE_PARAM_V(param, value) HZ_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", HZ_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace())
+#ifdef ZONG_DIST
+#define ZONG_ICALL_VALIDATE_PARAM(param) ZONG_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'", ZONG_FUNCTION_NAME, param, #param)
+#define ZONG_ICALL_VALIDATE_PARAM_V(param, value) ZONG_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", ZONG_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace())
 #else
-#define HZ_ICALL_VALIDATE_PARAM(param) { if (!(param)) { HZ_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'", HZ_FUNCTION_NAME, param, #param); } }
-#define HZ_ICALL_VALIDATE_PARAM_V(param, value) { if (!(param)) { HZ_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", HZ_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace()); } }
+#define ZONG_ICALL_VALIDATE_PARAM(param) { if (!(param)) { ZONG_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'", ZONG_FUNCTION_NAME, param, #param); } }
+#define ZONG_ICALL_VALIDATE_PARAM_V(param, value) { if (!(param)) { ZONG_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", ZONG_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace()); } }
 #endif
 
 	std::unordered_map<MonoType*, std::function<void(Entity&)>> s_CreateComponentFuncs;
@@ -86,7 +86,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_VERIFY(false, "No C# component class found for {}!", componentName);
+			ZONG_CORE_VERIFY(false, "No C# component class found for {}!", componentName);
 		}
 	}
 
@@ -107,7 +107,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_VERIFY(false, "No C# component class found for {}!", componentName);
+			ZONG_CORE_VERIFY(false, "No C# component class found for {}!", componentName);
 		}
 	}
 
@@ -185,428 +185,428 @@ namespace Hazel {
 
 	void ScriptGlue::RegisterInternalCalls()
 	{
-		HZ_ADD_INTERNAL_CALL(AssetHandle_IsValid);
+		ZONG_ADD_INTERNAL_CALL(AssetHandle_IsValid);
 
-		HZ_ADD_INTERNAL_CALL(Application_Quit);
-		HZ_ADD_INTERNAL_CALL(Application_GetWidth);
-		HZ_ADD_INTERNAL_CALL(Application_GetHeight);
-		HZ_ADD_INTERNAL_CALL(Application_GetDataDirectoryPath);
-		HZ_ADD_INTERNAL_CALL(Application_GetSetting);
-		HZ_ADD_INTERNAL_CALL(Application_GetSettingInt);
-		HZ_ADD_INTERNAL_CALL(Application_GetSettingFloat);
+		ZONG_ADD_INTERNAL_CALL(Application_Quit);
+		ZONG_ADD_INTERNAL_CALL(Application_GetWidth);
+		ZONG_ADD_INTERNAL_CALL(Application_GetHeight);
+		ZONG_ADD_INTERNAL_CALL(Application_GetDataDirectoryPath);
+		ZONG_ADD_INTERNAL_CALL(Application_GetSetting);
+		ZONG_ADD_INTERNAL_CALL(Application_GetSettingInt);
+		ZONG_ADD_INTERNAL_CALL(Application_GetSettingFloat);
 
-		HZ_ADD_INTERNAL_CALL(SceneManager_IsSceneValid);
-		HZ_ADD_INTERNAL_CALL(SceneManager_IsSceneIDValid);
-		HZ_ADD_INTERNAL_CALL(SceneManager_LoadScene);
-		HZ_ADD_INTERNAL_CALL(SceneManager_LoadSceneByID);
-		HZ_ADD_INTERNAL_CALL(SceneManager_GetCurrentSceneID);
-		HZ_ADD_INTERNAL_CALL(SceneManager_GetCurrentSceneName);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_IsSceneValid);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_IsSceneIDValid);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_LoadScene);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_LoadSceneByID);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_GetCurrentSceneID);
+		ZONG_ADD_INTERNAL_CALL(SceneManager_GetCurrentSceneName);
 
-		HZ_ADD_INTERNAL_CALL(Scene_FindEntityByTag);
-		HZ_ADD_INTERNAL_CALL(Scene_IsEntityValid);
-		HZ_ADD_INTERNAL_CALL(Scene_CreateEntity);
-		HZ_ADD_INTERNAL_CALL(Scene_InstantiatePrefab);
-		HZ_ADD_INTERNAL_CALL(Scene_InstantiatePrefabWithTranslation);
-		HZ_ADD_INTERNAL_CALL(Scene_InstantiatePrefabWithTransform);
-		HZ_ADD_INTERNAL_CALL(Scene_InstantiateChildPrefabWithTranslation);
-		HZ_ADD_INTERNAL_CALL(Scene_InstantiateChildPrefabWithTransform);
-		HZ_ADD_INTERNAL_CALL(Scene_DestroyEntity);
-		HZ_ADD_INTERNAL_CALL(Scene_DestroyAllChildren);
-		HZ_ADD_INTERNAL_CALL(Scene_GetEntities);
-		HZ_ADD_INTERNAL_CALL(Scene_GetChildrenIDs);
-		HZ_ADD_INTERNAL_CALL(Scene_SetTimeScale);
+		ZONG_ADD_INTERNAL_CALL(Scene_FindEntityByTag);
+		ZONG_ADD_INTERNAL_CALL(Scene_IsEntityValid);
+		ZONG_ADD_INTERNAL_CALL(Scene_CreateEntity);
+		ZONG_ADD_INTERNAL_CALL(Scene_InstantiatePrefab);
+		ZONG_ADD_INTERNAL_CALL(Scene_InstantiatePrefabWithTranslation);
+		ZONG_ADD_INTERNAL_CALL(Scene_InstantiatePrefabWithTransform);
+		ZONG_ADD_INTERNAL_CALL(Scene_InstantiateChildPrefabWithTranslation);
+		ZONG_ADD_INTERNAL_CALL(Scene_InstantiateChildPrefabWithTransform);
+		ZONG_ADD_INTERNAL_CALL(Scene_DestroyEntity);
+		ZONG_ADD_INTERNAL_CALL(Scene_DestroyAllChildren);
+		ZONG_ADD_INTERNAL_CALL(Scene_GetEntities);
+		ZONG_ADD_INTERNAL_CALL(Scene_GetChildrenIDs);
+		ZONG_ADD_INTERNAL_CALL(Scene_SetTimeScale);
 
-		HZ_ADD_INTERNAL_CALL(Entity_GetParent);
-		HZ_ADD_INTERNAL_CALL(Entity_SetParent);
-		HZ_ADD_INTERNAL_CALL(Entity_GetChildren);
-		HZ_ADD_INTERNAL_CALL(Entity_CreateComponent);
-		HZ_ADD_INTERNAL_CALL(Entity_HasComponent);
-		HZ_ADD_INTERNAL_CALL(Entity_RemoveComponent);
+		ZONG_ADD_INTERNAL_CALL(Entity_GetParent);
+		ZONG_ADD_INTERNAL_CALL(Entity_SetParent);
+		ZONG_ADD_INTERNAL_CALL(Entity_GetChildren);
+		ZONG_ADD_INTERNAL_CALL(Entity_CreateComponent);
+		ZONG_ADD_INTERNAL_CALL(Entity_HasComponent);
+		ZONG_ADD_INTERNAL_CALL(Entity_RemoveComponent);
 
-		HZ_ADD_INTERNAL_CALL(TagComponent_GetTag);
-		HZ_ADD_INTERNAL_CALL(TagComponent_SetTag);
+		ZONG_ADD_INTERNAL_CALL(TagComponent_GetTag);
+		ZONG_ADD_INTERNAL_CALL(TagComponent_SetTag);
 
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTransform);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTransform);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetRotation);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetRotation);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetScale);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetScale);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetWorldSpaceTransform);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTransformMatrix);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTransformMatrix);
-		HZ_ADD_INTERNAL_CALL(TransformComponent_SetRotationQuat);
-		HZ_ADD_INTERNAL_CALL(TransformMultiply_Native);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetTransform);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetTransform);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetRotation);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetRotation);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetScale);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetScale);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetWorldSpaceTransform);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_GetTransformMatrix);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetTransformMatrix);
+		ZONG_ADD_INTERNAL_CALL(TransformComponent_SetRotationQuat);
+		ZONG_ADD_INTERNAL_CALL(TransformMultiply_Native);
 
-		HZ_ADD_INTERNAL_CALL(MeshComponent_GetMesh);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_SetMesh);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_HasMaterial);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(MeshComponent_GetIsRigged);
+		ZONG_ADD_INTERNAL_CALL(MeshComponent_GetMesh);
+		ZONG_ADD_INTERNAL_CALL(MeshComponent_SetMesh);
+		ZONG_ADD_INTERNAL_CALL(MeshComponent_HasMaterial);
+		ZONG_ADD_INTERNAL_CALL(MeshComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(MeshComponent_GetIsRigged);
 
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_GetMesh);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_SetMesh);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_HasMaterial);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_SetMaterial);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_IsVisible);
-		HZ_ADD_INTERNAL_CALL(StaticMeshComponent_SetVisible);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_GetMesh);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_SetMesh);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_HasMaterial);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_SetMaterial);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_IsVisible);
+		ZONG_ADD_INTERNAL_CALL(StaticMeshComponent_SetVisible);
 
-		HZ_ADD_INTERNAL_CALL(Identifier_Get);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetInputBool);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputBool);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetInputInt);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputInt);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetInputFloat);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_SetInputFloat);
-		HZ_ADD_INTERNAL_CALL(AnimationComponent_GetRootMotion);
+		ZONG_ADD_INTERNAL_CALL(Identifier_Get);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_GetInputBool);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_SetInputBool);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_GetInputInt);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_SetInputInt);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_GetInputFloat);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_SetInputFloat);
+		ZONG_ADD_INTERNAL_CALL(AnimationComponent_GetRootMotion);
 
-		HZ_ADD_INTERNAL_CALL(ScriptComponent_GetInstance);
+		ZONG_ADD_INTERNAL_CALL(ScriptComponent_GetInstance);
 
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetPerspective);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetOrthographic);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetVerticalFOV);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetVerticalFOV);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetPerspectiveNearClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetPerspectiveNearClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetPerspectiveFarClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetPerspectiveFarClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicSize);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicSize);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicNearClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicNearClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicFarClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicFarClip);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetProjectionType);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetProjectionType);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_GetPrimary);
-		HZ_ADD_INTERNAL_CALL(CameraComponent_SetPrimary);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetPerspective);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetOrthographic);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetVerticalFOV);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetVerticalFOV);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetPerspectiveNearClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetPerspectiveNearClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetPerspectiveFarClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetPerspectiveFarClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicSize);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicSize);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicNearClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicNearClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetOrthographicFarClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetOrthographicFarClip);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetProjectionType);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetProjectionType);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_GetPrimary);
+		ZONG_ADD_INTERNAL_CALL(CameraComponent_SetPrimary);
 
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetRadiance);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetRadiance);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetIntensity);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetIntensity);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetCastShadows);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetCastShadows);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetSoftShadows);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetSoftShadows);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_GetLightSize);
-		HZ_ADD_INTERNAL_CALL(DirectionalLightComponent_SetLightSize);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_GetRadiance);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_SetRadiance);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_GetIntensity);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_SetIntensity);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_GetCastShadows);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_SetCastShadows);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_GetSoftShadows);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_SetSoftShadows);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_GetLightSize);
+		ZONG_ADD_INTERNAL_CALL(DirectionalLightComponent_SetLightSize);
 
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_GetRadiance);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_SetRadiance);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_GetIntensity);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_SetIntensity);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_GetRadius);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_SetRadius);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_GetFalloff);
-		HZ_ADD_INTERNAL_CALL(PointLightComponent_SetFalloff);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_GetRadiance);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_SetRadiance);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_GetIntensity);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_SetIntensity);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_GetRadius);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_SetRadius);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_GetFalloff);
+		ZONG_ADD_INTERNAL_CALL(PointLightComponent_SetFalloff);
 
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_GetIntensity);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_SetIntensity);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_GetTurbidity);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_SetTurbidity);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_GetAzimuth);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_SetAzimuth);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_GetInclination);
-		HZ_ADD_INTERNAL_CALL(SkyLightComponent_SetInclination);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_GetIntensity);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_SetIntensity);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_GetTurbidity);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_SetTurbidity);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_GetAzimuth);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_SetAzimuth);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_GetInclination);
+		ZONG_ADD_INTERNAL_CALL(SkyLightComponent_SetInclination);
 		
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetRadiance);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetRadiance);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetIntensity);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetIntensity);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetRange);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetRange);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetAngle);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetAngle);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetAngleAttenuation);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetAngleAttenuation);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetFalloff);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetFalloff);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetCastsShadows);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetCastsShadows);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_GetSoftShadows);
-		HZ_ADD_INTERNAL_CALL(SpotLightComponent_SetSoftShadows);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetRadiance);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetRadiance);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetIntensity);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetIntensity);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetRange);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetRange);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetAngle);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetAngle);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetAngleAttenuation);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetAngleAttenuation);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetFalloff);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetFalloff);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetCastsShadows);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetCastsShadows);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_GetSoftShadows);
+		ZONG_ADD_INTERNAL_CALL(SpotLightComponent_SetSoftShadows);
 
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_GetColor);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_SetColor);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_GetTilingFactor);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_SetTilingFactor);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_GetUVStart);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_SetUVStart);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_GetUVEnd);
-		HZ_ADD_INTERNAL_CALL(SpriteRendererComponent_SetUVEnd);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_GetColor);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_SetColor);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_GetTilingFactor);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_SetTilingFactor);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_GetUVStart);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_SetUVStart);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_GetUVEnd);
+		ZONG_ADD_INTERNAL_CALL(SpriteRendererComponent_SetUVEnd);
 
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetBodyType);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetBodyType);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetTranslation);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetTranslation);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetRotation);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetRotation);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetMass);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetMass);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_GetGravityScale);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_SetGravityScale);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyLinearImpulse);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyAngularImpulse);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_AddForce);
-		HZ_ADD_INTERNAL_CALL(RigidBody2DComponent_AddTorque);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetBodyType);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetBodyType);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetTranslation);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetTranslation);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetRotation);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetRotation);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetMass);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetMass);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_GetGravityScale);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_SetGravityScale);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyLinearImpulse);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyAngularImpulse);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_AddForce);
+		ZONG_ADD_INTERNAL_CALL(RigidBody2DComponent_AddTorque);
 
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_AddForce);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_AddForceAtLocation);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_AddTorque);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetAngularVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetAngularVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetMaxLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetMaxLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetMaxAngularVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetMaxAngularVelocity);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLinearDrag);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetLinearDrag);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetAngularDrag);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetAngularDrag);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_Rotate);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLayer);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetLayer);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLayerName);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetLayerByName);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetMass);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetMass);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetBodyType);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetBodyType);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_MoveKinematic);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetAxisLock);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_IsAxisLocked);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_GetLockedAxes);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_IsSleeping);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_SetIsSleeping);
-		HZ_ADD_INTERNAL_CALL(RigidBodyComponent_Teleport);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_AddForce);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_AddForceAtLocation);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_AddTorque);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetAngularVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetAngularVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetMaxLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetMaxLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetMaxAngularVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetMaxAngularVelocity);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetLinearDrag);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetLinearDrag);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetAngularDrag);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetAngularDrag);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_Rotate);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetLayer);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetLayer);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetLayerName);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetLayerByName);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetMass);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetMass);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetBodyType);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetBodyType);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_MoveKinematic);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetAxisLock);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_IsAxisLocked);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_GetLockedAxes);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_IsSleeping);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_SetIsSleeping);
+		ZONG_ADD_INTERNAL_CALL(RigidBodyComponent_Teleport);
 
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetIsGravityEnabled);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetIsGravityEnabled);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetSlopeLimit);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetSlopeLimit);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetStepOffset);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetStepOffset);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetTranslation);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetRotation);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_Move);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_Jump);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_SetLinearVelocity);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_IsGrounded);
-		HZ_ADD_INTERNAL_CALL(CharacterControllerComponent_GetCollisionFlags);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_GetIsGravityEnabled);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetIsGravityEnabled);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_GetSlopeLimit);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetSlopeLimit);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_GetStepOffset);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetStepOffset);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetTranslation);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetRotation);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_Move);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_Jump);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_GetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_SetLinearVelocity);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_IsGrounded);
+		ZONG_ADD_INTERNAL_CALL(CharacterControllerComponent_GetCollisionFlags);
 
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetConnectedEntity);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetConnectedEntity);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsBreakable);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetIsBreakable);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsBroken);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_Break);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakForce);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakForce);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakTorque);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakTorque);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsCollisionEnabled);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetCollisionEnabled);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_IsPreProcessingEnabled);
-		HZ_ADD_INTERNAL_CALL(FixedJointComponent_SetPreProcessingEnabled);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_GetConnectedEntity);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetConnectedEntity);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_IsBreakable);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetIsBreakable);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_IsBroken);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_Break);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakForce);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakForce);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_GetBreakTorque);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetBreakTorque);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_IsCollisionEnabled);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetCollisionEnabled);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_IsPreProcessingEnabled);
+		ZONG_ADD_INTERNAL_CALL(FixedJointComponent_SetPreProcessingEnabled);
 
-		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_GetHalfSize);
-		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_GetOffset);
-		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(BoxColliderComponent_SetMaterial);
+		ZONG_ADD_INTERNAL_CALL(BoxColliderComponent_GetHalfSize);
+		ZONG_ADD_INTERNAL_CALL(BoxColliderComponent_GetOffset);
+		ZONG_ADD_INTERNAL_CALL(BoxColliderComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(BoxColliderComponent_SetMaterial);
 
-		HZ_ADD_INTERNAL_CALL(SphereColliderComponent_GetRadius);
-		HZ_ADD_INTERNAL_CALL(SphereColliderComponent_GetOffset);
-		HZ_ADD_INTERNAL_CALL(SphereColliderComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(SphereColliderComponent_SetMaterial);
+		ZONG_ADD_INTERNAL_CALL(SphereColliderComponent_GetRadius);
+		ZONG_ADD_INTERNAL_CALL(SphereColliderComponent_GetOffset);
+		ZONG_ADD_INTERNAL_CALL(SphereColliderComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(SphereColliderComponent_SetMaterial);
 
-		HZ_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetRadius);
-		HZ_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetHeight);
-		HZ_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetOffset);
-		HZ_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(CapsuleColliderComponent_SetMaterial);
+		ZONG_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetRadius);
+		ZONG_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetHeight);
+		ZONG_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetOffset);
+		ZONG_ADD_INTERNAL_CALL(CapsuleColliderComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(CapsuleColliderComponent_SetMaterial);
 
-		HZ_ADD_INTERNAL_CALL(MeshColliderComponent_IsMeshStatic);
-		HZ_ADD_INTERNAL_CALL(MeshColliderComponent_IsColliderMeshValid);
-		HZ_ADD_INTERNAL_CALL(MeshColliderComponent_GetColliderMesh);
-		HZ_ADD_INTERNAL_CALL(MeshColliderComponent_GetMaterial);
-		HZ_ADD_INTERNAL_CALL(MeshColliderComponent_SetMaterial);
+		ZONG_ADD_INTERNAL_CALL(MeshColliderComponent_IsMeshStatic);
+		ZONG_ADD_INTERNAL_CALL(MeshColliderComponent_IsColliderMeshValid);
+		ZONG_ADD_INTERNAL_CALL(MeshColliderComponent_GetColliderMesh);
+		ZONG_ADD_INTERNAL_CALL(MeshColliderComponent_GetMaterial);
+		ZONG_ADD_INTERNAL_CALL(MeshColliderComponent_SetMaterial);
 
-		HZ_ADD_INTERNAL_CALL(MeshCollider_IsStaticMesh);
+		ZONG_ADD_INTERNAL_CALL(MeshCollider_IsStaticMesh);
 
-		HZ_ADD_INTERNAL_CALL(AudioComponent_IsPlaying);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_Play);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_Stop);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_Pause);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_Resume);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_GetVolumeMult);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_SetVolumeMult);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_GetPitchMult);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_SetPitchMult);
-		HZ_ADD_INTERNAL_CALL(AudioComponent_SetEvent);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_IsPlaying);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_Play);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_Stop);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_Pause);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_Resume);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_GetVolumeMult);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_SetVolumeMult);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_GetPitchMult);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_SetPitchMult);
+		ZONG_ADD_INTERNAL_CALL(AudioComponent_SetEvent);
 
-		HZ_ADD_INTERNAL_CALL(TextComponent_GetHash);
-		HZ_ADD_INTERNAL_CALL(TextComponent_GetText);
-		HZ_ADD_INTERNAL_CALL(TextComponent_SetText);
-		HZ_ADD_INTERNAL_CALL(TextComponent_GetColor);
-		HZ_ADD_INTERNAL_CALL(TextComponent_SetColor);
+		ZONG_ADD_INTERNAL_CALL(TextComponent_GetHash);
+		ZONG_ADD_INTERNAL_CALL(TextComponent_GetText);
+		ZONG_ADD_INTERNAL_CALL(TextComponent_SetText);
+		ZONG_ADD_INTERNAL_CALL(TextComponent_GetColor);
+		ZONG_ADD_INTERNAL_CALL(TextComponent_SetColor);
 
 		//============================================================================================
 		/// Audio
-		HZ_ADD_INTERNAL_CALL(Audio_PostEvent);
-		HZ_ADD_INTERNAL_CALL(Audio_PostEventFromAC);
-		HZ_ADD_INTERNAL_CALL(Audio_PostEventAtLocation);
-		HZ_ADD_INTERNAL_CALL(Audio_StopEventID);
-		HZ_ADD_INTERNAL_CALL(Audio_PauseEventID);
-		HZ_ADD_INTERNAL_CALL(Audio_ResumeEventID);
-		HZ_ADD_INTERNAL_CALL(Audio_CreateAudioEntity);
+		ZONG_ADD_INTERNAL_CALL(Audio_PostEvent);
+		ZONG_ADD_INTERNAL_CALL(Audio_PostEventFromAC);
+		ZONG_ADD_INTERNAL_CALL(Audio_PostEventAtLocation);
+		ZONG_ADD_INTERNAL_CALL(Audio_StopEventID);
+		ZONG_ADD_INTERNAL_CALL(Audio_PauseEventID);
+		ZONG_ADD_INTERNAL_CALL(Audio_ResumeEventID);
+		ZONG_ADD_INTERNAL_CALL(Audio_CreateAudioEntity);
 
-		HZ_ADD_INTERNAL_CALL(AudioCommandID_Constructor);
+		ZONG_ADD_INTERNAL_CALL(AudioCommandID_Constructor);
 		//============================================================================================
 		/// Audio Parameters Interface
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterFloat);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterInt);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterBool);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterFloatForAC);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterIntForAC);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterBoolForAC);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterFloat);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterInt);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterBool);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterFloatForAC);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterIntForAC);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterBoolForAC);
 
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterFloatForEvent);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterIntForEvent);
-		HZ_ADD_INTERNAL_CALL(Audio_SetParameterBoolForEvent);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterFloatForEvent);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterIntForEvent);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetParameterBoolForEvent);
 		//============================================================================================
-		HZ_ADD_INTERNAL_CALL(Audio_PreloadEventSources);
-		HZ_ADD_INTERNAL_CALL(Audio_UnloadEventSources);
+		ZONG_ADD_INTERNAL_CALL(Audio_PreloadEventSources);
+		ZONG_ADD_INTERNAL_CALL(Audio_UnloadEventSources);
 
-		HZ_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue);
-		HZ_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue);
-		HZ_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue_Event);
-		HZ_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue_Event);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue_Event);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue_Event);
 
-		HZ_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue_AC);
-		HZ_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue_AC);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetLowPassFilterValue_AC);
+		ZONG_ADD_INTERNAL_CALL(Audio_SetHighPassFilterValue_AC);
 
 		//============================================================================================
 
-		HZ_ADD_INTERNAL_CALL(Texture2D_Create);
-		HZ_ADD_INTERNAL_CALL(Texture2D_GetSize);
-		HZ_ADD_INTERNAL_CALL(Texture2D_SetData);
-		//HZ_ADD_INTERNAL_CALL(Texture2D_GetData);
+		ZONG_ADD_INTERNAL_CALL(Texture2D_Create);
+		ZONG_ADD_INTERNAL_CALL(Texture2D_GetSize);
+		ZONG_ADD_INTERNAL_CALL(Texture2D_SetData);
+		//ZONG_ADD_INTERNAL_CALL(Texture2D_GetData);
 
-		HZ_ADD_INTERNAL_CALL(Mesh_GetMaterialByIndex);
-		HZ_ADD_INTERNAL_CALL(Mesh_GetMaterialCount);
+		ZONG_ADD_INTERNAL_CALL(Mesh_GetMaterialByIndex);
+		ZONG_ADD_INTERNAL_CALL(Mesh_GetMaterialCount);
 
-		HZ_ADD_INTERNAL_CALL(StaticMesh_GetMaterialByIndex);
-		HZ_ADD_INTERNAL_CALL(StaticMesh_GetMaterialCount);
+		ZONG_ADD_INTERNAL_CALL(StaticMesh_GetMaterialByIndex);
+		ZONG_ADD_INTERNAL_CALL(StaticMesh_GetMaterialCount);
 
-		HZ_ADD_INTERNAL_CALL(Material_GetAlbedoColor);
-		HZ_ADD_INTERNAL_CALL(Material_SetAlbedoColor);
-		HZ_ADD_INTERNAL_CALL(Material_GetMetalness);
-		HZ_ADD_INTERNAL_CALL(Material_SetMetalness);
-		HZ_ADD_INTERNAL_CALL(Material_GetRoughness);
-		HZ_ADD_INTERNAL_CALL(Material_SetRoughness);
-		HZ_ADD_INTERNAL_CALL(Material_GetEmission);
-		HZ_ADD_INTERNAL_CALL(Material_SetEmission);
-		HZ_ADD_INTERNAL_CALL(Material_SetFloat);
-		HZ_ADD_INTERNAL_CALL(Material_SetVector3);
-		HZ_ADD_INTERNAL_CALL(Material_SetVector4);
-		HZ_ADD_INTERNAL_CALL(Material_SetTexture);
+		ZONG_ADD_INTERNAL_CALL(Material_GetAlbedoColor);
+		ZONG_ADD_INTERNAL_CALL(Material_SetAlbedoColor);
+		ZONG_ADD_INTERNAL_CALL(Material_GetMetalness);
+		ZONG_ADD_INTERNAL_CALL(Material_SetMetalness);
+		ZONG_ADD_INTERNAL_CALL(Material_GetRoughness);
+		ZONG_ADD_INTERNAL_CALL(Material_SetRoughness);
+		ZONG_ADD_INTERNAL_CALL(Material_GetEmission);
+		ZONG_ADD_INTERNAL_CALL(Material_SetEmission);
+		ZONG_ADD_INTERNAL_CALL(Material_SetFloat);
+		ZONG_ADD_INTERNAL_CALL(Material_SetVector3);
+		ZONG_ADD_INTERNAL_CALL(Material_SetVector4);
+		ZONG_ADD_INTERNAL_CALL(Material_SetTexture);
 
-		HZ_ADD_INTERNAL_CALL(MeshFactory_CreatePlane);
+		ZONG_ADD_INTERNAL_CALL(MeshFactory_CreatePlane);
 
-		HZ_ADD_INTERNAL_CALL(Physics_CastRay);
-		HZ_ADD_INTERNAL_CALL(Physics_CastShape);
-		HZ_ADD_INTERNAL_CALL(Physics_Raycast2D);
-		HZ_ADD_INTERNAL_CALL(Physics_OverlapShape);
-		HZ_ADD_INTERNAL_CALL(Physics_GetGravity);
-		HZ_ADD_INTERNAL_CALL(Physics_SetGravity);
-		HZ_ADD_INTERNAL_CALL(Physics_AddRadialImpulse);
+		ZONG_ADD_INTERNAL_CALL(Physics_CastRay);
+		ZONG_ADD_INTERNAL_CALL(Physics_CastShape);
+		ZONG_ADD_INTERNAL_CALL(Physics_Raycast2D);
+		ZONG_ADD_INTERNAL_CALL(Physics_OverlapShape);
+		ZONG_ADD_INTERNAL_CALL(Physics_GetGravity);
+		ZONG_ADD_INTERNAL_CALL(Physics_SetGravity);
+		ZONG_ADD_INTERNAL_CALL(Physics_AddRadialImpulse);
 
-		HZ_ADD_INTERNAL_CALL(Matrix4_LookAt);
+		ZONG_ADD_INTERNAL_CALL(Matrix4_LookAt);
 
-		HZ_ADD_INTERNAL_CALL(Noise_Constructor);
-		HZ_ADD_INTERNAL_CALL(Noise_Destructor);
-		HZ_ADD_INTERNAL_CALL(Noise_GetFrequency);
-		HZ_ADD_INTERNAL_CALL(Noise_SetFrequency);
-		HZ_ADD_INTERNAL_CALL(Noise_GetFractalOctaves);
-		HZ_ADD_INTERNAL_CALL(Noise_SetFractalOctaves);
-		HZ_ADD_INTERNAL_CALL(Noise_GetFractalLacunarity);
-		HZ_ADD_INTERNAL_CALL(Noise_SetFractalLacunarity);
-		HZ_ADD_INTERNAL_CALL(Noise_GetFractalGain);
-		HZ_ADD_INTERNAL_CALL(Noise_SetFractalGain);
-		HZ_ADD_INTERNAL_CALL(Noise_Get);
+		ZONG_ADD_INTERNAL_CALL(Noise_Constructor);
+		ZONG_ADD_INTERNAL_CALL(Noise_Destructor);
+		ZONG_ADD_INTERNAL_CALL(Noise_GetFrequency);
+		ZONG_ADD_INTERNAL_CALL(Noise_SetFrequency);
+		ZONG_ADD_INTERNAL_CALL(Noise_GetFractalOctaves);
+		ZONG_ADD_INTERNAL_CALL(Noise_SetFractalOctaves);
+		ZONG_ADD_INTERNAL_CALL(Noise_GetFractalLacunarity);
+		ZONG_ADD_INTERNAL_CALL(Noise_SetFractalLacunarity);
+		ZONG_ADD_INTERNAL_CALL(Noise_GetFractalGain);
+		ZONG_ADD_INTERNAL_CALL(Noise_SetFractalGain);
+		ZONG_ADD_INTERNAL_CALL(Noise_Get);
 
-		HZ_ADD_INTERNAL_CALL(Noise_SetSeed);
-		HZ_ADD_INTERNAL_CALL(Noise_Perlin);
+		ZONG_ADD_INTERNAL_CALL(Noise_SetSeed);
+		ZONG_ADD_INTERNAL_CALL(Noise_Perlin);
 
-		HZ_ADD_INTERNAL_CALL(Log_LogMessage);
+		ZONG_ADD_INTERNAL_CALL(Log_LogMessage);
 
-		HZ_ADD_INTERNAL_CALL(Input_IsKeyPressed);
-		HZ_ADD_INTERNAL_CALL(Input_IsKeyHeld);
-		HZ_ADD_INTERNAL_CALL(Input_IsKeyDown);
-		HZ_ADD_INTERNAL_CALL(Input_IsKeyReleased);
-		HZ_ADD_INTERNAL_CALL(Input_IsMouseButtonPressed);
-		HZ_ADD_INTERNAL_CALL(Input_IsMouseButtonHeld);
-		HZ_ADD_INTERNAL_CALL(Input_IsMouseButtonDown);
-		HZ_ADD_INTERNAL_CALL(Input_IsMouseButtonReleased);
-		HZ_ADD_INTERNAL_CALL(Input_GetMousePosition);
-		HZ_ADD_INTERNAL_CALL(Input_SetCursorMode);
-		HZ_ADD_INTERNAL_CALL(Input_GetCursorMode);
-		HZ_ADD_INTERNAL_CALL(Input_IsControllerPresent);
-		HZ_ADD_INTERNAL_CALL(Input_GetConnectedControllerIDs);
-		HZ_ADD_INTERNAL_CALL(Input_GetControllerName);
-		HZ_ADD_INTERNAL_CALL(Input_IsControllerButtonPressed);
-		HZ_ADD_INTERNAL_CALL(Input_IsControllerButtonHeld);
-		HZ_ADD_INTERNAL_CALL(Input_IsControllerButtonDown);
-		HZ_ADD_INTERNAL_CALL(Input_IsControllerButtonReleased);
-		HZ_ADD_INTERNAL_CALL(Input_GetControllerAxis);
-		HZ_ADD_INTERNAL_CALL(Input_GetControllerHat);
-		HZ_ADD_INTERNAL_CALL(Input_GetControllerDeadzone);
-		HZ_ADD_INTERNAL_CALL(Input_SetControllerDeadzone);
+		ZONG_ADD_INTERNAL_CALL(Input_IsKeyPressed);
+		ZONG_ADD_INTERNAL_CALL(Input_IsKeyHeld);
+		ZONG_ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ZONG_ADD_INTERNAL_CALL(Input_IsKeyReleased);
+		ZONG_ADD_INTERNAL_CALL(Input_IsMouseButtonPressed);
+		ZONG_ADD_INTERNAL_CALL(Input_IsMouseButtonHeld);
+		ZONG_ADD_INTERNAL_CALL(Input_IsMouseButtonDown);
+		ZONG_ADD_INTERNAL_CALL(Input_IsMouseButtonReleased);
+		ZONG_ADD_INTERNAL_CALL(Input_GetMousePosition);
+		ZONG_ADD_INTERNAL_CALL(Input_SetCursorMode);
+		ZONG_ADD_INTERNAL_CALL(Input_GetCursorMode);
+		ZONG_ADD_INTERNAL_CALL(Input_IsControllerPresent);
+		ZONG_ADD_INTERNAL_CALL(Input_GetConnectedControllerIDs);
+		ZONG_ADD_INTERNAL_CALL(Input_GetControllerName);
+		ZONG_ADD_INTERNAL_CALL(Input_IsControllerButtonPressed);
+		ZONG_ADD_INTERNAL_CALL(Input_IsControllerButtonHeld);
+		ZONG_ADD_INTERNAL_CALL(Input_IsControllerButtonDown);
+		ZONG_ADD_INTERNAL_CALL(Input_IsControllerButtonReleased);
+		ZONG_ADD_INTERNAL_CALL(Input_GetControllerAxis);
+		ZONG_ADD_INTERNAL_CALL(Input_GetControllerHat);
+		ZONG_ADD_INTERNAL_CALL(Input_GetControllerDeadzone);
+		ZONG_ADD_INTERNAL_CALL(Input_SetControllerDeadzone);
 
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_GetOpacity);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_SetOpacity);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_GetOpacity);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_SetOpacity);
 
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_IsEnabled);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetEnabled);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_GetFocusDistance);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetFocusDistance);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_GetBlurSize);
-		HZ_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetBlurSize);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_IsEnabled);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetEnabled);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_GetFocusDistance);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetFocusDistance);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_GetBlurSize);
+		ZONG_ADD_INTERNAL_CALL(SceneRenderer_DepthOfField_SetBlurSize);
 
-		HZ_ADD_INTERNAL_CALL(DebugRenderer_DrawLine);
-		HZ_ADD_INTERNAL_CALL(DebugRenderer_DrawQuadBillboard);
-		HZ_ADD_INTERNAL_CALL(DebugRenderer_SetLineWidth);
+		ZONG_ADD_INTERNAL_CALL(DebugRenderer_DrawLine);
+		ZONG_ADD_INTERNAL_CALL(DebugRenderer_DrawQuadBillboard);
+		ZONG_ADD_INTERNAL_CALL(DebugRenderer_SetLineWidth);
 
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetFrameTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetGPUTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetMainThreadWorkTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetMainThreadWaitTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetRenderThreadWorkTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetRenderThreadWaitTime);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetFramesPerSecond);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetEntityCount);
-		HZ_ADD_INTERNAL_CALL(PerformanceTimers_GetScriptEntityCount);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetFrameTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetGPUTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetMainThreadWorkTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetMainThreadWaitTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetRenderThreadWorkTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetRenderThreadWaitTime);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetFramesPerSecond);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetEntityCount);
+		ZONG_ADD_INTERNAL_CALL(PerformanceTimers_GetScriptEntityCount);
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 		// Editor Only
-		HZ_ADD_INTERNAL_CALL(EditorUI_Text);
-		HZ_ADD_INTERNAL_CALL(EditorUI_Button);
-		HZ_ADD_INTERNAL_CALL(EditorUI_BeginPropertyHeader);
-		HZ_ADD_INTERNAL_CALL(EditorUI_EndPropertyHeader);
-		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyGrid);
-		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyFloat);
-		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec2);
-		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec3);
-		HZ_ADD_INTERNAL_CALL(EditorUI_PropertyVec4);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_Text);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_Button);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_BeginPropertyHeader);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_EndPropertyHeader);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_PropertyGrid);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_PropertyFloat);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_PropertyVec2);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_PropertyVec3);
+		ZONG_ADD_INTERNAL_CALL(EditorUI_PropertyVec4);
 #endif
 	}
 
@@ -615,7 +615,7 @@ namespace Hazel {
 		static inline Entity GetEntity(uint64_t entityID)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			return scene->TryGetEntityWithUUID(entityID);
 		};
 
@@ -632,7 +632,7 @@ namespace Hazel {
 
 		void Application_Quit()
 		{
-#ifdef HZ_DIST
+#ifdef ZONG_DIST
 			Application::Get().DispatchEvent<WindowCloseEvent>();
 #else
 			Application::Get().DispatchEvent<EditorExitPlayModeEvent>();
@@ -689,9 +689,9 @@ namespace Hazel {
 		void SceneManager_LoadScene(AssetHandle* sceneHandle)
 		{
 			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(activeScene, "No active scene!");
-			HZ_ICALL_VALIDATE_PARAM_V(sceneHandle, "nullptr");
-			HZ_ICALL_VALIDATE_PARAM(AssetManager::IsAssetHandleValid(*sceneHandle));
+			ZONG_CORE_ASSERT(activeScene, "No active scene!");
+			ZONG_ICALL_VALIDATE_PARAM_V(sceneHandle, "nullptr");
+			ZONG_ICALL_VALIDATE_PARAM(AssetManager::IsAssetHandleValid(*sceneHandle));
 
 			activeScene->OnSceneTransition(*sceneHandle);
 		}
@@ -699,7 +699,7 @@ namespace Hazel {
 		void SceneManager_LoadSceneByID(uint64_t sceneID)
 		{
 			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(activeScene, "No active scene!");
+			ZONG_CORE_VERIFY(activeScene, "No active scene!");
 
 			// TODO(Yan): OnSceneTransition should take scene by AssetHandle, NOT filepath (because this won't work in runtime)
 			const auto& metadata = Project::GetEditorAssetManager()->GetMetadata(sceneID);
@@ -731,7 +731,7 @@ namespace Hazel {
 		uint64_t Scene_FindEntityByTag(MonoString* tag)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = scene->TryGetEntityWithTag(ScriptUtils::MonoStringToUTF8(tag));
 			return entity ? entity.GetUUID() : UUID(0);
 		}
@@ -747,14 +747,14 @@ namespace Hazel {
 		uint64_t Scene_CreateEntity(MonoString* tag)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			return scene->CreateEntity(ScriptUtils::MonoStringToUTF8(tag)).GetUUID();
 		}
 
 		uint64_t Scene_InstantiatePrefab(AssetHandle* prefabHandle)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 
 			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
@@ -774,8 +774,8 @@ namespace Hazel {
 		uint64_t Scene_InstantiatePrefabWithTransform(AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
-			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
+			ZONG_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
 			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
@@ -790,10 +790,10 @@ namespace Hazel {
 		uint64_t Scene_InstantiateChildPrefabWithTranslation(uint64_t parentID, AssetHandle* prefabHandle, glm::vec3* inTranslation)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity parent = scene->TryGetEntityWithUUID(parentID);
-			HZ_ICALL_VALIDATE_PARAM_V(parent, parentID);
-			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
+			ZONG_ICALL_VALIDATE_PARAM_V(parent, parentID);
+			ZONG_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
 			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
@@ -808,10 +808,10 @@ namespace Hazel {
 		uint64_t Scene_InstantiateChildPrefabWithTransform(uint64_t parentID, AssetHandle* prefabHandle, glm::vec3* inTranslation, glm::vec3* inRotation, glm::vec3* inScale)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity parent = scene->TryGetEntityWithUUID(parentID);
-			HZ_ICALL_VALIDATE_PARAM_V(parent, parentID);
-			HZ_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
+			ZONG_ICALL_VALIDATE_PARAM_V(parent, parentID);
+			ZONG_ICALL_VALIDATE_PARAM_V(prefabHandle, "nullptr");
 
 			Ref<Prefab> prefab = AssetManager::GetAsset<Prefab>(*prefabHandle);
 			if (prefab == nullptr)
@@ -826,18 +826,18 @@ namespace Hazel {
 		void Scene_DestroyEntity(uint64_t entityID)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			scene->SubmitToDestroyEntity(entity);
 		}
 
 		void Scene_DestroyAllChildren(uint64_t entityID)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const std::vector<UUID> children = entity.Children();
 			for (UUID id : children)
@@ -847,7 +847,7 @@ namespace Hazel {
 		MonoArray* Scene_GetEntities()
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 
 			auto entities = scene->GetAllEntitiesWith<IDComponent>();
 			MonoArray* result = ManagedArrayUtils::Create<Entity>(entities.size());
@@ -861,9 +861,9 @@ namespace Hazel {
 		MonoArray* Scene_GetChildrenIDs(uint64_t entityID)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& children = entity.Children();
 			MonoArray* result = ManagedArrayUtils::Create<uint64_t>(children.size());
@@ -877,7 +877,7 @@ namespace Hazel {
 		void Scene_SetTimeScale(float timeScale)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene!");
+			ZONG_CORE_VERIFY(scene, "No active scene!");
 			scene->SetTimeScale(timeScale);
 		}
 
@@ -888,14 +888,14 @@ namespace Hazel {
 		uint64_t Entity_GetParent(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			return entity.GetParentUUID();
 		}
 
 		void Entity_SetParent(uint64_t entityID, uint64_t parentID)
 		{
 			Entity child = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(child, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(child, entityID);
 
 			if (parentID == 0)
 			{
@@ -904,7 +904,7 @@ namespace Hazel {
 			else
 			{
 				Entity parent = GetEntity(parentID);
-				HZ_ICALL_VALIDATE_PARAM_V(parent, parentID);
+				ZONG_ICALL_VALIDATE_PARAM_V(parent, parentID);
 				child.SetParent(parent);
 			}
 		}
@@ -912,7 +912,7 @@ namespace Hazel {
 		MonoArray* Entity_GetChildren(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& children = entity.Children();
 			MonoArray* result = ManagedArrayUtils::Create<Entity>(children.size());
@@ -934,7 +934,7 @@ namespace Hazel {
 			char* componentTypeName = mono_type_get_name(managedComponentType);
 
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (s_CreateComponentFuncs.find(managedComponentType) == s_CreateComponentFuncs.end())
 			{
@@ -956,7 +956,7 @@ namespace Hazel {
 
 		bool Entity_HasComponent(uint64_t entityID, MonoReflectionType* componentType)
 		{
-			HZ_PROFILE_FUNC();
+			ZONG_PROFILE_FUNC();
 
 			if (componentType == nullptr)
 			{
@@ -965,7 +965,7 @@ namespace Hazel {
 			}
 
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (!entity)
 				return false;
@@ -985,7 +985,7 @@ namespace Hazel {
 
 		bool Entity_RemoveComponent(uint64_t entityID, MonoReflectionType* componentType)
 		{
-			HZ_PROFILE_FUNC();
+			ZONG_PROFILE_FUNC();
 
 			if (componentType == nullptr)
 			{
@@ -994,7 +994,7 @@ namespace Hazel {
 			}
 
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			MonoType* managedType = mono_reflection_type_get_type(componentType);
 			char* componentTypeName = mono_type_get_name(managedType);
@@ -1022,7 +1022,7 @@ namespace Hazel {
 		MonoString* TagComponent_GetTag(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& tagComponent = entity.GetComponent<TagComponent>();
 			return ScriptUtils::UTF8StringToMono(tagComponent.Tag);
@@ -1031,7 +1031,7 @@ namespace Hazel {
 		void TagComponent_SetTag(uint64_t entityID, MonoString* inTag)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			auto& tagComponent = entity.GetComponent<TagComponent>();
 			tagComponent.Tag = ScriptUtils::MonoStringToUTF8(inTag);
 		}
@@ -1046,7 +1046,7 @@ namespace Hazel {
 				return nullptr;
 
 			Entity entity = entityScene->TryGetEntityWithUUID(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			Ref<PhysicsScene> physicsScene = entityScene->GetPhysicsScene();
 
@@ -1064,7 +1064,7 @@ namespace Hazel {
 				return nullptr;
 
 			Entity entity = entityScene->TryGetEntityWithUUID(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			Ref<PhysicsScene> physicsScene = entityScene->GetPhysicsScene();
 
@@ -1079,7 +1079,7 @@ namespace Hazel {
 		void TransformComponent_GetTransform(uint64_t entityID, Transform* outTransform)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& tc = entity.GetComponent<TransformComponent>();
 			outTransform->Translation = tc.Translation;
@@ -1090,7 +1090,7 @@ namespace Hazel {
 		void TransformComponent_SetTransform(uint64_t entityID, Transform* inTransform)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 
 			if (inTransform == nullptr)
@@ -1108,14 +1108,14 @@ namespace Hazel {
 		void TransformComponent_GetTranslation(uint64_t entityID, glm::vec3* outTranslation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outTranslation = entity.GetComponent<TransformComponent>().Translation;
 		}
 
 		void TransformComponent_SetTranslation(uint64_t entityID, glm::vec3* inTranslation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (inTranslation == nullptr)
 			{
@@ -1157,14 +1157,14 @@ namespace Hazel {
 		void TransformComponent_GetRotation(uint64_t entityID, glm::vec3* outRotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outRotation = entity.GetComponent<TransformComponent>().GetRotationEuler();
 		}
 
 		void TransformComponent_SetRotation(uint64_t entityID, glm::vec3* inRotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (inRotation == nullptr)
 			{
@@ -1205,7 +1205,7 @@ namespace Hazel {
 		void TransformComponent_SetRotationQuat(uint64_t entityID, glm::quat* inRotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (inRotation == nullptr)
 			{
@@ -1246,14 +1246,14 @@ namespace Hazel {
 		void TransformComponent_GetScale(uint64_t entityID, glm::vec3* outScale)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outScale = entity.GetComponent<TransformComponent>().Scale;
 		}
 
 		void TransformComponent_SetScale(uint64_t entityID, glm::vec3* inScale)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (!entity)
 				return;
@@ -1272,7 +1272,7 @@ namespace Hazel {
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
 
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			const auto& wt = scene->GetWorldSpaceTransform(entity);
 			outTransform->Translation = wt.Translation;
@@ -1283,14 +1283,14 @@ namespace Hazel {
 		void TransformComponent_GetTransformMatrix(uint64_t entityID, glm::mat4* outTransform)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			*outTransform = entity.Transform().GetTransform();
 		}
 
 		void TransformComponent_SetTransformMatrix(uint64_t entityID, glm::mat4* inTransform)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 			entity.Transform().SetTransform(*inTransform);
 		}
 
@@ -1320,7 +1320,7 @@ namespace Hazel {
 		bool MeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 			if (entity.HasComponent<MeshComponent>())
 			{
@@ -1347,8 +1347,8 @@ namespace Hazel {
 		void MeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 			auto& meshComponent = entity.GetComponent<MeshComponent>();
 			meshComponent.Mesh = *meshHandle;
 		}
@@ -1356,8 +1356,8 @@ namespace Hazel {
 		bool MeshComponent_HasMaterial(uint64_t entityID, int index)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 			const auto& meshComponent = entity.GetComponent<MeshComponent>();
 			auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
 			Ref<MaterialTable> materialTable = meshComponent.MaterialTable;
@@ -1367,8 +1367,8 @@ namespace Hazel {
 		bool MeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 
 			const auto& meshComponent = entity.GetComponent<MeshComponent>();
 
@@ -1397,8 +1397,8 @@ namespace Hazel {
 		bool MeshComponent_GetIsRigged(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshComponent>());
 
 			auto& meshComponent = entity.GetComponent<MeshComponent>();
 			auto mesh = AssetManager::GetAsset<Mesh>(meshComponent.Mesh);
@@ -1417,8 +1417,8 @@ namespace Hazel {
 		bool StaticMeshComponent_GetMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 
 			const auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 			auto mesh = AssetManager::GetAsset<StaticMesh>(meshComponent.StaticMesh);
@@ -1437,8 +1437,8 @@ namespace Hazel {
 		void StaticMeshComponent_SetMesh(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 			auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 			meshComponent.StaticMesh = *meshHandle;
 		}
@@ -1446,8 +1446,8 @@ namespace Hazel {
 		bool StaticMeshComponent_HasMaterial(uint64_t entityID, int index)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 			const auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 			auto mesh = AssetManager::GetAsset<StaticMesh>(meshComponent.StaticMesh);
 			Ref<MaterialTable> materialTable = meshComponent.MaterialTable;
@@ -1457,8 +1457,8 @@ namespace Hazel {
 		bool StaticMeshComponent_GetMaterial(uint64_t entityID, int index, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 
 			const auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 
@@ -1487,8 +1487,8 @@ namespace Hazel {
 		void StaticMeshComponent_SetMaterial(uint64_t entityID, int index, uint64_t materialHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 
 			Ref<MaterialTable> materialTable = entity.GetComponent<StaticMeshComponent>().MaterialTable;
 
@@ -1504,8 +1504,8 @@ namespace Hazel {
 		bool StaticMeshComponent_IsVisible(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 			const auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 			return meshComponent.Visible;
 		}
@@ -1513,8 +1513,8 @@ namespace Hazel {
 		void StaticMeshComponent_SetVisible(uint64_t entityID, bool visible)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<StaticMeshComponent>());
 			auto& meshComponent = entity.GetComponent<StaticMeshComponent>();
 			meshComponent.Visible = visible;
 		}
@@ -1531,8 +1531,8 @@ namespace Hazel {
 		bool AnimationComponent_GetInputBool(uint64_t entityID, uint32_t inputID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1543,11 +1543,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} is not of boolean type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputBool() - input with id {} is not of boolean type!");
 				}
 			}
 			return false;
@@ -1556,8 +1556,8 @@ namespace Hazel {
 		void AnimationComponent_SetInputBool(uint64_t entityID, uint32_t inputID, bool value)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1568,11 +1568,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} is not of boolean type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputBool() - input with id {} is not of boolean type!");
 				}
 			}
 		}
@@ -1581,8 +1581,8 @@ namespace Hazel {
 		int32_t AnimationComponent_GetInputInt(uint64_t entityID, uint32_t inputID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1593,11 +1593,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} is not of integer type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputInt() - input with id {} is not of integer type!");
 				}
 			}
 			return false;
@@ -1606,8 +1606,8 @@ namespace Hazel {
 		void AnimationComponent_SetInputInt(uint64_t entityID, uint32_t inputID, int32_t value)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1618,11 +1618,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} is not of integer type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputInt() - input with id {} is not of integer type!");
 				}
 			}
 		}
@@ -1631,8 +1631,8 @@ namespace Hazel {
 		float AnimationComponent_GetInputFloat(uint64_t entityID, uint32_t inputID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1643,11 +1643,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} is not of float type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.GetInputFloat() - input with id {} is not of float type!");
 				}
 			}
 			return false;
@@ -1656,8 +1656,8 @@ namespace Hazel {
 		void AnimationComponent_SetInputFloat(uint64_t entityID, uint32_t inputID, float value)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
@@ -1668,11 +1668,11 @@ namespace Hazel {
 				}
 				catch (const std::out_of_range&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} does not exist!", inputID);
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} does not exist!", inputID);
 				}
 				catch (const choc::value::Error&)
 				{
-					HZ_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} is not of float type!");
+					ZONG_CONSOLE_LOG_ERROR("AnimationComponent.SetInputFloat() - input with id {} is not of float type!");
 				}
 			}
 		}
@@ -1681,8 +1681,8 @@ namespace Hazel {
 		void AnimationComponent_GetRootMotion(uint64_t entityID, Transform* outTransform)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AnimationComponent>());
 			auto& animationComponent = entity.GetComponent<AnimationComponent>();
 			if (animationComponent.AnimationGraph)
 			{
@@ -1701,129 +1701,129 @@ namespace Hazel {
 		void SpotLightComponent_GetRadiance(uint64_t entityID, glm::vec3* outRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			*outRadiance = entity.GetComponent<SpotLightComponent>().Radiance;
 		}
 
 		void SpotLightComponent_SetRadiance(uint64_t entityID, glm::vec3* inRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
-			HZ_ICALL_VALIDATE_PARAM_V(inRadiance, "nullptr");
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(inRadiance, "nullptr");
 			entity.GetComponent<SpotLightComponent>().Radiance = *inRadiance;
 		}
 
 		float SpotLightComponent_GetIntensity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().Intensity;
 		}
 
 		void SpotLightComponent_SetIntensity(uint64_t entityID, float intensity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().Intensity = intensity;
 		}
 
 		float SpotLightComponent_GetRange(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().Range;
 		}
 
 		void SpotLightComponent_SetRange(uint64_t entityID, float range)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().Range = range;
 		}
 
 		float SpotLightComponent_GetAngle(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().Angle;
 		}
 
 		void SpotLightComponent_SetAngle(uint64_t entityID, float angle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().Angle = angle;
 		}
 
 		float SpotLightComponent_GetFalloff(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().Falloff;
 		}
 
 		void SpotLightComponent_SetFalloff(uint64_t entityID, float falloff)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().Falloff = falloff;
 		}
 
 		float SpotLightComponent_GetAngleAttenuation(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().AngleAttenuation;
 		}
 
 		void SpotLightComponent_SetAngleAttenuation(uint64_t entityID, float angleAttenuation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().AngleAttenuation = angleAttenuation;
 		}
 
 		bool SpotLightComponent_GetCastsShadows(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().CastsShadows;
 		}
 
 		void SpotLightComponent_SetCastsShadows(uint64_t entityID, bool castsShadows)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().CastsShadows = castsShadows;
 		}
 
 		bool SpotLightComponent_GetSoftShadows(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			return entity.GetComponent<SpotLightComponent>().SoftShadows;
 		}
 
 		void SpotLightComponent_SetSoftShadows(uint64_t entityID, bool softShadows)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpotLightComponent>());
 			entity.GetComponent<SpotLightComponent>().SoftShadows = softShadows;
 		}
 
@@ -1834,8 +1834,8 @@ namespace Hazel {
 		MonoObject* ScriptComponent_GetInstance(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<ScriptComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<ScriptComponent>());
 
 			const auto& component = entity.GetComponent<ScriptComponent>();
 
@@ -1880,8 +1880,8 @@ namespace Hazel {
 		void CameraComponent_SetPerspective(uint64_t entityID, float inVerticalFOV, float inNearClip, float inFarClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetPerspective(inVerticalFOV, inNearClip, inFarClip);
 		}
@@ -1889,8 +1889,8 @@ namespace Hazel {
 		void CameraComponent_SetOrthographic(uint64_t entityID, float inSize, float inNearClip, float inFarClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetOrthographic(inSize, inNearClip, inFarClip);
 		}
@@ -1898,8 +1898,8 @@ namespace Hazel {
 		float CameraComponent_GetVerticalFOV(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			const auto& component = entity.GetComponent<CameraComponent>();
 			return component.Camera.GetDegPerspectiveVerticalFOV();
 		}
@@ -1907,8 +1907,8 @@ namespace Hazel {
 		void CameraComponent_SetVerticalFOV(uint64_t entityID, float inVerticalFOV)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			auto& component = entity.GetComponent<CameraComponent>();
 			return component.Camera.SetDegPerspectiveVerticalFOV(inVerticalFOV);
 		}
@@ -1916,8 +1916,8 @@ namespace Hazel {
 		float CameraComponent_GetPerspectiveNearClip(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			return camera.GetPerspectiveNearClip();
 		}
@@ -1925,8 +1925,8 @@ namespace Hazel {
 		void CameraComponent_SetPerspectiveNearClip(uint64_t entityID, float inNearClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetPerspectiveNearClip(inNearClip);
 		}
@@ -1934,8 +1934,8 @@ namespace Hazel {
 		float CameraComponent_GetPerspectiveFarClip(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			return camera.GetPerspectiveFarClip();
 		}
@@ -1943,8 +1943,8 @@ namespace Hazel {
 		void CameraComponent_SetPerspectiveFarClip(uint64_t entityID, float inFarClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetPerspectiveFarClip(inFarClip);
 		}
@@ -1952,8 +1952,8 @@ namespace Hazel {
 		float CameraComponent_GetOrthographicSize(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			return camera.GetOrthographicSize();
 		}
@@ -1961,8 +1961,8 @@ namespace Hazel {
 		void CameraComponent_SetOrthographicSize(uint64_t entityID, float inSize)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetOrthographicSize(inSize);
 		}
@@ -1970,8 +1970,8 @@ namespace Hazel {
 		float CameraComponent_GetOrthographicNearClip(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			return camera.GetOrthographicNearClip();
 		}
@@ -1979,8 +1979,8 @@ namespace Hazel {
 		void CameraComponent_SetOrthographicNearClip(uint64_t entityID, float inNearClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetOrthographicNearClip(inNearClip);
 		}
@@ -1988,8 +1988,8 @@ namespace Hazel {
 		float CameraComponent_GetOrthographicFarClip(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			return camera.GetOrthographicFarClip();
 		}
@@ -1997,8 +1997,8 @@ namespace Hazel {
 		void CameraComponent_SetOrthographicFarClip(uint64_t entityID, float inFarClip)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			SceneCamera& camera = entity.GetComponent<CameraComponent>().Camera;
 			camera.SetOrthographicFarClip(inFarClip);
 		}
@@ -2006,8 +2006,8 @@ namespace Hazel {
 		CameraComponent::Type CameraComponent_GetProjectionType(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			const auto& component = entity.GetComponent<CameraComponent>();
 			return component.ProjectionType;
 		}
@@ -2015,8 +2015,8 @@ namespace Hazel {
 		void CameraComponent_SetProjectionType(uint64_t entityID, CameraComponent::Type inType)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			auto& component = entity.GetComponent<CameraComponent>();
 			component.ProjectionType = inType;
 			component.Camera.SetProjectionType((SceneCamera::ProjectionType)inType);
@@ -2025,8 +2025,8 @@ namespace Hazel {
 		bool CameraComponent_GetPrimary(uint64_t entityID)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			const auto& component = entity.GetComponent<CameraComponent>();
 			return component.Primary;
 		}
@@ -2034,8 +2034,8 @@ namespace Hazel {
 		void CameraComponent_SetPrimary(uint64_t entityID, bool inValue)
 		{
 			Entity entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CameraComponent>());
 			auto& component = entity.GetComponent<CameraComponent>();
 			component.Primary = inValue;
 		}
@@ -2047,80 +2047,80 @@ namespace Hazel {
 		void DirectionalLightComponent_GetRadiance(uint64_t entityID, glm::vec3* outRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			*outRadiance = entity.GetComponent<DirectionalLightComponent>().Radiance;
 		}
 
 		void DirectionalLightComponent_SetRadiance(uint64_t entityID, glm::vec3* inRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			entity.GetComponent<DirectionalLightComponent>().Radiance = *inRadiance;
 		}
 
 		float DirectionalLightComponent_GetIntensity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			return entity.GetComponent<DirectionalLightComponent>().Intensity;
 		}
 
 		void DirectionalLightComponent_SetIntensity(uint64_t entityID, float intensity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			entity.GetComponent<DirectionalLightComponent>().Intensity = intensity;
 		}
 
 		bool DirectionalLightComponent_GetCastShadows(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			return entity.GetComponent<DirectionalLightComponent>().CastShadows;
 		}
 
 		void DirectionalLightComponent_SetCastShadows(uint64_t entityID, bool castShadows)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			entity.GetComponent<DirectionalLightComponent>().CastShadows = castShadows;
 		}
 
 		bool DirectionalLightComponent_GetSoftShadows(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			return entity.GetComponent<DirectionalLightComponent>().SoftShadows;
 		}
 
 		void DirectionalLightComponent_SetSoftShadows(uint64_t entityID, bool softShadows)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			entity.GetComponent<DirectionalLightComponent>().SoftShadows = softShadows;
 		}
 
 		float DirectionalLightComponent_GetLightSize(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			return entity.GetComponent<DirectionalLightComponent>().LightSize;
 		}
 
 		void DirectionalLightComponent_SetLightSize(uint64_t entityID, float lightSize)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<DirectionalLightComponent>());
 			entity.GetComponent<DirectionalLightComponent>().LightSize = lightSize;
 		}
 
@@ -2131,65 +2131,65 @@ namespace Hazel {
 		void PointLightComponent_GetRadiance(uint64_t entityID, glm::vec3* outRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			*outRadiance = entity.GetComponent<PointLightComponent>().Radiance;
 		}
 
 		void PointLightComponent_SetRadiance(uint64_t entityID, glm::vec3* inRadiance)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
-			HZ_ICALL_VALIDATE_PARAM_V(inRadiance, "nullptr");
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(inRadiance, "nullptr");
 			entity.GetComponent<PointLightComponent>().Radiance = *inRadiance;
 		}
 
 		float PointLightComponent_GetIntensity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			return entity.GetComponent<PointLightComponent>().Intensity;
 		}
 
 		void PointLightComponent_SetIntensity(uint64_t entityID, float intensity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			entity.GetComponent<PointLightComponent>().Intensity = intensity;
 		}
 
 		float PointLightComponent_GetRadius(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			return entity.GetComponent<PointLightComponent>().Radius;
 		}
 
 		void PointLightComponent_SetRadius(uint64_t entityID, float radius)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			entity.GetComponent<PointLightComponent>().Radius = radius;
 		}
 
 		float PointLightComponent_GetFalloff(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			return entity.GetComponent<PointLightComponent>().Falloff;
 		}
 
 		void PointLightComponent_SetFalloff(uint64_t entityID, float falloff)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<PointLightComponent>());
 			entity.GetComponent<PointLightComponent>().Falloff = falloff;
 		}
 
@@ -2200,64 +2200,64 @@ namespace Hazel {
 		float SkyLightComponent_GetIntensity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			return entity.GetComponent<SkyLightComponent>().Intensity;
 		}
 
 		void SkyLightComponent_SetIntensity(uint64_t entityID, float intensity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			entity.GetComponent<SkyLightComponent>().Intensity = intensity;
 		}
 
 		float SkyLightComponent_GetTurbidity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			return entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.x;
 		}
 
 		void SkyLightComponent_SetTurbidity(uint64_t entityID, float turbidity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.x = turbidity;
 		}
 
 		float SkyLightComponent_GetAzimuth(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			return entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.y;
 		}
 
 		void SkyLightComponent_SetAzimuth(uint64_t entityID, float azimuth)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.y = azimuth;
 		}
 
 		float SkyLightComponent_GetInclination(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			return entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.z;
 		}
 
 		void SkyLightComponent_SetInclination(uint64_t entityID, float inclination)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SkyLightComponent>());
 			entity.GetComponent<SkyLightComponent>().TurbidityAzimuthInclination.z = inclination;
 		}
 
@@ -2268,64 +2268,64 @@ namespace Hazel {
 		void SpriteRendererComponent_GetColor(uint64_t entityID, glm::vec4* outColor)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			*outColor = entity.GetComponent<SpriteRendererComponent>().Color;
 		}
 
 		void SpriteRendererComponent_SetColor(uint64_t entityID, glm::vec4* inColor)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			entity.GetComponent<SpriteRendererComponent>().Color = *inColor;
 		}
 
 		float SpriteRendererComponent_GetTilingFactor(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			return entity.GetComponent<SpriteRendererComponent>().TilingFactor;
 		}
 
 		void SpriteRendererComponent_SetTilingFactor(uint64_t entityID, float tilingFactor)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			entity.GetComponent<SpriteRendererComponent>().TilingFactor = tilingFactor;
 		}
 
 		void SpriteRendererComponent_GetUVStart(uint64_t entityID, glm::vec2* outUVStart)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			*outUVStart = entity.GetComponent<SpriteRendererComponent>().UVStart;
 		}
 
 		void SpriteRendererComponent_SetUVStart(uint64_t entityID, glm::vec2* inUVStart)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			entity.GetComponent<SpriteRendererComponent>().UVStart = *inUVStart;
 		}
 
 		void SpriteRendererComponent_GetUVEnd(uint64_t entityID, glm::vec2* outUVEnd)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			*outUVEnd = entity.GetComponent<SpriteRendererComponent>().UVEnd;
 		}
 
 		void SpriteRendererComponent_SetUVEnd(uint64_t entityID, glm::vec2* inUVEnd)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SpriteRendererComponent>());
 			entity.GetComponent<SpriteRendererComponent>().UVEnd = *inUVEnd;
 		}
 
@@ -2336,24 +2336,24 @@ namespace Hazel {
 		RigidBody2DComponent::Type RigidBody2DComponent_GetBodyType(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 			return entity.GetComponent<RigidBody2DComponent>().BodyType;
 		}
 
 		void RigidBody2DComponent_SetBodyType(uint64_t entityID, RigidBody2DComponent::Type inType)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 			entity.GetComponent<RigidBody2DComponent>().BodyType = inType;
 		}
 
 		void RigidBody2DComponent_GetTranslation(uint64_t entityID, glm::vec2* outTranslation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2372,8 +2372,8 @@ namespace Hazel {
 		void RigidBody2DComponent_SetTranslation(uint64_t entityID, glm::vec2* inTranslation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2389,8 +2389,8 @@ namespace Hazel {
 		float RigidBody2DComponent_GetRotation(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2405,8 +2405,8 @@ namespace Hazel {
 		void RigidBody2DComponent_SetRotation(uint64_t entityID, float rotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2422,8 +2422,8 @@ namespace Hazel {
 		float RigidBody2DComponent_GetMass(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2438,8 +2438,8 @@ namespace Hazel {
 		void RigidBody2DComponent_SetMass(uint64_t entityID, float mass)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2460,8 +2460,8 @@ namespace Hazel {
 		void RigidBody2DComponent_GetLinearVelocity(uint64_t entityID, glm::vec2* outVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2479,8 +2479,8 @@ namespace Hazel {
 		void RigidBody2DComponent_SetLinearVelocity(uint64_t entityID, glm::vec2* inVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2496,8 +2496,8 @@ namespace Hazel {
 		float RigidBody2DComponent_GetGravityScale(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			const auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2512,8 +2512,8 @@ namespace Hazel {
 		void RigidBody2DComponent_SetGravityScale(uint64_t entityID, float gravityScale)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2530,8 +2530,8 @@ namespace Hazel {
 		void RigidBody2DComponent_ApplyLinearImpulse(uint64_t entityID, glm::vec2* inImpulse, glm::vec2* inOffset, bool wake)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2553,8 +2553,8 @@ namespace Hazel {
 		void RigidBody2DComponent_ApplyAngularImpulse(uint64_t entityID, float impulse, bool wake)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2576,8 +2576,8 @@ namespace Hazel {
 		void RigidBody2DComponent_AddForce(uint64_t entityID, glm::vec3* inForce, glm::vec3* inOffset, bool wake)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2599,8 +2599,8 @@ namespace Hazel {
 		void RigidBody2DComponent_AddTorque(uint64_t entityID, float torque, bool wake)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBody2DComponent>());
 
 			auto& component = entity.GetComponent<RigidBody2DComponent>();
 			if (component.RuntimeBody == nullptr)
@@ -2626,8 +2626,8 @@ namespace Hazel {
 		void RigidBodyComponent_AddForce(uint64_t entityID, glm::vec3* inForce, EForceMode forceMode)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 
@@ -2643,8 +2643,8 @@ namespace Hazel {
 		void RigidBodyComponent_AddForceAtLocation(uint64_t entityID, glm::vec3* inForce, glm::vec3* inLocation, EForceMode forceMode)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2659,8 +2659,8 @@ namespace Hazel {
 		void RigidBodyComponent_AddTorque(uint64_t entityID, glm::vec3* inTorque, EForceMode forceMode)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2675,8 +2675,8 @@ namespace Hazel {
 		void RigidBodyComponent_GetLinearVelocity(uint64_t entityID, glm::vec3* outVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2691,8 +2691,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetLinearVelocity(uint64_t entityID, glm::vec3* inVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2713,8 +2713,8 @@ namespace Hazel {
 		void RigidBodyComponent_GetAngularVelocity(uint64_t entityID, glm::vec3* outVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2729,8 +2729,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetAngularVelocity(uint64_t entityID, glm::vec3* inVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2751,8 +2751,8 @@ namespace Hazel {
 		float RigidBodyComponent_GetMaxLinearVelocity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2767,8 +2767,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetMaxLinearVelocity(uint64_t entityID, float maxVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2784,8 +2784,8 @@ namespace Hazel {
 		float RigidBodyComponent_GetMaxAngularVelocity(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2800,8 +2800,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetMaxAngularVelocity(uint64_t entityID, float maxVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2817,16 +2817,16 @@ namespace Hazel {
 		float RigidBodyComponent_GetLinearDrag(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 			return entity.GetComponent<RigidBodyComponent>().LinearDrag;
 		}
 
 		void RigidBodyComponent_SetLinearDrag(uint64_t entityID, float linearDrag)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2843,16 +2843,16 @@ namespace Hazel {
 		float RigidBodyComponent_GetAngularDrag(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 			return entity.GetComponent<RigidBodyComponent>().AngularDrag;
 		}
 
 		void RigidBodyComponent_SetAngularDrag(uint64_t entityID, float angularDrag)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2869,8 +2869,8 @@ namespace Hazel {
 		void RigidBodyComponent_Rotate(uint64_t entityID, glm::vec3* inRotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			auto rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2891,16 +2891,16 @@ namespace Hazel {
 		uint32_t RigidBodyComponent_GetLayer(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 			return entity.GetComponent<RigidBodyComponent>().LayerID;
 		}
 
 		void RigidBodyComponent_SetLayer(uint64_t entityID, uint32_t layerID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2923,8 +2923,8 @@ namespace Hazel {
 		MonoString* RigidBodyComponent_GetLayerName(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			const auto& component = entity.GetComponent<RigidBodyComponent>();
 
@@ -2941,8 +2941,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetLayerByName(uint64_t entityID, MonoString* inName)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 
@@ -2977,8 +2977,8 @@ namespace Hazel {
 		float RigidBodyComponent_GetMass(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -2993,8 +2993,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetMass(uint64_t entityID, float mass)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3009,16 +3009,16 @@ namespace Hazel {
 		EBodyType RigidBodyComponent_GetBodyType(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 			return entity.GetComponent<RigidBodyComponent>().BodyType;
 		}
 
 		void RigidBodyComponent_SetBodyType(uint64_t entityID, EBodyType type)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			auto& rigidbodyComponent = entity.GetComponent<RigidBodyComponent>();
 
@@ -3041,8 +3041,8 @@ namespace Hazel {
 		bool RigidBodyComponent_IsTrigger(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3057,8 +3057,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetTrigger(uint64_t entityID, bool isTrigger)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3073,8 +3073,8 @@ namespace Hazel {
 		void RigidBodyComponent_MoveKinematic(uint64_t entityID, glm::vec3* inTargetPosition, glm::vec3* inTargetRotation, float inDeltaSeconds)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3095,8 +3095,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetAxisLock(uint64_t entityID, EActorAxis axis, bool value, bool forceWake)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3111,8 +3111,8 @@ namespace Hazel {
 		bool RigidBodyComponent_IsAxisLocked(uint64_t entityID, EActorAxis axis)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3127,8 +3127,8 @@ namespace Hazel {
 		uint32_t RigidBodyComponent_GetLockedAxes(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3143,8 +3143,8 @@ namespace Hazel {
 		bool RigidBodyComponent_IsSleeping(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3159,8 +3159,8 @@ namespace Hazel {
 		void RigidBodyComponent_SetIsSleeping(uint64_t entityID, bool isSleeping)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3175,8 +3175,8 @@ namespace Hazel {
 		void RigidBodyComponent_AddRadialImpulse(uint64_t entityID, glm::vec3* inOrigin, float radius, float strength, EFalloffMode falloff, bool velocityChange)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
 			if (!rigidBody)
@@ -3191,8 +3191,8 @@ namespace Hazel {
 		void RigidBodyComponent_Teleport(uint64_t entityID, glm::vec3* inTargetPosition, glm::vec3* inTargetRotation, bool inForce)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<RigidBodyComponent>());
 			GetPhysicsScene()->Teleport(entity, *inTargetPosition, glm::quat(*inTargetRotation), inForce);
 		}
 
@@ -3203,17 +3203,17 @@ namespace Hazel {
 		static inline Ref<CharacterController> GetPhysicsController(Entity entity)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No scene active!");
+			ZONG_CORE_ASSERT(scene, "No scene active!");
 			Ref<PhysicsScene> physicsScene = scene->GetPhysicsScene();
-			HZ_CORE_ASSERT(physicsScene, "No physics scene active!");
+			ZONG_CORE_ASSERT(physicsScene, "No physics scene active!");
 			return physicsScene->GetCharacterController(entity);
 		}
 
 		bool CharacterControllerComponent_GetIsGravityEnabled(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3228,8 +3228,8 @@ namespace Hazel {
 		void CharacterControllerComponent_SetIsGravityEnabled(uint64_t entityID, bool enabled)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3244,16 +3244,16 @@ namespace Hazel {
 		float CharacterControllerComponent_GetSlopeLimit(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 			return entity.GetComponent<CharacterControllerComponent>().SlopeLimitDeg;
 		}
 
 		void CharacterControllerComponent_SetSlopeLimit(uint64_t entityID, float slopeLimit)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3270,16 +3270,16 @@ namespace Hazel {
 		float CharacterControllerComponent_GetStepOffset(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 			return entity.GetComponent<CharacterControllerComponent>().StepOffset;
 		}
 
 		void CharacterControllerComponent_SetStepOffset(uint64_t entityID, float stepOffset)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3295,8 +3295,8 @@ namespace Hazel {
 		void CharacterControllerComponent_SetTranslation(uint64_t entityID, glm::vec3* inTranslation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3317,8 +3317,8 @@ namespace Hazel {
 		void CharacterControllerComponent_SetRotation(uint64_t entityID, glm::quat* inRotation)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3339,8 +3339,8 @@ namespace Hazel {
 		void CharacterControllerComponent_Move(uint64_t entityID, glm::vec3* inDisplacement)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3361,8 +3361,8 @@ namespace Hazel {
 		void CharacterControllerComponent_Jump(uint64_t entityID, float jumpPower)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3377,8 +3377,8 @@ namespace Hazel {
 		void CharacterControllerComponent_GetLinearVelocity(uint64_t entityID, glm::vec3* outVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3393,8 +3393,8 @@ namespace Hazel {
 		void CharacterControllerComponent_SetLinearVelocity(uint64_t entityID, const glm::vec3& inVelocity)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3409,8 +3409,8 @@ namespace Hazel {
 		bool CharacterControllerComponent_IsGrounded(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3425,8 +3425,8 @@ namespace Hazel {
 		ECollisionFlags CharacterControllerComponent_GetCollisionFlags(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CharacterControllerComponent>());
 
 			auto controller = GetPhysicsController(entity);
 			if (!controller)
@@ -3445,9 +3445,9 @@ namespace Hazel {
 		/*static inline Ref<JointBase> GetJoint(Entity entity)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No scene active!");
+			ZONG_CORE_ASSERT(scene, "No scene active!");
 			Ref<PhysicsScene> physicsScene = scene->GetPhysicsScene();
-			HZ_CORE_ASSERT(physicsScene, "No physics scene active!");
+			ZONG_CORE_ASSERT(physicsScene, "No physics scene active!");
 			return physicsScene->GetJoint(entity);
 		}*/
 
@@ -3735,8 +3735,8 @@ namespace Hazel {
 		void BoxColliderComponent_GetHalfSize(uint64_t entityID, glm::vec3* outSize)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
 
 			*outSize = entity.GetComponent<BoxColliderComponent>().HalfSize;
 		}
@@ -3744,8 +3744,8 @@ namespace Hazel {
 		void BoxColliderComponent_GetOffset(uint64_t entityID, glm::vec3* outOffset)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
 
 			*outOffset = entity.GetComponent<BoxColliderComponent>().Offset;
 		}
@@ -3753,8 +3753,8 @@ namespace Hazel {
 		bool BoxColliderComponent_GetMaterial(uint64_t entityID, ColliderMaterial* outMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
 
 			*outMaterial = entity.GetComponent<BoxColliderComponent>().Material;
 			return true;
@@ -3763,11 +3763,11 @@ namespace Hazel {
 		void BoxColliderComponent_SetMaterial(uint64_t entityID, ColliderMaterial* inMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<BoxColliderComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
-			HZ_CORE_VERIFY(rigidBody);
+			ZONG_CORE_VERIFY(rigidBody);
 
 			for (uint32_t i = 0; i < rigidBody->GetShapeCount(ShapeType::Box); i++)
 				rigidBody->GetShape(ShapeType::Box, i)->SetMaterial(*inMaterial);
@@ -3782,16 +3782,16 @@ namespace Hazel {
 		float SphereColliderComponent_GetRadius(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
 			return entity.GetComponent<SphereColliderComponent>().Radius;
 		}
 
 		void SphereColliderComponent_GetOffset(uint64_t entityID, glm::vec3* outOffset)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
 
 			*outOffset = entity.GetComponent<SphereColliderComponent>().Offset;
 		}
@@ -3799,8 +3799,8 @@ namespace Hazel {
 		bool SphereColliderComponent_GetMaterial(uint64_t entityID, ColliderMaterial* outMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
 
 			*outMaterial = entity.GetComponent<SphereColliderComponent>().Material;
 			return true;
@@ -3809,11 +3809,11 @@ namespace Hazel {
 		void SphereColliderComponent_SetMaterial(uint64_t entityID, ColliderMaterial* inMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<SphereColliderComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
-			HZ_CORE_VERIFY(rigidBody);
+			ZONG_CORE_VERIFY(rigidBody);
 
 			for (uint32_t i = 0; i < rigidBody->GetShapeCount(ShapeType::Sphere); i++)
 				rigidBody->GetShape(ShapeType::Sphere, i)->SetMaterial(*inMaterial);
@@ -3828,8 +3828,8 @@ namespace Hazel {
 		float CapsuleColliderComponent_GetRadius(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
 
 			return entity.GetComponent<CapsuleColliderComponent>().Radius;
 		}
@@ -3837,8 +3837,8 @@ namespace Hazel {
 		float CapsuleColliderComponent_GetHeight(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
 
 			return entity.GetComponent<CapsuleColliderComponent>().HalfHeight;
 		}
@@ -3846,8 +3846,8 @@ namespace Hazel {
 		void CapsuleColliderComponent_GetOffset(uint64_t entityID, glm::vec3* outOffset)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
 
 			*outOffset = entity.GetComponent<CapsuleColliderComponent>().Offset;
 		}
@@ -3855,8 +3855,8 @@ namespace Hazel {
 		bool CapsuleColliderComponent_GetMaterial(uint64_t entityID, ColliderMaterial* outMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
 
 			*outMaterial = entity.GetComponent<CapsuleColliderComponent>().Material;
 			return true;
@@ -3865,11 +3865,11 @@ namespace Hazel {
 		void CapsuleColliderComponent_SetMaterial(uint64_t entityID, ColliderMaterial* inMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<CapsuleColliderComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
-			HZ_CORE_VERIFY(rigidBody);
+			ZONG_CORE_VERIFY(rigidBody);
 
 			for (uint32_t i = 0; i < rigidBody->GetShapeCount(ShapeType::Capsule); i++)
 				rigidBody->GetShape(ShapeType::Capsule, i)->SetMaterial(*inMaterial);
@@ -3884,8 +3884,8 @@ namespace Hazel {
 		bool MeshColliderComponent_IsMeshStatic(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
 
 			const auto& component = entity.GetComponent<MeshColliderComponent>();
 			Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
@@ -3908,8 +3908,8 @@ namespace Hazel {
 		bool MeshColliderComponent_IsColliderMeshValid(uint64_t entityID, AssetHandle* meshHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
 
 			const auto& component = entity.GetComponent<MeshColliderComponent>();
 			Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
@@ -3926,8 +3926,8 @@ namespace Hazel {
 		bool MeshColliderComponent_GetColliderMesh(uint64_t entityID, AssetHandle* outHandle)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
 
 			const auto& component = entity.GetComponent<MeshColliderComponent>();
 			Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
@@ -3952,8 +3952,8 @@ namespace Hazel {
 		bool MeshColliderComponent_GetMaterial(uint64_t entityID, ColliderMaterial* outMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
 
 			*outMaterial = entity.GetComponent<MeshColliderComponent>().Material;
 			return true;
@@ -3962,11 +3962,11 @@ namespace Hazel {
 		void MeshColliderComponent_SetMaterial(uint64_t entityID, ColliderMaterial* inMaterial)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<MeshColliderComponent>());
 
 			Ref<PhysicsBody> rigidBody = GetRigidBody(entityID);
-			HZ_CORE_VERIFY(rigidBody);
+			ZONG_CORE_VERIFY(rigidBody);
 
 			for (uint32_t i = 0; i < rigidBody->GetShapeCount(ShapeType::ConvexMesh); i++)
 				rigidBody->GetShape(ShapeType::ConvexMesh, i)->SetMaterial(*inMaterial);
@@ -4002,8 +4002,8 @@ namespace Hazel {
 		bool AudioComponent_IsPlaying(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return AudioPlayback::IsPlaying(entityID);
 		}
@@ -4011,8 +4011,8 @@ namespace Hazel {
 		bool AudioComponent_Play(uint64_t entityID, float startTime)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return AudioPlayback::Play(entityID, startTime);
 		}
@@ -4020,8 +4020,8 @@ namespace Hazel {
 		bool AudioComponent_Stop(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return AudioPlayback::StopActiveSound(entityID);
 		}
@@ -4029,8 +4029,8 @@ namespace Hazel {
 		bool AudioComponent_Pause(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return AudioPlayback::PauseActiveSound(entityID);
 		}
@@ -4038,8 +4038,8 @@ namespace Hazel {
 		bool AudioComponent_Resume(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return AudioPlayback::Resume(entityID);
 		}
@@ -4047,8 +4047,8 @@ namespace Hazel {
 		float AudioComponent_GetVolumeMult(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return entity.GetComponent<AudioComponent>().VolumeMultiplier;
 		}
@@ -4056,8 +4056,8 @@ namespace Hazel {
 		void AudioComponent_SetVolumeMult(uint64_t entityID, float volumeMultiplier)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			entity.GetComponent<AudioComponent>().VolumeMultiplier = volumeMultiplier;
 		}
@@ -4065,8 +4065,8 @@ namespace Hazel {
 		float AudioComponent_GetPitchMult(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			return entity.GetComponent<AudioComponent>().PitchMultiplier;
 		}
@@ -4074,8 +4074,8 @@ namespace Hazel {
 		void AudioComponent_SetPitchMult(uint64_t entityID, float pitchMultiplier)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			entity.GetComponent<AudioComponent>().PitchMultiplier = pitchMultiplier;
 		}
@@ -4083,8 +4083,8 @@ namespace Hazel {
 		void AudioComponent_SetEvent(uint64_t entityID, Audio::CommandID eventID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<AudioComponent>());
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
 			{
@@ -4104,8 +4104,8 @@ namespace Hazel {
 		size_t TextComponent_GetHash(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			return entity.GetComponent<TextComponent>().TextHash;
 		}
@@ -4113,8 +4113,8 @@ namespace Hazel {
 		MonoString* TextComponent_GetText(uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			const auto& component = entity.GetComponent<TextComponent>();
 			return ScriptUtils::UTF8StringToMono(component.TextString);
@@ -4123,8 +4123,8 @@ namespace Hazel {
 		void TextComponent_SetText(uint64_t entityID, MonoString* text)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			auto& component = entity.GetComponent<TextComponent>();
 			component.TextString = ScriptUtils::MonoStringToUTF8(text);
@@ -4134,8 +4134,8 @@ namespace Hazel {
 		void TextComponent_GetColor(uint64_t entityID, glm::vec4* outColor)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			const auto& component = entity.GetComponent<TextComponent>();
 			*outColor = component.Color;
@@ -4144,8 +4144,8 @@ namespace Hazel {
 		void TextComponent_SetColor(uint64_t entityID, glm::vec4* inColor)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
-			HZ_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM(entity.HasComponent<TextComponent>());
 
 			auto& component = entity.GetComponent<TextComponent>();
 			component.Color = *inColor;
@@ -4166,7 +4166,7 @@ namespace Hazel {
 		uint32_t Audio_PostEventFromAC(Audio::CommandID eventID, uint64_t entityID)
 		{
 			auto entity = GetEntity(entityID);
-			HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+			ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
@@ -4213,7 +4213,7 @@ namespace Hazel {
 		uint64_t Audio_CreateAudioEntity(Audio::CommandID eventID, Transform* inLocation, float volume, float pitch)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_VERIFY(scene, "No active scene");
+			ZONG_CORE_VERIFY(scene, "No active scene");
 			Entity entity = scene->CreateEntity("AudioEntity");
 
 			if (!AudioCommandRegistry::DoesCommandExist<Audio::TriggerCommand>(eventID))
@@ -4378,7 +4378,7 @@ namespace Hazel {
 
 			instance->Lock();
 			Buffer buffer = instance->GetWriteableBuffer();
-			HZ_CORE_ASSERT(dataSize <= buffer.Size);
+			ZONG_CORE_ASSERT(dataSize <= buffer.Size);
 			// Convert RGBA32F color to RGBA8
 			uint8_t* pixels = (uint8_t*)buffer.Data;
 			uint32_t index = 0;
@@ -4622,7 +4622,7 @@ namespace Hazel {
 			{
 				// This material is expected to be on a component
 				auto entity = GetEntity(entityID);
-				HZ_ICALL_VALIDATE_PARAM_V(entity, entityID);
+				ZONG_ICALL_VALIDATE_PARAM_V(entity, entityID);
 
 				if (entity.HasComponent<MeshComponent>())
 				{
@@ -4838,15 +4838,15 @@ namespace Hazel {
 		bool Physics_CastRay(RaycastData* inRaycastData, ScriptRaycastHit* outHit)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 
 			if (scene->IsEditorScene())
 			{
-				HZ_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
+				ZONG_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
 				return false;
 			}
 
-			//HZ_CORE_ASSERT(scene->GetPhysicsScene()->IsValid());
+			//ZONG_CORE_ASSERT(scene->GetPhysicsScene()->IsValid());
 
 			RayCastInfo rayCastInfo;
 			rayCastInfo.Origin = inRaycastData->Origin;
@@ -4887,7 +4887,7 @@ namespace Hazel {
 
 					MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
 
-#ifdef HZ_DEBUG
+#ifdef ZONG_DEBUG
 					MonoClass* typeClass = mono_type_get_class(componentType);
 					MonoClass* parentClass = mono_class_get_parent(typeClass);
 
@@ -5010,18 +5010,18 @@ namespace Hazel {
 		bool Physics_CastShape(ShapeQueryData* inShapeCastData, ScriptRaycastHit* outHit)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 
 			if (scene->IsEditorScene())
 			{
-				HZ_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
+				ZONG_THROW_INVALID_OPERATION("Physics.Raycast can only be called in Play mode!");
 				return false;
 			}
 
 			CSharpInstanceInspector inspector(inShapeCastData->ShapeDataInstance);
 			if (!inspector.InheritsFrom("Hazel.Shape"))
 			{
-				HZ_CORE_VERIFY(false);
+				ZONG_CORE_VERIFY(false);
 				return false;
 			}
 
@@ -5104,7 +5104,7 @@ namespace Hazel {
 
 					MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
 
-#ifdef HZ_DEBUG
+#ifdef ZONG_DEBUG
 					MonoClass* typeClass = mono_type_get_class(componentType);
 					MonoClass* parentClass = mono_class_get_parent(typeClass);
 
@@ -5228,11 +5228,11 @@ namespace Hazel {
 		MonoArray* Physics_Raycast2D(RaycastData2D* inRaycastData)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 
 			if (scene->IsEditorScene())
 			{
-				HZ_THROW_INVALID_OPERATION("Physics.Raycast2D can only be called in Play mode!");
+				ZONG_THROW_INVALID_OPERATION("Physics.Raycast2D can only be called in Play mode!");
 				return nullptr;
 			}
 
@@ -5260,13 +5260,13 @@ namespace Hazel {
 		int32_t Physics_OverlapShape(ShapeQueryData* inOverlapData, MonoArray** outHits)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 
 			if (inOverlapData->ShapeDataInstance == nullptr)
 				return 0;
 
 			CSharpInstanceInspector inspector(inOverlapData->ShapeDataInstance);
-			HZ_CORE_VERIFY(inspector.InheritsFrom("Hazel.Shape"));
+			ZONG_CORE_VERIFY(inspector.InheritsFrom("Hazel.Shape"));
 
 			ShapeOverlapInfo* shapeOverlapInfo = nullptr;
 
@@ -5356,7 +5356,7 @@ namespace Hazel {
 
 						MonoType* componentType = mono_reflection_type_get_type((MonoReflectionType*)reflectionType);
 
-#ifdef HZ_DEBUG
+#ifdef ZONG_DEBUG
 						MonoClass* typeClass = mono_type_get_class(componentType);
 						MonoClass* parentClass = mono_class_get_parent(typeClass);
 
@@ -5480,21 +5480,21 @@ namespace Hazel {
 		void Physics_GetGravity(glm::vec3* outGravity)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 			*outGravity = scene->GetPhysicsScene()->GetGravity();
 		}
 
 		void Physics_SetGravity(glm::vec3* inGravity)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 			scene->GetPhysicsScene()->SetGravity(*inGravity);
 		}
 
 		void Physics_AddRadialImpulse(glm::vec3* inOrigin, float radius, float strength, EFalloffMode falloff, bool velocityChange)
 		{
 			Ref<Scene> scene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(scene, "No active scene!");
+			ZONG_CORE_ASSERT(scene, "No active scene!");
 			scene->GetPhysicsScene()->AddRadialImpulse(*inOrigin, radius, strength, falloff, velocityChange);
 		}
 
@@ -5543,28 +5543,28 @@ namespace Hazel {
 
 		void Log_LogMessage(LogLevel level, MonoString* inFormattedMessage)
 		{
-			HZ_PROFILE_FUNC();
+			ZONG_PROFILE_FUNC();
 
 			std::string message = ScriptUtils::MonoStringToUTF8(inFormattedMessage);
 			switch (level)
 			{
 				case LogLevel::Trace:
-					HZ_CONSOLE_LOG_TRACE(message);
+					ZONG_CONSOLE_LOG_TRACE(message);
 					break;
 				case LogLevel::Debug:
-					HZ_CONSOLE_LOG_INFO(message);
+					ZONG_CONSOLE_LOG_INFO(message);
 					break;
 				case LogLevel::Info:
-					HZ_CONSOLE_LOG_INFO(message);
+					ZONG_CONSOLE_LOG_INFO(message);
 					break;
 				case LogLevel::Warn:
-					HZ_CONSOLE_LOG_WARN(message);
+					ZONG_CONSOLE_LOG_WARN(message);
 					break;
 				case LogLevel::Error:
-					HZ_CONSOLE_LOG_ERROR(message);
+					ZONG_CONSOLE_LOG_ERROR(message);
 					break;
 				case LogLevel::Critical:
-					HZ_CONSOLE_LOG_FATAL(message);
+					ZONG_CONSOLE_LOG_FATAL(message);
 					break;
 			}
 		}
@@ -5678,7 +5678,7 @@ namespace Hazel {
 
 #pragma region EditorUI
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 
 		void EditorUI_Text(MonoString* inText)
 		{
@@ -5783,56 +5783,56 @@ namespace Hazel {
 		float SceneRenderer_GetOpacity()
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetOpacity();
 		}
 
 		void SceneRenderer_SetOpacity(float opacity)
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->SetOpacity(opacity);
 		}
 
 		bool SceneRenderer_DepthOfField_IsEnabled()
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().Enabled;
 		}
 
 		void SceneRenderer_DepthOfField_SetEnabled(bool enabled)
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().Enabled = enabled;
 		}
 
 		float SceneRenderer_DepthOfField_GetFocusDistance()
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().FocusDistance;
 		}
 
 		void SceneRenderer_DepthOfField_SetFocusDistance(float focusDistance)
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().FocusDistance = focusDistance;
 		}
 
 		float SceneRenderer_DepthOfField_GetBlurSize()
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			return sceneRenderer->GetDOFSettings().BlurSize;
 		}
 
 		void SceneRenderer_DepthOfField_SetBlurSize(float blurSize)
 		{
 			Ref<SceneRenderer> sceneRenderer = ScriptEngine::GetSceneRenderer();
-			HZ_CORE_VERIFY(sceneRenderer);
+			ZONG_CORE_VERIFY(sceneRenderer);
 			sceneRenderer->GetDOFSettings().BlurSize = blurSize;
 		}
 
@@ -5908,7 +5908,7 @@ namespace Hazel {
 		uint32_t PerformanceTimers_GetEntityCount()
 		{
 			Ref<Scene> activeScene = ScriptEngine::GetSceneContext();
-			HZ_CORE_ASSERT(activeScene, "No active scene!");
+			ZONG_CORE_ASSERT(activeScene, "No active scene!");
 
 			return (uint32_t) activeScene->GetEntityMap().size();
 		}

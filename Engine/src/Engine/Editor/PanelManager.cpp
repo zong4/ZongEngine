@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PanelManager.h"
 #include "Engine/Utilities/FileSystem.h"
 
@@ -50,7 +50,7 @@ namespace Hazel {
 			return;
 		}
 
-		HZ_CORE_ERROR_TAG("PanelManager", "Couldn't find panel with id '{0}'", strID);
+		ZONG_CORE_ERROR_TAG("PanelManager", "Couldn't find panel with id '{0}'", strID);
 	}
 
 	void PanelManager::OnImGuiRender()
@@ -137,14 +137,14 @@ namespace Hazel {
 			return;
 
 		std::ifstream stream(layoutPath);
-		HZ_CORE_VERIFY(stream);
+		ZONG_CORE_VERIFY(stream);
 		std::stringstream ss;
 		ss << stream.rdbuf();
 
 		YAML::Node data = YAML::Load(ss.str());
 		if (!data["Panels"])
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to load EditorLayout.yaml from {} because the file appears to be corrupted!", layoutPath.parent_path().string());
+			ZONG_CONSOLE_LOG_ERROR("Failed to load EditorLayout.yaml from {} because the file appears to be corrupted!", layoutPath.parent_path().string());
 			return;
 		}
 

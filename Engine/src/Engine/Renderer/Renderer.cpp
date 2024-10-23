@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Renderer.h"
 
 #include "Shader.h"
@@ -107,7 +107,7 @@ namespace Hazel {
 	void RendererAPI::SetAPI(RendererAPIType api)
 	{
 		// TODO: make sure this is called at a valid time
-		HZ_CORE_VERIFY(api == RendererAPIType::Vulkan, "Vulkan is currently the only supported Renderer API");
+		ZONG_CORE_VERIFY(api == RendererAPIType::Vulkan, "Vulkan is currently the only supported Renderer API");
 		s_CurrentRendererAPI = api;
 	}
 
@@ -138,7 +138,7 @@ namespace Hazel {
 		{
 			case RendererAPIType::Vulkan: return hnew VulkanRenderer();
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 
@@ -153,9 +153,9 @@ namespace Hazel {
 
 		s_RendererAPI = InitRendererAPI();
 
-		Renderer::SetGlobalMacroInShaders("__HZ_REFLECTION_OCCLUSION_METHOD", "0");
-		Renderer::SetGlobalMacroInShaders("__HZ_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(true)));
-		Renderer::SetGlobalMacroInShaders("__HZ_GTAO_COMPUTE_BENT_NORMALS", "0");
+		Renderer::SetGlobalMacroInShaders("__ZONG_REFLECTION_OCCLUSION_METHOD", "0");
+		Renderer::SetGlobalMacroInShaders("__ZONG_AO_METHOD", fmt::format("{}", ShaderDef::GetAOMethod(true)));
+		Renderer::SetGlobalMacroInShaders("__ZONG_GTAO_COMPUTE_BENT_NORMALS", "0");
 
 		s_Data->m_ShaderLibrary = Ref<ShaderLibrary>::Create();
 
@@ -284,7 +284,7 @@ namespace Hazel {
 				for (int y = 0; y < 64; y++)
 				{
 					const uint16_t r2index = HilbertIndex(x, y);
-					HZ_CORE_ASSERT(r2index < 65536);
+					ZONG_CORE_ASSERT(r2index < 65536);
 					data[x + 64 * y] = r2index;
 				}
 			}
@@ -326,7 +326,7 @@ namespace Hazel {
 
 	void Renderer::RenderThreadFunc(RenderThread* renderThread)
 	{
-		HZ_PROFILE_THREAD("Render Thread");
+		ZONG_PROFILE_THREAD("Render Thread");
 
 		while (renderThread->IsRunning())
 		{
@@ -336,12 +336,12 @@ namespace Hazel {
 
 	void Renderer::WaitAndRender(RenderThread* renderThread)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 		auto& performanceTimers = Application::Get().m_PerformanceTimers;
 
 		// Wait for kick, then set render thread to busy
 		{
-			HZ_PROFILE_SCOPE("Wait");
+			ZONG_PROFILE_SCOPE("Wait");
 			Timer waitTimer;
 			renderThread->WaitAndSet(RenderThread::State::Kick, RenderThread::State::Busy);
 			performanceTimers.RenderThreadWaitTime = waitTimer.ElapsedMillis();
@@ -374,7 +374,7 @@ namespace Hazel {
 
 	void Renderer::BeginRenderPass(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<RenderPass> renderPass, bool explicitClear)
 	{
-		HZ_CORE_ASSERT(renderPass, "RenderPass cannot be null!");
+		ZONG_CORE_ASSERT(renderPass, "RenderPass cannot be null!");
 
 		s_RendererAPI->BeginRenderPass(renderCommandBuffer, renderPass, explicitClear);
 	}
@@ -386,7 +386,7 @@ namespace Hazel {
 
 	void Renderer::BeginComputePass(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<ComputePass> computePass)
 	{
-		HZ_CORE_ASSERT(computePass, "ComputePass cannot be null!");
+		ZONG_CORE_ASSERT(computePass, "ComputePass cannot be null!");
 
 		s_RendererAPI->BeginComputePass(renderCommandBuffer, computePass);
 	}
@@ -500,7 +500,7 @@ namespace Hazel {
 
 	void Renderer::SubmitQuad(Ref<RenderCommandBuffer> renderCommandBuffer, Ref<Material> material, const glm::mat4& transform)
 	{
-		HZ_CORE_ASSERT(false, "Not Implemented");
+		ZONG_CORE_ASSERT(false, "Not Implemented");
 		/*bool depthTest = true;
 		if (material)
 		{
@@ -654,14 +654,14 @@ namespace Hazel {
 
 		if (s_GlobalShaderInfo.ShaderGlobalMacrosMap.find(name) == s_GlobalShaderInfo.ShaderGlobalMacrosMap.end())
 		{
-			HZ_CORE_WARN("No shaders with {} macro found", name);
+			ZONG_CORE_WARN("No shaders with {} macro found", name);
 			return;
 		}
 
-		HZ_CORE_ASSERT(s_GlobalShaderInfo.ShaderGlobalMacrosMap.find(name) != s_GlobalShaderInfo.ShaderGlobalMacrosMap.end(), "Macro has not been passed from any shader!");
+		ZONG_CORE_ASSERT(s_GlobalShaderInfo.ShaderGlobalMacrosMap.find(name) != s_GlobalShaderInfo.ShaderGlobalMacrosMap.end(), "Macro has not been passed from any shader!");
 		for (auto& [hash, shader] : s_GlobalShaderInfo.ShaderGlobalMacrosMap.at(name))
 		{
-			HZ_CORE_ASSERT(shader.IsValid(), "Shader is deleted!");
+			ZONG_CORE_ASSERT(shader.IsValid(), "Shader is deleted!");
 			s_GlobalShaderInfo.DirtyShaders.emplace(shader);
 		}
 	}
@@ -672,7 +672,7 @@ namespace Hazel {
 		const bool updatedAnyShaders = s_GlobalShaderInfo.DirtyShaders.size();
 		for (WeakRef<Shader> shader : s_GlobalShaderInfo.DirtyShaders)
 		{
-			HZ_CORE_ASSERT(shader.IsValid(), "Shader is deleted!");
+			ZONG_CORE_ASSERT(shader.IsValid(), "Shader is deleted!");
 			shader->RT_Reload(true);
 		}
 		s_GlobalShaderInfo.DirtyShaders.clear();

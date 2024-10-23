@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "RenderCommandBuffer.h"
 
 #include "Engine/Platform/Vulkan/VulkanRenderCommandBuffer.h"
@@ -14,7 +14,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanRenderCommandBuffer>::Create(count, debugName);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 
@@ -25,7 +25,7 @@ namespace Hazel {
 			case RendererAPIType::None:    return nullptr;
 			case RendererAPIType::Vulkan:  return Ref<VulkanRenderCommandBuffer>::Create(debugName, true);
 		}
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		ZONG_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
 	}
 

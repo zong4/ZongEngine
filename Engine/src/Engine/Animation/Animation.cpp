@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Animation.h"
 
 #include "Engine/Renderer/Mesh.h"
@@ -49,10 +49,10 @@ namespace Hazel {
 	, m_AnimationIndex(animationIndex)
 	, m_IsMaskedRootMotion(isMaskedRootMotion)
 	{
-		HZ_CORE_ASSERT(rootRotationMask == 0.0f || rootRotationMask == 1.0f);
-		HZ_CORE_ASSERT(rootTranslationMask.x == 0.0f || rootTranslationMask.x == 1.0f);
-		HZ_CORE_ASSERT(rootTranslationMask.y == 0.0f || rootTranslationMask.y == 1.0f);
-		HZ_CORE_ASSERT(rootTranslationMask.z == 0.0f || rootTranslationMask.z == 1.0f);
+		ZONG_CORE_ASSERT(rootRotationMask == 0.0f || rootRotationMask == 1.0f);
+		ZONG_CORE_ASSERT(rootTranslationMask.x == 0.0f || rootTranslationMask.x == 1.0f);
+		ZONG_CORE_ASSERT(rootTranslationMask.y == 0.0f || rootTranslationMask.y == 1.0f);
+		ZONG_CORE_ASSERT(rootTranslationMask.z == 0.0f || rootTranslationMask.z == 1.0f);
 	}
 
 

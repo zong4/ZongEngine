@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltShapes.h"
 #include "JoltAPI.h"
 #include "JoltBinaryStream.h"
@@ -45,7 +45,7 @@ namespace Hazel {
 
 	void JoltImmutableCompoundShape::RemoveShape(const Ref<PhysicsShape>& shape)
 	{
-		HZ_CORE_VERIFY(false, "Cannot remove shape from an ImmutableCompoundShape!");
+		ZONG_CORE_VERIFY(false, "Cannot remove shape from an ImmutableCompoundShape!");
 	}
 
 	void JoltImmutableCompoundShape::Create()
@@ -56,7 +56,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create Immutable Compound Shape. Error: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create Immutable Compound Shape. Error: {}", result.GetError());
 			return;
 		}
 
@@ -105,7 +105,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create Mutable Compound Shape. Error: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create Mutable Compound Shape. Error: {}", result.GetError());
 			return;
 		}
 
@@ -135,7 +135,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create BoxShape. Error: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create BoxShape. Error: {}", result.GetError());
 			return;
 		}
 
@@ -171,7 +171,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create SphereShape. Error: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create SphereShape. Error: {}", result.GetError());
 			return;
 		}
 
@@ -208,7 +208,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to create CapsuleShape. Error: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to create CapsuleShape. Error: {}", result.GetError());
 			return;
 		}
 
@@ -225,19 +225,19 @@ namespace Hazel {
 	JoltConvexMeshShape::JoltConvexMeshShape(Entity entity, float totalBodyMass)
 		: ConvexMeshShape(entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto& component = entity.GetComponent<MeshColliderComponent>();
 
 		Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
-		HZ_CORE_VERIFY(colliderAsset);
+		ZONG_CORE_VERIFY(colliderAsset);
 		
 		auto scene = Scene::GetScene(entity.GetSceneUUID());
 		TransformComponent worldTransform = scene->GetWorldSpaceTransform(entity);
 
 		const CachedColliderData& colliderData = PhysicsSystem::GetMeshCache().GetMeshData(colliderAsset);
 		const auto& meshData = colliderData.SimpleColliderData;
-		HZ_CORE_ASSERT(meshData.Submeshes.size() > component.SubmeshIndex);
+		ZONG_CORE_ASSERT(meshData.Submeshes.size() > component.SubmeshIndex);
 
 		const SubmeshColliderData& submesh = meshData.Submeshes[component.SubmeshIndex];
 		glm::vec3 submeshTranslation, submeshScale;
@@ -249,7 +249,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh: {}", result.GetError());
 			return;
 		}
 
@@ -269,12 +269,12 @@ namespace Hazel {
 	JoltTriangleMeshShape::JoltTriangleMeshShape(Entity entity)
 		: TriangleMeshShape(entity)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		auto& component = entity.GetComponent<MeshColliderComponent>();
 
 		Ref<MeshColliderAsset> colliderAsset = AssetManager::GetAsset<MeshColliderAsset>(component.ColliderAsset);
-		HZ_CORE_VERIFY(colliderAsset);
+		ZONG_CORE_VERIFY(colliderAsset);
 
 		auto scene = Scene::GetScene(entity.GetSceneUUID());
 		TransformComponent worldTransform = scene->GetWorldSpaceTransform(entity);
@@ -294,7 +294,7 @@ namespace Hazel {
 
 			if (result.HasError())
 			{
-				HZ_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh!");
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh!");
 				return;
 			}
 
@@ -305,7 +305,7 @@ namespace Hazel {
 
 		if (result.HasError())
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh: {}", result.GetError());
+			ZONG_CORE_ERROR_TAG("Physics", "Failed to construct ConvexMesh: {}", result.GetError());
 			return;
 		}
 

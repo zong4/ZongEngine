@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "PhysicsSystem.h"
 
 #include "JoltPhysics/JoltAPI.h"
@@ -16,7 +16,7 @@ namespace Hazel {
 			case PhysicsAPIType::Jolt: return hnew JoltAPI();
 		}
 
-		HZ_CORE_VERIFY(false, "Unknown PhysicsAPI");
+		ZONG_CORE_VERIFY(false, "Unknown PhysicsAPI");
 		return nullptr;
 	}
 
@@ -71,7 +71,7 @@ namespace Hazel {
 	{
 		/*EventDispatcher dispatcher(event);
 
-#ifdef HZ_DEBUG
+#ifdef ZONG_DEBUG
 		dispatcher.Dispatch<ScenePreStartEvent>([](ScenePreStartEvent& e)
 		{
 			if (s_PhysicsSettings.DebugOnPlay && !PhysXDebugger::IsDebugging())

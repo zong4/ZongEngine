@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SceneSerializer.h"
 
 #include "Engine/Scene/Scene.h"
@@ -418,7 +418,7 @@ namespace Hazel {
 							else if (value.isFloat64()) out << YAML::Value << value.getFloat64();
 							else
 							{
-								HZ_CORE_ASSERT(false, "Unknown type");
+								ZONG_CORE_ASSERT(false, "Unknown type");
 								out << YAML::Value << 0;
 							}
 						}
@@ -736,14 +736,14 @@ namespace Hazel {
 			out << YAML::BeginMap; // AudioComponent
 			auto& audioComponent = entity.GetComponent<AudioComponent>();
 
-			HZ_SERIALIZE_PROPERTY(StartEvent,			 audioComponent.StartEvent,				out);
-			HZ_SERIALIZE_PROPERTY(StartCommandID,		 audioComponent.StartCommandID,			out);
+			ZONG_SERIALIZE_PROPERTY(StartEvent,			 audioComponent.StartEvent,				out);
+			ZONG_SERIALIZE_PROPERTY(StartCommandID,		 audioComponent.StartCommandID,			out);
 
-			HZ_SERIALIZE_PROPERTY(PlayOnAwake,			 audioComponent.bPlayOnAwake,			out);
-			HZ_SERIALIZE_PROPERTY(StopIfEntityDestroyed, audioComponent.bStopWhenEntityDestroyed, out);
-			HZ_SERIALIZE_PROPERTY(VolumeMultiplier,		 audioComponent.VolumeMultiplier,		out);
-			HZ_SERIALIZE_PROPERTY(PitchMultiplier,		 audioComponent.PitchMultiplier,		out);
-			HZ_SERIALIZE_PROPERTY(AutoDestroy,			 audioComponent.bAutoDestroy,			out);
+			ZONG_SERIALIZE_PROPERTY(PlayOnAwake,			 audioComponent.bPlayOnAwake,			out);
+			ZONG_SERIALIZE_PROPERTY(StopIfEntityDestroyed, audioComponent.bStopWhenEntityDestroyed, out);
+			ZONG_SERIALIZE_PROPERTY(VolumeMultiplier,		 audioComponent.VolumeMultiplier,		out);
+			ZONG_SERIALIZE_PROPERTY(PitchMultiplier,		 audioComponent.PitchMultiplier,		out);
+			ZONG_SERIALIZE_PROPERTY(AutoDestroy,			 audioComponent.bAutoDestroy,			out);
 
 			out << YAML::EndMap; // AudioComponent
 		}
@@ -753,10 +753,10 @@ namespace Hazel {
 			out << YAML::Key << "AudioListenerComponent";
 			out << YAML::BeginMap; // AudioComponent
 			auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
-			HZ_SERIALIZE_PROPERTY(Active,				audioListenerComponent.Active,					out);
-			HZ_SERIALIZE_PROPERTY(ConeInnerAngle,		audioListenerComponent.ConeInnerAngleInRadians, out);
-			HZ_SERIALIZE_PROPERTY(ConeOuterAngle,		audioListenerComponent.ConeOuterAngleInRadians, out);
-			HZ_SERIALIZE_PROPERTY(ConeOuterGain,		audioListenerComponent.ConeOuterGain,			out);
+			ZONG_SERIALIZE_PROPERTY(Active,				audioListenerComponent.Active,					out);
+			ZONG_SERIALIZE_PROPERTY(ConeInnerAngle,		audioListenerComponent.ConeInnerAngleInRadians, out);
+			ZONG_SERIALIZE_PROPERTY(ConeOuterAngle,		audioListenerComponent.ConeOuterAngleInRadians, out);
+			ZONG_SERIALIZE_PROPERTY(ConeOuterGain,		audioListenerComponent.ConeOuterGain,			out);
 			out << YAML::EndMap; // AudioComponent
 		}
 
@@ -821,7 +821,7 @@ namespace Hazel {
 			return false;
 
 		std::string sceneName = data["Scene"].as<std::string>();
-		HZ_CORE_INFO_TAG("AssetManager", "Deserializing scene '{0}'", sceneName);
+		ZONG_CORE_INFO_TAG("AssetManager", "Deserializing scene '{0}'", sceneName);
 		m_Scene->SetName(sceneName);
 
 		auto entities = data["Entities"];
@@ -865,7 +865,7 @@ namespace Hazel {
 	void SceneSerializer::SerializeRuntime(AssetHandle scene)
 	{
 		// Not implemented
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 	}
 
 	void SceneSerializer::DeserializeEntities(YAML::Node& entitiesNode, Ref<Scene> scene)
@@ -879,7 +879,7 @@ namespace Hazel {
 			if (tagComponent)
 				name = tagComponent["Tag"].as<std::string>();
 
-			//HZ_CORE_INFO("Deserialized Entity '{0}' with ID '{1}'", name, uuid);
+			//ZONG_CORE_INFO("Deserialized Entity '{0}' with ID '{1}'", name, uuid);
 
 			Entity deserializedEntity = scene->CreateEntityWithID(uuid, name, false);
 
@@ -917,7 +917,7 @@ namespace Hazel {
 				// They should be serialized as Euler angles (this is the only way to support rotations > 360 degrees)
 				// If you encounter this VERIFY, then you can uncomment this code, load your scene in and then save it
 				// That will convert rotations back to Euler angles, and you can then re-comment out this code.
-				//HZ_CORE_VERIFY(rotationNode.size() == 3, "Transform component rotation should be serialized as Euler angles. Found Quaternions!");
+				//ZONG_CORE_VERIFY(rotationNode.size() == 3, "Transform component rotation should be serialized as Euler angles. Found Quaternions!");
 				if (rotationNode.size() == 4)
 				{
 					transform.SetRotation(transformComponent["Rotation"].as<glm::quat>(glm::quat()));
@@ -937,7 +937,7 @@ namespace Hazel {
 				std::string name = scriptComponent["Name"].as<std::string>("");
 
 				if (scriptAssetHandle == 0 && !moduleName.empty())
-					scriptAssetHandle = HZ_SCRIPT_CLASS_ID(moduleName);
+					scriptAssetHandle = ZONG_SCRIPT_CLASS_ID(moduleName);
 
 				if (scriptAssetHandle != 0)
 				{
@@ -966,7 +966,7 @@ namespace Hazel {
 
 								if (storage == nullptr)
 								{
-									HZ_CONSOLE_LOG_WARN("Serialized C# field {0} doesn't exist in script cache! This could be because the script field no longer exists or because it's been renamed.", name);
+									ZONG_CONSOLE_LOG_WARN("Serialized C# field {0} doesn't exist in script cache! This could be because the script field no longer exists or because it's been renamed.", name);
 								}
 								else
 								{
@@ -1172,7 +1172,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ERROR("Failed to deserialize ScriptComponent for entity '{0}'! Couldn't find a valid ModuleName or ClassHandle field/value!", deserializedEntity.Name());
+					ZONG_CORE_ERROR("Failed to deserialize ScriptComponent for entity '{0}'! Couldn't find a valid ModuleName or ClassHandle field/value!", deserializedEntity.Name());
 				}
 			}
 
@@ -1283,7 +1283,7 @@ namespace Hazel {
 						{
 							// id in scene is not present in animation graph.  This can happen if animation graph has been changed since scene was serialized.
 							// Just ignore it.
-							HZ_CONSOLE_LOG_WARN("Input with id {0} was not found in animation graph, while deserializing animation component.", id);
+							ZONG_CONSOLE_LOG_WARN("Input with id {0} was not found in animation graph, while deserializing animation component.", id);
 						}
 					}
 				}
@@ -1386,7 +1386,7 @@ namespace Hazel {
 
 				//if (!AssetManager::IsAssetHandleValid(component.SceneEnvironment))
 				//{
-				//	HZ_CORE_ERROR("Tried to load invalid environment map in Entity {0}", deserializedEntity.GetUUID());
+				//	ZONG_CORE_ERROR("Tried to load invalid environment map in Entity {0}", deserializedEntity.GetUUID());
 				//}
 			}
 
@@ -1635,7 +1635,7 @@ namespace Hazel {
 					if (AssetManager::IsAssetHandleValid(component.ColliderAsset))
 						PhysicsSystem::GetMeshCookingFactory()->CookMesh(component.ColliderAsset);
 					else
-						HZ_CORE_WARN("MeshColliderComponent in use without valid mesh!");
+						ZONG_CORE_WARN("MeshColliderComponent in use without valid mesh!");
 
 					component.Material.Friction = meshColliderComponent["Friction"].as<float>(0.5f);
 					component.Material.Restitution = meshColliderComponent["Restitution"].as<float>(0.15f);
@@ -1661,14 +1661,14 @@ namespace Hazel {
 			{
 				auto& component = deserializedEntity.AddComponent<AudioComponent>();
 
-				HZ_DESERIALIZE_PROPERTY(StartEvent, component.StartEvent, audioComponent, std::string(""));
+				ZONG_DESERIALIZE_PROPERTY(StartEvent, component.StartEvent, audioComponent, std::string(""));
 				component.StartCommandID = audioComponent["StartCommandID"] ? Audio::CommandID::FromUnsignedInt(audioComponent["StartCommandID"].as<uint32_t>()) : Audio::CommandID::InvalidID();
 
-				HZ_DESERIALIZE_PROPERTY(PlayOnAwake, component.bPlayOnAwake, audioComponent, false);
-				HZ_DESERIALIZE_PROPERTY(StopIfEntityDestroyed, component.bStopWhenEntityDestroyed, audioComponent, true);
-				HZ_DESERIALIZE_PROPERTY(VolumeMultiplier, component.VolumeMultiplier, audioComponent, 1.0f);
-				HZ_DESERIALIZE_PROPERTY(PitchMultiplier, component.PitchMultiplier, audioComponent, 1.0f);
-				HZ_DESERIALIZE_PROPERTY(AutoDestroy, component.bAutoDestroy, audioComponent, false);
+				ZONG_DESERIALIZE_PROPERTY(PlayOnAwake, component.bPlayOnAwake, audioComponent, false);
+				ZONG_DESERIALIZE_PROPERTY(StopIfEntityDestroyed, component.bStopWhenEntityDestroyed, audioComponent, true);
+				ZONG_DESERIALIZE_PROPERTY(VolumeMultiplier, component.VolumeMultiplier, audioComponent, 1.0f);
+				ZONG_DESERIALIZE_PROPERTY(PitchMultiplier, component.PitchMultiplier, audioComponent, 1.0f);
+				ZONG_DESERIALIZE_PROPERTY(AutoDestroy, component.bAutoDestroy, audioComponent, false);
 			}
 
 			auto audioListener = entity["AudioListenerComponent"];
@@ -1688,7 +1688,7 @@ namespace Hazel {
 	bool SceneSerializer::Deserialize(const std::filesystem::path& filepath)
 	{
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -1698,7 +1698,7 @@ namespace Hazel {
 		}
 		catch (const YAML::Exception& e)
 		{
-			HZ_CONSOLE_LOG_ERROR("Failed to deserialize scene '{0}': {1}", filepath.string(), e.what());
+			ZONG_CONSOLE_LOG_ERROR("Failed to deserialize scene '{0}': {1}", filepath.string(), e.what());
 			return false;
 		}
 
@@ -1716,7 +1716,7 @@ namespace Hazel {
 	bool SceneSerializer::DeserializeRuntime(AssetHandle scene)
 	{
 		// Not implemented
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 		return false;
 	}
 
@@ -1744,7 +1744,7 @@ namespace Hazel {
 	bool SceneSerializer::DeserializeReferencedPrefabs(const std::filesystem::path& filepath, std::unordered_set<AssetHandle>& outPrefabs)
 	{
 		std::ifstream stream(filepath);
-		HZ_CORE_ASSERT(stream);
+		ZONG_CORE_ASSERT(stream);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
@@ -1771,7 +1771,7 @@ namespace Hazel {
 							uint64_t data = field["Data"].as<uint64_t>();
 							if (AssetManager::IsAssetHandleValid((AssetHandle)data))
 							{
-								HZ_CORE_INFO("Adding {}", name);
+								ZONG_CORE_INFO("Adding {}", name);
 								outPrefabs.insert((AssetHandle)data);
 							}
 						}

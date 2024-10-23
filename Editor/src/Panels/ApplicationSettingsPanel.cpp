@@ -53,7 +53,7 @@ namespace Hazel {
 				}
 				else
 				{
-					HZ_CORE_ERROR_TAG("ApplicationSettingsPanel", "Invalid page selected!");
+					ZONG_CORE_ERROR_TAG("ApplicationSettingsPanel", "Invalid page selected!");
 				}
 
 				ImGui::EndTable();

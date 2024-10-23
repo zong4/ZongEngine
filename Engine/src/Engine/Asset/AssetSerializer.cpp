@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AssetSerializer.h"
 
 #include "AssetManager.h"
@@ -56,7 +56,7 @@ namespace Hazel {
 
 	Ref<Asset> TextureSerializer::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const
 	{
-		HZ_CORE_WARN("TextureSerializer::DeserializeFromAssetPack");
+		ZONG_CORE_WARN("TextureSerializer::DeserializeFromAssetPack");
 
 		stream.SetStreamPosition(assetInfo.PackedOffset);
 		return TextureRuntimeSerializer::DeserializeTexture2D(stream);
@@ -177,26 +177,26 @@ namespace Hazel {
 			//            right now only supports PBR or Transparent shaders
 			Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent");
 			bool transparent = materialAsset->GetMaterial()->GetShader() == transparentShader;
-			HZ_SERIALIZE_PROPERTY(Transparent, transparent, out);
+			ZONG_SERIALIZE_PROPERTY(Transparent, transparent, out);
 
-			HZ_SERIALIZE_PROPERTY(AlbedoColor, materialAsset->GetAlbedoColor(), out);
-			HZ_SERIALIZE_PROPERTY(Emission, materialAsset->GetEmission(), out);
+			ZONG_SERIALIZE_PROPERTY(AlbedoColor, materialAsset->GetAlbedoColor(), out);
+			ZONG_SERIALIZE_PROPERTY(Emission, materialAsset->GetEmission(), out);
 			if (!transparent)
 			{
-				HZ_SERIALIZE_PROPERTY(UseNormalMap, materialAsset->IsUsingNormalMap(), out);
-				HZ_SERIALIZE_PROPERTY(Metalness, materialAsset->GetMetalness(), out);
-				HZ_SERIALIZE_PROPERTY(Roughness, materialAsset->GetRoughness(), out);
+				ZONG_SERIALIZE_PROPERTY(UseNormalMap, materialAsset->IsUsingNormalMap(), out);
+				ZONG_SERIALIZE_PROPERTY(Metalness, materialAsset->GetMetalness(), out);
+				ZONG_SERIALIZE_PROPERTY(Roughness, materialAsset->GetRoughness(), out);
 			}
 			else
 			{
-				HZ_SERIALIZE_PROPERTY(Transparency, materialAsset->GetTransparency(), out);
+				ZONG_SERIALIZE_PROPERTY(Transparency, materialAsset->GetTransparency(), out);
 			}
 
 			{
 				Ref<Texture2D> albedoMap = materialAsset->GetAlbedoMap();
 				bool hasAlbedoMap = albedoMap ? !albedoMap.EqualsObject(Renderer::GetWhiteTexture()) : false;
 				AssetHandle albedoMapHandle = hasAlbedoMap ? albedoMap->Handle : UUID(0);
-				HZ_SERIALIZE_PROPERTY(AlbedoMap, albedoMapHandle, out);
+				ZONG_SERIALIZE_PROPERTY(AlbedoMap, albedoMapHandle, out);
 			}
 			if (!transparent)
 			{
@@ -204,23 +204,23 @@ namespace Hazel {
 					Ref<Texture2D> normalMap = materialAsset->GetNormalMap();
 					bool hasNormalMap = normalMap ? !normalMap.EqualsObject(Renderer::GetWhiteTexture()) : false;
 					AssetHandle normalMapHandle = hasNormalMap ? normalMap->Handle : UUID(0);
-					HZ_SERIALIZE_PROPERTY(NormalMap, normalMapHandle, out);
+					ZONG_SERIALIZE_PROPERTY(NormalMap, normalMapHandle, out);
 				}
 				{
 					Ref<Texture2D> metalnessMap = materialAsset->GetMetalnessMap();
 					bool hasMetalnessMap = metalnessMap ? !metalnessMap.EqualsObject(Renderer::GetWhiteTexture()) : false;
 					AssetHandle metalnessMapHandle = hasMetalnessMap ? metalnessMap->Handle : UUID(0);
-					HZ_SERIALIZE_PROPERTY(MetalnessMap, metalnessMapHandle, out);
+					ZONG_SERIALIZE_PROPERTY(MetalnessMap, metalnessMapHandle, out);
 				}
 				{
 					Ref<Texture2D> roughnessMap = materialAsset->GetRoughnessMap();
 					bool hasRoughnessMap = roughnessMap ? !roughnessMap.EqualsObject(Renderer::GetWhiteTexture()) : false;
 					AssetHandle roughnessMapHandle = hasRoughnessMap ? roughnessMap->Handle : UUID(0);
-					HZ_SERIALIZE_PROPERTY(RoughnessMap, roughnessMapHandle, out);
+					ZONG_SERIALIZE_PROPERTY(RoughnessMap, roughnessMapHandle, out);
 				}
 			}
 
-			HZ_SERIALIZE_PROPERTY(MaterialFlags, materialAsset->GetMaterial()->GetFlags(), out);
+			ZONG_SERIALIZE_PROPERTY(MaterialFlags, materialAsset->GetMaterial()->GetFlags(), out);
 
 			out << YAML::EndMap;
 		}
@@ -235,31 +235,31 @@ namespace Hazel {
 		YAML::Node materialNode = root["Material"];
 
 		bool transparent = false;
-		HZ_DESERIALIZE_PROPERTY(Transparent, transparent, materialNode, false);
+		ZONG_DESERIALIZE_PROPERTY(Transparent, transparent, materialNode, false);
 
 		targetMaterialAsset = Ref<MaterialAsset>::Create(transparent);
 
-		HZ_DESERIALIZE_PROPERTY(AlbedoColor, targetMaterialAsset->GetAlbedoColor(), materialNode, glm::vec3(0.8f));
-		HZ_DESERIALIZE_PROPERTY(Emission, targetMaterialAsset->GetEmission(), materialNode, 0.0f);
+		ZONG_DESERIALIZE_PROPERTY(AlbedoColor, targetMaterialAsset->GetAlbedoColor(), materialNode, glm::vec3(0.8f));
+		ZONG_DESERIALIZE_PROPERTY(Emission, targetMaterialAsset->GetEmission(), materialNode, 0.0f);
 
 		if (!transparent)
 		{
 			targetMaterialAsset->SetUseNormalMap(materialNode["UseNormalMap"] ? materialNode["UseNormalMap"].as<bool>() : false);
-			HZ_DESERIALIZE_PROPERTY(Metalness, targetMaterialAsset->GetMetalness(), materialNode, 0.0f);
-			HZ_DESERIALIZE_PROPERTY(Roughness, targetMaterialAsset->GetRoughness(), materialNode, 0.5f);
+			ZONG_DESERIALIZE_PROPERTY(Metalness, targetMaterialAsset->GetMetalness(), materialNode, 0.0f);
+			ZONG_DESERIALIZE_PROPERTY(Roughness, targetMaterialAsset->GetRoughness(), materialNode, 0.5f);
 		}
 		else
 		{
-			HZ_DESERIALIZE_PROPERTY(Transparency, targetMaterialAsset->GetTransparency(), materialNode, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(Transparency, targetMaterialAsset->GetTransparency(), materialNode, 1.0f);
 		}
 
 		AssetHandle albedoMap, normalMap, metalnessMap, roughnessMap;
-		HZ_DESERIALIZE_PROPERTY(AlbedoMap, albedoMap, materialNode, (AssetHandle)0);
+		ZONG_DESERIALIZE_PROPERTY(AlbedoMap, albedoMap, materialNode, (AssetHandle)0);
 		if (!transparent)
 		{
-			HZ_DESERIALIZE_PROPERTY(NormalMap, normalMap, materialNode, (AssetHandle)0);
-			HZ_DESERIALIZE_PROPERTY(MetalnessMap, metalnessMap, materialNode, (AssetHandle)0);
-			HZ_DESERIALIZE_PROPERTY(RoughnessMap, roughnessMap, materialNode, (AssetHandle)0);
+			ZONG_DESERIALIZE_PROPERTY(NormalMap, normalMap, materialNode, (AssetHandle)0);
+			ZONG_DESERIALIZE_PROPERTY(MetalnessMap, metalnessMap, materialNode, (AssetHandle)0);
+			ZONG_DESERIALIZE_PROPERTY(RoughnessMap, roughnessMap, materialNode, (AssetHandle)0);
 		}
 		if (albedoMap)
 		{
@@ -282,7 +282,7 @@ namespace Hazel {
 				targetMaterialAsset->SetRoughnessMap(AssetManager::GetAsset<Texture2D>(roughnessMap));
 		}
 
-		HZ_DESERIALIZE_PROPERTY(MaterialFlags, roughnessMap, materialNode, (AssetHandle)0);
+		ZONG_DESERIALIZE_PROPERTY(MaterialFlags, roughnessMap, materialNode, (AssetHandle)0);
 		if (materialNode["MaterialFlags"])
 			targetMaterialAsset->GetMaterial()->SetFlags(materialNode["MaterialFlags"].as<uint32_t>());
 
@@ -468,37 +468,37 @@ namespace Hazel {
 		out << YAML::BeginMap; // SoundConfig
 		if (soundConfig->DataSourceAsset)
 		{
-			HZ_SERIALIZE_PROPERTY(AssetID, soundConfig->DataSourceAsset, out);
+			ZONG_SERIALIZE_PROPERTY(AssetID, soundConfig->DataSourceAsset, out);
 		}
 
-		HZ_SERIALIZE_PROPERTY(IsLooping, (bool)soundConfig->bLooping, out);
-		HZ_SERIALIZE_PROPERTY(VolumeMultiplier, soundConfig->VolumeMultiplier, out);
-		HZ_SERIALIZE_PROPERTY(PitchMultiplier, soundConfig->PitchMultiplier, out);
-		HZ_SERIALIZE_PROPERTY(MasterReverbSend, soundConfig->MasterReverbSend, out);
-		HZ_SERIALIZE_PROPERTY(LPFilterValue, soundConfig->LPFilterValue, out);
-		HZ_SERIALIZE_PROPERTY(HPFilterValue, soundConfig->HPFilterValue, out);
+		ZONG_SERIALIZE_PROPERTY(IsLooping, (bool)soundConfig->bLooping, out);
+		ZONG_SERIALIZE_PROPERTY(VolumeMultiplier, soundConfig->VolumeMultiplier, out);
+		ZONG_SERIALIZE_PROPERTY(PitchMultiplier, soundConfig->PitchMultiplier, out);
+		ZONG_SERIALIZE_PROPERTY(MasterReverbSend, soundConfig->MasterReverbSend, out);
+		ZONG_SERIALIZE_PROPERTY(LPFilterValue, soundConfig->LPFilterValue, out);
+		ZONG_SERIALIZE_PROPERTY(HPFilterValue, soundConfig->HPFilterValue, out);
 
 		// TODO: move Spatialization to its own asset type
 		out << YAML::Key << "Spatialization";
 		out << YAML::BeginMap; // Spatialization
 
 		auto& spatialConfig = soundConfig->Spatialization;
-		HZ_SERIALIZE_PROPERTY(Enabled, soundConfig->bSpatializationEnabled, out);
-		HZ_SERIALIZE_PROPERTY(AttenuationModel, (int)spatialConfig->AttenuationMod, out);
-		HZ_SERIALIZE_PROPERTY(MinGain, spatialConfig->MinGain, out);
-		HZ_SERIALIZE_PROPERTY(MaxGain, spatialConfig->MaxGain, out);
-		HZ_SERIALIZE_PROPERTY(MinDistance, spatialConfig->MinDistance, out);
-		HZ_SERIALIZE_PROPERTY(MaxDistance, spatialConfig->MaxDistance, out);
-		HZ_SERIALIZE_PROPERTY(ConeInnerAngle, spatialConfig->ConeInnerAngleInRadians, out);
-		HZ_SERIALIZE_PROPERTY(ConeOuterAngle, spatialConfig->ConeOuterAngleInRadians, out);
-		HZ_SERIALIZE_PROPERTY(ConeOuterGain, spatialConfig->ConeOuterGain, out);
-		HZ_SERIALIZE_PROPERTY(DopplerFactor, spatialConfig->DopplerFactor, out);
-		HZ_SERIALIZE_PROPERTY(Rollor, spatialConfig->Rolloff, out);
-		HZ_SERIALIZE_PROPERTY(AirAbsorptionEnabled, spatialConfig->bAirAbsorptionEnabled, out);
-		HZ_SERIALIZE_PROPERTY(SpreadFromSourceSize, spatialConfig->bSpreadFromSourceSize, out);
-		HZ_SERIALIZE_PROPERTY(SourceSize, spatialConfig->SourceSize, out);
-		HZ_SERIALIZE_PROPERTY(Spread, spatialConfig->Spread, out);
-		HZ_SERIALIZE_PROPERTY(Focus, spatialConfig->Focus, out);
+		ZONG_SERIALIZE_PROPERTY(Enabled, soundConfig->bSpatializationEnabled, out);
+		ZONG_SERIALIZE_PROPERTY(AttenuationModel, (int)spatialConfig->AttenuationMod, out);
+		ZONG_SERIALIZE_PROPERTY(MinGain, spatialConfig->MinGain, out);
+		ZONG_SERIALIZE_PROPERTY(MaxGain, spatialConfig->MaxGain, out);
+		ZONG_SERIALIZE_PROPERTY(MinDistance, spatialConfig->MinDistance, out);
+		ZONG_SERIALIZE_PROPERTY(MaxDistance, spatialConfig->MaxDistance, out);
+		ZONG_SERIALIZE_PROPERTY(ConeInnerAngle, spatialConfig->ConeInnerAngleInRadians, out);
+		ZONG_SERIALIZE_PROPERTY(ConeOuterAngle, spatialConfig->ConeOuterAngleInRadians, out);
+		ZONG_SERIALIZE_PROPERTY(ConeOuterGain, spatialConfig->ConeOuterGain, out);
+		ZONG_SERIALIZE_PROPERTY(DopplerFactor, spatialConfig->DopplerFactor, out);
+		ZONG_SERIALIZE_PROPERTY(Rollor, spatialConfig->Rolloff, out);
+		ZONG_SERIALIZE_PROPERTY(AirAbsorptionEnabled, spatialConfig->bAirAbsorptionEnabled, out);
+		ZONG_SERIALIZE_PROPERTY(SpreadFromSourceSize, spatialConfig->bSpreadFromSourceSize, out);
+		ZONG_SERIALIZE_PROPERTY(SourceSize, spatialConfig->SourceSize, out);
+		ZONG_SERIALIZE_PROPERTY(Spread, spatialConfig->Spread, out);
+		ZONG_SERIALIZE_PROPERTY(Focus, spatialConfig->Focus, out);
 
 		out << YAML::EndMap; // Spatialization
 		out << YAML::EndMap; // SoundConfig
@@ -521,7 +521,7 @@ namespace Hazel {
 			{
 				// If actual audio file, check if it exists in SoundBank
 				Ref<SoundBank> soundBank = MiniAudioEngine::Get().GetResourceManager()->GetSoundBank();
-				HZ_CORE_VERIFY(soundBank, "SoundBank is not loaded!");
+				ZONG_CORE_VERIFY(soundBank, "SoundBank is not loaded!");
 
 				valid = soundBank->Contains(assetHandle);
 			}
@@ -539,22 +539,22 @@ namespace Hazel {
 		{
 			if (Application::IsRuntime())
 			{
-				HZ_CORE_ERROR("Tried to load invalid audio source asset (UUID {0}) in SoundConfig: {1}",
+				ZONG_CORE_ERROR("Tried to load invalid audio source asset (UUID {0}) in SoundConfig: {1}",
 					assetHandle, targetSoundConfig->Handle);
 			}
 			else
 			{
-				HZ_CORE_ERROR("Tried to load invalid audio source asset (UUID {0}) in SoundConfig: {1}",
+				ZONG_CORE_ERROR("Tried to load invalid audio source asset (UUID {0}) in SoundConfig: {1}",
 					assetHandle, Project::GetEditorAssetManager()->GetFileSystemPath(targetSoundConfig->Handle).string());
 			}
 		}
 
-		HZ_DESERIALIZE_PROPERTY(IsLooping, targetSoundConfig->bLooping, data, false);
-		HZ_DESERIALIZE_PROPERTY(VolumeMultiplier, targetSoundConfig->VolumeMultiplier, data, 1.0f);
-		HZ_DESERIALIZE_PROPERTY(PitchMultiplier, targetSoundConfig->PitchMultiplier, data, 1.0f);
-		HZ_DESERIALIZE_PROPERTY(MasterReverbSend, targetSoundConfig->MasterReverbSend, data, 0.0f);
-		HZ_DESERIALIZE_PROPERTY(LPFilterValue, targetSoundConfig->LPFilterValue, data, 20000.0f);
-		HZ_DESERIALIZE_PROPERTY(HPFilterValue, targetSoundConfig->HPFilterValue, data, 0.0f);
+		ZONG_DESERIALIZE_PROPERTY(IsLooping, targetSoundConfig->bLooping, data, false);
+		ZONG_DESERIALIZE_PROPERTY(VolumeMultiplier, targetSoundConfig->VolumeMultiplier, data, 1.0f);
+		ZONG_DESERIALIZE_PROPERTY(PitchMultiplier, targetSoundConfig->PitchMultiplier, data, 1.0f);
+		ZONG_DESERIALIZE_PROPERTY(MasterReverbSend, targetSoundConfig->MasterReverbSend, data, 0.0f);
+		ZONG_DESERIALIZE_PROPERTY(LPFilterValue, targetSoundConfig->LPFilterValue, data, 20000.0f);
+		ZONG_DESERIALIZE_PROPERTY(HPFilterValue, targetSoundConfig->HPFilterValue, data, 0.0f);
 
 		auto spConfigData = data["Spatialization"];
 		if (spConfigData)
@@ -563,24 +563,24 @@ namespace Hazel {
 
 			auto& spatialConfig = targetSoundConfig->Spatialization;
 
-			HZ_DESERIALIZE_PROPERTY(Enabled, targetSoundConfig->bSpatializationEnabled, spConfigData, false);
+			ZONG_DESERIALIZE_PROPERTY(Enabled, targetSoundConfig->bSpatializationEnabled, spConfigData, false);
 			spatialConfig->AttenuationMod = spConfigData["AttenuationModel"] ? static_cast<AttenuationModel>(spConfigData["AttenuationModel"].as<int>())
 				: AttenuationModel::Inverse;
 
-			HZ_DESERIALIZE_PROPERTY(MinGain, spatialConfig->MinGain, spConfigData, 0.0f);
-			HZ_DESERIALIZE_PROPERTY(MaxGain, spatialConfig->MaxGain, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(MinDistance, spatialConfig->MinDistance, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(MaxDistance, spatialConfig->MaxDistance, spConfigData, 1000.0f);
-			HZ_DESERIALIZE_PROPERTY(ConeInnerAngle, spatialConfig->ConeInnerAngleInRadians, spConfigData, 6.283185f);
-			HZ_DESERIALIZE_PROPERTY(ConeOuterAngle, spatialConfig->ConeOuterAngleInRadians, spConfigData, 6.283185f);
-			HZ_DESERIALIZE_PROPERTY(ConeOuterGain, spatialConfig->ConeOuterGain, spConfigData, 0.0f);
-			HZ_DESERIALIZE_PROPERTY(DopplerFactor, spatialConfig->DopplerFactor, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(Rollor, spatialConfig->Rolloff, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(AirAbsorptionEnabled, spatialConfig->bAirAbsorptionEnabled, spConfigData, true);
-			HZ_DESERIALIZE_PROPERTY(SpreadFromSourceSize, spatialConfig->bSpreadFromSourceSize, spConfigData, true);
-			HZ_DESERIALIZE_PROPERTY(SourceSize, spatialConfig->SourceSize, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(Spread, spatialConfig->Spread, spConfigData, 1.0f);
-			HZ_DESERIALIZE_PROPERTY(Focus, spatialConfig->Focus, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(MinGain, spatialConfig->MinGain, spConfigData, 0.0f);
+			ZONG_DESERIALIZE_PROPERTY(MaxGain, spatialConfig->MaxGain, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(MinDistance, spatialConfig->MinDistance, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(MaxDistance, spatialConfig->MaxDistance, spConfigData, 1000.0f);
+			ZONG_DESERIALIZE_PROPERTY(ConeInnerAngle, spatialConfig->ConeInnerAngleInRadians, spConfigData, 6.283185f);
+			ZONG_DESERIALIZE_PROPERTY(ConeOuterAngle, spatialConfig->ConeOuterAngleInRadians, spConfigData, 6.283185f);
+			ZONG_DESERIALIZE_PROPERTY(ConeOuterGain, spatialConfig->ConeOuterGain, spConfigData, 0.0f);
+			ZONG_DESERIALIZE_PROPERTY(DopplerFactor, spatialConfig->DopplerFactor, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(Rollor, spatialConfig->Rolloff, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(AirAbsorptionEnabled, spatialConfig->bAirAbsorptionEnabled, spConfigData, true);
+			ZONG_DESERIALIZE_PROPERTY(SpreadFromSourceSize, spatialConfig->bSpreadFromSourceSize, spConfigData, true);
+			ZONG_DESERIALIZE_PROPERTY(SourceSize, spatialConfig->SourceSize, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(Spread, spatialConfig->Spread, spConfigData, 1.0f);
+			ZONG_DESERIALIZE_PROPERTY(Focus, spatialConfig->Focus, spConfigData, 1.0f);
 		}
 
 		return true;
@@ -709,7 +709,7 @@ namespace Hazel {
 
 	Ref<Asset> SceneAssetSerializer::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const
 	{
-		HZ_CORE_VERIFY(false); // Not implemented
+		ZONG_CORE_VERIFY(false); // Not implemented
 		return nullptr;
 	}
 
@@ -839,10 +839,10 @@ namespace Hazel {
 	void ScriptFileSerializer::Serialize(const AssetMetadata& metadata, const Ref<Asset>& asset) const
 	{
 		std::ofstream stream(Project::GetEditorAssetManager()->GetFileSystemPath(metadata));
-		HZ_CORE_VERIFY(stream.is_open());
+		ZONG_CORE_VERIFY(stream.is_open());
 
 		std::ifstream templateStream("Resources/Templates/NewClassTemplate.cs");
-		HZ_CORE_VERIFY(templateStream.is_open());
+		ZONG_CORE_VERIFY(templateStream.is_open());
 
 		std::stringstream templateStrStream;
 		templateStrStream << templateStream.rdbuf();
@@ -877,7 +877,7 @@ namespace Hazel {
 
 	bool ScriptFileSerializer::SerializeToAssetPack(AssetHandle handle, FileStreamWriter& stream, AssetSerializationInfo& outInfo) const
 	{
-		HZ_CORE_VERIFY(false); // Not implemented
+		ZONG_CORE_VERIFY(false); // Not implemented
 
 		outInfo.Offset = stream.GetStreamPosition();
 
@@ -891,7 +891,7 @@ namespace Hazel {
 
 	Ref<Asset> ScriptFileSerializer::DeserializeFromAssetPack(FileStreamReader& stream, const AssetPackFile::AssetInfo& assetInfo) const
 	{
-		HZ_CORE_VERIFY(false); // Not implemented
+		ZONG_CORE_VERIFY(false); // Not implemented
 		return nullptr;
 	}
 

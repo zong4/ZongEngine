@@ -182,7 +182,7 @@ namespace Hazel {
 			PNGFileIcon = LoadTexture("ContentBrowser/PNG.png", "PNGFileIcon", spec);
 			JPGFileIcon = LoadTexture("ContentBrowser/JPG.png", "JPGFileIcon", spec);
 			MaterialFileIcon = LoadTexture("ContentBrowser/Material.png", "MaterialFileIcon", spec);
-			SceneFileIcon = LoadTexture("Engine.png", "SceneFileIcon", spec);
+			SceneFileIcon = LoadTexture("Logo.png", "SceneFileIcon", spec);
 			PrefabFileIcon = LoadTexture("ContentBrowser/Prefab.png", "PrefabFileIcon", spec);
 			FontFileIcon = LoadTexture("ContentBrowser/Font.png", "FontFileIcon", spec);
 			AnimationFileIcon = LoadTexture("ContentBrowser/Animation.png", "AnimationFileIcon", spec);
@@ -205,7 +205,7 @@ namespace Hazel {
 			PinAudioDisconnectIcon = LoadTexture("NodeGraph/Pins/AudioDisconnect.png", "AudioDisconnect", spec);
 
 			// Textures (dont forget to .Reset() these in EditorResources::Shutdown())
-			HazelLogoTexture = LoadTexture("HazelLogo_Light.png");
+			HazelLogoTexture = LoadTexture("Logo_Light.png");
 			CheckerboardTexture = LoadTexture("Checkerboard.tga");
 			ShadowTexture = LoadTexture("Panels/Shadow.png", "ShadowTexture", spec);
 			TranslucentTexture = LoadTexture("Panels/Translucent.png", "TranslucentTexture", spec);
@@ -328,8 +328,8 @@ namespace Hazel {
 			
 			if (!FileSystem::Exists(path))
 			{
-				HZ_CORE_FATAL("Failed to load icon {0}! The file doesn't exist.", path.string());
-				HZ_CORE_VERIFY(false);
+				ZONG_CORE_FATAL("Failed to load icon {0}! The file doesn't exist.", path.string());
+				ZONG_CORE_VERIFY(false);
 				return nullptr;
 			}
 

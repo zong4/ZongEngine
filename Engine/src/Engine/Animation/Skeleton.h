@@ -31,11 +31,11 @@ namespace Hazel {
 		uint32_t AddBone(std::string name, uint32_t parentIndex, const glm::mat4& transform);
 		uint32_t GetBoneIndex(const std::string_view name) const;
 
-		uint32_t GetParentBoneIndex(const uint32_t boneIndex) const { HZ_CORE_ASSERT(boneIndex < m_ParentBoneIndices.size(), "bone index out of range in Skeleton::GetParentIndex()!"); return m_ParentBoneIndices[boneIndex]; }
+		uint32_t GetParentBoneIndex(const uint32_t boneIndex) const { ZONG_CORE_ASSERT(boneIndex < m_ParentBoneIndices.size(), "bone index out of range in Skeleton::GetParentIndex()!"); return m_ParentBoneIndices[boneIndex]; }
 		const auto& GetParentBoneIndices() const { return m_ParentBoneIndices; }
 
 		uint32_t GetNumBones() const { return static_cast<uint32_t>(m_BoneNames.size()); }
-		const std::string& GetBoneName(const uint32_t boneIndex) const { HZ_CORE_ASSERT(boneIndex < m_BoneNames.size(), "bone index out of range in Skeleton::GetBoneName()!"); return m_BoneNames[boneIndex]; }
+		const std::string& GetBoneName(const uint32_t boneIndex) const { ZONG_CORE_ASSERT(boneIndex < m_BoneNames.size(), "bone index out of range in Skeleton::GetBoneName()!"); return m_BoneNames[boneIndex]; }
 		const auto& GetBoneNames() const { return m_BoneNames; }
 
 		const std::vector<glm::vec3> GetBoneTranslations() const { return m_BoneTranslations; }

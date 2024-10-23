@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanShaderCache.h"
 #include "Engine/Core/Hash.h"
 #include "Engine/Platform/Vulkan/VulkanShaderUtils.h"
@@ -72,11 +72,11 @@ namespace Hazel {
 
 					out << YAML::BeginMap;
 
-					HZ_SERIALIZE_PROPERTY(HeaderPath, header.IncludedFilePath.string(), out);
-					HZ_SERIALIZE_PROPERTY(IncludeDepth, header.IncludeDepth, out);
-					HZ_SERIALIZE_PROPERTY(IsRelative, header.IsRelative, out);
-					HZ_SERIALIZE_PROPERTY(IsGaurded, header.IsGuarded, out);
-					HZ_SERIALIZE_PROPERTY(HashValue, header.HashValue, out);
+					ZONG_SERIALIZE_PROPERTY(HeaderPath, header.IncludedFilePath.string(), out);
+					ZONG_SERIALIZE_PROPERTY(IncludeDepth, header.IncludeDepth, out);
+					ZONG_SERIALIZE_PROPERTY(IsRelative, header.IsRelative, out);
+					ZONG_SERIALIZE_PROPERTY(IsGaurded, header.IsGuarded, out);
+					ZONG_SERIALIZE_PROPERTY(HashValue, header.HashValue, out);
 
 					out << YAML::EndMap;
 				}
@@ -109,27 +109,27 @@ namespace Hazel {
 		auto handles = data["ShaderRegistry"];
 		if (handles.IsNull())
 		{
-			HZ_CORE_ERROR("[ShaderCache] Shader Registry is invalid.");
+			ZONG_CORE_ERROR("[ShaderCache] Shader Registry is invalid.");
 			return;
 		}
 
 		// Old format
 		if (handles.IsMap())
 		{
-			HZ_CORE_ERROR("[ShaderCache] Old Shader Registry format.");
+			ZONG_CORE_ERROR("[ShaderCache] Old Shader Registry format.");
 			return;
 		}
 
 		for (auto shader : handles)
 		{
 			std::string path;
-			HZ_DESERIALIZE_PROPERTY(ShaderPath, path, shader, std::string());
+			ZONG_DESERIALIZE_PROPERTY(ShaderPath, path, shader, std::string());
 			for (auto stage : shader["Stages"]) //Stages
 			{
 				std::string stageType;
 				uint32_t stageHash;
-				HZ_DESERIALIZE_PROPERTY(Stage, stageType, stage, std::string());
-				HZ_DESERIALIZE_PROPERTY(StageHash, stageHash, stage, 0u);
+				ZONG_DESERIALIZE_PROPERTY(Stage, stageType, stage, std::string());
+				ZONG_DESERIALIZE_PROPERTY(StageHash, stageHash, stage, 0u);
 
 				auto& stageCache = shaderCache[path][ShaderUtils::ShaderTypeFromString(stageType)];
 				stageCache.HashValue = stageHash;
@@ -141,11 +141,11 @@ namespace Hazel {
 					bool isRelative;
 					bool isGuarded;
 					uint32_t hashValue;
-					HZ_DESERIALIZE_PROPERTY(HeaderPath, headerPath, header, std::string());
-					HZ_DESERIALIZE_PROPERTY(IncludeDepth, includeDepth, header, 0u);
-					HZ_DESERIALIZE_PROPERTY(IsRelative, isRelative, header, false);
-					HZ_DESERIALIZE_PROPERTY(IsGaurded, isGuarded, header, false);
-					HZ_DESERIALIZE_PROPERTY(HashValue, hashValue, header, 0u);
+					ZONG_DESERIALIZE_PROPERTY(HeaderPath, headerPath, header, std::string());
+					ZONG_DESERIALIZE_PROPERTY(IncludeDepth, includeDepth, header, 0u);
+					ZONG_DESERIALIZE_PROPERTY(IsRelative, isRelative, header, false);
+					ZONG_DESERIALIZE_PROPERTY(IsGaurded, isGuarded, header, false);
+					ZONG_DESERIALIZE_PROPERTY(HashValue, hashValue, header, 0u);
 
 					stageCache.Headers.emplace(IncludeData{ headerPath, includeDepth, isRelative, isGuarded, hashValue });
 

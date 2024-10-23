@@ -1,12 +1,12 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanDevice.h"
 
 #include "VulkanContext.h"
 #include "VulkanMemoryAllocator/vk_mem_alloc.h"
 
-#define HZ_HAS_AFTERMATH !HZ_DIST
+#define ZONG_HAS_AFTERMATH !ZONG_DIST
 
-#if HZ_HAS_AFTERMATH
+#if ZONG_HAS_AFTERMATH
 #include "Debug/NsightAftermathGpuCrashTracker.h"
 #endif
 
@@ -23,7 +23,7 @@ namespace Hazel {
 		uint32_t gpuCount = 0;
 		// Get number of available physical devices
 		vkEnumeratePhysicalDevices(vkInstance, &gpuCount, nullptr);
-		HZ_CORE_ASSERT(gpuCount > 0, "");
+		ZONG_CORE_ASSERT(gpuCount > 0, "");
 		// Enumerate devices
 		std::vector<VkPhysicalDevice> physicalDevices(gpuCount);
 		VK_CHECK_RESULT(vkEnumeratePhysicalDevices(vkInstance, &gpuCount, physicalDevices.data()));
@@ -41,11 +41,11 @@ namespace Hazel {
 
 		if (!selectedPhysicalDevice)
 		{
-			HZ_CORE_TRACE_TAG("Renderer", "Could not find discrete GPU.");
+			ZONG_CORE_TRACE_TAG("Renderer", "Could not find discrete GPU.");
 			selectedPhysicalDevice = physicalDevices.back();
 		}
 
-		HZ_CORE_ASSERT(selectedPhysicalDevice, "Could not find any physical devices!");
+		ZONG_CORE_ASSERT(selectedPhysicalDevice, "Could not find any physical devices!");
 		m_PhysicalDevice = selectedPhysicalDevice;
 
 		vkGetPhysicalDeviceFeatures(m_PhysicalDevice, &m_Features);
@@ -53,7 +53,7 @@ namespace Hazel {
 
 		uint32_t queueFamilyCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, nullptr);
-		HZ_CORE_ASSERT(queueFamilyCount > 0, "");
+		ZONG_CORE_ASSERT(queueFamilyCount > 0, "");
 		m_QueueFamilyProperties.resize(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, m_QueueFamilyProperties.data());
 
@@ -64,11 +64,11 @@ namespace Hazel {
 			std::vector<VkExtensionProperties> extensions(extCount);
 			if (vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
 			{
-				HZ_CORE_TRACE_TAG("Renderer", "Selected physical device has {0} extensions", extensions.size());
+				ZONG_CORE_TRACE_TAG("Renderer", "Selected physical device has {0} extensions", extensions.size());
 				for (const auto& ext : extensions)
 				{
 					m_SupportedExtensions.emplace(ext.extensionName);
-					HZ_CORE_TRACE_TAG("Renderer", "  {0}", ext.extensionName);
+					ZONG_CORE_TRACE_TAG("Renderer", "  {0}", ext.extensionName);
 				}
 			}
 		}
@@ -128,7 +128,7 @@ namespace Hazel {
 		}
 
 		m_DepthFormat = FindDepthFormat();
-		HZ_CORE_ASSERT(m_DepthFormat);
+		ZONG_CORE_ASSERT(m_DepthFormat);
 	}
 
 	VulkanPhysicalDevice::~VulkanPhysicalDevice()
@@ -236,7 +236,7 @@ namespace Hazel {
 			typeBits >>= 1;
 		}
 
-		HZ_CORE_ASSERT(false, "Could not find a suitable memory type!");
+		ZONG_CORE_ASSERT(false, "Could not find a suitable memory type!");
 		return UINT32_MAX;
 	}
 
@@ -257,7 +257,7 @@ namespace Hazel {
 		// Do we need to enable any other extensions (eg. NV_RAYTRACING?)
 		std::vector<const char*> deviceExtensions;
 		// If the device will be used for presenting to a display via a swapchain we need to request the swapchain extension
-		HZ_CORE_ASSERT(m_PhysicalDevice->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME));
+		ZONG_CORE_ASSERT(m_PhysicalDevice->IsExtensionSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME));
 		deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 		if (m_PhysicalDevice->IsExtensionSupported(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME))
@@ -265,7 +265,7 @@ namespace Hazel {
 		if (m_PhysicalDevice->IsExtensionSupported(VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME))
 			deviceExtensions.push_back(VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME);
 
-#if HZ_HAS_AFTERMATH
+#if ZONG_HAS_AFTERMATH
 		VkDeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 		bool canEnableAftermath = enableAftermath && m_PhysicalDevice->IsExtensionSupported(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) && m_PhysicalDevice->IsExtensionSupported(VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME);
 		if (canEnableAftermath)
@@ -285,7 +285,7 @@ namespace Hazel {
 
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-#if HZ_HAS_AFTERMATH
+#if ZONG_HAS_AFTERMATH
 		if (canEnableAftermath)
 			deviceCreateInfo.pNext = &aftermathInfo;
 #endif
@@ -310,7 +310,7 @@ namespace Hazel {
 		}
 
 		VkResult result = vkCreateDevice(m_PhysicalDevice->GetVulkanPhysicalDevice(), &deviceCreateInfo, nullptr, &m_LogicalDevice);
-		HZ_CORE_ASSERT(result == VK_SUCCESS);
+		ZONG_CORE_ASSERT(result == VK_SUCCESS);
 
 		// Get a graphics queue from the device
 		vkGetDeviceQueue(m_LogicalDevice, m_PhysicalDevice->m_QueueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
@@ -361,7 +361,7 @@ namespace Hazel {
 	Ref<VulkanCommandPool> VulkanDevice::GetThreadLocalCommandPool()
 	{
 		auto threadID = std::this_thread::get_id();
-		HZ_CORE_VERIFY(m_CommandPools.find(threadID) != m_CommandPools.end());
+		ZONG_CORE_VERIFY(m_CommandPools.find(threadID) != m_CommandPools.end());
 
 		return m_CommandPools.at(threadID);
 	}
@@ -441,7 +441,7 @@ namespace Hazel {
 
 		const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
 
-		HZ_CORE_ASSERT(commandBuffer != VK_NULL_HANDLE);
+		ZONG_CORE_ASSERT(commandBuffer != VK_NULL_HANDLE);
 
 		VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
 

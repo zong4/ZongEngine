@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "NodeDescriptors.h"
 
 #include "Engine/Animation/Animation.h"
@@ -18,7 +18,7 @@ namespace Hazel::AnimationGraph {
 
 	void TransitionNode::Init()
 	{
-		HZ_CORE_ASSERT(m_ConditionGraph, "No condition graph set");
+		ZONG_CORE_ASSERT(m_ConditionGraph, "No condition graph set");
 		EndpointUtilities::InitializeInputs(this);
 		m_ConditionGraph->Init();
 	}
@@ -26,9 +26,9 @@ namespace Hazel::AnimationGraph {
 
 	float TransitionNode::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(m_SourceState, "No source state set");
-		HZ_CORE_ASSERT(m_DestinationState, "No target state set");
+		ZONG_PROFILE_FUNC();
+		ZONG_CORE_ASSERT(m_SourceState, "No source state set");
+		ZONG_CORE_ASSERT(m_DestinationState, "No target state set");
 
 		// if update goes beyond end of transition, then we need to change the current node
 		// to the target node.
@@ -84,7 +84,7 @@ namespace Hazel::AnimationGraph {
 	{
 		const Pose* poseA = reinterpret_cast<const Pose*>(source.getRawData());
 		const Pose* poseB = reinterpret_cast<const Pose*>(destination.getRawData());
-		HZ_CORE_ASSERT(poseA->NumBones == poseB->NumBones, "Poses have different number of bones");
+		ZONG_CORE_ASSERT(poseA->NumBones == poseB->NumBones, "Poses have different number of bones");
 
 		Pose* result = reinterpret_cast<Pose*>(out_Pose.getRawData());
 		for (uint32_t i = 0, N = glm::min(poseA->NumBones, poseB->NumBones); i < N; i++)
@@ -104,8 +104,8 @@ namespace Hazel::AnimationGraph {
 
 	bool TransitionNode::ShouldTransition()
 	{
-		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(m_ConditionGraph, "No condition graph set");
+		ZONG_PROFILE_FUNC();
+		ZONG_CORE_ASSERT(m_ConditionGraph, "No condition graph set");
 
 		m_ConditionGraph->Process(0.0f);
 
@@ -163,7 +163,7 @@ namespace Hazel::AnimationGraph {
 
 	float StateMachine::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// Check for transition out of this state machine
 		for (const auto& transition : m_Transitions)
@@ -184,7 +184,7 @@ namespace Hazel::AnimationGraph {
 	{
 		while (timestep > 0.0f)
 		{
-			HZ_CORE_ASSERT(m_CurrentState, "No current state set");
+			ZONG_CORE_ASSERT(m_CurrentState, "No current state set");
 
 			timestep = m_CurrentState->Process(timestep);
 		}
@@ -227,7 +227,7 @@ namespace Hazel::AnimationGraph {
 
 	void State::Init()
 	{
-		HZ_CORE_ASSERT(m_AnimationGraph, "No animation graph set");
+		ZONG_CORE_ASSERT(m_AnimationGraph, "No animation graph set");
 		EndpointUtilities::InitializeInputs(this);
 		for(auto& transition : m_Transitions)
 		{
@@ -239,8 +239,8 @@ namespace Hazel::AnimationGraph {
 
 	float State::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
-		HZ_CORE_ASSERT(m_AnimationGraph, "No animation graph set");
+		ZONG_PROFILE_FUNC();
+		ZONG_CORE_ASSERT(m_AnimationGraph, "No animation graph set");
 
 		// Check for transition out of this state
 		for (const auto& transition : m_Transitions)
@@ -294,7 +294,7 @@ namespace Hazel::AnimationGraph {
 
 	float QuickState::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		// Check for transition out of this state
 		for (const auto& transition : m_Transitions)
@@ -313,7 +313,7 @@ namespace Hazel::AnimationGraph {
 
 	float QuickState::ProcessGraph(float timestep)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Pose* pose = reinterpret_cast<Pose*>(out_Pose.getRawData());
 
@@ -329,8 +329,8 @@ namespace Hazel::AnimationGraph {
 				m_TranslationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetTranslationKeys());
 				m_RotationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetRotationKeys());
 				m_ScaleCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetScaleKeys());
-				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].FrameTime == 0.0f);
-				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].Track == 0);
+				ZONG_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].FrameTime == 0.0f);
+				ZONG_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].Track == 0);
 				m_RootTranslationStart = m_Animation->GetRootTranslationStart();
 				m_RootRotationStart = m_Animation->GetRootRotationStart();
 				m_RootTranslationEnd = m_Animation->GetRootTranslationEnd();
@@ -416,7 +416,7 @@ namespace Hazel::AnimationGraph {
 		m_PreviousAnimationTimePos = m_AnimationTimePos;
 
 		Pose defaultPose;
-		HZ_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
+		ZONG_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
 		memcpy(out_Pose.getRawData(), &defaultPose, sizeof(Pose));
 
 		for (auto& transition : m_Transitions)

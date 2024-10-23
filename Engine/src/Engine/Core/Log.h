@@ -8,10 +8,10 @@
 
 #include <map>
 
-#define HZ_ASSERT_MESSAGE_BOX (!HZ_DIST && HZ_PLATFORM_WINDOWS)
+#define ZONG_ASSERT_MESSAGE_BOX (!ZONG_DIST && ZONG_PLATFORM_WINDOWS)
 
-#if HZ_ASSERT_MESSAGE_BOX
-	#ifdef HZ_PLATFORM_WINDOWS
+#if ZONG_ASSERT_MESSAGE_BOX
+	#ifdef ZONG_PLATFORM_WINDOWS
 		#include <Windows.h>
 	#endif
 #endif
@@ -92,41 +92,41 @@ namespace Hazel {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core logging
-#define HZ_CORE_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define HZ_CORE_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define HZ_CORE_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define HZ_CORE_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define HZ_CORE_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define ZONG_CORE_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
+#define ZONG_CORE_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
+#define ZONG_CORE_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
+#define ZONG_CORE_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
+#define ZONG_CORE_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
 
 // Client logging
-#define HZ_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define HZ_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define HZ_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define HZ_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define HZ_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define ZONG_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
+#define ZONG_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
+#define ZONG_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
+#define ZONG_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
+#define ZONG_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core Logging
-#define HZ_CORE_TRACE(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
-#define HZ_CORE_INFO(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
-#define HZ_CORE_WARN(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
-#define HZ_CORE_ERROR(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
-#define HZ_CORE_FATAL(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
+#define ZONG_CORE_TRACE(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
+#define ZONG_CORE_INFO(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
+#define ZONG_CORE_WARN(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
+#define ZONG_CORE_ERROR(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
+#define ZONG_CORE_FATAL(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Client Logging
-#define HZ_TRACE(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
-#define HZ_INFO(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
-#define HZ_WARN(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
-#define HZ_ERROR(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
-#define HZ_FATAL(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
+#define ZONG_TRACE(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
+#define ZONG_INFO(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
+#define ZONG_WARN(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
+#define ZONG_ERROR(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
+#define ZONG_FATAL(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Editor Console Logging Macros
-#define HZ_CONSOLE_LOG_TRACE(...)   Hazel::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
-#define HZ_CONSOLE_LOG_INFO(...)    Hazel::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
-#define HZ_CONSOLE_LOG_WARN(...)    Hazel::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
-#define HZ_CONSOLE_LOG_ERROR(...)   Hazel::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
-#define HZ_CONSOLE_LOG_FATAL(...)   Hazel::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_TRACE(...)   Hazel::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_INFO(...)    Hazel::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_WARN(...)    Hazel::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_ERROR(...)   Hazel::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_FATAL(...)   Hazel::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
 
 namespace Hazel {
 
@@ -166,7 +166,7 @@ namespace Hazel {
 		auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
 		logger->error("{0}: {1}", prefix, fmt::format(std::forward<Args>(args)...));
 
-#if HZ_ASSERT_MESSAGE_BOX
+#if ZONG_ASSERT_MESSAGE_BOX
 		std::string message = fmt::format(std::forward<Args>(args)...);
 		MessageBoxA(nullptr, message.c_str(), "Hazel Assert", MB_OK | MB_ICONERROR);
 #endif
@@ -177,7 +177,7 @@ namespace Hazel {
 	{
 		auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
 		logger->error("{0}", prefix);
-#if HZ_ASSERT_MESSAGE_BOX
+#if ZONG_ASSERT_MESSAGE_BOX
 		MessageBoxA(nullptr, "No message :(", "Hazel Assert", MB_OK | MB_ICONERROR);
 #endif
 	}

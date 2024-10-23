@@ -3,13 +3,13 @@
 #include "ScriptTypes.h"
 #include "FieldStorage.h"
 
-#define HZ_CORE_CLASS(clazz) ScriptCache::GetManagedClassByName("Hazel."#clazz)
-#define HZ_CACHED_CLASS(clazz) ScriptCache::GetManagedClassByName(clazz)
-#define HZ_CACHED_CLASS_RAW(clazz) ScriptCache::GetManagedClassByName(clazz)->Class
-#define HZ_CACHED_METHOD(clazz, method, paramCount) ScriptCache::GetSpecificManagedMethod(ScriptCache::GetManagedClassByName(clazz), method, paramCount)
-#define HZ_CACHED_FIELD(clazz, field) ScriptCache::GetFieldByName(ScriptCache::GetManagedClassByName(clazz), field)
-#define HZ_CACHED_FIELD_STORAGE(clazz, field) ScriptCache::GetFieldStorage(ScriptCache::GetFieldByName(ScriptCache::GetManagedClassByName(clazz), field)->ID)
-//#define HZ_TRY_GET_FIELD_VALUE(ret, className, fieldName, storageObj){\
+#define ZONG_CORE_CLASS(clazz) ScriptCache::GetManagedClassByName("Hazel."#clazz)
+#define ZONG_CACHED_CLASS(clazz) ScriptCache::GetManagedClassByName(clazz)
+#define ZONG_CACHED_CLASS_RAW(clazz) ScriptCache::GetManagedClassByName(clazz)->Class
+#define ZONG_CACHED_METHOD(clazz, method, paramCount) ScriptCache::GetSpecificManagedMethod(ScriptCache::GetManagedClassByName(clazz), method, paramCount)
+#define ZONG_CACHED_FIELD(clazz, field) ScriptCache::GetFieldByName(ScriptCache::GetManagedClassByName(clazz), field)
+#define ZONG_CACHED_FIELD_STORAGE(clazz, field) ScriptCache::GetFieldStorage(ScriptCache::GetFieldByName(ScriptCache::GetManagedClassByName(clazz), field)->ID)
+//#define ZONG_TRY_GET_FIELD_VALUE(ret, className, fieldName, storageObj){\
 //																		FieldInfo* field = ScriptCache::GetFieldByName(ScriptCache::GetManagedClassByName(className), fieldName);\
 //																		Ref<FieldStorageBase> fieldStorage = ScriptCache::GetFieldStorage(field->ID);\
 //																		if (!fieldStorage->IsArray())\
@@ -17,7 +17,7 @@
 //																			ret = fieldStorage.As<FieldStorage>()->GetValueForObject<decltype(ret)>(storageObj);\
 //																		}\
 //																	 }
-#define HZ_SCRIPT_CLASS_ID(name) Hash::GenerateFNVHash(name)
+#define ZONG_SCRIPT_CLASS_ID(name) Hash::GenerateFNVHash(name)
 
 namespace Hazel {
 

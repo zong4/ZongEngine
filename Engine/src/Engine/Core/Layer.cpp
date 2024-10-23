@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Layer.h"
 
 namespace Hazel {

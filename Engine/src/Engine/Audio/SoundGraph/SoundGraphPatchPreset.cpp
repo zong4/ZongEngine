@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphPatchPreset.h"
 
 #include "Engine/Core/Hash.h"
@@ -19,8 +19,8 @@ namespace Hazel
 			const size_t currentDataSize = destination.getType().getValueDataSize();
 			const size_t newDataSize = sourceArrayData.getType().getValueDataSize();
 
-			HZ_CORE_ASSERT(destination.size() >= sourceArrayData.size());
-			HZ_CORE_ASSERT(currentDataSize >= newDataSize);
+			ZONG_CORE_ASSERT(destination.size() >= sourceArrayData.size());
+			ZONG_CORE_ASSERT(currentDataSize >= newDataSize);
 
 			std::memcpy(destination.getRawData(), sourceArrayData.getRawData(), newDataSize);
 		}
@@ -46,7 +46,7 @@ namespace Hazel
 		const auto& names = propertySet.GetNames();
 		if (handles.size() != names.size())
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return;
 		}
 
@@ -79,7 +79,7 @@ namespace Hazel
 
 				// 'size' annotation should've been set from this same GraphInput parameter
 				//const int32_t arrayMaxSize = annotation["size"].getWithDefault<int32_t>(0);
-				//HZ_CORE_ASSERT(arrayMaxSize == value.size());
+				//ZONG_CORE_ASSERT(arrayMaxSize == value.size());
 
 				parameter.Value = Utils::CreateArrayParameterValue(value);
 			}
@@ -94,7 +94,7 @@ namespace Hazel
 		// For now we don't support sending array of values to SoundGraph patch
 		if (isArray && Utils::IsWaveAsset(value[0]) || value.isObject())
 		{
-			HZ_CORE_ASSERT(false, "Dynamically changing SoundGraph Wave asset arrays is not implemented yet!");
+			ZONG_CORE_ASSERT(false, "Dynamically changing SoundGraph Wave asset arrays is not implemented yet!");
 			return false;
 		}
 
@@ -104,7 +104,7 @@ namespace Hazel
 			{
 				if (isArray)
 				{
-					HZ_CORE_ASSERT(value.size() <= 32);
+					ZONG_CORE_ASSERT(value.size() <= 32);
 					parameter.Value = value;
 				}
 				else
@@ -134,7 +134,7 @@ namespace Hazel
 		// For now we don't support sending array of values to SoundGraph patch
 		if (isArray && Utils::IsWaveAsset(value[0]) || value.isObject())
 		{
-			HZ_CORE_ASSERT(false, "Dynamically changing SoundGraph Wave asset arrays is not implemented yet!");
+			ZONG_CORE_ASSERT(false, "Dynamically changing SoundGraph Wave asset arrays is not implemented yet!");
 			return false;
 		}
 
@@ -144,7 +144,7 @@ namespace Hazel
 			{
 				if (isArray)
 				{
-					HZ_CORE_ASSERT(value.size() <= 32);
+					ZONG_CORE_ASSERT(value.size() <= 32);
 					parameter.Value = value;
 				}
 				else

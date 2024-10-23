@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "MeshViewerPanel.h"
 
 #include <imgui/imgui.h>
@@ -334,7 +334,7 @@ namespace Hazel {
 		glm::mat4 localTransform = Utils::Mat4FromAIMatrix4x4(node->mTransformation);
 		glm::mat4 transform = parentTransform * localTransform;
 
-		HZ_CORE_ASSERT(meshAsset->m_NodeMap.find(node) != meshAsset->m_NodeMap.end());
+		ZONG_CORE_ASSERT(meshAsset->m_NodeMap.find(node) != meshAsset->m_NodeMap.end());
 		auto& meshIndices = meshAsset->m_NodeMap.at(node);
 		if (!meshIndices.empty())
 		{

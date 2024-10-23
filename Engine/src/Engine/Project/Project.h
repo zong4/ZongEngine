@@ -61,61 +61,61 @@ namespace Hazel {
 
 		static const std::string& GetProjectName()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return s_ActiveProject->GetConfig().Name;
 		}
 
 		static std::filesystem::path GetProjectDirectory()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return s_ActiveProject->GetConfig().ProjectDirectory;
 		}
 
 		static std::filesystem::path GetAssetDirectory()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().AssetDirectory;
 		}
 
 		static std::filesystem::path GetAssetRegistryPath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().AssetRegistryPath;
 		}
 
 		static std::filesystem::path GetMeshPath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().MeshPath;
 		}
 
 		static std::filesystem::path GetAnimationPath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().AnimationPath;
 		}
 
 		static std::filesystem::path GetAudioCommandsRegistryPath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().AudioCommandsRegistryPath;
 		}
 
 		static std::filesystem::path GetScriptModulePath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / s_ActiveProject->GetConfig().ScriptModulePath;
 		}
 
 		static std::filesystem::path GetScriptModuleFilePath()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return GetScriptModulePath() / fmt::format("{0}.dll", GetProjectName());
 		}
 
 		static std::filesystem::path GetCacheDirectory()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			ZONG_CORE_ASSERT(s_ActiveProject);
 			return std::filesystem::path(s_ActiveProject->GetConfig().ProjectDirectory) / "Cache";
 		}
 	private:

@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationGraph.h"
 #include "Nodes/NodeDescriptors.h"
 
@@ -39,14 +39,14 @@ namespace Hazel::AnimationGraph {
 
 	void Graph::AddNode(Scope<NodeProcessor>&& node)
 	{
-		HZ_CORE_ASSERT(node);
+		ZONG_CORE_ASSERT(node);
 		Nodes.emplace_back(std::move(node));
 	}
 
 
 	void Graph::AddNode(NodeProcessor*&& node)
 	{
-		HZ_CORE_ASSERT(node);
+		ZONG_CORE_ASSERT(node);
 		Nodes.emplace_back(Scope<NodeProcessor>(std::move(node)));
 	}
 
@@ -58,7 +58,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!sourceNode || !destinationNode)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -74,7 +74,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!sourceNode || !destinationNode)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -93,7 +93,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!destinationNode || endpoint == endpointInputStreams.end())
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -110,7 +110,7 @@ namespace Hazel::AnimationGraph {
 
 		if (endpoint == endpointInputStreams.end())
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -126,7 +126,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!destinationNode)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -141,7 +141,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!sourceNode)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -156,7 +156,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!sourceNode)
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -172,7 +172,7 @@ namespace Hazel::AnimationGraph {
 
 		if (!destinationNode || endpoint == LocalVariables.end())
 		{
-			HZ_CORE_ASSERT(false);
+			ZONG_CORE_ASSERT(false);
 			return false;
 		}
 
@@ -284,7 +284,7 @@ namespace Hazel::AnimationGraph {
 
 	float AnimationGraph::GetAnimationDuration() const
 	{
-		HZ_CORE_ASSERT(m_IsInitialized);
+		ZONG_CORE_ASSERT(m_IsInitialized);
 		const Pose* pose = reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
 		return pose->AnimationDuration;
 	}
@@ -292,7 +292,7 @@ namespace Hazel::AnimationGraph {
 
 	float AnimationGraph::GetAnimationTimePos() const
 	{
-		HZ_CORE_ASSERT(m_IsInitialized);
+		ZONG_CORE_ASSERT(m_IsInitialized);
 		const Pose* pose = reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
 		return pose->AnimationTimePos;
 	}

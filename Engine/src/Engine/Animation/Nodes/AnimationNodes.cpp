@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "AnimationNodes.h"
 
 #include "NodeDescriptors.h"
@@ -23,14 +23,14 @@ namespace Hazel::AnimationGraph {
 		m_PreviousOffset = *in_Offset;
 
 		Pose defaultPose;
-		HZ_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
+		ZONG_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
 		memcpy(out_Pose.getRawData(), &defaultPose, sizeof(Pose));
 	}
 
 
 	float AnimationPlayer::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		Pose* pose = reinterpret_cast<Pose*>(out_Pose.getRawData());
 
@@ -46,8 +46,8 @@ namespace Hazel::AnimationGraph {
 				m_TranslationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetTranslationKeys());
 				m_RotationCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetRotationKeys());
 				m_ScaleCache.Reset(m_Animation->GetNumTracks(), m_Animation->GetScaleKeys());
-				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].FrameTime == 0.0f);
-				HZ_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].Track == 0);
+				ZONG_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].FrameTime == 0.0f);
+				ZONG_CORE_ASSERT(m_Animation->GetTranslationKeys()[0].Track == 0);
 				m_RootTranslationStart = m_Animation->GetRootTranslationStart();
 				m_RootRotationStart = m_Animation->GetRootRotationStart();
 				m_RootTranslationEnd = m_Animation->GetRootTranslationEnd();
@@ -188,14 +188,14 @@ namespace Hazel::AnimationGraph {
 		m_PreviousAnimationTimePosB = m_AnimationTimePosB;
 
 		Pose defaultPose;
-		HZ_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
+		ZONG_CORE_ASSERT(sizeof(Pose) == out_Pose.getRawDataSize());
 		memcpy(out_Pose.getRawData(), &defaultPose, sizeof(Pose));
 	}
 
 
 	float RangedBlend::Process(float timestep)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		float w = glm::clamp((*in_Value - *in_RangeA) / (*in_RangeB - *in_RangeA), 0.0f, 1.0f);
 		float weightedDuration = 0.0f;
@@ -212,8 +212,8 @@ namespace Hazel::AnimationGraph {
 				m_TranslationCacheA.Reset(m_AnimationA->GetNumTracks(), m_AnimationA->GetTranslationKeys());
 				m_RotationCacheA.Reset(m_AnimationA->GetNumTracks(), m_AnimationA->GetRotationKeys());
 				m_ScaleCacheA.Reset(m_AnimationA->GetNumTracks(), m_AnimationA->GetScaleKeys());
-				HZ_CORE_ASSERT(m_AnimationA->GetTranslationKeys()[0].FrameTime == 0.0f);
-				HZ_CORE_ASSERT(m_AnimationA->GetTranslationKeys()[0].Track == 0);
+				ZONG_CORE_ASSERT(m_AnimationA->GetTranslationKeys()[0].FrameTime == 0.0f);
+				ZONG_CORE_ASSERT(m_AnimationA->GetTranslationKeys()[0].Track == 0);
 				m_RootTranslationStartA = m_AnimationA->GetRootTranslationStart();
 				m_RootRotationStartA = m_AnimationA->GetRootRotationStart();
 				m_RootTranslationEndA = m_AnimationA->GetRootTranslationEnd();
@@ -238,8 +238,8 @@ namespace Hazel::AnimationGraph {
 				m_TranslationCacheB.Reset(m_AnimationB->GetNumTracks(), m_AnimationB->GetTranslationKeys());
 				m_RotationCacheB.Reset(m_AnimationB->GetNumTracks(), m_AnimationB->GetRotationKeys());
 				m_ScaleCacheB.Reset(m_AnimationB->GetNumTracks(), m_AnimationB->GetScaleKeys());
-				HZ_CORE_ASSERT(m_AnimationB->GetTranslationKeys()[0].FrameTime == 0.0f);
-				HZ_CORE_ASSERT(m_AnimationB->GetTranslationKeys()[0].Track == 0);
+				ZONG_CORE_ASSERT(m_AnimationB->GetTranslationKeys()[0].FrameTime == 0.0f);
+				ZONG_CORE_ASSERT(m_AnimationB->GetTranslationKeys()[0].Track == 0);
 				m_RootTranslationStartB = m_AnimationB->GetRootTranslationStart();
 				m_RootRotationStartB = m_AnimationB->GetRootRotationStart();
 				m_RootTranslationEndB = m_AnimationB->GetRootTranslationEnd();
@@ -445,7 +445,7 @@ namespace Hazel::AnimationGraph {
 		}
 
 		Pose* result = reinterpret_cast<Pose*>(out_Pose.getRawData());
-		HZ_CORE_ASSERT(m_AnimationA->GetNumTracks() == m_AnimationB->GetNumTracks());
+		ZONG_CORE_ASSERT(m_AnimationA->GetNumTracks() == m_AnimationB->GetNumTracks());
 		result->NumBones = m_AnimationA->GetNumTracks();
 		for (uint32_t i = 0; i < result->NumBones; i++)
 		{

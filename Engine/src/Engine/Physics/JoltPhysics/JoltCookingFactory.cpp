@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "JoltCookingFactory.h"
 #include "JoltBinaryStream.h"
 
@@ -39,7 +39,7 @@ namespace Hazel {
 
 	std::pair<ECookingResult, ECookingResult> JoltCookingFactory::CookMesh(Ref<MeshColliderAsset> colliderAsset, bool invalidateOld)
 	{
-		HZ_SCOPE_TIMER("CookingFactory::CookMesh");
+		ZONG_SCOPE_TIMER("CookingFactory::CookMesh");
 
 		Utils::CreateCacheDirectoryIfNeeded();
 
@@ -47,7 +47,7 @@ namespace Hazel {
 
 		if (!AssetManager::IsAssetHandleValid(colliderHandle))
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Tried to cook mesh collider using an invalid mesh!");
+			ZONG_CORE_ERROR_TAG("Physics", "Tried to cook mesh collider using an invalid mesh!");
 			return { ECookingResult::InvalidMesh, ECookingResult::InvalidMesh };
 		}
 
@@ -55,11 +55,11 @@ namespace Hazel {
 
 		if (!mesh)
 		{
-			HZ_CORE_ERROR_TAG("Physics", "Tried to cook mesh collider using an invalid mesh!");
+			ZONG_CORE_ERROR_TAG("Physics", "Tried to cook mesh collider using an invalid mesh!");
 			return { ECookingResult::InvalidMesh, ECookingResult::InvalidMesh };
 		}
 
-		HZ_CORE_ASSERT(mesh->GetAssetType() == AssetType::StaticMesh || mesh->GetAssetType() == AssetType::Mesh);
+		ZONG_CORE_ASSERT(mesh->GetAssetType() == AssetType::StaticMesh || mesh->GetAssetType() == AssetType::Mesh);
 		bool isStaticMesh = mesh->GetAssetType() == AssetType::StaticMesh;
 
 		// name-handle.hmc
@@ -85,7 +85,7 @@ namespace Hazel {
 
 				if (simpleMeshResult == ECookingResult::Success && !SerializeMeshCollider(simpleColliderFilePath, colliderData.SimpleColliderData))
 				{
-					HZ_CORE_ERROR_TAG("Physics", "Failed to cook simple collider mesh, aborting...");
+					ZONG_CORE_ERROR_TAG("Physics", "Failed to cook simple collider mesh, aborting...");
 					simpleMeshResult = ECookingResult::Failure;
 				}
 			}
@@ -95,7 +95,7 @@ namespace Hazel {
 				simpleMeshResult = ECookingResult::Success;
 			}
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 			if (simpleMeshResult == ECookingResult::Success)
 				GenerateDebugMesh(colliderAsset, colliderData.SimpleColliderData);
 #endif
@@ -109,7 +109,7 @@ namespace Hazel {
 
 				if (complexMeshResult == ECookingResult::Success && !SerializeMeshCollider(complexColliderFilePath, colliderData.ComplexColliderData))
 				{
-					HZ_CORE_ERROR_TAG("Physics", "Failed to cook complex collider mesh, aborting...");
+					ZONG_CORE_ERROR_TAG("Physics", "Failed to cook complex collider mesh, aborting...");
 					complexMeshResult = ECookingResult::Failure;
 				}
 			}
@@ -119,7 +119,7 @@ namespace Hazel {
 				complexMeshResult = ECookingResult::Success;
 			}
 
-#ifndef HZ_DIST
+#ifndef ZONG_DIST
 			if (complexMeshResult == ECookingResult::Success)
 				GenerateDebugMesh(colliderAsset, colliderData.ComplexColliderData);
 #endif
@@ -169,7 +169,7 @@ namespace Hazel {
 
 			if (result.HasError())
 			{
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook convex mesh {}. Error: {}", submesh.MeshName, result.GetError());
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook convex mesh {}. Error: {}", submesh.MeshName, result.GetError());
 
 				for (auto& existingSubmesh : outData.Submeshes)
 					existingSubmesh.ColliderData.Release();
@@ -227,7 +227,7 @@ namespace Hazel {
 
 			if (result.HasError())
 			{
-				HZ_CORE_ERROR_TAG("Physics", "Failed to cook triangle mesh {}. Error: {}", submesh.MeshName, result.GetError());
+				ZONG_CORE_ERROR_TAG("Physics", "Failed to cook triangle mesh {}. Error: {}", submesh.MeshName, result.GetError());
 
 				for (auto& existingSubmesh : outData.Submeshes)
 					existingSubmesh.ColliderData.Release();

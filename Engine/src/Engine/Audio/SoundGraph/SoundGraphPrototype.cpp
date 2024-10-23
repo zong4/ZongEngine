@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "SoundGraphPrototype.h"
 
 namespace Hazel::SoundGraph
@@ -36,24 +36,24 @@ namespace Hazel::SoundGraph
 
 	void Prototype::Connection::Serialize(StreamWriter* writer, const Connection& endpoint)
 	{
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 	}
 
 	void Prototype::Connection::Deserialize(StreamReader* reader, Connection& endpoint)
 	{
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 
 	}
 
 	void Prototype::Node::Serialize(StreamWriter* writer, const Node& endpoint)
 	{
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 
 	}
 
 	void Prototype::Node::Deserialize(StreamReader* reader, Node& endpoint)
 	{
-		HZ_CORE_ASSERT(false);
+		ZONG_CORE_ASSERT(false);
 
 	}
 

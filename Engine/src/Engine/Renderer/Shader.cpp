@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Shader.h"
 
 #include <utility>
@@ -6,7 +6,7 @@
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/Platform/Vulkan/VulkanShader.h"
 
-#if HZ_HAS_SHADER_COMPILER
+#if ZONG_HAS_SHADER_COMPILER
 #include "Engine/Platform/Vulkan/ShaderCompiler/VulkanShaderCompiler.h"
 #endif
 
@@ -51,7 +51,7 @@ namespace Hazel {
 	void ShaderLibrary::Add(const Hazel::Ref<Shader>& shader)
 	{
 		auto& name = shader->GetName();
-		HZ_CORE_ASSERT(m_Shaders.find(name) == m_Shaders.end());
+		ZONG_CORE_ASSERT(m_Shaders.find(name) == m_Shaders.end());
 		m_Shaders[name] = shader;
 	}
 
@@ -67,19 +67,19 @@ namespace Hazel {
 		{
 			// Try compile from source
 			// Unavailable at runtime
-#if HZ_HAS_SHADER_COMPILER
+#if ZONG_HAS_SHADER_COMPILER
 			shader = VulkanShaderCompiler::Compile(path, forceCompile, disableOptimization);
 #endif
 		}
 
 		auto& name = shader->GetName();
-		HZ_CORE_ASSERT(m_Shaders.find(name) == m_Shaders.end());
+		ZONG_CORE_ASSERT(m_Shaders.find(name) == m_Shaders.end());
 		m_Shaders[name] = shader;
 	}
 
 	void ShaderLibrary::Load(std::string_view name, const std::string& path)
 	{
-		HZ_CORE_ASSERT(m_Shaders.find(std::string(name)) == m_Shaders.end());
+		ZONG_CORE_ASSERT(m_Shaders.find(std::string(name)) == m_Shaders.end());
 		m_Shaders[std::string(name)] = Shader::Create(path);
 	}
 
@@ -89,13 +89,13 @@ namespace Hazel {
 		if (!m_ShaderPack->IsLoaded())
 		{
 			m_ShaderPack = nullptr;
-			HZ_CORE_ERROR("Could not load shader pack: {}", path.string());
+			ZONG_CORE_ERROR("Could not load shader pack: {}", path.string());
 		}
 	}
 
 	const Ref<Shader>& ShaderLibrary::Get(const std::string& name) const
 	{
-		HZ_CORE_ASSERT(m_Shaders.find(name) != m_Shaders.end());
+		ZONG_CORE_ASSERT(m_Shaders.find(name) != m_Shaders.end());
 		return m_Shaders.at(name);
 	}
 

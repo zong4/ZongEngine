@@ -165,7 +165,7 @@ namespace Hazel::SoundGraph {
 				}
 				else if (value.hasObjectMember("Type"))
 				{
-					HZ_CORE_WARN("Found pin with custom type {}, need to handle it!", value["Type"].getString());
+					ZONG_CORE_WARN("Found pin with custom type {}, need to handle it!", value["Type"].getString());
 				}
 			}
 			else if (type.isFloat())  pinType = ESGPinType::Float;
@@ -176,9 +176,9 @@ namespace Hazel::SoundGraph {
 			else if (type.isInt64())
 			{
 				pinType = ESGPinType::AudioAsset;
-				HZ_CORE_ASSERT(false, "Shouldn't be using Int64 Value for AudioAsset type in SoundGraph.");
+				ZONG_CORE_ASSERT(false, "Shouldn't be using Int64 Value for AudioAsset type in SoundGraph.");
 			}
-			else HZ_CORE_ASSERT(false);
+			else ZONG_CORE_ASSERT(false);
 
 			return pinType;
 		}

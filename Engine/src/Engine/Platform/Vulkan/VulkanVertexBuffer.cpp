@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "VulkanVertexBuffer.h"
 
 #include "VulkanContext.h"
@@ -106,9 +106,9 @@ namespace Hazel {
 
 	void VulkanVertexBuffer::SetData(void* buffer, uint64_t size, uint64_t offset)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
-		HZ_CORE_ASSERT(size <= m_LocalData.Size);
+		ZONG_CORE_ASSERT(size <= m_LocalData.Size);
 		memcpy(m_LocalData.Data, (uint8_t*)buffer + offset, size);;
 		Ref<VulkanVertexBuffer> instance = this;
 		Renderer::Submit([instance, size, offset]() mutable
@@ -119,7 +119,7 @@ namespace Hazel {
 
 	void VulkanVertexBuffer::RT_SetData(void* buffer, uint64_t size, uint64_t offset)
 	{
-		HZ_PROFILE_FUNC();
+		ZONG_PROFILE_FUNC();
 
 		VulkanAllocator allocator("VulkanVertexBuffer");
 		uint8_t* pData = allocator.MapMemory<uint8_t>(m_MemoryAllocation);

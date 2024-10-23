@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "StringUtils.h"
 
 #include "choc/text/choc_StringUtilities.h"
@@ -89,7 +89,7 @@ namespace Hazel::Utils {
 
 		int32_t CompareCase(std::string_view a, std::string_view b)
 		{
-		#ifdef HZ_PLATFORM_WINDOWS
+		#ifdef ZONG_PLATFORM_WINDOWS
 			return _stricmp(a.data(), b.data());
 		#else
 			return strcasecmp(a.data(), b.data());
