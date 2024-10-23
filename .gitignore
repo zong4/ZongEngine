@@ -10,6 +10,8 @@ obj/
 Engine/vendor/VulkanSDK
 Hazelnut/Resources/Scripts/Hazel-ScriptCore.dll
 Hazelnut/Resources/Scripts/Hazel-ScriptCore.pdb
+Hazelnut/Resources/Scripts/Engine-ScriptCore.dll
+Hazelnut/Resources/Scripts/Engine-ScriptCore.pdb
 Hazelnut/Hazelnut
 Intermediates/
 Binaries

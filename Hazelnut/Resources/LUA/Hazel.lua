@@ -36,7 +36,7 @@ function linkAppReferences(linkScriptCore)
 	--				this is a known issue with Visual Studio...
 	libdirs { monoLibsPath, monoLibsFacadesPath }
 	if linkScriptCore ~= false then
-		links { "Hazel-ScriptCore" }
+		links { "Engine-ScriptCore" }
 	end
 
 	for k, v in ipairs(getAssemblyFiles(monoLibsPath, is_windows)) do

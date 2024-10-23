@@ -79,11 +79,11 @@ namespace Hazel {
 			// NOTE(Peter): In theory this should work for all Visual Studio 2022 instances as long as it's installed in the default location!
 			HZ_CORE_INFO_TAG("ScriptEngine", "Failed to load Hazels C# core, attempting to build automatically using MSBuild");
 
-			auto scriptCoreAssemblyFile = std::filesystem::current_path().parent_path() / "Hazel-ScriptCore" / "Hazel-ScriptCore.csproj";
+			auto scriptCoreAssemblyFile = std::filesystem::current_path().parent_path() / "Engine-ScriptCore" / "Engine-ScriptCore.csproj";
 			ScriptBuilder::BuildCSProject(scriptCoreAssemblyFile);
 
 			if (!LoadCoreAssembly())
-				HZ_CORE_FATAL_TAG("ScriptEngine", "Failed to build Hazel-ScriptCore! Most likely there were compile errors!");
+				HZ_CORE_FATAL_TAG("ScriptEngine", "Failed to build Engine-ScriptCore! Most likely there were compile errors!");
 		}
 
 		for(const auto& x : s_State->CoreAssemblyInfo.Raw()->ReferencedAssemblies)
@@ -376,12 +376,12 @@ namespace Hazel {
 		// Check that the referenced Script Core version matches the loaded script core version
 		auto coreMetadataIt = std::find_if(s_State->AppAssemblyInfo->ReferencedAssemblies.begin(), s_State->AppAssemblyInfo->ReferencedAssemblies.end(), [](const AssemblyMetadata& metadata)
 		{
-			return metadata.Name == "Hazel-ScriptCore";
+			return metadata.Name == "Engine-ScriptCore";
 		});
 
 		if (coreMetadataIt == s_State->AppAssemblyInfo->ReferencedAssemblies.end())
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Hazel-ScriptCore?");
+			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
 			return false;
 		}
 
@@ -450,12 +450,12 @@ namespace Hazel {
 		// Check that the referenced Script Core version matches the loaded script core version
 		auto coreMetadataIt = std::find_if(s_State->AppAssemblyInfo->ReferencedAssemblies.begin(), s_State->AppAssemblyInfo->ReferencedAssemblies.end(), [](const AssemblyMetadata& metadata)
 		{
-			return metadata.Name == "Hazel-ScriptCore";
+			return metadata.Name == "Engine-ScriptCore";
 		});
 
 		if (coreMetadataIt == s_State->AppAssemblyInfo->ReferencedAssemblies.end())
 		{
-			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Hazel-ScriptCore?");
+			HZ_CONSOLE_LOG_ERROR("C# project doesn't reference Engine-ScriptCore?");
 			return false;
 		}
 
@@ -1024,8 +1024,8 @@ namespace Hazel {
 
 		for (const auto& assemblyMetadata : assemblyInfo->ReferencedAssemblies)
 		{
-			// Ignore Hazel-ScriptCore and mscorlib, since they're already loaded
-			if (assemblyMetadata.Name.find("Hazel-ScriptCore") != std::string::npos)
+			// Ignore Engine-ScriptCore and mscorlib, since they're already loaded
+			if (assemblyMetadata.Name.find("Engine-ScriptCore") != std::string::npos)
 				continue;
 
 			if (assemblyMetadata.Name.find("mscorlib") != std::string::npos)

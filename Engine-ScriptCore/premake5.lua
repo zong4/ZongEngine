@@ -1,4 +1,4 @@
-project "Hazel-ScriptCore"
+project "Engine-ScriptCore"
 
 -- NOTE(Yan): Windows-only until we switch to Coral
 filter "not system:windows"

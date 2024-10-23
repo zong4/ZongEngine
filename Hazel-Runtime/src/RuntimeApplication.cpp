@@ -64,7 +64,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	//specification.WorkingDirectory = "../Hazelnut";
 #endif
 
-	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Hazel-ScriptCore.dll";
+	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Engine-ScriptCore.dll";
 	specification.ScriptConfig.EnableDebugging = false;
 	specification.ScriptConfig.EnableProfiling = false;
 

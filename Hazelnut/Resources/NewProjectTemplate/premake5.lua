@@ -13,8 +13,8 @@ workspace "$PROJECT_NAME$"
 	}
 
 group "Hazel"
-project "Hazel-ScriptCore"
-	location "%{HazelRootDirectory}/Hazel-ScriptCore"
+project "Engine-ScriptCore"
+	location "%{HazelRootDirectory}/Engine-ScriptCore"
 	kind "SharedLib"
 	language "C#"
 	dotnetframework "4.7.2"
@@ -24,8 +24,8 @@ project "Hazel-ScriptCore"
 
 	files
 	{
-		"%{HazelRootDirectory}/Hazel-ScriptCore/Source/**.cs",
-		"%{HazelRootDirectory}/Hazel-ScriptCore/Properties/**.cs"
+		"%{HazelRootDirectory}/Engine-ScriptCore/Source/**.cs",
+		"%{HazelRootDirectory}/Engine-ScriptCore/Properties/**.cs"
 	}
 
 	filter "configurations:Debug"

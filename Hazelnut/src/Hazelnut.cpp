@@ -74,7 +74,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	specification.VSync = true;
 	//specification.RenderConfig.ShaderPackPath = "Resources/ShaderPack.hsp";
 
-	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Hazel-ScriptCore.dll";
+	specification.ScriptConfig.CoreAssemblyPath = "Resources/Scripts/Engine-ScriptCore.dll";
 
 #ifdef HZ_PLATFORM_WINDOWS
 	specification.ScriptConfig.EnableDebugging = true;

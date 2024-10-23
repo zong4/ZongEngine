@@ -69,7 +69,7 @@ group ""
 
 group "Core"
 include "Engine"
-include "Hazel-ScriptCore"
+include "Engine-ScriptCore"
 group ""
 
 group "Tools"
