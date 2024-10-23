@@ -1,4 +1,4 @@
-project "Hazel-Launcher"
+project "Engine-Launcher"
 filter "not system:windows"
     kind "StaticLib"
 filter "system:windows"

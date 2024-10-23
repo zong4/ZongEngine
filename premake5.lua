@@ -77,6 +77,6 @@ include "Hazelnut"
 group ""
 
 group "Runtime"
-include "Hazel-Runtime"
-include "Hazel-Launcher"
+include "Engine-Runtime"
+include "Engine-Launcher"
 group ""

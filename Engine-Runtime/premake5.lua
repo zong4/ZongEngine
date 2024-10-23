@@ -1,4 +1,4 @@
-project "Hazel-Runtime"
+project "Engine-Runtime"
 	kind "ConsoleApp"
 	targetname "SavingCaptainCino"
 
