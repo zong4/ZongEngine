@@ -1,13 +1,13 @@
 # Binaries
 **/bin/
 !vendor/bin/premake/
-!Hazel/vendor/assimp/bin
-!Hazel/vendor/mono/bin
+!Engine/vendor/assimp/bin
+!Engine/vendor/mono/bin
 bin-int/
 obj/
 **/cache/**
 **/Cache/**
-Hazel/vendor/VulkanSDK
+Engine/vendor/VulkanSDK
 Hazelnut/Resources/Scripts/Hazel-ScriptCore.dll
 Hazelnut/Resources/Scripts/Hazel-ScriptCore.pdb
 Hazelnut/Hazelnut

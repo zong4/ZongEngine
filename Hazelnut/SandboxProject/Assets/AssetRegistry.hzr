@@ -332,9 +332,6 @@ Assets:
   - Handle: 6052051215760767847
     FilePath: Audio/AudioDemo/random one-shots/Machine one-shot-07 - mono.wav
     Type: Audio
-  - Handle: 6063606731743727236
-    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
-    Type: ScriptFile
   - Handle: 6063903752390204307
     FilePath: Animation/mosin.hanim
     Type: Animation
@@ -458,6 +455,9 @@ Assets:
   - Handle: 8548413365413454451
     FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-04.wav
     Type: Audio
+  - Handle: 8555121465442918637
+    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: ScriptFile
   - Handle: 8625676271195271907
     FilePath: Audio/AudioDemo/sequence one-shots/Machine Language-76.wav
     Type: Audio
