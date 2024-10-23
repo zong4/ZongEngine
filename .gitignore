@@ -1,6 +1,8 @@
 # Binaries
 **/bin/
 !vendor/bin/premake/
+!Hazel/vendor/assimp/bin
+!Hazel/vendor/mono/bin
 !Engine/vendor/assimp/bin
 !Engine/vendor/mono/bin
 bin-int/
