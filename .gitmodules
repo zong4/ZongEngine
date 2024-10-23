@@ -7,9 +7,11 @@
 [submodule "Hazel/vendor/Box2D"]
 	path = Engine/vendor/Box2D
 	url = https://github.com/TheCherno/Box2D
+	ignore = dirty
 [submodule "Hazel/vendor/msdf-atlas-gen"]
 	path = Engine/vendor/msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
+	ignore = dirty
 [submodule "Hazel/vendor/JoltPhysics/JoltPhysics"]
 	path = Engine/vendor/JoltPhysics/JoltPhysics
 	url = https://github.com/zong4/JoltPhysics
@@ -22,6 +24,7 @@
 [submodule "Hazel/vendor/imgui"]
 	path = Engine/vendor/imgui
 	url = https://github.com/zong4/imgui
+	ignore = dirty
 [submodule "Hazel/vendor/FastNoise"]
 	path = Engine/vendor/FastNoise
 	url = https://github.com/zong4/FastNoiseLite
