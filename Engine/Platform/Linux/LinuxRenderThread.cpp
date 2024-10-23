@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Hazel/Core/RenderThread.h"
 
 #include "Hazel/Renderer/Renderer.h"

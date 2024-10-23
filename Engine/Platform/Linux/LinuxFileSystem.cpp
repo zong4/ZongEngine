@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Hazel/Utilities/FileSystem.h"
 #include "Hazel/Asset/AssetManager.h"
 

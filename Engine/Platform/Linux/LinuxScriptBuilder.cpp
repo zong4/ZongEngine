@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Hazel/Script/ScriptBuilder.h"
 
 #include <spdlog/fmt/fmt.h>

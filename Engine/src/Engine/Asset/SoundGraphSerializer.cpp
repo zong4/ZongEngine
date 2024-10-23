@@ -72,7 +72,7 @@ namespace Hazel {
 			m_Cache->SetCacheDirectory(cacheDirectory);
 
 			const std::string nameOld = metadata.FilePath.stem().string();
-			// Cherno Hack
+			// Hack
 			std::string name = soundGraph->CachedPrototype.stem().string();
 			if (name.find("sound_graph_cache_") != std::string::npos)
 				name = name.substr(18);

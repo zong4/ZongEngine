@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "pch.h"
 #include "Hazel/Utilities/ProcessHelper.h"
 #include "Hazel/Utilities/StringUtils.h"
 #include "Hazel/Utilities/FileSystem.h"
