@@ -22,9 +22,9 @@ namespace Hazel {
 		if (!std::filesystem::exists(logsDirectory))
 			std::filesystem::create_directories(logsDirectory);
 
-		std::vector<spdlog::sink_ptr> hazelSinks =
+		std::vector<spdlog::sink_ptr> sinks =
 		{
-			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/HAZEL.log", true),
+			std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Engine.log", true),
 #if ZONG_HAS_CONSOLE
 			std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
 #endif
@@ -46,17 +46,17 @@ namespace Hazel {
 #endif
 		};
 
-		hazelSinks[0]->set_pattern("[%T] [%l] %n: %v");
+		sinks[0]->set_pattern("[%T] [%l] %n: %v");
 		appSinks[0]->set_pattern("[%T] [%l] %n: %v");
 
 #if ZONG_HAS_CONSOLE
-		hazelSinks[1]->set_pattern("%^[%T] %n: %v%$");
+		sinks[1]->set_pattern("%^[%T] %n: %v%$");
 		appSinks[1]->set_pattern("%^[%T] %n: %v%$");
 		for (auto sink : editorConsoleSinks)
 			sink->set_pattern("%^%v%$");
 #endif
 
-		s_CoreLogger = std::make_shared<spdlog::logger>("HAZEL", hazelSinks.begin(), hazelSinks.end());
+		s_CoreLogger = std::make_shared<spdlog::logger>("ENGINE", sinks.begin(), sinks.end());
 		s_CoreLogger->set_level(spdlog::level::trace);
 
 		s_ClientLogger = std::make_shared<spdlog::logger>("APP", appSinks.begin(), appSinks.end());

@@ -15,7 +15,7 @@ namespace Hazel {
 
 	struct WindowSpecification
 	{
-		std::string Title = "Hazel";
+		std::string Title = "Engine";
 		uint32_t Width = 1600;
 		uint32_t Height = 900;
 		bool Decorated = true;

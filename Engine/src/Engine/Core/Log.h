@@ -168,7 +168,7 @@ namespace Hazel {
 
 #if ZONG_ASSERT_MESSAGE_BOX
 		std::string message = fmt::format(std::forward<Args>(args)...);
-		MessageBoxA(nullptr, message.c_str(), "Hazel Assert", MB_OK | MB_ICONERROR);
+		MessageBoxA(nullptr, message.c_str(), "Engine Assert", MB_OK | MB_ICONERROR);
 #endif
 	}
 
@@ -178,7 +178,7 @@ namespace Hazel {
 		auto logger = (type == Type::Core) ? GetCoreLogger() : GetClientLogger();
 		logger->error("{0}", prefix);
 #if ZONG_ASSERT_MESSAGE_BOX
-		MessageBoxA(nullptr, "No message :(", "Hazel Assert", MB_OK | MB_ICONERROR);
+		MessageBoxA(nullptr, "No message :(", "Engine Assert", MB_OK | MB_ICONERROR);
 #endif
 	}
 }

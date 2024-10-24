@@ -19,7 +19,7 @@ namespace Hazel {
 
 	struct ApplicationSpecification
 	{
-		std::string Name = "Hazel";
+		std::string Name = "Engine";
 		uint32_t WindowWidth = 1600, WindowHeight = 900;
 		bool WindowDecorated = false;
 		bool Fullscreen = false;

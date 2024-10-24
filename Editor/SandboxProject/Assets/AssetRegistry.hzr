@@ -209,6 +209,9 @@ Assets:
   - Handle: 3829378899541222998
     FilePath: Audio/AudioDemo/footsteps/footstep-02.wav
     Type: Audio
+  - Handle: 3836016367127026591
+    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: ScriptFile
   - Handle: 3870995290491390100
     FilePath: Meshes/Source/Sponza/16885566240357350108.jpg
     Type: Texture
@@ -524,9 +527,6 @@ Assets:
   - Handle: 10254819538148995611
     FilePath: Audio/AudioDemo/random one-shots/st/Machine one-shot-11.wav
     Type: Audio
-  - Handle: 10283168278227600818
-    FilePath: Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
-    Type: ScriptFile
   - Handle: 10305417802510925618
     FilePath: Meshes/Source/Bloom/BloomText.glb
     Type: MeshSource

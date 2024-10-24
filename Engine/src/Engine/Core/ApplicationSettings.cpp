@@ -24,7 +24,7 @@ namespace Hazel {
 	{
 		YAML::Emitter out;
 		out << YAML::BeginMap;
-		out << YAML::Key << "Hazel Application Settings";
+		out << YAML::Key << "Engine Application Settings";
 		out << YAML::Value;
 
 		out << YAML::BeginMap;
@@ -53,7 +53,7 @@ namespace Hazel {
 
 		YAML::Node data = YAML::Load(strStream.str());
 
-		auto settings = data["Hazel Application Settings"];
+		auto settings = data["Engine Application Settings"];
 		if (!settings)
 			return false;
 

@@ -13,7 +13,7 @@ namespace Hazel {
 		Allocator::Init();
 		Log::Init();
 
-		ZONG_CORE_TRACE_TAG("Core", "Hazel Engine {}", HAZEL_BUILD_ID);
+		ZONG_CORE_TRACE_TAG("Core", "Engine Engine {}", HAZEL_BUILD_ID);
 		ZONG_CORE_TRACE_TAG("Core", "Initializing...");
 	}
 
