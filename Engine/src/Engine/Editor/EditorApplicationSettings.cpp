@@ -7,7 +7,7 @@
 #include <sstream>
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::filesystem::path s_EditorSettingsPath;
 	

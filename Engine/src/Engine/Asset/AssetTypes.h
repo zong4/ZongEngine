@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Assert.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class AssetFlag : uint16_t
 	{

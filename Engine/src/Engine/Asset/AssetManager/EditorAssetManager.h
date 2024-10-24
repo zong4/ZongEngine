@@ -8,7 +8,7 @@
 
 #include "Engine/Utilities/FileSystem.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorAssetManager : public AssetManagerBase
 	{

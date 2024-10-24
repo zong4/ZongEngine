@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "NodeGraphUtils.h"
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	std::string GetTypeName(const choc::value::Value& v)
 	{

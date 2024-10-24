@@ -3,7 +3,7 @@
 #include "Engine/Core/Base.h"
 #include "Engine/Core/Log.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct Buffer
 	{

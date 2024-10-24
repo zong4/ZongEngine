@@ -3,7 +3,7 @@
 
 #include "Engine/Core/Hash.h"
 
-namespace Hazel
+namespace Engine
 {
 	// TODO: move this into some sort of SoundGraph utility header
 	namespace Utils
@@ -30,8 +30,8 @@ namespace Hazel
 	const SoundGraphPatchPreset::Parameter* SoundGraphPatchPreset::begin() const { return m_Parameters.begin(); }
 	const SoundGraphPatchPreset::Parameter* SoundGraphPatchPreset::end() const { return m_Parameters.end(); }
 	size_t SoundGraphPatchPreset::size() const { return m_Parameters.size(); }
-	SoundGraphPatchPreset::Parameter* Hazel::SoundGraphPatchPreset::begin() { return m_Parameters.begin(); }
-	SoundGraphPatchPreset::Parameter* Hazel::SoundGraphPatchPreset::end() { return m_Parameters.end(); }
+	SoundGraphPatchPreset::Parameter* Engine::SoundGraphPatchPreset::begin() { return m_Parameters.begin(); }
+	SoundGraphPatchPreset::Parameter* Engine::SoundGraphPatchPreset::end() { return m_Parameters.end(); }
 
 	SoundGraphPatchPreset::SoundGraphPatchPreset(const Utils::PropertySet& propertySet, const std::vector<uint32_t>& handles)
 	{
@@ -219,4 +219,4 @@ namespace Hazel
 		m_Parameters.push_back(std::move(newParameter));
 	}
 
-} // namespace Hazel
+} // namespace Engine

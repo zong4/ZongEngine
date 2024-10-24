@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 
 	//
 	// Utility class which queues rendering work for once-per-frame

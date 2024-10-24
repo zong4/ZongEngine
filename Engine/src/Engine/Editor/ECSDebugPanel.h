@@ -5,7 +5,7 @@
 
 #include "EditorPanel.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ECSDebugPanel : public EditorPanel
 	{

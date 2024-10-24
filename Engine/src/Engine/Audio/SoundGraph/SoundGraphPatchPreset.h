@@ -5,7 +5,7 @@
 #include "choc/containers/choc_Span.h"
 #include "choc/containers/choc_SmallVector.h"
 
-namespace Hazel
+namespace Engine
 { 
 	class SoundGraphPatchPreset
 	{
@@ -62,4 +62,4 @@ namespace Hazel
 
 		Parameter* m_ChangedRangeEnd = nullptr;
 	};
-} // namespace Hazel
+} // namespace Engine

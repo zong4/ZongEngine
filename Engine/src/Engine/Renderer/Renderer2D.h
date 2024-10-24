@@ -12,7 +12,7 @@
 
 #include "Engine/Renderer/UI/Font.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct Renderer2DSpecification
 	{

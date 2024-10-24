@@ -13,7 +13,7 @@
 
 #include "Engine/Core/Timer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	VulkanMaterial::VulkanMaterial(const Ref<Shader>& shader, const std::string& name)
 		: m_Shader(shader.As<VulkanShader>()), m_Name(name)

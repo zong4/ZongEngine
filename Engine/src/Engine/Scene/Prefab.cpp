@@ -9,7 +9,7 @@
 
 #include "Engine/Script/ScriptEngine.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Entity Prefab::CreatePrefabFromEntity(Entity entity)
 	{

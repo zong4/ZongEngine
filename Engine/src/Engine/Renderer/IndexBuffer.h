@@ -4,7 +4,7 @@
 
 #include "RendererTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class IndexBuffer : public RefCounted
 	{

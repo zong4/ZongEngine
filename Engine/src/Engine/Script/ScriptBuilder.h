@@ -2,7 +2,7 @@
 
 #include "Engine/Project/Project.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ScriptBuilder
 	{

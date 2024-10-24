@@ -19,7 +19,7 @@
 #include "Engine/Debug/Profiler.h"
 #include "Engine/Math/Math.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static std::vector<std::thread> s_ThreadPool;
 

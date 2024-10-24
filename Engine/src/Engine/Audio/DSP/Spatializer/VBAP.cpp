@@ -3,7 +3,7 @@
 
 #include "Engine/Audio/Audio.h"
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     constexpr glm::vec3 g_maChannelDirections[MA_CHANNEL_POSITION_COUNT] = {
                         { 0.0f,     0.0f,    -1.0f    },  /* MA_CHANNEL_NONE */
@@ -470,4 +470,4 @@ namespace Hazel::Audio::DSP
         return ref != 0.0f;
     }
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP

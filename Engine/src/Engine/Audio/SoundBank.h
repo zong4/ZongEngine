@@ -6,7 +6,7 @@
 
 #include <filesystem>
 
-namespace Hazel
+namespace Engine
 {
 	// SoundBankFile version history
 	// 1 - initial version
@@ -78,4 +78,4 @@ namespace Hazel
 		SoundBankFile m_File;
 		std::filesystem::path m_Path;
 	};
-} // namespace Hazel
+} // namespace Engine

@@ -12,7 +12,7 @@
 
 #define ZONG_HAS_SHADER_COMPILER !ZONG_DIST
 
-namespace Hazel
+namespace Engine
 {
 	namespace ShaderUtils {
 		enum class SourceLang

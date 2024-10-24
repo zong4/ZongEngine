@@ -56,32 +56,32 @@ private:
 	allpass	allpassR[numallpasses];
 
 	// Buffers for the combs
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL1{ 1116 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR1{ 1116 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL2{ 1188 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR2{ 1188 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL3{ 1277 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR3{ 1277 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL4{ 1356 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR4{ 1356 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL5{ 1422 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR5{ 1422 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL6{ 1491 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR6{ 1491 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL7{ 1557 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR7{ 1557 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombL8{ 1617 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufcombR8{ 1617 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL1{ 1116 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR1{ 1116 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL2{ 1188 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR2{ 1188 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL3{ 1277 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR3{ 1277 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL4{ 1356 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR4{ 1356 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL5{ 1422 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR5{ 1422 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL6{ 1491 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR6{ 1491 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL7{ 1557 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR7{ 1557 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombL8{ 1617 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufcombR8{ 1617 + stereospread };
 	
 	// Buffers for the allpasses															  
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassL1{ 556 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassR1{ 556 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassL2{ 441 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassR2{ 441 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassL3{ 341 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassR3{ 341 + stereospread };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassL4{ 225 };
-	std::vector<float, Hazel::SourceManager::Allocator<float>>	bufallpassR4{ 225 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassL1{ 556 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassR1{ 556 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassL2{ 441 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassR2{ 441 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassL3{ 341 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassR3{ 341 + stereospread };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassL4{ 225 };
+	std::vector<float, Engine::SourceManager::Allocator<float>>	bufallpassR4{ 225 + stereospread };
 };
 
 #endif//_revmodel_

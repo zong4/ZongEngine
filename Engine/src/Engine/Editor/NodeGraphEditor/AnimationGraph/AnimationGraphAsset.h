@@ -8,7 +8,7 @@
 #include "Engine/Editor/NodeGraphEditor/Nodes.h"
 #include "Engine/Editor/NodeGraphEditor/PropertySet.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// Wraps AnimationGraph::Prototype as an Asset
 	// This asset can be used to create instances of AnimationGraph (from the Prototype)
@@ -48,4 +48,4 @@ namespace Hazel {
 		friend bool DeserializeFromYAML(const std::string&, Ref<AnimationGraphAsset>&);
 	};
 
-} // namespace Hazel
+} // namespace Engine

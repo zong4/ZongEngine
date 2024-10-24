@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<IndexBuffer> IndexBuffer::Create(uint64_t size)
 	{

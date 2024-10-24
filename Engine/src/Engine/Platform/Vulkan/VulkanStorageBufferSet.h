@@ -5,7 +5,7 @@
 #include <map>
 #include <Engine/Core/Assert.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanStorageBufferSet : public StorageBufferSet
 	{

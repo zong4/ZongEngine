@@ -11,7 +11,7 @@
 
 //#include "DSP/FilterAirAbsorption.h"
 
-namespace Hazel
+namespace Engine
 {
     class MiniAudioEngine;
 
@@ -158,4 +158,4 @@ namespace Hazel
         //DSP::AirAbsorptionFilter m_AirAbsorptionFilter;
     };
 
-} // namespace Hazel
+} // namespace Engine

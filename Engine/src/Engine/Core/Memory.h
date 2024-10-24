@@ -3,7 +3,7 @@
 #include <map>
 #include <mutex>
 
-namespace Hazel {
+namespace Engine {
 
 	struct AllocationStats
 	{

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	template<typename Vector, typename T>
 	inline bool Contains(const Vector& v, T&& item) // TODO: before we update to C++20
@@ -45,4 +45,4 @@ namespace Hazel::Utils {
 		return true;
 	}
 
-} // Hazel::Utils
+} // Engine::Utils

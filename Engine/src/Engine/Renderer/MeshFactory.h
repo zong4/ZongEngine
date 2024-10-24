@@ -2,7 +2,7 @@
 
 #include "Mesh.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MeshFactory
 	{

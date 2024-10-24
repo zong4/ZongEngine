@@ -2,7 +2,7 @@
 
 #include "Serialization.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct ShaderPackFile
 	{

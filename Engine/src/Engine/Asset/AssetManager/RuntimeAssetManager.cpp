@@ -7,7 +7,7 @@
 
 #include "Engine/Asset/AssetImporter.h"
 
-namespace Hazel {
+namespace Engine {
 
 	RuntimeAssetManager::RuntimeAssetManager()
 	{
@@ -94,7 +94,7 @@ namespace Hazel {
 			m_MemoryAssets.erase(handle);
 	}
 
-	std::unordered_set<Hazel::AssetHandle> RuntimeAssetManager::GetAllAssetsWithType(AssetType type)
+	std::unordered_set<Engine::AssetHandle> RuntimeAssetManager::GetAllAssetsWithType(AssetType type)
 	{
 		std::unordered_set<AssetHandle> result;
 		ZONG_CORE_VERIFY(false, "Not implemented");

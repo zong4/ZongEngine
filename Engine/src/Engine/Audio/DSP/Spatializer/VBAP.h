@@ -2,7 +2,7 @@
 #include "miniaudio/include/miniaudio_incl.h"
 #include "farbot/RealtimeObject.hpp"
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     using ChannelGains = std::array<float, MA_MAX_CHANNELS>;
 
@@ -147,4 +147,4 @@ namespace Hazel::Audio::DSP
     }
 
 
-} // Hazel::Audio::DSP
+} // Engine::Audio::DSP

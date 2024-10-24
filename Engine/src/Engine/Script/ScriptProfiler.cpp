@@ -11,7 +11,7 @@
 
 #include <mutex>
 
-namespace Hazel {
+namespace Engine {
 
 #define ZONG_IGNORE_EXTERNAL_ALLOCATIONS
 

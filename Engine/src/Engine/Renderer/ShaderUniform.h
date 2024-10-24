@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ShaderDomain
 	{

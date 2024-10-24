@@ -2,7 +2,7 @@
 
 #include "Vulkan.h"
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	struct VulkanCheckpointData
 	{

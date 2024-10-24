@@ -6,7 +6,7 @@
 
 #include <imgui/imgui.h>
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 	const char* GenerateID();
 	const char* GenerateLabelID(std::string_view label);

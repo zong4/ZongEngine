@@ -23,9 +23,9 @@
 
 static constexpr auto MAX_NUM_CACHED_GRAPHS = 256; // TODO: get this value from somewhere reasonable
 
-namespace SG = Hazel::SoundGraph;
+namespace SG = Engine::SoundGraph;
 
-namespace Hazel {
+namespace Engine {
 	//? DBG. Print values of input nodes
 	void NodeDump(const Ref<SG::SoundGraph>& soundGraph, UUID nodeID, std::string_view dumpIdentifier)
 	{
@@ -594,4 +594,4 @@ namespace Hazel {
 			m_SoundGraphSource->Update(ts);
 	}
 
-} // namespace Hazel
+} // namespace Engine

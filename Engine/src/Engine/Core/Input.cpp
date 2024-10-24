@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui/imgui_internal.h>
 
-namespace Hazel {
+namespace Engine {
 
 	void Input::Update()
 	{

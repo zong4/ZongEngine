@@ -5,7 +5,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<RenderCommandBuffer> RenderCommandBuffer::Create(uint32_t count, const std::string& debugName)
 	{

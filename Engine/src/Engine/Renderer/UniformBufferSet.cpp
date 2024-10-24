@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<UniformBufferSet> UniformBufferSet::Create(uint32_t size, uint32_t framesInFlight)
 	{

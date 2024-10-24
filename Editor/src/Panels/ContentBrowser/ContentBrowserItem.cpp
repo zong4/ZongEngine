@@ -17,7 +17,7 @@
 
 #include "imgui_internal.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static char s_RenameBuffer[MAX_INPUT_BUFFER_LENGTH];
 

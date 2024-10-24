@@ -10,7 +10,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 #define MESH_DEBUG_LOG 0
 #if MESH_DEBUG_LOG
@@ -281,7 +281,7 @@ namespace Hazel {
 			{
 				auto aiMaterial = scene->mMaterials[i];
 				auto aiMaterialName = aiMaterial->GetName();
-				Hazel::Ref<Material> mi = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"), aiMaterialName.data);
+				Engine::Ref<Material> mi = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"), aiMaterialName.data);
 				meshSource->m_Materials[i] = mi;
 
 				ZONG_MESH_LOG("  {0} (Index = {1})", aiMaterialName.data, i);

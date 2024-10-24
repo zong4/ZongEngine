@@ -5,7 +5,7 @@
 
 #include <optional>
 
-namespace Hazel::AudioFileUtils
+namespace Engine::AudioFileUtils
 {
 	struct AudioFileInfo
 	{

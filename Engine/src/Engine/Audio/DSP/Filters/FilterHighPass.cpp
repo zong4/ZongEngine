@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "FilterHighPass.h"
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
 
     void hpf_node_process_pcm_frames(ma_node* pNode, const float** ppFramesIn, ma_uint32* pFrameCountIn, float** ppFramesOut, ma_uint32* pFrameCountOut)
@@ -180,4 +180,4 @@ namespace Hazel::Audio::DSP
         return 1;
     }
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP

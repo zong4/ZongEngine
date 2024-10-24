@@ -6,12 +6,12 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel
+namespace Engine
 {
     struct SpatializationConfig;
 }
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     struct VBAPData;
 
@@ -123,5 +123,5 @@ namespace Hazel::Audio::DSP
         glm::vec3 m_ListenerVelocity;
 	};
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP
 

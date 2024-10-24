@@ -3,7 +3,7 @@
 
 #define ZONG_RENDER_TRACE(...) ZONG_CORE_TRACE(__VA_ARGS__)
 
-namespace Hazel {
+namespace Engine {
 
 	RenderCommandQueue::RenderCommandQueue()
 	{

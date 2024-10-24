@@ -14,7 +14,7 @@
 #include "magic_enum.hpp"
 using namespace magic_enum::bitwise_operators;
 
-namespace Hazel {
+namespace Engine {
 
 	JoltCharacterController::JoltCharacterController(Entity entity)
 		: m_Entity(entity), m_Listener(this)

@@ -5,7 +5,7 @@
 
 #include "Engine/Platform/Vulkan/VulkanContext.h"
 
-namespace Hazel {
+namespace Engine {
 
 	VulkanRenderCommandBuffer::VulkanRenderCommandBuffer(uint32_t count, std::string debugName)
 		: m_DebugName(std::move(debugName))

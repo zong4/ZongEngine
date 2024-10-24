@@ -2,7 +2,7 @@
 
 #include <unordered_set>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::unordered_set<void*> s_LiveReferences;
 	static std::mutex s_LiveReferenceMutex;

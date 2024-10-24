@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel
+namespace Engine
 {
 	//==============================================================================
 	/** Wrapper class for LCG random number generation algorithm
@@ -76,4 +76,4 @@ namespace Hazel
 		}
 	}
 
-} // namespace Hazel
+} // namespace Engine

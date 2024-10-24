@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 
 	// TODO: Should this store previous size?
 	class WindowResizeEvent : public Event

@@ -14,7 +14,7 @@
 #include <imgui.h>
 #include "stb_image.h"
 
-namespace Hazel {
+namespace Engine {
 
 #include "Engine/Embed/HazelIcon.embed"
 

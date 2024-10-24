@@ -4,7 +4,7 @@
 
 #include <map>
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanUniformBufferSet : public UniformBufferSet
 	{

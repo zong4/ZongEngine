@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace Hazel {
+namespace Engine {
 
 	struct PanelData
 	{

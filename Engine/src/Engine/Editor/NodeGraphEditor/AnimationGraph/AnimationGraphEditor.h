@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 
 	class AnimationGraphEditor : public IONodeGraphEditor
 	{

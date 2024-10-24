@@ -5,10 +5,10 @@
 
 #include <array>
 
-namespace Alias = Hazel::AnimationGraph::Alias;
-namespace AG = Hazel::AnimationGraph;
+namespace Alias = Engine::AnimationGraph::Alias;
+namespace AG = Engine::AnimationGraph;
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	namespace Animation {
 
@@ -230,7 +230,7 @@ namespace Hazel::AnimationGraph {
 		return newNode;
 	}
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph
 
 
 //! To register a new node, see comments in AnimationNodes.h
@@ -244,7 +244,7 @@ namespace Hazel::AnimationGraph {
 namespace Colors = AG::Colors;
 
 template<>
-const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::AnimationGraphNodeFactory>::Registry =
+const Engine::Nodes::Registry Engine::Nodes::Factory<AG::AnimationGraphNodeFactory>::Registry =
 {
 	NODE_CATEGORY(Animation,
 		DECLARE_NODE(AG::Animation, Output),
@@ -308,7 +308,7 @@ const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::AnimationGraphNodeFactory
 
 
 template<>
-const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::StateMachineNodeFactory>::Registry =
+const Engine::Nodes::Registry Engine::Nodes::Factory<AG::StateMachineNodeFactory>::Registry =
 {
 	NODE_CATEGORY(StateMachine,
 		DECLARE_NODE_N(AG::StateMachine, ImColor(236, 158, 36),  NodeType::Subroutine),
@@ -322,7 +322,7 @@ const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::StateMachineNodeFactory>:
 
 
 template<>
-const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::TransitionGraphNodeFactory>::Registry =
+const Engine::Nodes::Registry Engine::Nodes::Factory<AG::TransitionGraphNodeFactory>::Registry =
 {
 	NODE_CATEGORY(Array,
 		DECLARE_NODE_N(AG::Get<float>,                                         Colors::Float,          NodeType::Blueprint),
@@ -385,20 +385,20 @@ const Hazel::Nodes::Registry Hazel::Nodes::Factory<AG::TransitionGraphNodeFactor
 #undef DECLARE_NODE_N
 #undef DECLARE_NODE_ALIAS
 
-#define DECLARE_PIN_ENUM(MemberPointer, Tokens) { std::string(Hazel::Nodes::SanitizeMemberName(#MemberPointer, true)),  Tokens }
+#define DECLARE_PIN_ENUM(MemberPointer, Tokens) { std::string(Engine::Nodes::SanitizeMemberName(#MemberPointer, true)),  Tokens }
 
 template<>
-const Hazel::Nodes::EnumTokensRegistry Hazel::Nodes::Factory<AG::AnimationGraphNodeFactory>::EnumTokensRegistry =
+const Engine::Nodes::EnumTokensRegistry Engine::Nodes::Factory<AG::AnimationGraphNodeFactory>::EnumTokensRegistry =
 {
 };
 
 template<>
-const Hazel::Nodes::EnumTokensRegistry Hazel::Nodes::Factory<AG::StateMachineNodeFactory>::EnumTokensRegistry =
+const Engine::Nodes::EnumTokensRegistry Engine::Nodes::Factory<AG::StateMachineNodeFactory>::EnumTokensRegistry =
 {
 };
 
 template<>
-const Hazel::Nodes::EnumTokensRegistry Hazel::Nodes::Factory<AG::TransitionGraphNodeFactory>::EnumTokensRegistry =
+const Engine::Nodes::EnumTokensRegistry Engine::Nodes::Factory<AG::TransitionGraphNodeFactory>::EnumTokensRegistry =
 {
 };
 

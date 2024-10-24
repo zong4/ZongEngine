@@ -7,7 +7,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	// To create a new type of Animation Node:
 	// 1) declare the new node type (derived from NodeProcessor) here.
@@ -15,8 +15,8 @@ namespace Hazel::AnimationGraph {
 	// 3) "describe" the new node in NodeDescriptors.h
 	// 4) (possibly) init the endpoint funcs for the new node in AnimationNodesImpl.h  (refer to the existing nodes in MathNodes.h/.impl for examples)
 	// 5) declare the new node's pin types and default values (for input pins) in Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodes.cpp
-	// 6) register the new node type in the node registry for runtime (Hazel::AnimationGraph::Registry, in Animation/AnimationGraphFactory.cpp)
-	// 7) register the new node type in the node registry for editor (Hazel::NodeGraph::Factory<Hazel::AnimationGraph::AnimationGraphNodeFactory>::Registry, in Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodes.cpp)
+	// 6) register the new node type in the node registry for runtime (Engine::AnimationGraph::Registry, in Animation/AnimationGraphFactory.cpp)
+	// 7) register the new node type in the node registry for editor (Engine::NodeGraph::Factory<Engine::AnimationGraph::AnimationGraphNodeFactory>::Registry, in Editor/NodeGraphEditor/AnimationGraph/AnimationGraphNodes.cpp)
 
 	struct AnimationPlayer final : public NodeProcessor
 	{
@@ -67,7 +67,7 @@ namespace Hazel::AnimationGraph {
 		glm::quat m_RootRotationEnd;
 
 		AssetHandle m_PreviousAnimation = 0;
-		const Hazel::Animation* m_Animation = nullptr;
+		const Engine::Animation* m_Animation = nullptr;
 
 		uint32_t m_LoopCount = 0;
 		float m_AnimationTimePos = 0.0f;
@@ -155,9 +155,9 @@ namespace Hazel::AnimationGraph {
 		glm::quat m_RootRotationEndB;
 
 		AssetHandle m_PreviousAnimationA = 0;
-		const Hazel::Animation* m_AnimationA = nullptr;
+		const Engine::Animation* m_AnimationA = nullptr;
 		AssetHandle m_PreviousAnimationB = 0;
-		const Hazel::Animation* m_AnimationB = nullptr;
+		const Engine::Animation* m_AnimationB = nullptr;
 
 		float m_AnimationTimePosA = 0.0f;
 		float m_PreviousAnimationTimePosA = 0.0f;
@@ -168,6 +168,6 @@ namespace Hazel::AnimationGraph {
 		float m_PreviousOffsetB = 0.0f;
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph
 
 #undef DECLARE_ID

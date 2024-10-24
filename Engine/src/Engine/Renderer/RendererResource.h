@@ -2,7 +2,7 @@
 
 #include "Engine/Asset/Asset.h"
 
-namespace Hazel {
+namespace Engine {
 
 	using ResourceDescriptorInfo = void*;
 

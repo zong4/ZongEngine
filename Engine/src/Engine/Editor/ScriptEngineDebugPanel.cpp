@@ -9,7 +9,7 @@
 
 #include <mono/metadata/mono-gc.h>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::vector<AssemblyMetadata> s_LoadedAssembliesMetadata;
 

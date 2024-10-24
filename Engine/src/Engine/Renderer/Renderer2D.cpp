@@ -15,7 +15,7 @@
 
 #include <codecvt>
 
-namespace Hazel {
+namespace Engine {
 
 	Renderer2D::Renderer2D(const Renderer2DSpecification& specification)
 		: m_Specification(specification),

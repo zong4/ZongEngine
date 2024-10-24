@@ -2,7 +2,7 @@
 #include "NodeTypes.h"
 #include "NodeDescriptors.h"
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	/// Moving all constructors and Init() function calls for non-template nodes here
 	/// to avoid recursive includes nightmare caused by trying to inline as much as possible.
@@ -38,4 +38,4 @@ namespace Hazel::SoundGraph
 	INIT_ENDPOINTS_FUNCS(FrequencyToNote);
 
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

@@ -14,7 +14,7 @@
 #error Wrong Vulkan SDK! Please run scripts/Setup.bat
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 #if defined(ZONG_DEBUG) || defined(ZONG_RELEASE)
 	static bool s_Validation = true;

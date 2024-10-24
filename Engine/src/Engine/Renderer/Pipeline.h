@@ -7,7 +7,7 @@
 #include "Engine/Renderer/UniformBuffer.h"
 #include "Engine/Renderer/Framebuffer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class PrimitiveTopology
 	{

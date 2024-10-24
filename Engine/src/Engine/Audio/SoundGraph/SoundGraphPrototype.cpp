@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SoundGraphPrototype.h"
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	void Prototype::Endpoint::Serialize(StreamWriter* writer, const Endpoint& endpoint)
 	{
@@ -57,4 +57,4 @@ namespace Hazel::SoundGraph
 
 	}
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

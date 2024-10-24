@@ -3,7 +3,7 @@
 
 #include "Engine/Platform/Vulkan/VulkanContext.h"
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	static std::vector<VulkanCheckpointData> s_CheckpointStorage(1024);
 	static uint32_t s_CheckpointStorageIndex = 0;

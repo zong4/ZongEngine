@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	class Scene;
 

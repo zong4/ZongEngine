@@ -5,7 +5,7 @@
 
 #include <spdlog/fmt/fmt.h>
 
-namespace Hazel {
+namespace Engine {
 
 	void ScriptBuilder::BuildCSProject(const std::filesystem::path& filepath)
 	{

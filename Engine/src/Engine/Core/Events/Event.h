@@ -6,7 +6,7 @@
 #include <ostream>
 #include <string>
 
-namespace Hazel {
+namespace Engine {
 
 	// Events in Engine are currently blocking, meaning when an event occurs it
 	// immediately gets dispatched and must be dealt with right then an there.

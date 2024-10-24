@@ -32,7 +32,7 @@
 #include <imgui_internal.h>
 #include <stack>
 
-namespace Hazel {
+namespace Engine {
 
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_Project(nullptr)

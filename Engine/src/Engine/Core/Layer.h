@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace Hazel {
+namespace Engine {
 
 	class Layer
 	{

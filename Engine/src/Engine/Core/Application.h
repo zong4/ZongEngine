@@ -15,7 +15,7 @@
 #include "Engine/ImGui/ImGuiLayer.h"
 #include <queue>
 
-namespace Hazel {
+namespace Engine {
 
 	struct ApplicationSpecification
 	{

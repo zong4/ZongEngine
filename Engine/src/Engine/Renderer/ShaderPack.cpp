@@ -7,7 +7,7 @@
 
 #include "Engine/Platform/Vulkan/VulkanShader.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 

@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-namespace Hazel {
+namespace Engine {
 
 	class AssetRegistry
 	{

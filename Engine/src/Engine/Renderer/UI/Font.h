@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	struct MSDFData;
 

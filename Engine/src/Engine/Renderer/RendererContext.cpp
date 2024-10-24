@@ -5,7 +5,7 @@
 
 #include "Engine/Platform/Vulkan/VulkanContext.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<RendererContext> RendererContext::Create()
 	{

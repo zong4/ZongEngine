@@ -5,7 +5,7 @@
 
 #include <Windows.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct RenderThreadData
 	{

@@ -12,7 +12,7 @@
 #include <execution>
 
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     
     using ChannelGains = std::array<float, MA_MAX_CHANNELS>;

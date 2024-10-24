@@ -12,7 +12,7 @@
 #include "Engine/Audio/AudioEngine.h"
 #include "Engine/Audio/DSP/Reverb/Reverb.h"
 
-namespace Hazel {
+namespace Engine {
 
 	ImFont* g_BoldFont = nullptr;
 

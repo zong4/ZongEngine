@@ -6,7 +6,7 @@
 
 #include "Engine/Core/Events/SceneEvents.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class PhysicsSystem
 	{

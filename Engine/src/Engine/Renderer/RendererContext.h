@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace Hazel {
+namespace Engine {
 
 	class RendererContext : public RefCounted
 	{

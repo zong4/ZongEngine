@@ -9,7 +9,7 @@
 
 #include <filesystem>
 
-namespace Hazel
+namespace Engine
 {
 	// TODO: technically only the Prototype is needed for the runtime from SoundGraphAsset
 	class SoundGraphAsset : public Asset
@@ -39,4 +39,4 @@ namespace Hazel
 		virtual AssetType GetAssetType() const override { return GetStaticType(); }
 	};
 
-} // namespace Hazel
+} // namespace Engine

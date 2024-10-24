@@ -11,7 +11,7 @@
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Core/Profiler.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltAPI : public PhysicsAPI
 	{

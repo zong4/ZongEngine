@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <filesystem>
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	static constexpr auto s_ConversionBufferSize = 4096; // TODO: get this value from somewhere more sensible
 
@@ -211,4 +211,4 @@ namespace Hazel::Audio
 		}
 	};
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

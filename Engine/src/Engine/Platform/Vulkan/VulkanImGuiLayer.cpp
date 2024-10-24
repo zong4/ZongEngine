@@ -19,7 +19,7 @@
 
 #include "Engine/Platform/Vulkan/VulkanContext.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static std::vector<VkCommandBuffer> s_ImGuiCommandBuffers;
 

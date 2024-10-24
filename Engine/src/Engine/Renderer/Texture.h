@@ -7,7 +7,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	struct TextureSpecification
 	{

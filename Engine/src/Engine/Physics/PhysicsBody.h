@@ -3,7 +3,7 @@
 #include "Engine/Scene/Scene.h"
 #include "PhysicsShapes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	using ShapeArray = std::vector<Ref<PhysicsShape>>;
 

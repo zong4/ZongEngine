@@ -3,7 +3,7 @@
 #include "Engine/ImGui/ImGui.h"
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel {
+namespace Engine {
 
 	PhysicsStatsPanel::PhysicsStatsPanel() {}
 	PhysicsStatsPanel::~PhysicsStatsPanel()

@@ -9,7 +9,7 @@
 #include <string>
 #include <typeinfo>
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	class ValueWrapper
 	{

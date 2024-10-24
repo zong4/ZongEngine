@@ -2,7 +2,7 @@
 #include "Engine/Animation/NodeProcessor.h"
 #include "Engine/Core/UUID.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	template<typename T>
 	struct CheckEqual : public NodeProcessor
@@ -170,4 +170,4 @@ namespace Hazel::AnimationGraph {
 		}
 	};
 
-} //Hazel::AnimationGraph
+} //Engine::AnimationGraph

@@ -10,7 +10,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	PhysicsScene::PhysicsScene(const Ref<Scene>& scene)
 		: m_EntityScene(scene)

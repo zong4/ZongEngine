@@ -13,7 +13,7 @@
 #include "Engine/Renderer/RendererAPI.h"
 #include "Engine/Renderer/ShaderPack.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Shader> Shader::Create(const std::string& filepath, bool forceCompile, bool disableOptimization)
 	{
@@ -48,7 +48,7 @@ namespace Hazel {
 	{
 	}
 
-	void ShaderLibrary::Add(const Hazel::Ref<Shader>& shader)
+	void ShaderLibrary::Add(const Engine::Ref<Shader>& shader)
 	{
 		auto& name = shader->GetName();
 		ZONG_CORE_ASSERT(m_Shaders.find(name) == m_Shaders.end());

@@ -8,7 +8,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	class AudioCommandRegistry;
 

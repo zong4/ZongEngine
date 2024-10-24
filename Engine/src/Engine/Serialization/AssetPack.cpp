@@ -11,7 +11,7 @@
 #include "Engine/Audio/AudioEvents/AudioCommandRegistry.h"
 #include "Engine/Editor/NodeGraphEditor/SoundGraph/SoundGraphAsset.h"
 
-namespace Hazel {
+namespace Engine {
 	
 	AssetPack::AssetPack(const std::filesystem::path& path)
 		: m_Path(path)

@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	namespace String
 	{

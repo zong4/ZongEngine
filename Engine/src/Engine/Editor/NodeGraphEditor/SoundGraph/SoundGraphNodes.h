@@ -11,7 +11,7 @@
 #include <string>
 #include <string_view>
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 
 	std::optional<choc::value::Value> GetPinDefaultValueOverride(std::string_view nodeName, std::string_view memberNameSanitized);
 	std::optional<SGTypes::ESGPinType> GetPinTypeForMemberOverride(std::string_view nodeName, std::string_view memberNameSanitized);
@@ -106,7 +106,7 @@ namespace Hazel::SoundGraph {
 		{
 			using TMember = typename Type::member_pointer::return_type<TMemberPtr>::type;
 			constexpr bool isInputEvent = std::is_member_function_pointer_v<TMemberPtr>;
-			constexpr bool isOutputEvent = std::is_same_v<TMember, Hazel::SoundGraph::NodeProcessor::OutputEvent>;
+			constexpr bool isOutputEvent = std::is_same_v<TMember, Engine::SoundGraph::NodeProcessor::OutputEvent>;
 
 			if constexpr (isInputEvent)
 			{
@@ -203,7 +203,7 @@ namespace Hazel::SoundGraph {
 
 		using Types = SGTypes;
 
-		[[nodiscard]] Hazel::Node* SpawnNode(const std::string& category, const std::string& type) const override { return SpawnNodeStatic(category, type); }
+		[[nodiscard]] Engine::Node* SpawnNode(const std::string& category, const std::string& type) const override { return SpawnNodeStatic(category, type); }
 
 		using ProcessorInitArguments = std::map<std::string, std::map<std::string, const char*>>;
 		static const ProcessorInitArguments ProcessorArguments;
@@ -216,7 +216,7 @@ namespace Hazel::SoundGraph {
 
 			using TDescriptor = Type::Description<TProcNode>;
 
-			auto* node = new SGTypes::SGNode(0, Hazel::Utils::SplitAtUpperCase(TDescriptor::ClassName.data()), ImColor(255, 128, 128));
+			auto* node = new SGTypes::SGNode(0, Engine::Utils::SplitAtUpperCase(TDescriptor::ClassName.data()), ImColor(255, 128, 128));
 
 			// Iterate over members of the NodeProcessor type and construct pins from deduced member types
 			TDescriptor::ApplyToStaticType(
@@ -242,7 +242,7 @@ namespace Hazel::SoundGraph {
 
 			using TDescriptor = NodeDescription<TProcNode>;
 
-			auto* newNode = new SGTypes::SGNode(Hazel::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data()), ImColor(255, 128, 128));
+			auto* newNode = new SGTypes::SGNode(Engine::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data()), ImColor(255, 128, 128));
 			newNode->Inputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Inputs>();
 			newNode->Outputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Outputs>();
 
@@ -252,7 +252,7 @@ namespace Hazel::SoundGraph {
 		[[nodiscard]] static Node* SpawnGraphPropertyNode(const Ref<SoundGraphAsset>& graph, std::string_view propertyName, EPropertyType type, std::optional<bool> isLocalVarGetter = {});
 	};
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph
 
 /* TODO: Static vs Dynamic
 
@@ -268,7 +268,7 @@ namespace Hazel::SoundGraph {
 //! Testing purely static reflection / node fabrication
 #if 0
 
-using TTestNode = NodeDescription<Hazel::SoundGraph::Add<float>>;
+using TTestNode = NodeDescription<Engine::SoundGraph::Add<float>>;
 
 
 
@@ -375,13 +375,13 @@ public:
 };
 
 
-static const StaticAction sa([] { PrivateMap::Add("Hazel::SoundGraph::Add<float>::in_Value1", SGTypes::Audio); });
+static const StaticAction sa([] { PrivateMap::Add("Engine::SoundGraph::Add<float>::in_Value1", SGTypes::Audio); });
 
 #define NODE_OVERRIDES(NodeType, Overrides, ...)\
-static const StaticAction sa([] { PrivateMap::Add("Hazel::SoundGraph::Add<float>::in_Value1", SGTypes::Audio); });\
+static const StaticAction sa([] { PrivateMap::Add("Engine::SoundGraph::Add<float>::in_Value1", SGTypes::Audio); });\
 
 
-NODE_OVERRIDES(Hazel::SoundGraph::Add<float>,
-	{ Hazel::SoundGraph::Add<float>::in_Value1, SGTypes::TPin<SGTypes::Audio> }
+NODE_OVERRIDES(Engine::SoundGraph::Add<float>,
+	{ Engine::SoundGraph::Add<float>::in_Value1, SGTypes::TPin<SGTypes::Audio> }
 );
 #endif

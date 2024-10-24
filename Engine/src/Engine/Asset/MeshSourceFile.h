@@ -5,7 +5,7 @@
 
 #include <map>
 
-namespace Hazel {
+namespace Engine {
 
 	struct MeshSourceFile
 	{

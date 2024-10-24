@@ -10,7 +10,7 @@
 #include "Debug/NsightAftermathGpuCrashTracker.h"
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Vulkan Physical Device

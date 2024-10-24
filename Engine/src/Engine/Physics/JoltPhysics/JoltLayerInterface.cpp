@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "JoltLayerInterface.h"
 
-namespace Hazel {
+namespace Engine {
 
 	JoltLayerInterface::JoltLayerInterface()
 	{

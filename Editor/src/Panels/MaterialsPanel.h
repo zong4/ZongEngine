@@ -4,7 +4,7 @@
 #include "Engine/Scene/Entity.h"
 #include "Engine/Renderer/Texture.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MaterialsPanel : public EditorPanel
 	{

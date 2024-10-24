@@ -61,7 +61,7 @@
 #include <future>
 
 
-namespace Hazel {
+namespace Engine {
 
 #define MAX_PROJECT_NAME_LENGTH 255
 #define MAX_PROJECT_FILEPATH_LENGTH 512
@@ -116,7 +116,7 @@ namespace Hazel {
 		memset(s_OpenProjectFilePathBuffer, 0, MAX_PROJECT_FILEPATH_LENGTH);
 		memset(s_NewProjectFilePathBuffer, 0, MAX_PROJECT_FILEPATH_LENGTH);
 
-		// Should we ever want to actually show editor layer panels in Hazel::Runtime
+		// Should we ever want to actually show editor layer panels in Engine::Runtime
 		// then these lines need to be added to RuntimeLayer::Attach()
 		EditorResources::Init();
 
@@ -1753,10 +1753,10 @@ namespace Hazel {
 			}
 		}
 
-		if (((Input::IsKeyDown(Hazel::KeyCode::LeftAlt) && (Input::IsMouseButtonDown(MouseButton::Left) || (Input::IsMouseButtonDown(MouseButton::Middle)))) || Input::IsMouseButtonDown(MouseButton::Right)) && !m_StartedCameraClickInViewport && m_ViewportPanelFocused && m_ViewportPanelMouseOver)
+		if (((Input::IsKeyDown(Engine::KeyCode::LeftAlt) && (Input::IsMouseButtonDown(MouseButton::Left) || (Input::IsMouseButtonDown(MouseButton::Middle)))) || Input::IsMouseButtonDown(MouseButton::Right)) && !m_StartedCameraClickInViewport && m_ViewportPanelFocused && m_ViewportPanelMouseOver)
 			m_StartedCameraClickInViewport = true;
 
-		if (!Input::IsMouseButtonDown(MouseButton::Right) && !(Input::IsKeyDown(Hazel::KeyCode::LeftAlt) && (Input::IsMouseButtonDown(MouseButton::Left) || (Input::IsMouseButtonDown(MouseButton::Middle)))))
+		if (!Input::IsMouseButtonDown(MouseButton::Right) && !(Input::IsKeyDown(Engine::KeyCode::LeftAlt) && (Input::IsMouseButtonDown(MouseButton::Left) || (Input::IsMouseButtonDown(MouseButton::Middle)))))
 			m_StartedCameraClickInViewport = false;
 
 		AssetEditorPanel::OnUpdate(ts);

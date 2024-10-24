@@ -4,7 +4,7 @@
 #include "Engine/Renderer/RendererAPI.h"
 #include "Engine/Platform/Vulkan/VulkanComputePipeline.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<PipelineCompute> PipelineCompute::Create(Ref<Shader> computeShader)
 	{

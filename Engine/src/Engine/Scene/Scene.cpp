@@ -42,7 +42,7 @@
 #include <box2d/box2d.h>
 #include <assimp/scene.h>
 
-namespace Hazel {
+namespace Engine {
 	std::unordered_map<UUID, Scene*> s_ActiveScenes;
 
 	struct SceneComponent

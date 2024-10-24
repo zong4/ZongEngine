@@ -9,7 +9,7 @@ inline PFN_vkCmdBeginDebugUtilsLabelEXT fpCmdBeginDebugUtilsLabelEXT;
 inline PFN_vkCmdEndDebugUtilsLabelEXT fpCmdEndDebugUtilsLabelEXT;
 inline PFN_vkCmdInsertDebugUtilsLabelEXT fpCmdInsertDebugUtilsLabelEXT;
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 	void VulkanLoadDebugUtilsExtensions(VkInstance instance);
 
 	inline const char* VKResultToString(VkResult result)
@@ -148,10 +148,10 @@ namespace Hazel::Utils {
 #define VK_CHECK_RESULT(f)\
 {\
 	VkResult res = (f);\
-	::Hazel::Utils::VulkanCheckResult(res, __FILE__, __LINE__);\
+	::Engine::Utils::VulkanCheckResult(res, __FILE__, __LINE__);\
 }
 
-namespace Hazel::VKUtils
+namespace Engine::VKUtils
 {
 	inline static void SetDebugUtilsObjectName(const VkDevice device, const VkObjectType objectType, const std::string& name, const void* handle)
 	{

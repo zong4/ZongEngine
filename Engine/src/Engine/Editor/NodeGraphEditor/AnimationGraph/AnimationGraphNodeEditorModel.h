@@ -7,7 +7,7 @@
 #include "Engine/Editor/NodeGraphEditor/NodeGraphUtils.h"
 #include "Engine/Editor/NodeGraphEditor/PropertySet.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace AnimationGraph {
 

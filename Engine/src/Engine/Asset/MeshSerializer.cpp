@@ -37,7 +37,7 @@ namespace YAML {
 
 }
 
-namespace Hazel {
+namespace Engine {
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const std::vector<uint32_t>& value)
 	{

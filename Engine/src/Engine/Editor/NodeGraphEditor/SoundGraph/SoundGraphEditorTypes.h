@@ -8,7 +8,7 @@
 
 #include <tuple>
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 
 	class SGTypes final
 	{
@@ -31,7 +31,7 @@ namespace Hazel::SoundGraph {
 		struct TSGEnum { int Underlying = -1; };
 
 		template<int EType, class TValueType, ImU32 Color = IM_COL32_WHITE>
-		using SGPinDescr = Hazel::PinDescr<EType, TValueType, Color, ESGPinType>;
+		using SGPinDescr = Engine::PinDescr<EType, TValueType, Color, ESGPinType>;
 
 		using TSGPinTypes = std::tuple
 			<
@@ -159,7 +159,7 @@ namespace Hazel::SoundGraph {
 				{
 					pinType = ESGPinType::Flow;
 				}
-				else if (Hazel::Utils::IsAssetHandle<AssetType::Audio>(type))
+				else if (Engine::Utils::IsAssetHandle<AssetType::Audio>(type))
 				{
 					pinType = ESGPinType::AudioAsset;
 				}
@@ -216,9 +216,9 @@ namespace Hazel::SoundGraph {
 	};
 
 
-} // namespace Hazel::Nodes
+} // namespace Engine::Nodes
 
-namespace Hazel {
+namespace Engine {
 
 	template<>
 	choc::value::Value ValueFrom(const SoundGraph::SGTypes::TSGFlow& obj)
@@ -250,4 +250,4 @@ namespace Hazel {
 			return {};
 	}
 
-} // namespace Hazel
+} // namespace Engine

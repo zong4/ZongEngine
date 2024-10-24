@@ -4,7 +4,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace Hazel {
+namespace Engine {
 
 	PanelManager::~PanelManager()
 	{

@@ -2,7 +2,7 @@
 #include "NodeProcessor.h"
 #include "Engine/Core/Identifier.h"
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	class Factory
 	{
@@ -12,4 +12,4 @@ namespace Hazel::SoundGraph
 		static bool Contains(Identifier nodeTypeID);
 	};
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

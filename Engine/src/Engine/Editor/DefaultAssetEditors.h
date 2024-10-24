@@ -11,7 +11,7 @@ namespace Audio
 	struct SoundConfig;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	class AnimationControllerAsset;
 	struct SoundConfig;

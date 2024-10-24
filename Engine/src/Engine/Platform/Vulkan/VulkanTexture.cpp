@@ -9,7 +9,7 @@
 
 #include "Engine/Asset/TextureImporter.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 

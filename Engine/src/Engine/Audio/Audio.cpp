@@ -6,7 +6,7 @@
 #include <chrono>
 using namespace std::chrono_literals;
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
     static std::queue<AudioFunctionCallback*> s_AudioThreadJobsLocal;
 
@@ -171,4 +171,4 @@ namespace Hazel::Audio
 		}
 	}
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

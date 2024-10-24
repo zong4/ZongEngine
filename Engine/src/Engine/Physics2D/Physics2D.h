@@ -4,7 +4,7 @@
 #include "Engine/Scene/Entity.h"
 #include "Engine/Physics2D/ContactListener2D.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct Raycast2DResult
 	{

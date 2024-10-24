@@ -3,7 +3,7 @@
 #include "NodeDescriptors.h"
 #include "NodeTypes.h"
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 
 	template<typename T>
 	GetRandom<T>::GetRandom(const char* dbgName, UUID id) : NodeProcessor(dbgName, id)

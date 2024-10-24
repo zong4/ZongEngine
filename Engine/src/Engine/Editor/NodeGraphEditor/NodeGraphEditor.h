@@ -12,11 +12,11 @@ namespace ax::NodeEditor {
 	struct EditorContext;
 
 	namespace Utilities {
-		struct BlueprintNodeBuilder; // TODO: rename it and rewrite it to use Hazel::Texture2D
+		struct BlueprintNodeBuilder; // TODO: rename it and rewrite it to use Engine::Texture2D
 	}
 }
 
-namespace Hazel {
+namespace Engine {
 
 	using NodeBuilder = ax::NodeEditor::Utilities::BlueprintNodeBuilder;
 
@@ -271,5 +271,5 @@ namespace Hazel {
 		std::string m_DetailsName;
 	};
 
-} // namespace Hazel
+} // namespace Engine
 

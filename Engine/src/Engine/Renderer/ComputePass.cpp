@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<ComputePass> ComputePass::Create(const ComputePassSpecification& spec)
 	{

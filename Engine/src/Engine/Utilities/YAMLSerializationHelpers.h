@@ -112,16 +112,16 @@ namespace YAML {
 	};
 
 	template<>
-	struct convert<Hazel::AssetHandle>
+	struct convert<Engine::AssetHandle>
 	{
-		static Node encode(const Hazel::AssetHandle& rhs)
+		static Node encode(const Engine::AssetHandle& rhs)
 		{
 			Node node;
 			node.push_back((uint64_t)rhs);
 			return node;
 		}
 
-		static bool decode(const Node& node, Hazel::AssetHandle& rhs)
+		static bool decode(const Node& node, Engine::AssetHandle& rhs)
 		{
 			rhs = node.as<uint64_t>();
 			return true;
@@ -174,7 +174,7 @@ namespace YAML {
 			// We encode/decode UUID as "UUID"{ "Value": uint64_t }
 			// So that in the readable YAML it is shown as the correct uint64_t,
 			// while for choc::Value it's casted to int64_t
-			const bool isUUID = Hazel::Utils::IsAssetHandle(object);
+			const bool isUUID = Engine::Utils::IsAssetHandle(object);
 			if (isUUID)
 			{
 				const auto& value = object["Value"];
@@ -270,7 +270,7 @@ namespace YAML {
 			// We encode/decode UUID as "UUID"{ "Value": uint64_t }
 			// So that in the readable YAML it is shown as the correct uint64_t,
 			// while for choc::Value it's casted to int64_t
-			const bool isUUID = Hazel::Utils::IsAssetHandle(rhs) && node["Value"];
+			const bool isUUID = Engine::Utils::IsAssetHandle(rhs) && node["Value"];
 			if (isUUID)
 			{
 				rhs.addMember("Value", choc::value::createInt64((int64_t)node["Value"].as<uint64_t>()));
@@ -297,7 +297,7 @@ namespace YAML {
 
 }
 
-namespace Hazel {
+namespace Engine {
 
 	inline YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
 	{

@@ -6,7 +6,7 @@
 #include <cstring>
 #include <string>
 
-namespace Hazel
+namespace Engine
 {
 	class Identifier
 	{
@@ -35,15 +35,15 @@ namespace Hazel
 		std::string_view dbgName;
 	};
 
-} // namespace Hazel
+} // namespace Engine
 
 
 namespace std
 {
 	template<>
-	struct hash<Hazel::Identifier>
+	struct hash<Engine::Identifier>
 	{
-		size_t operator()(const Hazel::Identifier& id) const noexcept
+		size_t operator()(const Engine::Identifier& id) const noexcept
 		{
 			static_assert(noexcept(hash<uint32_t>()(id.hash)), "hash function should not throw");
 			return id.hash;

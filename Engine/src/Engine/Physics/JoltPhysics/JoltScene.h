@@ -10,7 +10,7 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyFilter.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class HZBroadPhaseLayerInterface;
 

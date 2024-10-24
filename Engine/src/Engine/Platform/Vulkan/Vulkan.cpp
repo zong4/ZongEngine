@@ -4,7 +4,7 @@
 #include "VulkanContext.h"
 #include "VulkanDiagnostics.h"
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	void VulkanLoadDebugUtilsExtensions(VkInstance instance)
 	{
@@ -50,7 +50,7 @@ namespace Hazel::Utils {
 				data[i].sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 
 			uint32_t retrievedCount = checkpointCount;
-			vkGetQueueCheckpointDataNV(::Hazel::VulkanContext::GetCurrentDevice()->GetGraphicsQueue(), &retrievedCount, data);
+			vkGetQueueCheckpointDataNV(::Engine::VulkanContext::GetCurrentDevice()->GetGraphicsQueue(), &retrievedCount, data);
 			ZONG_CORE_ERROR("RetrieveDiagnosticCheckpoints (Graphics Queue):");
 			for (uint32_t i = 0; i < retrievedCount; i++)
 			{
@@ -65,7 +65,7 @@ namespace Hazel::Utils {
 				data[i].sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 
 			uint32_t retrievedCount = checkpointCount;
-			vkGetQueueCheckpointDataNV(::Hazel::VulkanContext::GetCurrentDevice()->GetComputeQueue(), &retrievedCount, data);
+			vkGetQueueCheckpointDataNV(::Engine::VulkanContext::GetCurrentDevice()->GetComputeQueue(), &retrievedCount, data);
 			ZONG_CORE_ERROR("RetrieveDiagnosticCheckpoints (Compute Queue):");
 			for (uint32_t i = 0; i < retrievedCount; i++)
 			{

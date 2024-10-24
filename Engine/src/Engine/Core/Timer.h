@@ -5,7 +5,7 @@
 
 #include "Log.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class Timer
 	{

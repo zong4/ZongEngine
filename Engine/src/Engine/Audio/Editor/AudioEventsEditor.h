@@ -10,7 +10,7 @@
 
 struct ImGuiWindow;
 
-namespace Hazel
+namespace Engine
 {
 	class Texture2D;
 }
@@ -20,7 +20,7 @@ namespace YAML
 	class Node;
 }
 
-namespace Hazel
+namespace Engine
 {
 	namespace Audio
 	{
@@ -105,4 +105,4 @@ namespace Hazel
 	};
 
 
-} // namespace Hazel
+} // namespace Engine

@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 
 	class SceneEvent : public Event
 	{

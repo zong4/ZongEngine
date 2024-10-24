@@ -6,7 +6,7 @@ extern "C" {
 	typedef struct _MonoObject MonoObject;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	class ScriptProfiler
 	{

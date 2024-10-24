@@ -24,16 +24,16 @@
 
 namespace std {
 	template<>
-	struct hash<Hazel::WeakRef<Hazel::Shader>>
+	struct hash<Engine::WeakRef<Engine::Shader>>
 	{
-		size_t operator()(const Hazel::WeakRef<Hazel::Shader>& shader) const noexcept
+		size_t operator()(const Engine::WeakRef<Engine::Shader>& shader) const noexcept
 		{
 			return shader->GetHash();
 		}
 	};
 }
 
-namespace Hazel {
+namespace Engine {
 
 	static std::unordered_map<size_t, Ref<Pipeline>> s_PipelineCache;
 

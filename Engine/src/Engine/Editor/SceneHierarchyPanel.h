@@ -11,7 +11,7 @@
 #include "Engine/ImGui/CustomTreeNode.h"
 
 
-namespace Hazel {
+namespace Engine {
 
 	// NOTE(Peter): Stolen from imgui.h since IM_COL32 isn't available in this header
 	#define COLOR32(R,G,B,A)    (((ImU32)(A)<<24) | ((ImU32)(B)<<16) | ((ImU32)(G)<<8) | ((ImU32)(R)<<0))

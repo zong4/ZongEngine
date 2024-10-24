@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct GPUMemoryStats
 	{

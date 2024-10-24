@@ -2,12 +2,12 @@
 
 #include "miniaudio_incl.h"
 
-namespace Hazel
+namespace Engine
 {
 	class StreamReader;
 }
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	/** Our VFS used by miniaudio. 
 	*/
@@ -21,4 +21,4 @@ namespace Hazel::Audio
 
 	ma_result ma_custom_vfs_init(VFS* pVFS, const ma_allocation_callbacks* pAllocationCallbacks);
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

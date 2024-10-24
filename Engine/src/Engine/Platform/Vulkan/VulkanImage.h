@@ -6,7 +6,7 @@
 #include "vulkan/vulkan.h"
 #include "VulkanMemoryAllocator/vk_mem_alloc.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct VulkanImageInfo
 	{

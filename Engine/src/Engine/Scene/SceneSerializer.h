@@ -10,7 +10,7 @@ namespace YAML {
 	class Node;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	class SceneSerializer
 	{

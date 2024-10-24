@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	Graph::Graph(std::string_view dbgName, UUID id) : NodeProcessor(dbgName, id), EndpointOutputStreams(*this)
 	{
@@ -310,4 +310,4 @@ namespace Hazel::AnimationGraph {
 		return reinterpret_cast<const Pose*>(EndpointOutputStreams.InValue(IDs::Pose).getRawData());
 	}
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

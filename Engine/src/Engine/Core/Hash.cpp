@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Hash.h"
 
-namespace Hazel {
+namespace Engine {
 
 }

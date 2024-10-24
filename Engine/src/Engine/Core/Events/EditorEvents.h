@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorExitPlayModeEvent : public Event
 	{

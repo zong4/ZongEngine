@@ -3,7 +3,7 @@
 #include "Engine/Editor/EditorPanel.h"
 #include "Engine/Physics/PhysicsScene.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class PhysicsStatsPanel : public EditorPanel
 	{

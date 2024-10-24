@@ -8,7 +8,7 @@
 
 #include <imgui/imgui.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorConsolePanel : public EditorPanel
 	{

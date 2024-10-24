@@ -48,7 +48,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointDataNV(
 	fpGetQueueCheckpointDataNV(queue, pCheckpointDataCount, pCheckpointData);
 }
 
-namespace Hazel {
+namespace Engine {
 
 	void VulkanSwapChain::Init(VkInstance instance, const Ref<VulkanDevice>& device)
 	{

@@ -9,7 +9,7 @@
 #include "yaml-cpp/yaml.h"
 #include "Engine/Utilities/SerializationMacros.h"
 
-namespace Hazel
+namespace Engine
 {
 	using namespace Audio;
 
@@ -263,4 +263,4 @@ namespace Hazel
 	}
 
 
-} // namespace Hazel
+} // namespace Engine

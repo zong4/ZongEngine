@@ -8,7 +8,7 @@
 
 #include "ShaderPreprocessing/ShaderPreprocessor.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static const char* s_ShaderRegistryPath = "Resources/Cache/Shader/ShaderRegistry.cache";
 

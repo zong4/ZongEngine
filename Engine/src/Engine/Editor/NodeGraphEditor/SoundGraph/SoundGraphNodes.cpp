@@ -5,10 +5,10 @@
 
 #include <array>
 
-namespace Alias = Hazel::SoundGraph::NameAliases;
-namespace SG = Hazel::SoundGraph;
+namespace Alias = Engine::SoundGraph::NameAliases;
+namespace SG = Engine::SoundGraph;
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 
 	//==========================================================================
 	/// Base Nodes
@@ -305,7 +305,7 @@ namespace Hazel::SoundGraph {
 		return newNode;
 	}
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph
 
 
 //! To register a new node:
@@ -325,10 +325,10 @@ namespace Hazel::SoundGraph {
 #define DECLARE_NODE_N(TNodeType, Color, Type) SG::CreateRegistryEntry<TNodeType>(#TNodeType, Color, Type)
 #define DECLARE_NODE_ALIAS(AliasName, TNodeType, Color, Type) SG::CreateRegistryEntry<TNodeType>(AliasName, Color, Type, true)
 
-namespace Colors = Hazel::SoundGraph::Colors;
+namespace Colors = Engine::SoundGraph::Colors;
 
 template<>
-const Hazel::Nodes::Registry Hazel::Nodes::Factory<SG::SoundGraphNodeFactory>::Registry =
+const Engine::Nodes::Registry Engine::Nodes::Factory<SG::SoundGraphNodeFactory>::Registry =
 {
 	NODE_CATEGORY(Base,
 		DECLARE_NODE(SG::Base, Input_Action),
@@ -407,10 +407,10 @@ const Hazel::Nodes::Registry Hazel::Nodes::Factory<SG::SoundGraphNodeFactory>::R
 #undef DECLARE_NODE_ALIAS
 
 
-#define DECLARE_PIN_ENUM(MemberPointer, Tokens) { std::string(Hazel::Nodes::SanitizeMemberName(#MemberPointer, true)),  Tokens }
+#define DECLARE_PIN_ENUM(MemberPointer, Tokens) { std::string(Engine::Nodes::SanitizeMemberName(#MemberPointer, true)),  Tokens }
 
 template<>
-const Hazel::Nodes::EnumTokensRegistry Hazel::Nodes::Factory<SG::SoundGraphNodeFactory>::EnumTokensRegistry =
+const Engine::Nodes::EnumTokensRegistry Engine::Nodes::Factory<SG::SoundGraphNodeFactory>::EnumTokensRegistry =
 {
 	DECLARE_PIN_ENUM(SG::Noise::in_Type, &SG::EnumTokens::NoiseType)
 };

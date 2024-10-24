@@ -3,7 +3,7 @@
 #include "Engine/Core/UUID.h"
 #include "Engine/Asset/AssetTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	using AssetHandle = UUID;
 

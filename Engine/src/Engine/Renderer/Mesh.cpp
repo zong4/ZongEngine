@@ -17,7 +17,7 @@
 
 #include <filesystem>
 
-namespace Hazel
+namespace Engine
 {
 
 #define MESH_DEBUG_LOG 0

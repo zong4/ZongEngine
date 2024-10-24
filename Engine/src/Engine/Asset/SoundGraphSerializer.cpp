@@ -20,9 +20,9 @@
 
 static constexpr auto MAX_NUM_CACHED_GRAPHS = 256; // TODO: get this value from somewhere reasonable
 
-namespace SG = Hazel::SoundGraph;
+namespace SG = Engine::SoundGraph;
 
-namespace Hazel {
+namespace Engine {
 
 	SoundGraphGraphSerializer::SoundGraphGraphSerializer()
 	{
@@ -562,4 +562,4 @@ namespace Hazel {
 		return true;
 	}
 
-} // namespace Hazel
+} // namespace Engine

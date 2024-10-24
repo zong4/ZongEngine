@@ -6,7 +6,7 @@
 
 #include "glm/glm.hpp"
 
-namespace Hazel
+namespace Engine
 {
 	//? obsolete
 #if 0
@@ -48,4 +48,4 @@ struct AudioObjectData
 	glm::vec3 Velocity;
 };
 
-} // namespace Hazel
+} // namespace Engine

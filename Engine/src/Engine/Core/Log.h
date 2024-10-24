@@ -16,7 +16,7 @@
 	#endif
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 	class Log
 	{
@@ -92,43 +92,43 @@ namespace Hazel {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core logging
-#define ZONG_CORE_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define ZONG_CORE_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define ZONG_CORE_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define ZONG_CORE_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define ZONG_CORE_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define ZONG_CORE_TRACE_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Trace, tag, __VA_ARGS__)
+#define ZONG_CORE_INFO_TAG(tag, ...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Info, tag, __VA_ARGS__)
+#define ZONG_CORE_WARN_TAG(tag, ...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Warn, tag, __VA_ARGS__)
+#define ZONG_CORE_ERROR_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Error, tag, __VA_ARGS__)
+#define ZONG_CORE_FATAL_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Fatal, tag, __VA_ARGS__)
 
 // Client logging
-#define ZONG_TRACE_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, tag, __VA_ARGS__)
-#define ZONG_INFO_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, tag, __VA_ARGS__)
-#define ZONG_WARN_TAG(tag, ...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, tag, __VA_ARGS__)
-#define ZONG_ERROR_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, tag, __VA_ARGS__)
-#define ZONG_FATAL_TAG(tag, ...) ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, tag, __VA_ARGS__)
+#define ZONG_TRACE_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Trace, tag, __VA_ARGS__)
+#define ZONG_INFO_TAG(tag, ...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Info, tag, __VA_ARGS__)
+#define ZONG_WARN_TAG(tag, ...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Warn, tag, __VA_ARGS__)
+#define ZONG_ERROR_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Error, tag, __VA_ARGS__)
+#define ZONG_FATAL_TAG(tag, ...) ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Fatal, tag, __VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Core Logging
-#define ZONG_CORE_TRACE(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
-#define ZONG_CORE_INFO(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
-#define ZONG_CORE_WARN(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
-#define ZONG_CORE_ERROR(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
-#define ZONG_CORE_FATAL(...)  ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Core, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
+#define ZONG_CORE_TRACE(...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Trace, "", __VA_ARGS__)
+#define ZONG_CORE_INFO(...)   ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Info, "", __VA_ARGS__)
+#define ZONG_CORE_WARN(...)   ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Warn, "", __VA_ARGS__)
+#define ZONG_CORE_ERROR(...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Error, "", __VA_ARGS__)
+#define ZONG_CORE_FATAL(...)  ::Engine::Log::PrintMessage(::Engine::Log::Type::Core, ::Engine::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Client Logging
-#define ZONG_TRACE(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Trace, "", __VA_ARGS__)
-#define ZONG_INFO(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Info, "", __VA_ARGS__)
-#define ZONG_WARN(...)    ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Warn, "", __VA_ARGS__)
-#define ZONG_ERROR(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Error, "", __VA_ARGS__)
-#define ZONG_FATAL(...)   ::Hazel::Log::PrintMessage(::Hazel::Log::Type::Client, ::Hazel::Log::Level::Fatal, "", __VA_ARGS__)
+#define ZONG_TRACE(...)   ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Trace, "", __VA_ARGS__)
+#define ZONG_INFO(...)    ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Info, "", __VA_ARGS__)
+#define ZONG_WARN(...)    ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Warn, "", __VA_ARGS__)
+#define ZONG_ERROR(...)   ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Error, "", __VA_ARGS__)
+#define ZONG_FATAL(...)   ::Engine::Log::PrintMessage(::Engine::Log::Type::Client, ::Engine::Log::Level::Fatal, "", __VA_ARGS__)
 
 // Editor Console Logging Macros
-#define ZONG_CONSOLE_LOG_TRACE(...)   Hazel::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
-#define ZONG_CONSOLE_LOG_INFO(...)    Hazel::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
-#define ZONG_CONSOLE_LOG_WARN(...)    Hazel::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
-#define ZONG_CONSOLE_LOG_ERROR(...)   Hazel::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
-#define ZONG_CONSOLE_LOG_FATAL(...)   Hazel::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_TRACE(...)   Engine::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_INFO(...)    Engine::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_WARN(...)    Engine::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_ERROR(...)   Engine::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
+#define ZONG_CONSOLE_LOG_FATAL(...)   Engine::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
 
-namespace Hazel {
+namespace Engine {
 
 	template<typename... Args>
 	void Log::PrintMessage(Log::Type type, Log::Level level, std::string_view tag, Args&&... args)

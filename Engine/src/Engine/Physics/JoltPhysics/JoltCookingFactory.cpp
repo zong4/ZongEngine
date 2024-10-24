@@ -12,7 +12,7 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 

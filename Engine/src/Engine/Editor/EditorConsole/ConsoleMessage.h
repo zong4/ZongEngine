@@ -5,7 +5,7 @@
 #include <string>
 #include <ctime>
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ConsoleMessageFlags : int16_t
 	{

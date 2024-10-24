@@ -6,7 +6,7 @@
 
 #include "VulkanAllocator.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanIndexBuffer : public IndexBuffer
 	{

@@ -8,7 +8,7 @@
 
 #include <set>
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanComputePass : public ComputePass
 	{

@@ -6,7 +6,7 @@
 #include "Engine/Utilities/StringUtils.h"
 #include "Engine/Utilities/ProcessHelper.h"
 
-namespace Hazel {
+namespace Engine {
 
 #ifndef ZONG_DIST
 	void JoltCaptureOutStream::Open(const std::filesystem::path& inPath)

@@ -3,7 +3,7 @@
 #include "Engine/Renderer/Texture.h"
 #include "Engine/Utilities/FileSystem.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorResources
 	{

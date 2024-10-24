@@ -8,7 +8,7 @@
 
 #include <tuple>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct Types final
 	{
@@ -39,7 +39,7 @@ namespace Hazel::AnimationGraph {
 		struct TEnum { int Underlying = -1; };
 
 		template<int EType, class TValueType, ImU32 Color = IM_COL32_WHITE>
-		using PinDescr = Hazel::PinDescr<EType, TValueType, Color, EPinType>;
+		using PinDescr = Engine::PinDescr<EType, TValueType, Color, EPinType>;
 
 		using TPinTypes = std::tuple
 		<
@@ -192,9 +192,9 @@ namespace Hazel::AnimationGraph {
 		// TODO: extend with Implementation interface
 		//=================================================================
 		//template</*typename TGraph, */typename TInputsList, typename TOutputsList>
-		struct Node : Hazel::Node
+		struct Node : Engine::Node
 		{
-			using Hazel::Node::Node;
+			using Engine::Node::Node;
 
 			bool IsEntryState = false;
 
@@ -230,10 +230,10 @@ namespace Hazel::AnimationGraph {
 
 	};
 
-} // namespace Hazel::Nodes
+} // namespace Engine::Nodes
 
 
-namespace Hazel {
+namespace Engine {
 
 	template<>
 	choc::value::Value ValueFrom(const AnimationGraph::Types::TFlow& obj)
@@ -266,4 +266,4 @@ namespace Hazel {
 	}
 
 
-} // namespace Hazel
+} // namespace Engine

@@ -4,7 +4,7 @@
 #include <atomic>
 #include "Memory.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class RefCounted
 	{

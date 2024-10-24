@@ -11,7 +11,7 @@
 						   //			   Vulkan exclusive procs before include guards trip.
 #include <GLFW/glfw3.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct WindowSpecification
 	{

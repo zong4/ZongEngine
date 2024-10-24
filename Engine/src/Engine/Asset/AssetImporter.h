@@ -5,7 +5,7 @@
 #include "Engine/Serialization/FileStream.h"
 #include "Engine/Scene/Scene.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class AssetImporter
 	{

@@ -8,7 +8,7 @@
 	#include <Jolt/Physics/Body/BodyManager.h>
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 #ifndef ZONG_DIST
 	class JoltCaptureOutStream : public JPH::StreamOut

@@ -10,7 +10,7 @@
 
 #include "Engine/Core/Hash.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// NOTE(Peter): StringType is used because on non-MSVC compilers we have to make a copy of the buffer we get back from abi::__cxa_demangle
 	//				This is because that function allocates a heap buffer that we're responsible for freeing.

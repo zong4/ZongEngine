@@ -2,7 +2,7 @@
 
 #include "PhysicsShapes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct SceneQueryHit
 	{

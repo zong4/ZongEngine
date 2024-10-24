@@ -36,7 +36,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Hazel {
+namespace Engine {
 	struct VulkanRendererData
 	{
 		RendererCapabilities RenderCaps;

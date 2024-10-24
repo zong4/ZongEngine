@@ -5,7 +5,7 @@
 
 #include "ShaderPreprocessor.h"
 
-namespace Hazel
+namespace Engine
 {
 	struct IncludeData;
 

@@ -6,7 +6,7 @@
 #include "Engine/Platform/Vulkan/VulkanImage.h"
 #include "Engine/Platform/Vulkan/DescriptorSetManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanMaterial : public Material
 	{

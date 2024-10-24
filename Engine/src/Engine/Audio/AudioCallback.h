@@ -7,7 +7,7 @@
 #include "choc/audio/choc_SampleBuffers.h"
 #include "choc/audio/choc_SampleBufferUtilities.h"
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	class AudioCallback
 	{
@@ -258,4 +258,4 @@ namespace Hazel::Audio
 		std::atomic<bool> m_Suspended = false;
 	};
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

@@ -14,7 +14,7 @@
 #include <filesystem>
 #include <thread>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::filesystem::path s_PersistentStoragePath;
 

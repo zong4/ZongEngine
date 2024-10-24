@@ -5,7 +5,7 @@
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Core/StreamOut.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltBinaryStreamReader : public JPH::StreamIn
 	{

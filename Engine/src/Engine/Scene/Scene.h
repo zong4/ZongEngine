@@ -10,7 +10,7 @@
 #include "Engine/Renderer/Mesh.h"
 #include "Engine/Renderer/SceneEnvironment.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace AnimationGraph {
 		struct AnimationGraph;

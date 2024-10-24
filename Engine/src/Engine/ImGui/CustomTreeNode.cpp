@@ -7,7 +7,7 @@
 
 namespace ImGui {
 
-	bool TreeNodeWithIcon(Hazel::Ref<Hazel::Texture2D> icon, ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end, ImColor iconTint/* = IM_COL32_WHITE*/)
+	bool TreeNodeWithIcon(Engine::Ref<Engine::Texture2D> icon, ImGuiID id, ImGuiTreeNodeFlags flags, const char* label, const char* label_end, ImColor iconTint/* = IM_COL32_WHITE*/)
 	{
 		ImGuiWindow* window = GetCurrentWindow();
 		if (window->SkipItems)
@@ -183,9 +183,9 @@ namespace ImGui {
 				const float pad = 3.0f;
 				const float arrowWidth = 20.0f + 1.0f;
 				auto cursorPos = ImGui::GetCursorPos();
-				Hazel::UI::ShiftCursorY(-frame_height + pad);
-				Hazel::UI::ShiftCursorX(arrowWidth);
-				Hazel::UI::Image(icon, { frame_height - pad * 2.0f, frame_height - pad * 2.0f }, ImVec2(0, 0), ImVec2(1, 1), iconTint /*selected ? colourDark : tintFloat*/);
+				Engine::UI::ShiftCursorY(-frame_height + pad);
+				Engine::UI::ShiftCursorX(arrowWidth);
+				Engine::UI::Image(icon, { frame_height - pad * 2.0f, frame_height - pad * 2.0f }, ImVec2(0, 0), ImVec2(1, 1), iconTint /*selected ? colourDark : tintFloat*/);
 
 				// Restore itme data
 				ImGui::SetLastItemData(itemId, itemFlags, itemStatusFlags, itemRect);
@@ -242,9 +242,9 @@ namespace ImGui {
 				const float pad = 3.0f;
 				const float arrowWidth = 20.0f + 1.0f;
 				auto cursorPos = ImGui::GetCursorPos();
-				Hazel::UI::ShiftCursorY(-frame_height + pad);
-				Hazel::UI::ShiftCursorX(arrowWidth);
-				Hazel::UI::Image(icon, { frame_height - pad * 2.0f, frame_height - pad * 2.0f }, ImVec2(0, 0), ImVec2(1, 1), iconTint /*selected ? colourDark : tintFloat*/);
+				Engine::UI::ShiftCursorY(-frame_height + pad);
+				Engine::UI::ShiftCursorX(arrowWidth);
+				Engine::UI::Image(icon, { frame_height - pad * 2.0f, frame_height - pad * 2.0f }, ImVec2(0, 0), ImVec2(1, 1), iconTint /*selected ? colourDark : tintFloat*/);
 
 				// Restore itme data
 				ImGui::SetLastItemData(itemId, itemFlags, itemStatusFlags, itemRect);
@@ -266,7 +266,7 @@ namespace ImGui {
 		return is_open;
 	}
 
-	bool TreeNodeWithIcon(Hazel::Ref<Hazel::Texture2D> icon, const void* ptr_id, ImGuiTreeNodeFlags flags, ImColor iconTint, const char* fmt, ...)
+	bool TreeNodeWithIcon(Engine::Ref<Engine::Texture2D> icon, const void* ptr_id, ImGuiTreeNodeFlags flags, ImColor iconTint, const char* fmt, ...)
 	{
 		va_list args;
 		va_start(args, fmt);
@@ -283,7 +283,7 @@ namespace ImGui {
 		return is_open;
 	}
 
-	bool TreeNodeWithIcon(Hazel::Ref<Hazel::Texture2D> icon, const char* label, ImGuiTreeNodeFlags flags, ImColor iconTint /*= IM_COL32_WHITE*/)
+	bool TreeNodeWithIcon(Engine::Ref<Engine::Texture2D> icon, const char* label, ImGuiTreeNodeFlags flags, ImColor iconTint /*= IM_COL32_WHITE*/)
 	{
 		ImGuiWindow* window = GetCurrentWindow();
 		if (window->SkipItems)

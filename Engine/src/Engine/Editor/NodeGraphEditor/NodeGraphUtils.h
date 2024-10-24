@@ -11,7 +11,7 @@
 #include <string>
 #include <utility>
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	std::string GetTypeName(const choc::value::Value& v);
 	choc::value::Type GetTypeFromName(const std::string_view name);

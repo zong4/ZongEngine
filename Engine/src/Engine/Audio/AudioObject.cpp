@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "AudioObject.h"
 
-namespace Hazel
+namespace Engine
 {
 #if 0
 	AudioObject::AudioObject(UUID ID) : m_ID(ID) {}
@@ -35,4 +35,4 @@ namespace Hazel
 	}
 #endif
 
-} // namespace Hazel
+} // namespace Engine

@@ -32,7 +32,7 @@ namespace YAML
     class Node;
 }
 
-namespace Hazel
+namespace Engine
 {
     class SourceManager;
     class Sound;
@@ -586,4 +586,4 @@ namespace Hazel
 		
 		Delegate<void(Audio::EventID, Audio::SourceID)> m_OnSourceFinished;
     };
-} // namespace Hazel
+} // namespace Engine

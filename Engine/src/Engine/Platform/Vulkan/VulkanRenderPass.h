@@ -6,7 +6,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace Hazel {
+namespace Engine {
 
 
 	class VulkanRenderPass : public RenderPass

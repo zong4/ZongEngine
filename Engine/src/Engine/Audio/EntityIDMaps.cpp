@@ -2,11 +2,11 @@
 #include "EntityIDMaps.h"
 #include "AudioEvents/CommandID.h"
 
-namespace Hazel
+namespace Engine
 {
-	AudioComponent* AudioComponentRegistry::GetAudioComponent(Hazel::UUID sceneID, uint64_t audioComponentID) const
+	AudioComponent* AudioComponentRegistry::GetAudioComponent(Engine::UUID sceneID, uint64_t audioComponentID) const
 	{
-		std::optional<Hazel::Entity> o = Get(sceneID, audioComponentID);
+		std::optional<Engine::Entity> o = Get(sceneID, audioComponentID);
 		if (o.has_value())
 			return &o->GetComponent<AudioComponent>();
 		else
@@ -16,9 +16,9 @@ namespace Hazel
 		}
 	}
 
-	Hazel::Entity AudioComponentRegistry::GetEntity(Hazel::UUID sceneID, uint64_t audioComponentID) const
+	Engine::Entity AudioComponentRegistry::GetEntity(Engine::UUID sceneID, uint64_t audioComponentID) const
 	{
-		return Get(sceneID, Hazel::UUID(audioComponentID)).value_or(Hazel::Entity());
+		return Get(sceneID, Engine::UUID(audioComponentID)).value_or(Engine::Entity());
 	}
 
 	//===============================================================================================
@@ -26,33 +26,33 @@ namespace Hazel
 	/*
 	Audio::ActiveTriggersRegistry::ActiveTriggersRegistry() {}
 
-	using TriggerScoped = Hazel::Scope<TriggerCommand>;
+	using TriggerScoped = Engine::Scope<TriggerCommand>;
 
-	uint64_t ActiveTriggersRegistry::Count(Hazel::UUID sceneID)
+	uint64_t ActiveTriggersRegistry::Count(Engine::UUID sceneID)
 	{
 		return GetCommandCount(sceneID);
 	}
 
-	std::optional<std::vector<TriggerScoped>*> ActiveTriggersRegistry::GetCommands(Hazel::UUID sceneID, Hazel::UUID objectID) const
+	std::optional<std::vector<TriggerScoped>*> ActiveTriggersRegistry::GetCommands(Engine::UUID sceneID, Engine::UUID objectID) const
 	{
 		return m_ActiveCommands.Get(sceneID, objectID);
 	}
 
-	void ActiveTriggersRegistry::AddTrigger(Hazel::UUID sceneID, Hazel::UUID objectID, TriggerCommand* trigger)
+	void ActiveTriggersRegistry::AddTrigger(Engine::UUID sceneID, Engine::UUID objectID, TriggerCommand* trigger)
 	{
 		if (auto* triggers = m_ActiveCommands.Get(sceneID, objectID).value_or(nullptr))
 		{
-			triggers->push_back(Hazel::Scope<TriggerCommand>(trigger));
+			triggers->push_back(Engine::Scope<TriggerCommand>(trigger));
 		}
 		else
 		{
 			auto newTriggerList = new std::vector<std::unique_ptr<TriggerCommand>>();
-			newTriggerList->push_back(Hazel::Scope<TriggerCommand>(trigger));
+			newTriggerList->push_back(Engine::Scope<TriggerCommand>(trigger));
 			m_ActiveCommands.Add(sceneID, objectID, newTriggerList);
 		}
 	}
 
-	bool ActiveTriggersRegistry::RemoveTrigger(Hazel::UUID sceneID, Hazel::UUID objectID, TriggerCommand* trigger)
+	bool ActiveTriggersRegistry::RemoveTrigger(Engine::UUID sceneID, Engine::UUID objectID, TriggerCommand* trigger)
 	{
 		if (auto* triggers = m_ActiveCommands.Get(sceneID, objectID).value_or(nullptr))
 		{
@@ -69,7 +69,7 @@ namespace Hazel
 		return false;
 	}
 
-	bool ActiveTriggersRegistry::OnTriggerActionHandled(Hazel::UUID sceneID, Hazel::UUID objectID, TriggerCommand* trigger)
+	bool ActiveTriggersRegistry::OnTriggerActionHandled(Engine::UUID sceneID, Engine::UUID objectID, TriggerCommand* trigger)
 	{
 		if (RefreshActions(trigger))
 			return RefreshTriggers(sceneID, objectID);
@@ -77,7 +77,7 @@ namespace Hazel
 			return false;
 	}
 
-	bool ActiveTriggersRegistry::OnPlaybackActionFinished(Hazel::UUID sceneID, Hazel::UUID objectID, Hazel::Ref<SoundConfig> soundSource)
+	bool ActiveTriggersRegistry::OnPlaybackActionFinished(Engine::UUID sceneID, Engine::UUID objectID, Engine::Ref<SoundConfig> soundSource)
 	{
 		if (auto* triggers = m_ActiveCommands.Get(sceneID, objectID).value_or(nullptr))
 		{
@@ -130,7 +130,7 @@ namespace Hazel
 		return false;
 	}
 
-	bool ActiveTriggersRegistry::RefreshTriggers(Hazel::UUID sceneID, Hazel::UUID objectID)
+	bool ActiveTriggersRegistry::RefreshTriggers(Engine::UUID sceneID, Engine::UUID objectID)
 	{
 		bool commandFullyHandled = false;
 
@@ -168,7 +168,7 @@ namespace Hazel
 	namespace Audio
 	{
 
-		EventInfo::EventInfo(const CommandID& comdID, Hazel::UUID objectID)
+		EventInfo::EventInfo(const CommandID& comdID, Engine::UUID objectID)
 			: commandID(comdID), ObjectID(objectID)
 		{
 		}
@@ -268,13 +268,13 @@ namespace Hazel
 			std::shared_lock lock{ m_Mutex };
 
 			return (uint32_t)std::accumulate(m_Objects.begin(), m_Objects.end(), 0,
-				[](uint32_t prior, const std::pair<Hazel::UUID, std::vector<EventID>>& item) -> uint32_t
+				[](uint32_t prior, const std::pair<Engine::UUID, std::vector<EventID>>& item) -> uint32_t
 				{
 					return prior + (uint32_t)item.second.size();
 				});
 		}
 
-		bool ObjectEventRegistry::Add(Hazel::UUID objectID, EventID eventID)
+		bool ObjectEventRegistry::Add(Engine::UUID objectID, EventID eventID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -300,7 +300,7 @@ namespace Hazel
 			}
 		}
 
-		bool ObjectEventRegistry::Remove(Hazel::UUID objectID, EventID eventID)
+		bool ObjectEventRegistry::Remove(Engine::UUID objectID, EventID eventID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -323,7 +323,7 @@ namespace Hazel
 			return false;
 		}
 
-		bool ObjectEventRegistry::RemoveObject(Hazel::UUID objectID)
+		bool ObjectEventRegistry::RemoveObject(Engine::UUID objectID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -333,7 +333,7 @@ namespace Hazel
 		}
 
 
-		uint32_t ObjectEventRegistry::GetNumberOfEvents(Hazel::UUID objectID) const
+		uint32_t ObjectEventRegistry::GetNumberOfEvents(Engine::UUID objectID) const
 		{
 			std::shared_lock lock{ m_Mutex };
 
@@ -343,7 +343,7 @@ namespace Hazel
 			return 0;
 		}
 
-		std::vector<EventID> ObjectEventRegistry::GetEvents(Hazel::UUID objectID) const
+		std::vector<EventID> ObjectEventRegistry::GetEvents(Engine::UUID objectID) const
 		{
 			std::shared_lock lock{ m_Mutex };
 
@@ -367,13 +367,13 @@ namespace Hazel
 			std::shared_lock lock{ m_Mutex };
 
 			return (uint32_t)std::accumulate(m_Objects.begin(), m_Objects.end(), 0,
-				[](uint32_t prior, const std::pair<Hazel::UUID, std::vector<SourceID>>& item) -> uint32_t
+				[](uint32_t prior, const std::pair<Engine::UUID, std::vector<SourceID>>& item) -> uint32_t
 				{
 					return prior + (uint32_t)item.second.size();
 				});
 		}
 
-		bool ObjectSourceRegistry::Add(Hazel::UUID objectID, SourceID sourceID)
+		bool ObjectSourceRegistry::Add(Engine::UUID objectID, SourceID sourceID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -399,7 +399,7 @@ namespace Hazel
 			}
 		}
 
-		bool ObjectSourceRegistry::Remove(Hazel::UUID objectID, SourceID sourceID)
+		bool ObjectSourceRegistry::Remove(Engine::UUID objectID, SourceID sourceID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -422,7 +422,7 @@ namespace Hazel
 			return false;
 		}
 
-		bool ObjectSourceRegistry::RemoveObject(Hazel::UUID objectID)
+		bool ObjectSourceRegistry::RemoveObject(Engine::UUID objectID)
 		{
 			std::scoped_lock lock{ m_Mutex };
 
@@ -431,7 +431,7 @@ namespace Hazel
 			return m_Objects.erase(objectID);
 		}
 
-		uint32_t ObjectSourceRegistry::GetNumberOfActiveSounds(Hazel::UUID objectID) const
+		uint32_t ObjectSourceRegistry::GetNumberOfActiveSounds(Engine::UUID objectID) const
 		{
 			std::shared_lock lock{ m_Mutex };
 
@@ -441,7 +441,7 @@ namespace Hazel
 			return 0;
 		}
 
-		std::optional<std::vector<SourceID>> ObjectSourceRegistry::GetActiveSounds(Hazel::UUID objectID) const
+		std::optional<std::vector<SourceID>> ObjectSourceRegistry::GetActiveSounds(Engine::UUID objectID) const
 		{
 			std::shared_lock lock{ m_Mutex };
 
@@ -453,4 +453,4 @@ namespace Hazel
 
 	} // namespace Audio
 
-} // namespace Hazel
+} // namespace Engine

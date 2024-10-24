@@ -21,7 +21,7 @@
 #define DBG(...)
 #endif
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	struct StreamWriter;
 
@@ -261,7 +261,7 @@ namespace Hazel::SoundGraph
 		choc::value::ValueView& DestinationV;
 	};
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph
 
 #undef LOG_DBG_MESSAGES
 #undef DBG

@@ -11,7 +11,7 @@
 #include "ComputePass.h"
 #include "RenderPass.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class SceneRenderer;
 

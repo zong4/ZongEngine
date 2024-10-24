@@ -11,7 +11,7 @@
 #include <string>
 #include <string_view>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	std::optional<choc::value::Value> GetPinDefaultValueOverride(std::string_view nodeName, std::string_view memberNameSanitized);
 	std::optional<Types::EPinType> GetPinTypeForMemberOverride(std::string_view nodeName, std::string_view memberNameSanitized);
@@ -95,7 +95,7 @@ namespace Hazel::AnimationGraph {
 
 			using TDescriptor = NodeDescription<TProcNode>;
 
-			auto* newNode = new Types::Node(Hazel::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data()), ImColor(255, 128, 128));
+			auto* newNode = new Types::Node(Engine::Utils::SplitAtUpperCase(TDescriptor::Inputs::ClassName.data()), ImColor(255, 128, 128));
 			newNode->Inputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Inputs>();
 			newNode->Outputs = Impl::ConstructPinList<TProcNode, typename TDescriptor::Outputs>();
 
@@ -133,4 +133,4 @@ namespace Hazel::AnimationGraph {
 		[[nodiscard]] Node* SpawnNode(const std::string& category, const std::string& name) const override { return SpawnNodeStatic(category, name); }
 	};
 
-} // namespace Hazel::Nodes
+} // namespace Engine::Nodes

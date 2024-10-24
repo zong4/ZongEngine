@@ -19,7 +19,7 @@ extern "C" {
 	typedef struct _MonoType MonoType;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 	
@@ -108,16 +108,16 @@ namespace Hazel {
 namespace std {
 
 	template<>
-	struct hash<Hazel::AssemblyMetadata>
+	struct hash<Engine::AssemblyMetadata>
 	{
-		size_t operator()(const Hazel::AssemblyMetadata& metadata) const
+		size_t operator()(const Engine::AssemblyMetadata& metadata) const
 		{
 			size_t result = 0;
-			Hazel::Utils::HashCombine(result, metadata.Name);
-			Hazel::Utils::HashCombine(result, metadata.MajorVersion);
-			Hazel::Utils::HashCombine(result, metadata.MinorVersion);
-			Hazel::Utils::HashCombine(result, metadata.BuildVersion);
-			Hazel::Utils::HashCombine(result, metadata.RevisionVersion);
+			Engine::Utils::HashCombine(result, metadata.Name);
+			Engine::Utils::HashCombine(result, metadata.MajorVersion);
+			Engine::Utils::HashCombine(result, metadata.MinorVersion);
+			Engine::Utils::HashCombine(result, metadata.BuildVersion);
+			Engine::Utils::HashCombine(result, metadata.RevisionVersion);
 			return result;
 		}
 	};

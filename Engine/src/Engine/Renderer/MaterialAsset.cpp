@@ -3,7 +3,7 @@
 
 #include "Engine/Renderer/Renderer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static const std::string s_AlbedoColorUniform = "u_MaterialUniforms.AlbedoColor";
 	static const std::string s_UseNormalMapUniform = "u_MaterialUniforms.UseNormalMap";

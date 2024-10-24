@@ -4,7 +4,7 @@
 
 #include "EditorPanel.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ScriptEngineDebugPanel : public EditorPanel
 	{

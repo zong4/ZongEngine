@@ -5,7 +5,7 @@
 #include "Engine/Renderer/Shader.h"
 
 
-namespace Hazel {
+namespace Engine {
 	namespace ShaderUtils {
 
 		inline static std::string_view VKStageToShaderMacro(const VkShaderStageFlagBits stage)

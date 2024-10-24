@@ -40,7 +40,7 @@
 #define LOG_EVENTS(...)
 #endif
 
-namespace Hazel {
+namespace Engine {
 	using namespace Audio;
 
 	MiniAudioEngine* MiniAudioEngine::s_Instance = nullptr;
@@ -61,8 +61,8 @@ namespace Hazel {
 			switch (policy)
 			{
 				default:
-				case Hazel::MiniAudioEngine::ExecuteAsync: AudioThread::AddTask(hnew AudioFunctionCallback(std::move(func), jobID)); break;
-				case Hazel::MiniAudioEngine::ExecuteNow: func(); break;
+				case Engine::MiniAudioEngine::ExecuteAsync: AudioThread::AddTask(hnew AudioFunctionCallback(std::move(func), jobID)); break;
+				case Engine::MiniAudioEngine::ExecuteNow: func(); break;
 			}
 		}
 		else
@@ -1790,4 +1790,4 @@ namespace Hazel {
 		return true;
 	}
 
-} // namespace Hazel
+} // namespace Engine

@@ -5,7 +5,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct StateMachine;
 
@@ -39,6 +39,6 @@ namespace Hazel::AnimationGraph {
 		StateMachine* m_Parent = nullptr;
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph
 
 #undef DECLARE_ID

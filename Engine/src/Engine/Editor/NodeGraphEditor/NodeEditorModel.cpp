@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 	//=============================================================================
 	/// IDs
 
@@ -1042,4 +1042,4 @@ namespace Hazel {
 			onLinkDeleted();
 	}
 
-} // namespace Hazel
+} // namespace Engine

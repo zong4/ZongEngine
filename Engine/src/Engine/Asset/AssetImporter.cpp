@@ -5,7 +5,7 @@
 #include "MeshSerializer.h"
 #include "SoundGraphSerializer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void AssetImporter::Init()
 	{

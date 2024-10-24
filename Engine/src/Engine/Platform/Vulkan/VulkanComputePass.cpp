@@ -12,7 +12,7 @@
 #include "VulkanImage.h"
 #include "VulkanTexture.h"
 
-namespace Hazel {
+namespace Engine {
 
 	VulkanComputePass::VulkanComputePass(const ComputePassSpecification& spec)
 		: m_Specification(spec)

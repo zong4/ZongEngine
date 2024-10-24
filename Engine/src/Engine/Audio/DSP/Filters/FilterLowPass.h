@@ -2,7 +2,7 @@
 
 #include "miniaudio_incl.h"
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     struct LowPassFilter
     {
@@ -48,4 +48,4 @@ namespace Hazel::Audio::DSP
         std::atomic<double> m_CutoffMultiplier = 22000.0;
     };
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP

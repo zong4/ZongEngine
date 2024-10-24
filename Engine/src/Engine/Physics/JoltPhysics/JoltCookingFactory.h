@@ -2,7 +2,7 @@
 
 #include "Engine/Physics/MeshCookingFactory.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltCookingFactory : public MeshCookingFactory
 	{

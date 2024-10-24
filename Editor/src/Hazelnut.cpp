@@ -7,11 +7,11 @@
 #include <Shlobj.h>
 #endif
 
-class HazelnutApplication : public Hazel::Application
+class HazelnutApplication : public Engine::Application
 {
 public:
-	HazelnutApplication(const Hazel::ApplicationSpecification& specification, std::string_view projectPath)
-		: Application(specification), m_ProjectPath(projectPath), m_UserPreferences(Hazel::Ref<Hazel::UserPreferences>::Create())
+	HazelnutApplication(const Engine::ApplicationSpecification& specification, std::string_view projectPath)
+		: Application(specification), m_ProjectPath(projectPath), m_UserPreferences(Engine::Ref<Engine::UserPreferences>::Create())
 	{
 		if (projectPath.empty())
 			m_ProjectPath = "SandboxProject/Sandbox.hproj";
@@ -21,7 +21,7 @@ public:
 	{
 		// Persistent Storage
 		{
-			m_PersistentStoragePath = Hazel::FileSystem::GetPersistentStoragePath() / "Editor";
+			m_PersistentStoragePath = Engine::FileSystem::GetPersistentStoragePath() / "Editor";
 
 			if (!std::filesystem::exists(m_PersistentStoragePath))
 				std::filesystem::create_directory(m_PersistentStoragePath);
@@ -29,7 +29,7 @@ public:
 
 		// User Preferences
 		{
-			Hazel::UserPreferencesSerializer serializer(m_UserPreferences);
+			Engine::UserPreferencesSerializer serializer(m_UserPreferences);
 			if (!std::filesystem::exists(m_PersistentStoragePath / "UserPreferences.yaml"))
 				serializer.Serialize(m_PersistentStoragePath / "UserPreferences.yaml");
 			else
@@ -48,25 +48,25 @@ public:
 			if (workingDirectory.stem().string() == "Editor")
 				workingDirectory = workingDirectory.parent_path();
 
-			Hazel::FileSystem::SetEnvironmentVariable("HAZEL_DIR", workingDirectory.string());
+			Engine::FileSystem::SetEnvironmentVariable("HAZEL_DIR", workingDirectory.string());
 		}
 
-		PushLayer(new Hazel::EditorLayer(m_UserPreferences));
+		PushLayer(new Engine::EditorLayer(m_UserPreferences));
 	}
 
 private:
 	std::string m_ProjectPath;
 	std::filesystem::path m_PersistentStoragePath;
-	Hazel::Ref<Hazel::UserPreferences> m_UserPreferences;
+	Engine::Ref<Engine::UserPreferences> m_UserPreferences;
 };
 
-Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
+Engine::Application* Engine::CreateApplication(int argc, char** argv)
 {
 	std::string_view projectPath;
 	if (argc > 1)
 		projectPath = argv[1];
 
-	Hazel::ApplicationSpecification specification;
+	Engine::ApplicationSpecification specification;
 	specification.Name = "Editor";
 	specification.WindowWidth = 1600;
 	specification.WindowHeight = 900;

@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace Hazel
+namespace Engine
 {
 	//==============================================================================
 	/// FileStreamWriter
@@ -47,4 +47,4 @@ namespace Hazel
 		std::ifstream m_Stream;
 	};
 
-} // namespace Hazel
+} // namespace Engine

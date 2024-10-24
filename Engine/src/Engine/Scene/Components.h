@@ -33,7 +33,7 @@
 // 8) If the component is to be accessible from C# go to https://docs.hazelengine.com/Scripting/Extending/ExposingComponents.html and follow the steps outlined there
 
 
-namespace Hazel {
+namespace Engine {
 
 	struct IDComponent
 	{
@@ -157,13 +157,13 @@ namespace Hazel {
 	{
 		AssetHandle Mesh;
 		uint32_t SubmeshIndex = 0;
-		Ref<Hazel::MaterialTable> MaterialTable = Ref<Hazel::MaterialTable>::Create();
+		Ref<Engine::MaterialTable> MaterialTable = Ref<Engine::MaterialTable>::Create();
 		std::vector<UUID> BoneEntityIds; // If mesh is rigged, these are the entities whose transforms will used to "skin" the rig.
 		bool Visible = true;
 
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent& other)
-			: Mesh(other.Mesh), SubmeshIndex(other.SubmeshIndex), MaterialTable(Ref<Hazel::MaterialTable>::Create(other.MaterialTable)), BoneEntityIds(other.BoneEntityIds)
+			: Mesh(other.Mesh), SubmeshIndex(other.SubmeshIndex), MaterialTable(Ref<Engine::MaterialTable>::Create(other.MaterialTable)), BoneEntityIds(other.BoneEntityIds)
 		{}
 		MeshComponent(AssetHandle mesh, uint32_t submeshIndex = 0)
 			: Mesh(mesh), SubmeshIndex(submeshIndex)
@@ -173,12 +173,12 @@ namespace Hazel {
 	struct StaticMeshComponent
 	{
 		AssetHandle StaticMesh;
-		Ref<Hazel::MaterialTable> MaterialTable = Ref<Hazel::MaterialTable>::Create();
+		Ref<Engine::MaterialTable> MaterialTable = Ref<Engine::MaterialTable>::Create();
 		bool Visible = true;
 
 		StaticMeshComponent() = default;
 		StaticMeshComponent(const StaticMeshComponent& other)
-			: StaticMesh(other.StaticMesh), MaterialTable(Ref<Hazel::MaterialTable>::Create(other.MaterialTable)), Visible(other.Visible)
+			: StaticMesh(other.StaticMesh), MaterialTable(Ref<Engine::MaterialTable>::Create(other.MaterialTable)), Visible(other.Visible)
 		{
 		}
 		StaticMeshComponent(AssetHandle staticMesh)

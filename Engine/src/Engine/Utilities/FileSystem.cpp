@@ -8,7 +8,7 @@
 
 #include <nfd.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	bool FileSystem::CreateDirectory(const std::filesystem::path& directory)
 	{

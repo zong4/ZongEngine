@@ -3,7 +3,7 @@
 
 #include "stb_image.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Buffer TextureImporter::ToBufferFromFile(const std::filesystem::path& path, ImageFormat& outFormat, uint32_t& outWidth, uint32_t& outHeight)
 	{

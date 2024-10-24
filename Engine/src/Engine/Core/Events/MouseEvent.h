@@ -6,7 +6,7 @@
 
 #include "Engine/Core/KeyCodes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MouseMovedEvent : public Event
 	{

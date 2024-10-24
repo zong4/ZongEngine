@@ -4,7 +4,7 @@
 
 #include "AABB.h"
 
-namespace Hazel {
+namespace Engine {
 
     struct Ray
     {

@@ -7,7 +7,7 @@
 #include "Engine/Utilities/FileSystem.h"
 #include "Engine/Asset/AssetManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 	using namespace msdf_atlas;
 

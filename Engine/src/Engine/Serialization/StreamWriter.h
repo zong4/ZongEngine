@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Buffer.h"
 
-namespace Hazel
+namespace Engine
 {
 	class StreamWriter
 	{
@@ -115,4 +115,4 @@ namespace Hazel
 				WriteString(element);
 		}
 	};
-} // namespace Hazel
+} // namespace Engine

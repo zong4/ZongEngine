@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 		std::string PinTypeToString(EPinType pinType);
@@ -92,4 +92,4 @@ namespace Hazel {
 		static void TryLoadLinks(YAML::Node& in, std::vector<Link>& links);
 	};
 
-} // namespace Hazel
+} // namespace Engine

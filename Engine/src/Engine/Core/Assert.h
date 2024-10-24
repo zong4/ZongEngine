@@ -19,11 +19,11 @@
 
 #ifdef ZONG_ENABLE_ASSERTS
 	#ifdef ZONG_COMPILER_CLANG
-		#define ZONG_CORE_ASSERT_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Core, "Assertion Failed", ##__VA_ARGS__)
-		#define ZONG_ASSERT_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Client, "Assertion Failed", ##__VA_ARGS__)
+		#define ZONG_CORE_ASSERT_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Core, "Assertion Failed", ##__VA_ARGS__)
+		#define ZONG_ASSERT_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Client, "Assertion Failed", ##__VA_ARGS__)
 	#else
-		#define ZONG_CORE_ASSERT_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Core, "Assertion Failed" __VA_OPT__(,) __VA_ARGS__)
-		#define ZONG_ASSERT_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Client, "Assertion Failed" __VA_OPT__(,) __VA_ARGS__)
+		#define ZONG_CORE_ASSERT_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Core, "Assertion Failed" __VA_OPT__(,) __VA_ARGS__)
+		#define ZONG_ASSERT_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Client, "Assertion Failed" __VA_OPT__(,) __VA_ARGS__)
 	#endif
 
 	#define ZONG_CORE_ASSERT(condition, ...) { if(!(condition)) { ZONG_CORE_ASSERT_MESSAGE_INTERNAL(__VA_ARGS__); ZONG_DEBUG_BREAK; } }
@@ -35,11 +35,11 @@
 
 #ifdef ZONG_ENABLE_VERIFY
 	#ifdef ZONG_COMPILER_CLANG
-		#define ZONG_CORE_VERIFY_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Core, "Verify Failed", ##__VA_ARGS__)
-		#define ZONG_VERIFY_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Client, "Verify Failed", ##__VA_ARGS__)
+		#define ZONG_CORE_VERIFY_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Core, "Verify Failed", ##__VA_ARGS__)
+		#define ZONG_VERIFY_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Client, "Verify Failed", ##__VA_ARGS__)
 	#else
-		#define ZONG_CORE_VERIFY_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Core, "Verify Failed" __VA_OPT__(,) __VA_ARGS__)
-		#define ZONG_VERIFY_MESSAGE_INTERNAL(...)  ::Hazel::Log::PrintAssertMessage(::Hazel::Log::Type::Client, "Verify Failed" __VA_OPT__(,) __VA_ARGS__)
+		#define ZONG_CORE_VERIFY_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Core, "Verify Failed" __VA_OPT__(,) __VA_ARGS__)
+		#define ZONG_VERIFY_MESSAGE_INTERNAL(...)  ::Engine::Log::PrintAssertMessage(::Engine::Log::Type::Client, "Verify Failed" __VA_OPT__(,) __VA_ARGS__)
 	#endif
 
 	#define ZONG_CORE_VERIFY(condition, ...) { if(!(condition)) { ZONG_CORE_VERIFY_MESSAGE_INTERNAL(__VA_ARGS__); ZONG_DEBUG_BREAK; } }

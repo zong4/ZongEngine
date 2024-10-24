@@ -32,7 +32,7 @@
 	Instead of adding intrusive interface as described above you can add to your
 	header specialization for the free template functions as follows:
 
-	namespace Hazel::Spatialization::Impl
+	namespace Engine::Spatialization::Impl
 	{
 		template<>
 		static inline bool SerializeImpl(StreamWriter* writer, const MyClass& v)
@@ -49,12 +49,12 @@
 			reader->ReadRaw(v.MyVariable);
 			return true;
 		}
-	} // namespace Hazel::Spatialization::Impl
+	} // namespace Engine::Spatialization::Impl
 */
 #define SERIALIZABLE(Class, ...) template<>\
-struct Hazel::Type::Description<Class> : Hazel::Type::MemberList<__VA_ARGS__> {};\
+struct Engine::Type::Description<Class> : Engine::Type::MemberList<__VA_ARGS__> {};\
 
-namespace Hazel::Serialization
+namespace Engine::Serialization
 {
 	//=============================================================================
 	/// Serialization
@@ -236,4 +236,4 @@ namespace Hazel::Serialization
 		return (Impl::DeserializeByType(reader, vs) && ...);
 	}
 
-} // namespace Hazel::Serialization
+} // namespace Engine::Serialization

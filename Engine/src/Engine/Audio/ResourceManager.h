@@ -5,12 +5,12 @@
 
 #include "Engine/Core/Buffer.h"
 
-namespace Hazel
+namespace Engine
 {
 	class StreamReader;
 }
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	class ResourceManager
 	{
@@ -51,4 +51,4 @@ namespace Hazel::Audio
 		// any audio data from the SoundBank
 		std::unordered_map<AssetHandle, Buffer> m_LoadedFiles;
 	};
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

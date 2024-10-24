@@ -6,7 +6,7 @@
 #include "Engine/Core/Hash.h"
 #include "Engine/Utilities/StringUtils.h"
 
-namespace Hazel
+namespace Engine
 {
 	HRESULT HlslIncluder::LoadSource(LPCWSTR pFilename, IDxcBlob** ppIncludeSource)
 	{

@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Pipeline> Pipeline::Create(const PipelineSpecification& spec)
 	{

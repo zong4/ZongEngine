@@ -6,7 +6,7 @@
 #include "Engine/Project/Project.h"
 #include "Engine/Core/Events/Event.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorPanel : public RefCounted
 	{

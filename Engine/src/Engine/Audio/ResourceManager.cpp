@@ -15,7 +15,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	ResourceManager::ResourceManager(MiniAudioEngine& audioEngine)
 		: m_AudioEngine(audioEngine)
@@ -337,4 +337,4 @@ namespace Hazel::Audio
 		return false;
 	}
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

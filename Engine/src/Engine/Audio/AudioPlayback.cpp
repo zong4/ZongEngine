@@ -11,7 +11,7 @@
 
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel
+namespace Engine
 {
     using namespace Audio;
 

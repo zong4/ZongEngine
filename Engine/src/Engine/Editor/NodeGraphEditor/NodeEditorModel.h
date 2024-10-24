@@ -9,7 +9,7 @@
 
 #include <functional>
 
-namespace Hazel {
+namespace Engine {
 
 	class NodeEditorModel
 	{
@@ -222,5 +222,5 @@ namespace Hazel {
 		bool m_PlayerDirty = true;
 	};
 
-} // namespace Hazel
+} // namespace Engine
 

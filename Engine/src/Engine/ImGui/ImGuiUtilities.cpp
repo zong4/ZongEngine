@@ -7,7 +7,7 @@
 
 #include <imgui/examples/imgui_impl_vulkan_with_textures.h>
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 	ScopedDisable::ScopedDisable(bool disabled /*= true*/)
 	{

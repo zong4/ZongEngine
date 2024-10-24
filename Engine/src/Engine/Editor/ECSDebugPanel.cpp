@@ -3,7 +3,7 @@
 
 #include "Engine/ImGui/ImGui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	ECSDebugPanel::ECSDebugPanel(Ref<Scene> context)
 		: m_Context(context)

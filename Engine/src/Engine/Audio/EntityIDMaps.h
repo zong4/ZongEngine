@@ -11,7 +11,7 @@
 #include <numeric>
 #include <variant>
 
-namespace Hazel {
+namespace Engine {
 	/* ---------------------------------------------------------------
 		Structure that provides thread safe access to map of ScenesIDs,
 		their EntityIDs and associated to the Entities objects.
@@ -213,20 +213,20 @@ namespace Hazel {
 			static inline std::atomic<uint32_t> s_ID{ 0 };
 		};
 	} // namespace Audio
-} // namespace Hazel;
+} // namespace Engine;
 
 namespace std {
 	template <>
-	struct hash<Hazel::Audio::EventID>
+	struct hash<Engine::Audio::EventID>
 	{
-		std::size_t operator()(const Hazel::Audio::EventID& id) const noexcept
+		std::size_t operator()(const Engine::Audio::EventID& id) const noexcept
 		{
 			return hash<uint32_t>()((uint32_t)id);
 		}
 	};
 }
 
-namespace Hazel {
+namespace Engine {
 	namespace Audio {
 
         using SourceID = int;         // ID of the sound source
@@ -320,9 +320,9 @@ namespace Hazel {
 
     } // namespace Audio
 
-} // namespace Hazel
+} // namespace Engine
 
 //namespace std {
 //	// Implementation
-//	 std::size_t hash<Hazel::Audio::EventID>::operator()(const Hazel::Audio::EventID& id) const noexcept { return hash<uint32_t>()(id.m_ID); }
+//	 std::size_t hash<Engine::Audio::EventID>::operator()(const Engine::Audio::EventID& id) const noexcept { return hash<uint32_t>()(id.m_ID); }
 //}

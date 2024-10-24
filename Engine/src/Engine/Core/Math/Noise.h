@@ -2,7 +2,7 @@
 
 class FastNoise;
 
-namespace Hazel {
+namespace Engine {
 
 	class Noise
 	{

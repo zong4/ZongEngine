@@ -8,7 +8,7 @@
 
 #include "choc/text/choc_StringUtilities.h"
 
-namespace Hazel::UI
+namespace Engine::UI
 {
 
 	static bool IsMatchingSearch(const std::string& item, std::string_view searchQuery, bool caseSensitive = false, bool stripWhiteSpaces = false, bool stripUnderscores = false)
@@ -219,4 +219,4 @@ namespace Hazel::UI
 		}
 	}; // Widgets
 
-} // namespace Hazel::UI
+} // namespace Engine::UI

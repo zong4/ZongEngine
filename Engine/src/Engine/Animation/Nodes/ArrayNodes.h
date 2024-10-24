@@ -4,7 +4,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	template<typename T>
 	struct Get : public NodeProcessor
@@ -28,6 +28,6 @@ namespace Hazel::AnimationGraph {
 		float Process(float) override;
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph
 
 #undef DECLARE_ID

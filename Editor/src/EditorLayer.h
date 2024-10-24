@@ -26,7 +26,7 @@
 
 #include <future>
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorLayer : public Layer
 	{
@@ -73,7 +73,7 @@ namespace Hazel {
 
 		struct SelectionData
 		{
-			Hazel::Entity Entity;
+			Engine::Entity Entity;
 			Submesh* Mesh = nullptr;
 			float Distance = 0.0f;
 		};

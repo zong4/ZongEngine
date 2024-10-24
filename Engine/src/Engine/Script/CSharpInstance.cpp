@@ -8,7 +8,7 @@
 #include <mono/metadata/debug-helpers.h>
 #include <mono/metadata/attrdefs.h>
 
-namespace Hazel {
+namespace Engine {
 
 	CSharpInstance::CSharpInstance(std::string_view fullName)
 		: m_FullName(fullName)

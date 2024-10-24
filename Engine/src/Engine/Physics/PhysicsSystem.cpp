@@ -6,7 +6,7 @@
 #include "Engine/Core/Application.h"
 #include "Engine/Asset/AssetManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 
 	static PhysicsAPI* InitPhysicsAPI()

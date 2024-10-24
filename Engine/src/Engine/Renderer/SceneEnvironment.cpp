@@ -3,5 +3,5 @@
 
 #include "SceneRenderer.h"
 
-namespace Hazel {
+namespace Engine {
 }

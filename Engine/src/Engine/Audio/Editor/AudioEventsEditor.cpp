@@ -27,7 +27,7 @@
 #include <iomanip>
 
 
-namespace Hazel {
+namespace Engine {
 
 	static bool PropertyDropdownNoLabel(const char* label, const std::vector<std::string>& options, int32_t optionCount, int32_t* selected)
 	{
@@ -871,7 +871,7 @@ namespace Hazel {
 		m_RenamingEntry = nullptr;
 	}
 
-	bool Hazel::AudioEventsEditor::IsRenaming()
+	bool Engine::AudioEventsEditor::IsRenaming()
 	{
 		return ImGui::GetActiveID() == ImGui::GetID("##eventname") || m_Renaming || m_RenamingEntry;
 	}
@@ -1799,4 +1799,4 @@ namespace Hazel {
 			deserializeNode(node, &s_Tree.RootNode, deserializeNode);
 	}
 
-} // namespace Hazel
+} // namespace Engine

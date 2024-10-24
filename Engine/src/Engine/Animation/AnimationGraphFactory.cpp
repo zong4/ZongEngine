@@ -14,10 +14,10 @@
 // Using the same string transformation here as in the editor nodes factory
 // to translate NodeProcessor type to friendly name ensures that they are going to match.
 // This allows us to minimize name coupling.
-#define NODE(name) { Identifier(Hazel::Utils::CreateUserFriendlyTypeName(#name)), [](UUID nodeID) { return new name(#name, nodeID); } }
+#define NODE(name) { Identifier(Engine::Utils::CreateUserFriendlyTypeName(#name)), [](UUID nodeID) { return new name(#name, nodeID); } }
 #define NODE_ALIAS(aliasName, processor) { Identifier(aliasName), [](UUID nodeID) { return new processor(aliasName, nodeID); } }
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	using Registry = std::unordered_map<Identifier, std::function<NodeProcessor* (UUID nodeID)>>;
 
@@ -451,4 +451,4 @@ namespace Hazel::AnimationGraph {
 		return instance;
 	}
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

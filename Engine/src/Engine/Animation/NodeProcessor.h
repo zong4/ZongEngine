@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct StreamWriter;
 
@@ -38,7 +38,7 @@ namespace Hazel::AnimationGraph {
 		}();
 
 		inline static choc::value::Type PoseType = [] {
-			choc::value::Type type = choc::value::Type::createArray(TransformType, Hazel::Animation::MAXBONES + 1); // RootMotion, BoneTransforms
+			choc::value::Type type = choc::value::Type::createArray(TransformType, Engine::Animation::MAXBONES + 1); // RootMotion, BoneTransforms
 			type.addArrayElements(choc::value::Type::createFloat32(), 2); // AnimationDuration, AnimationTime
 			type.addArrayElements(choc::value::Type::createInt32(), 1);   // NumBones
 			return type;
@@ -206,4 +206,4 @@ namespace Hazel::AnimationGraph {
 		choc::value::Value outV;
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

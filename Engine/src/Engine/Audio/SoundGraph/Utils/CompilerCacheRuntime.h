@@ -3,7 +3,7 @@
 
 #include "Engine/Core/Assert.h"
 
-namespace Hazel {
+namespace Engine {
 	//==============================================================================
 	/**
 		Implements a simple CompilerCache that retrives cached object code chunks
@@ -104,4 +104,4 @@ namespace Hazel {
 		std::filesystem::path m_Folder = "";
 	};
 
-} //namespace Hazel
+} //namespace Engine

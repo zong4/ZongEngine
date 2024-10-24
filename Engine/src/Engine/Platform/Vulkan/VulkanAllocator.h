@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/GPUStats.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanAllocator
 	{

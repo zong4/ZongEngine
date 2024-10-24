@@ -5,7 +5,7 @@
 
 //#include "OrderedVector.h"
 
-namespace Hazel
+namespace Engine
 {
 	//? NOT USED YET
 	class Selectable
@@ -19,10 +19,10 @@ namespace Hazel
 	template<class ValueType>
 	struct TreeModel
 	{
-		struct Node : Hazel::RefCounted
+		struct Node : Engine::RefCounted
 		{
 			Node() = default;
-			Node(const Hazel::TreeModel<ValueType>::Node& other)
+			Node(const Engine::TreeModel<ValueType>::Node& other)
 				: Tree(other.Tree)
 				, Name(other.Name)
 				, Value(other.Value)
@@ -47,8 +47,8 @@ namespace Hazel
 			std::optional<ValueType> Value;
 
 			Node* Parent = nullptr;
-			//OrderedVector<Hazel::Ref<Node>> Children;
-			std::map<std::string, Hazel::Ref<Node>> Children;
+			//OrderedVector<Engine::Ref<Node>> Children;
+			std::map<std::string, Engine::Ref<Node>> Children;
 		};
 
 		Node RootNode{ this, std::nullopt, nullptr, "RootNode" };
@@ -56,4 +56,4 @@ namespace Hazel
 
 	// TODO: serialize / deserialize Tree
 
-} // namespace Hazel
+} // namespace Engine

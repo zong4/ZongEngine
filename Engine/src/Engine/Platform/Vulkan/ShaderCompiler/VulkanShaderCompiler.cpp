@@ -31,7 +31,7 @@
 #include <unistd.h>
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 	static std::unordered_map<uint32_t, std::unordered_map<uint32_t, ShaderResource::UniformBuffer>> s_UniformBuffers; // set -> binding point -> buffer
 	static std::unordered_map<uint32_t, std::unordered_map<uint32_t, ShaderResource::StorageBuffer>> s_StorageBuffers; // set -> binding point -> buffer

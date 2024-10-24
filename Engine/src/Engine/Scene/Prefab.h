@@ -5,7 +5,7 @@
 #include "Engine/Scene/Scene.h"
 #include "entt/entt.hpp"
 
-namespace Hazel {
+namespace Engine {
 
 	class Prefab : public Asset
 	{

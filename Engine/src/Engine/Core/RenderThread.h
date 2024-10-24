@@ -4,7 +4,7 @@
 
 #include <atomic>
 
-namespace Hazel {
+namespace Engine {
 
 	struct RenderThreadData;
 

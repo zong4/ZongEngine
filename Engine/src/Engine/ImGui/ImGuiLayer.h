@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Layer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ImGuiLayer : public Layer
 	{

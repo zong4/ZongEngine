@@ -12,7 +12,7 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 
-namespace Hazel {
+namespace Engine {
 
 	JoltImmutableCompoundShape::JoltImmutableCompoundShape(Entity entity)
 		: ImmutableCompoundShape(entity)

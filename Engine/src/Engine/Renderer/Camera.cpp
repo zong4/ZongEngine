@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
 
-namespace Hazel {
+namespace Engine {
 	Camera::Camera(const glm::mat4& projection, const glm::mat4& unReversedProjection)
 		: m_ProjectionMatrix(projection), m_UnReversedProjectionMatrix(unReversedProjection)
 	{

@@ -12,7 +12,7 @@
 #include "SoundGraph/GraphGeneration.h"
 #include "SoundGraph/Utils/SoundGraphCache.h"
 
-namespace Hazel
+namespace Engine
 {
     void SourceManager::AllocationCallback(uint64_t size)
     {
@@ -232,4 +232,4 @@ namespace Hazel
         return ma_node_get_output_bus_volume(&splitterNode, 1);
     }
 
-} // namespace Hazel
+} // namespace Engine

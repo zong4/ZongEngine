@@ -5,7 +5,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Material> Material::Create(const Ref<Shader>& shader, const std::string& name)
 	{

@@ -10,7 +10,7 @@
 #include <sstream>
 #include <regex>
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	namespace String {
 

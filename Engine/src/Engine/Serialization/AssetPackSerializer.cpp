@@ -8,7 +8,7 @@
 #include <fstream>
 #include <unordered_set>
 
-namespace Hazel {
+namespace Engine {
 
 	static void CreateDirectoriesIfNeeded(const std::filesystem::path& path)
 	{

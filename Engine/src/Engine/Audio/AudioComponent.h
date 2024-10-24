@@ -3,7 +3,7 @@
 #include "Sound.h"
 #include "AudioEvents/CommandID.h"
 
-namespace Hazel
+namespace Engine
 {
 	struct SoundSourceUpdateData
 	{
@@ -47,4 +47,4 @@ namespace Hazel
 		explicit AudioComponent(UUID parent) : ParentHandle(parent) {}
 	};
 
-} // namespace Hazel
+} // namespace Engine

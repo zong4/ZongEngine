@@ -2,7 +2,7 @@
 
 #include <choc/containers/choc_Value.h>
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	//==============================================================================
 	/** A set of named properties. The value of each item is a Value object. */
@@ -70,4 +70,4 @@ namespace Hazel::Utils {
 		void SetInternal(std::string_view name, choc::value::Value newValue);
 	};
 
-} // namespace hazel::Utils
+} // namespace Engine::Utils

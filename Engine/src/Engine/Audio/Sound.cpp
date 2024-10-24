@@ -7,7 +7,7 @@
 #include "Engine/Asset/AssetManager.h"
 #include "Engine/Core/Application.h"
 
-namespace Hazel
+namespace Engine
 {
     using namespace Audio;
     using EPlayState = ESoundPlayState;
@@ -409,7 +409,7 @@ namespace Hazel
     {
     }
 
-    void Sound::Update(Hazel::Timestep ts)
+    void Sound::Update(Engine::Timestep ts)
     {
         auto notifyIfFinished = [&]
         {
@@ -528,4 +528,4 @@ namespace Hazel
         return (float)currentFrame / (float)totalFrames;
     }
 
-} // namespace Hazel
+} // namespace Engine

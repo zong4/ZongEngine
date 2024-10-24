@@ -13,7 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace Hazel::JoltUtils {
+namespace Engine::JoltUtils {
 
 	JPH::Vec3 ToJoltVector(const glm::vec3& vector);
 	JPH::Quat ToJoltQuat(const glm::quat& quat);

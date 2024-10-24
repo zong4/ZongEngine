@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "AnimationNodeProcessor.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 }

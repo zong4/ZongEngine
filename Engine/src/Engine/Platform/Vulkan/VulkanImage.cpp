@@ -5,7 +5,7 @@
 #include "VulkanRenderer.h"
 #include "VulkanAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static std::map<VkImage, WeakRef<VulkanImage2D>> s_ImageReferences;
 

@@ -18,7 +18,7 @@
     --------------------------
 */
 
-namespace Hazel
+namespace Engine
 {
     class MiniAudioEngine;
 	
@@ -28,7 +28,7 @@ namespace Hazel
 	}
 }
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
     //static constexpr auto PCM_FRAME_CHUNK_SIZE = 1024;                                            //? for now unable to set engine block size
     static constexpr auto PCM_FRAME_CHUNK_SIZE = 480;                                               //  default block size with WASAPI backend
@@ -61,7 +61,7 @@ namespace Hazel::Audio
 
     //==============================================================================
 	///	Audio Update Thread
-    class AudioThread // TODO: inherit from Hazel::Thread
+    class AudioThread // TODO: inherit from Engine::Thread
     {
     public:
         static bool Start();
@@ -71,7 +71,7 @@ namespace Hazel::Audio
         static std::thread::id GetThreadID();
 
     private:
-        friend class Hazel::MiniAudioEngine;
+        friend class Engine::MiniAudioEngine;
         friend class AudioThreadFence;
 
         static void AddTask(AudioFunctionCallback*&& funcCb);
@@ -340,4 +340,4 @@ namespace Hazel::Audio
 
     };
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

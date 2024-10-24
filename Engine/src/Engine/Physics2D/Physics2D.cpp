@@ -2,7 +2,7 @@
 #include "Physics2D.h"
 #include "Engine/Script/ScriptEngine.h"
 
-namespace Hazel {
+namespace Engine {
 
 	std::vector<Raycast2DResult> Physics2D::Raycast(Ref<Scene> scene, const glm::vec2& point0, const glm::vec2& point1)
 	{

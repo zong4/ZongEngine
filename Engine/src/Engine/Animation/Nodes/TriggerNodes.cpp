@@ -3,7 +3,7 @@
 
 #include "NodeDescriptors.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	BoolTrigger::BoolTrigger(const char* dbgName, UUID id)
 		: NodeProcessor(dbgName, id)
@@ -28,4 +28,4 @@ namespace Hazel::AnimationGraph {
 		return ts;
 	}
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

@@ -10,7 +10,7 @@
 #include "AssetPackSerializer.h"
 #include "AssetPackFile.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class AssetPack : public RefCounted
 	{		

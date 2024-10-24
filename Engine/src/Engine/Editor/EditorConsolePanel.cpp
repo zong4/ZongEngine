@@ -9,7 +9,7 @@
 
 #include "imgui/imgui_internal.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static EditorConsolePanel* s_Instance = nullptr;
 

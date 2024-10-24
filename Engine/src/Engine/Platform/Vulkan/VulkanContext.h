@@ -7,7 +7,7 @@
 
 struct GLFWwindow;
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanContext : public RendererContext
 	{

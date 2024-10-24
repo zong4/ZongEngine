@@ -5,7 +5,7 @@
 #include "Engine/Asset/MeshColliderAsset.h"
 #include "PhysicsTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class MeshColliderType : uint8_t { Triangle = 0, Convex = 1, None = 3 };
 

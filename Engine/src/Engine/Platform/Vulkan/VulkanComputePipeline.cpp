@@ -9,7 +9,7 @@
 
 #include "Engine/Core/Timer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static VkFence s_ComputeFence = nullptr;
 

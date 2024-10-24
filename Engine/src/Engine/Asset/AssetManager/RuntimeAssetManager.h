@@ -4,7 +4,7 @@
 
 #include "Engine/Serialization/AssetPack.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// AssetPack
 	class RuntimeAssetManager : public AssetManagerBase

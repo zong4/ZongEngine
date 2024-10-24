@@ -6,7 +6,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
 	{

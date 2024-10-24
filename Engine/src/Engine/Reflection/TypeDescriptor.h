@@ -15,7 +15,7 @@
 //#include "Utility/magic_enum.hpp"
 
 
-namespace Hazel::Type {
+namespace Engine::Type {
 
 	struct TDummyTag {};
 
@@ -341,7 +341,7 @@ namespace Hazel::Type {
 		Description provides reflection interface with access by strings.
 	 */
 #define DESCRIBED_TAGGED(Class, Tag, ...) template<>								\
-struct Hazel::Type::Description<Class, Tag> : Hazel::Type::MemberList<__VA_ARGS__>, Hazel::Type::DescriptionInterface<Hazel::Type::Description<Class,Tag>, Class, Tag, Hazel::Type::MemberList<__VA_ARGS__>>	\
+struct Engine::Type::Description<Class, Tag> : Engine::Type::MemberList<__VA_ARGS__>, Engine::Type::DescriptionInterface<Engine::Type::Description<Class,Tag>, Class, Tag, Engine::Type::MemberList<__VA_ARGS__>>	\
 {																		\
 private:																\
 	static constexpr std::string_view MemberStr{ #__VA_ARGS__ };		\
@@ -357,14 +357,14 @@ public:																	\
 	static constexpr std::string_view ClassName{ ClassStr.data() + (Namespace.size() ? Namespace.size() + 2 : 0) };	\
 																													\
 	static constexpr std::array<std::string_view, NumberOfMembers> MemberNames										\
-		= Hazel::Utils::RemoveNamespace<NumberOfMembers>(																	\
-			Hazel::Utils::SplitString<NumberOfMembers>(MemberStr, Delimiter));												\
+		= Engine::Utils::RemoveNamespace<NumberOfMembers>(																	\
+			Engine::Utils::SplitString<NumberOfMembers>(MemberStr, Delimiter));												\
 };
 #endif // !DESCRIBED
 
 
 #ifndef DESCRIBED
-#define DESCRIBED(Class, ...) DESCRIBED_TAGGED(Class, Hazel::Type::TDummyTag, __VA_ARGS__)
+#define DESCRIBED(Class, ...) DESCRIBED_TAGGED(Class, Engine::Type::TDummyTag, __VA_ARGS__)
 #endif
 
 	 //==============================================================================
@@ -524,7 +524,7 @@ public:																	\
 		}, v);
 		return os;
 	}
-} // namespace Hazel::Type
+} // namespace Engine::Type
 
 
 

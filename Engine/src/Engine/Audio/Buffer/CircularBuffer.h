@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	// TODO: typename NumChannels and handle push/pop by multiple values at the same time, or keep counters for a single channel, but increment read position by NumChannels
 	template<typename T, size_t size>
@@ -101,4 +101,4 @@ namespace Hazel::Audio
 		std::array<T, size> m_buf{ T(0) };
 	};
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

@@ -30,7 +30,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace Hazel {
+namespace Engine {
 
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
 		: m_Scene(scene)

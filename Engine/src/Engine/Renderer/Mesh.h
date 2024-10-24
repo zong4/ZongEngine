@@ -15,7 +15,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	struct Vertex
 	{

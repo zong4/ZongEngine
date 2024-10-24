@@ -25,7 +25,7 @@ static ax::NodeEditor::Detail::EditorContext* GetEditorContext()
 	return (ax::NodeEditor::Detail::EditorContext*)(ed::GetCurrentEditor());
 }
 
-namespace Hazel
+namespace Engine
 {
 
 	struct EnumPinContext
@@ -2637,4 +2637,4 @@ namespace Hazel
 		ImGui::TextUnformatted("Show Sort Indices");
 	}
 
-} // namespace Hazel
+} // namespace Engine

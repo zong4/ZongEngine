@@ -7,7 +7,7 @@
 #include <mono/metadata/class.h>
 #include <mono/metadata/object.h>
 
-namespace Hazel {
+namespace Engine {
 
 	bool FieldStorage::GetValueRuntime(Buffer& outBuffer) const
 	{

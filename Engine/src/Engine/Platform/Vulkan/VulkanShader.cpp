@@ -18,7 +18,7 @@
 
 #include "Engine/ImGui/ImGui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	VulkanShader::VulkanShader(const std::string& path, bool forceCompile, bool disableOptimization)
 		: m_AssetPath(path), m_DisableOptimization(disableOptimization)

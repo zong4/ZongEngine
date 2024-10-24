@@ -21,7 +21,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct Cache
 	{

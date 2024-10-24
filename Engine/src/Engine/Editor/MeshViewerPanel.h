@@ -8,7 +8,7 @@
 
 #include "AssetEditorPanel.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// NOTE(Yan): this is SEVERELY WIP
 	class MeshViewerPanel : public AssetEditor

@@ -9,7 +9,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct StateBase;
 
@@ -146,12 +146,12 @@ namespace Hazel::AnimationGraph {
 		glm::quat m_RootRotationEnd;
 
 		AssetHandle m_PreviousAnimation = 0;
-		const Hazel::Animation* m_Animation = nullptr;
+		const Engine::Animation* m_Animation = nullptr;
 
 		float m_AnimationTimePos = 0.0f;
 		float m_PreviousAnimationTimePos = 0.0f;
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph
 
 #undef DECLARE_ID

@@ -35,7 +35,7 @@ extern "C" {
 #define ZONG_THROW_INVALID_OPERATION(msg)
 #endif
 
-namespace Hazel {
+namespace Engine {
 
 	class ScriptUtils;
 

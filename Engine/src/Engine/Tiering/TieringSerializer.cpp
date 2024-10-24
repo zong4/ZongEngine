@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-namespace Hazel {
+namespace Engine {
 
 	static void CreateDirectoriesIfNeeded(const std::filesystem::path& path)
 	{

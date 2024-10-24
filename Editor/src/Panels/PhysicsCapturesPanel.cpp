@@ -4,7 +4,7 @@
 
 #include "Engine/ImGui/ImGui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void PhysicsCapturesPanel::OnImGuiRender(bool& isOpen)
 	{

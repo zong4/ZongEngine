@@ -7,7 +7,7 @@
 #include <choc/containers/choc_Value.h>
 
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct Prototype
 	{
@@ -75,4 +75,4 @@ namespace Hazel::AnimationGraph {
 
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

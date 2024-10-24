@@ -8,7 +8,7 @@
 #include "Engine/Audio/SourceManager.h"
 
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
 
 class DelayLine
@@ -99,4 +99,4 @@ private:
     int m_DelayInt = 0, m_TotalSize = 4;
 };
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP

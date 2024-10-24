@@ -7,7 +7,7 @@
 
 #include "text/choc_JSON.h"
 
-namespace Hazel
+namespace Engine
 {
     bool RefillWavePlayerBuffer(Audio::WaveSource& waveSource, void* userData, uint32_t numFrames)
     {
@@ -469,4 +469,4 @@ namespace Hazel
         flag_PlayRequested.SetDirty();
         return true;
     }
-} // namespace Hazel
+} // namespace Engine

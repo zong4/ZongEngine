@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct IDs
 	{
@@ -172,4 +172,4 @@ namespace Hazel::AnimationGraph {
 
 	};
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

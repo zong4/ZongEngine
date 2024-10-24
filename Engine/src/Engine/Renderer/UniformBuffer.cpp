@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<UniformBuffer> UniformBuffer::Create(uint32_t size)
 	{

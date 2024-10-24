@@ -23,7 +23,7 @@ extern "C" {
 	typedef struct _MonoDomain MonoDomain;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	using ScriptEntityMap = std::unordered_map<UUID, std::vector<UUID>>;
 	using ScriptInstanceMap = std::unordered_map<UUID, GCHandle>;

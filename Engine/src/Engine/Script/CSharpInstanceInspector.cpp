@@ -5,7 +5,7 @@
 
 #include <mono/metadata/object.h>
 
-namespace Hazel {
+namespace Engine {
 
 	CSharpInstanceInspector::CSharpInstanceInspector(MonoObject* instance)
 		: m_Instance(instance)

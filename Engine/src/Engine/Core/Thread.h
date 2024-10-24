@@ -3,7 +3,7 @@
 #include <string>
 #include <thread>
 
-namespace Hazel {
+namespace Engine {
 
 	class Thread
 	{

@@ -4,7 +4,7 @@
 
 #include "VulkanAllocator.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanUniformBuffer : public UniformBuffer
 	{

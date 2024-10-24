@@ -3,7 +3,7 @@
 #include <memory>
 #include "Ref.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void InitializeCore();
 	void ShutdownCore();
@@ -34,7 +34,7 @@ namespace Hazel {
 
 #include "Assert.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// Pointer wrappers
 	template<typename T>

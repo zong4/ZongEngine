@@ -4,7 +4,7 @@
 
 #include "Engine/Physics/ColliderMaterial.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ECollisionComplexity : uint8_t
 	{

@@ -4,16 +4,16 @@
 #include "Log.h"
 #include "Memory.h"
 
-#define HAZEL_BUILD_ID "v0.1a"
+#define ENGINE_BUILD_ID "v0.1a"
 
-namespace Hazel {
+namespace Engine {
 
 	void InitializeCore()
 	{
 		Allocator::Init();
 		Log::Init();
 
-		ZONG_CORE_TRACE_TAG("Core", "Engine Engine {}", HAZEL_BUILD_ID);
+		ZONG_CORE_TRACE_TAG("Core", "Engine Engine {}", ENGINE_BUILD_ID);
 		ZONG_CORE_TRACE_TAG("Core", "Initializing...");
 	}
 

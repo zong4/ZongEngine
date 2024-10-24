@@ -3,7 +3,7 @@
 
 #include "Engine/Renderer/Mesh.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Animation::Animation(const float duration, const uint32_t numTracks)
 	: m_Duration(duration)
@@ -92,7 +92,7 @@ namespace Hazel {
 	}
 
 
-	const Hazel::Animation* AnimationAsset::GetAnimation() const
+	const Engine::Animation* AnimationAsset::GetAnimation() const
 	{
 		if (m_AnimationSource && m_SkeletonSource && m_SkeletonSource->HasSkeleton())
 		{

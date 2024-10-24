@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <map>
 
-namespace Hazel {
+namespace Engine {
 
 #define MAX_INPUT_BUFFER_LENGTH 128
 

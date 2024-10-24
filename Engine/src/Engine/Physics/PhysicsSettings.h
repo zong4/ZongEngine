@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	enum class PhysicsDebugType
 	{

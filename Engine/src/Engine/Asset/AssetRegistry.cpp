@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "AssetRegistry.h"
 
-namespace Hazel {
+namespace Engine {
 
 #define ZONG_ASSETREGISTRY_LOG 0
 #if ZONG_ASSETREGISTRY_LOG

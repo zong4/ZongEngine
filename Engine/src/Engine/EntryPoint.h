@@ -2,10 +2,10 @@
 
 #include "Engine/Core/Application.h"
 
-extern Hazel::Application* Hazel::CreateApplication(int argc, char** argv);
+extern Engine::Application* Engine::CreateApplication(int argc, char** argv);
 bool g_ApplicationRunning = true;
 
-namespace Hazel {
+namespace Engine {
 
 	int Main(int argc, char** argv)
 	{
@@ -27,14 +27,14 @@ namespace Hazel {
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {
-	return Hazel::Main(__argc, __argv);
+	return Engine::Main(__argc, __argv);
 }
 
 #else
 
 int main(int argc, char** argv)
 {
-	return Hazel::Main(argc, argv);
+	return Engine::Main(argc, argv);
 }
 
 #endif // ZONG_DIST

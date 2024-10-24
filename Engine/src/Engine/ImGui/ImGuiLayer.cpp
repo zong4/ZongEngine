@@ -15,7 +15,7 @@
 // Defined in imgui_impl_glfw.cpp
 // extern bool g_DisableImGuiEvents;
 
-namespace Hazel {
+namespace Engine {
 	 
 	ImGuiLayer* ImGuiLayer::Create()
 	{

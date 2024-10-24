@@ -3,7 +3,7 @@
 #include "RendererTypes.h"
 #include "Engine/Core/Log.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ShaderDataType
 	{

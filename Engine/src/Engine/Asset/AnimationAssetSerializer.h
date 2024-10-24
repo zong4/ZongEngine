@@ -2,7 +2,7 @@
 
 #include "Engine/Asset/AssetSerializer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class AnimationAsset;
 	class AnimationGraphAsset;

@@ -5,7 +5,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace Hazel::Math {
+namespace Engine::Math {
 
 	glm::vec3 Scale(const glm::vec3& v, float desiredLength)
 	{

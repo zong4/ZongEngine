@@ -14,7 +14,7 @@
 
 #include <filesystem>
 
-namespace Hazel
+namespace Engine
 {
     // TODO: move "Suspendable" into a CRTP Skill, as well as callback itself. 
     // TODO: Playback interface should be separate from SoundGraph reading source that processes SoundGraph (?)
@@ -208,4 +208,4 @@ namespace Hazel
 		choc::fifo::SingleReaderSingleWriterFIFO<std::function<void()>> m_GraphOutgoingEvents;
 		choc::fifo::SingleReaderSingleWriterFIFO<std::function<void()>> m_GraphOutgoingMessages;
     };
-} // namespace Hazel
+} // namespace Engine

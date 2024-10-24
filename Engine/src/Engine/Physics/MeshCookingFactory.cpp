@@ -5,7 +5,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	std::pair<ECookingResult, ECookingResult> MeshCookingFactory::CookMesh(AssetHandle colliderHandle, bool invalidateOld /*= false*/)
 	{

@@ -12,7 +12,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	ProjectSerializer::ProjectSerializer(Ref<Project> project)
 		: m_Project(project)

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/Base.h"
 
-namespace Hazel::ShaderDef {
+namespace Engine::ShaderDef {
 
 	enum class AOMethod
 	{

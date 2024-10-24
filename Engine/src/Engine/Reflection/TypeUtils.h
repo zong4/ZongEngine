@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-namespace Hazel::Type {
+namespace Engine::Type {
 	//==============================================================================
 	namespace member_pointer {
 		namespace impl {
@@ -175,4 +175,4 @@ namespace Hazel::Type {
 		}
 #endif
 
-} // namespace Hazel::Type
+} // namespace Engine::Type

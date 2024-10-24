@@ -3,7 +3,7 @@
 
 #include <imgui_node_editor_internal.h>
 
-ImVec2 Hazel::Node::GetPosition() const
+ImVec2 Engine::Node::GetPosition() const
 {
 	ax::NodeEditor::Detail::NodeSettings settings(0);
 	ax::NodeEditor::Detail::NodeSettings::Parse(State, settings);
@@ -11,7 +11,7 @@ ImVec2 Hazel::Node::GetPosition() const
 }
 
 
-void Hazel::Node::SetPosition(ImVec2 pos)
+void Engine::Node::SetPosition(ImVec2 pos)
 {
 	ax::NodeEditor::Detail::NodeSettings settings(0);
 	ax::NodeEditor::Detail::NodeSettings::Parse(State, settings);
@@ -23,7 +23,7 @@ void Hazel::Node::SetPosition(ImVec2 pos)
 #if 0
 #include "choc/text/choc_StringUtilities.h"
 
-namespace Hazel::Nodes {
+namespace Engine::Nodes {
 
 	struct ExamplePin : Pin
 	{
@@ -95,6 +95,6 @@ namespace Hazel::Nodes {
 		}
 	};
 
-} // namespace Hazel::Nodes
+} // namespace Engine::Nodes
 #endif
 

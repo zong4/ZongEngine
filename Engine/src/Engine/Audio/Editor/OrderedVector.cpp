@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "OrderedVector.h"
 
-namespace Hazel
+namespace Engine
 {
 
-} // namespace Hazel
+} // namespace Engine

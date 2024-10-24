@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "AudioCallback.h"
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	void processing_node_process_pcm_frames(ma_node* pNode, const float** ppFramesIn, ma_uint32* pFrameCountIn, float** ppFramesOut, ma_uint32* pFrameCountOut)
 	{
@@ -91,4 +91,4 @@ namespace Hazel::Audio
 
 		return m_Node.bInitialized;
 	}
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

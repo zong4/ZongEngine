@@ -5,7 +5,7 @@
 
 #include "VulkanShaderCompiler.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanShaderCache
 	{

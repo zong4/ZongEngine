@@ -3,7 +3,7 @@
 #include "Engine/Core/Application.h"
 #include "Engine/Core/Events/SceneEvents.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void SelectionManager::Select(SelectionContext contextID, UUID selectionID)
 	{

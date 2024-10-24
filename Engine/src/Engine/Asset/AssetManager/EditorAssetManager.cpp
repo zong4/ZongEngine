@@ -12,7 +12,7 @@
 #include "Engine/Core/Application.h"
 #include "Engine/Core/Timer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static AssetMetadata s_NullMetadata;
 

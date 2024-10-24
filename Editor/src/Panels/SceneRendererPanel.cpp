@@ -7,7 +7,7 @@
 
 #include "imgui/imgui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void SceneRendererPanel::OnImGuiRender(bool& isOpen)
 	{

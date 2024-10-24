@@ -27,7 +27,7 @@
 
 #include "choc/text/choc_StringUtilities.h"
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 #define ZONG_MESSAGE_BOX_OK_BUTTON BIT(0)
 #define ZONG_MESSAGE_BOX_CANCEL_BUTTON BIT(1)

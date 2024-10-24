@@ -5,7 +5,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Image2D> Image2D::Create(const ImageSpecification& specification, Buffer buffer)
 	{

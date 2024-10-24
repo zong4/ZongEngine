@@ -5,7 +5,7 @@
 
 #include <imgui_internal.h>
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 	static int s_UIContextID = 0;
 	static uint32_t s_Counter = 0;

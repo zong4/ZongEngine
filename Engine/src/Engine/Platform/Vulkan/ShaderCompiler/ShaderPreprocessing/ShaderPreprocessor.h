@@ -10,7 +10,7 @@
 
 enum VkShaderStageFlagBits;
 
-namespace Hazel {
+namespace Engine {
 	namespace PreprocessUtils {
 		template<bool RemoveHeaderGuard = false>
 		bool ContainsHeaderGuard(std::string& header)
@@ -110,16 +110,16 @@ namespace Hazel {
 
 namespace std {
 	template<>
-	struct hash<Hazel::IncludeData>
+	struct hash<Engine::IncludeData>
 	{
-		size_t operator()(const Hazel::IncludeData& data) const noexcept
+		size_t operator()(const Engine::IncludeData& data) const noexcept
 		{
 			return std::filesystem::hash_value(data.IncludedFilePath) ^ data.HashValue;
 		}
 	};
 }
 
-namespace Hazel {
+namespace Engine {
 	class ShaderPreprocessor
 	{
 	public:

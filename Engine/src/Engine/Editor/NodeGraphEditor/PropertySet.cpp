@@ -9,7 +9,7 @@
 #include "choc/text/choc_StringUtilities.h"
 #include "yaml-cpp/yaml.h"
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	PropertySet::PropertySet() = default;
 	PropertySet::~PropertySet() = default;
@@ -512,4 +512,4 @@ namespace Hazel::Utils {
 		}
 	}
 
-} // namespace Hazel::Utils
+} // namespace Engine::Utils

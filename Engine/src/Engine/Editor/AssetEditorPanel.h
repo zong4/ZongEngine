@@ -4,7 +4,7 @@
 #include "Engine/Core/TimeStep.h"
 #include "Engine/Core/Events/Event.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class AssetEditor
 	{

@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <shared_mutex>
 
-namespace Hazel
+namespace Engine
 {
 	struct LockBase
 	{
@@ -355,4 +355,4 @@ namespace Hazel
 		mutable std::shared_mutex m_Mutex;
 	};
 
-} // namespace Hazel
+} // namespace Engine

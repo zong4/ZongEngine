@@ -4,7 +4,7 @@
 #include "Engine/Audio/SoundGraph/SoundGraphPrototype.h"
 #include "Engine/Serialization/FileStream.h"
 
-namespace Hazel
+namespace Engine
 {
 	class SoundGraphCache : private CompilerCacheBase
 	{
@@ -148,4 +148,4 @@ namespace Hazel
 		std::filesystem::path m_Folder;
 	};
 
-} // namespace Hazel
+} // namespace Engine

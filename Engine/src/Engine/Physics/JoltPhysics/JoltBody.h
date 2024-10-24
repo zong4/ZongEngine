@@ -5,7 +5,7 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Constraints/SixDOFConstraint.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltBody : public PhysicsBody
 	{

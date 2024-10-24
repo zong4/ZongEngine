@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 
-namespace Hazel {
+namespace Engine {
 
 	enum class MaterialFlag
 	{

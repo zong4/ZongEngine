@@ -4,7 +4,7 @@
 #include "StreamReader.h"
 #include "Engine/Core/Buffer.h"
 
-namespace Hazel
+namespace Engine
 {
 	//==============================================================================
 	/// MemoryStreamWriter
@@ -44,4 +44,4 @@ namespace Hazel
 		size_t m_ReadPos = 0;
 	};
 
-} // namespace Hazel
+} // namespace Engine

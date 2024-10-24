@@ -5,7 +5,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{

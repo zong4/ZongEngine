@@ -5,7 +5,7 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	struct AssimpLogStream : public Assimp::LogStream
 	{

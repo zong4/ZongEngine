@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace Hazel::AssimpAnimationImporter {
+namespace Engine::AssimpAnimationImporter {
 
 #ifdef ZONG_DIST
 	Scope<Skeleton> ImportSkeleton(const std::string_view filename) { return nullptr; }

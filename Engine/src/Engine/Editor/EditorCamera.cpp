@@ -9,7 +9,7 @@
 #include "Engine/Core/Application.h"
 #include "Engine/ImGui/ImGui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	EditorCamera::EditorCamera(const float degFov, const float width, const float height, const float nearP, const float farP)
 		: Camera(glm::perspectiveFov(glm::radians(degFov), width, height, farP, nearP), glm::perspectiveFov(glm::radians(degFov), width, height, nearP, farP)), m_FocalPoint(0.0f), m_VerticalFOV(glm::radians(degFov)), m_NearClip(nearP), m_FarClip(farP)

@@ -6,7 +6,7 @@
 
 #include <unordered_set>
 
-namespace Hazel {
+namespace Engine {
 	
 	class VulkanPhysicalDevice : public RefCounted
 	{

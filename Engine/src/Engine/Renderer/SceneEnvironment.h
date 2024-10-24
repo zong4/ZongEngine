@@ -2,7 +2,7 @@
 
 #include "Texture.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class Environment : public Asset
 	{

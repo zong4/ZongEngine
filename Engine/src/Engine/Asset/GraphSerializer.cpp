@@ -10,7 +10,7 @@
 #include "choc/text/choc_JSON.h"
 #include "magic_enum.hpp"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 
@@ -270,8 +270,8 @@ namespace Hazel {
 				{
 					switch (type)
 					{
-						case Hazel::EPinType::Int: v = choc::value::createInt32(v.get<int32_t>()); break;
-						case Hazel::EPinType::Float: v = choc::value::createFloat32(v.get<float>()); break;
+						case Engine::EPinType::Int: v = choc::value::createInt32(v.get<int32_t>()); break;
+						case Engine::EPinType::Float: v = choc::value::createFloat32(v.get<float>()); break;
 						default:
 							break;
 					}
@@ -282,8 +282,8 @@ namespace Hazel {
 					{
 						switch (type)
 						{
-							case Hazel::EPinType::Int: element = choc::value::createInt32(element.get<int32_t>()); break;
-							case Hazel::EPinType::Float: element = choc::value::createFloat32(element.get<float>()); break;
+							case Engine::EPinType::Int: element = choc::value::createInt32(element.get<int32_t>()); break;
+							case Engine::EPinType::Float: element = choc::value::createFloat32(element.get<float>()); break;
 							default:
 								break;
 						}
@@ -800,4 +800,4 @@ namespace Hazel {
 	}
 #endif
 
-} // namespace Hazel
+} // namespace Engine

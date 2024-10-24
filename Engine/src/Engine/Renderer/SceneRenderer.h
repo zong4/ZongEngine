@@ -17,7 +17,7 @@
 
 #include "DebugRenderer.h"
 
-namespace Hazel
+namespace Engine
 {
 
 	struct SceneRendererOptions
@@ -69,7 +69,7 @@ namespace Hazel
 
 	struct SceneRendererCamera
 	{
-		Hazel::Camera Camera;
+		Engine::Camera Camera;
 		glm::mat4 ViewMatrix;
 		float Near, Far; //Non-reversed
 		float FOV;

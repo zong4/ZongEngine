@@ -6,7 +6,7 @@
 
 #include "spdlog/fmt/chrono.h"
 
-namespace Hazel {
+namespace Engine {
 
 	uint64_t Platform::GetCurrentDateTimeU64()
 	{

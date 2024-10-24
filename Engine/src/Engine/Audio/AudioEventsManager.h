@@ -3,7 +3,7 @@
 #include "AudioEngine.h"
 #include "EntityIDMaps.h"
 
-namespace Hazel::Audio {
+namespace Engine::Audio {
 
 	class AudioEventsManager
 	{
@@ -78,4 +78,4 @@ namespace Hazel::Audio {
 		} m_ActionHandler;
 	};
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

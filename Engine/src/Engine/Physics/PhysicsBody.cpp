@@ -8,7 +8,7 @@
 #include <magic_enum.hpp>
 using namespace magic_enum::bitwise_operators; 
 
-namespace Hazel {
+namespace Engine {
 
 	void PhysicsBody::SetAxisLock(EActorAxis axis, bool locked, bool forceWake)
 	{

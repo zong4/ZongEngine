@@ -13,7 +13,7 @@
 
 #include <list>
 
-namespace Hazel {
+namespace Engine {
 
 	template <class T>
 	class Delegate;
@@ -290,4 +290,4 @@ namespace Hazel {
 		std::list<InvocationElement> m_InvocationList;
 	};
 
-} // namespace Hazel
+} // namespace Engine

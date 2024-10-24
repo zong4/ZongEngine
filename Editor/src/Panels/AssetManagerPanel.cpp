@@ -4,7 +4,7 @@
 #include "Engine/Asset/AssetRegistry.h"
 #include "Engine/Asset/AssetManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void AssetManagerPanel::OnImGuiRender(bool& isOpen)
 	{

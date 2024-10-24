@@ -9,7 +9,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace Hazel {
+namespace Engine {
 
 	// TODO(Yan):
 	// - Move these enums/structs to a non-API specific place

@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace Hazel {
+namespace Engine {
 
 	class ProjectSerializer
 	{

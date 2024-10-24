@@ -1,8 +1,8 @@
 #include <pch.h>
 #include "SoundGraph.h"
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

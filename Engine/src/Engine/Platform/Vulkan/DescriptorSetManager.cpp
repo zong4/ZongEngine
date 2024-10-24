@@ -10,7 +10,7 @@
 #include "VulkanUniformBufferSet.h"
 #include "VulkanTexture.h"
 
-namespace Hazel {
+namespace Engine {
 	
 	namespace Utils {
 

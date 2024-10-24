@@ -4,7 +4,7 @@
 
 #include "Engine/Physics/JoltPhysics/JoltShapes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<ImmutableCompoundShape> ImmutableCompoundShape::Create(Entity entity)
 	{

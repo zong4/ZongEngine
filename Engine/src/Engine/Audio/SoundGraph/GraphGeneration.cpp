@@ -14,7 +14,7 @@
 
 #include "text/choc_StringUtilities.h"
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 
 	//==============================================================================
 	struct Parser
@@ -125,7 +125,7 @@ namespace Hazel::SoundGraph {
 			// TODO:    parse initial values into some sort of 'Init' struct,
 			//          or just use the PropertySet directly to set values after the patch has been compiled
 
-			const Hazel::Utils::PropertySet& inputs = Graph->GraphInputs;
+			const Engine::Utils::PropertySet& inputs = Graph->GraphInputs;
 
 			for (const auto& inputName : inputs.GetNames())
 			{
@@ -151,7 +151,7 @@ namespace Hazel::SoundGraph {
 		void ParseNodes()
 		{
 			const std::vector<Node*>& nodes = Graph->Nodes;
-			const Hazel::Utils::PropertySet& graphInputs = Graph->GraphInputs;
+			const Engine::Utils::PropertySet& graphInputs = Graph->GraphInputs;
 
 			// TODO: the order matters, as it determintes initialization order
 

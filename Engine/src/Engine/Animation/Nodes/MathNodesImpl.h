@@ -2,7 +2,7 @@
 
 #include "NodeDescriptors.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	template<typename T>
 	Add<T>::Add(const char* dbgName, UUID id) : NodeProcessor(dbgName, id)

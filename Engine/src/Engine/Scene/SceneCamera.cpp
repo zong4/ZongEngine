@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SceneCamera.h"
 
-namespace Hazel {
+namespace Engine {
 
 
 	void SceneCamera::SetPerspective(float degVerticalFOV, float nearClip, float farClip)

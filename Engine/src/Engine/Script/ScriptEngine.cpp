@@ -26,7 +26,7 @@
 
 #include <stack>
 
-namespace Hazel {
+namespace Engine {
 #ifdef ZONG_PLATFORM_WINDOWS
 	using WatcherString = std::wstring;
 #else

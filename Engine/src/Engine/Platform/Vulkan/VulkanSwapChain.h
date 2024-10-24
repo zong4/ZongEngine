@@ -11,7 +11,7 @@
 
 struct GLFWwindow;
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanSwapChain
 	{

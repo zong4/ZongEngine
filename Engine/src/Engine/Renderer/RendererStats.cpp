@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RendererStats.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace RendererUtils {
 

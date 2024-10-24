@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace Hazel {
+namespace Engine {
 
 	using RendererID = uint32_t;
 

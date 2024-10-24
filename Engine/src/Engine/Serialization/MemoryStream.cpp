@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MemoryStream.h"
 
-namespace Hazel
+namespace Engine
 {
 	//==============================================================================
 	/// MemoryStreamWriter
@@ -45,4 +45,4 @@ namespace Hazel
 		return true;
 	}
 
-} // namespace Hazel
+} // namespace Engine

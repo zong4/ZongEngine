@@ -47,7 +47,7 @@
 
 #include <functional>
 
-namespace Hazel {
+namespace Engine {
 
 #ifdef ZONG_PLATFORM_WINDOWS
 #define ZONG_FUNCTION_NAME __func__
@@ -4614,7 +4614,7 @@ namespace Hazel {
 				}
 				else
 				{
-					ErrorWithTrace("meshHandle doesn't correspond with a Mesh? AssetType: {1}", Hazel::Utils::AssetTypeToString(AssetManager::GetAssetType(*meshHandle)));
+					ErrorWithTrace("meshHandle doesn't correspond with a Mesh? AssetType: {1}", Engine::Utils::AssetTypeToString(AssetManager::GetAssetType(*meshHandle)));
 					return nullptr;
 				}
 			}

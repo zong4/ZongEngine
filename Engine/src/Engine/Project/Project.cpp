@@ -7,7 +7,7 @@
 
 #include "Engine/Physics/PhysicsSystem.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Project::Project()
 	{

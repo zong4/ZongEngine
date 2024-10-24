@@ -10,7 +10,7 @@
 
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel
+namespace Engine
 {
     using namespace Audio;
     using EPlayState = ESoundPlayState;
@@ -32,7 +32,7 @@ namespace Hazel
         // and uninitialized when the engine is shut down. At least at this moment.
     }
 
-	bool Hazel::SoundGraphSound::InitializeAudioCallback()
+	bool Engine::SoundGraphSound::InitializeAudioCallback()
 	{
 		bool result = true;
 
@@ -483,7 +483,7 @@ namespace Hazel
     {
     }
 
-    void SoundGraphSound::Update(Hazel::Timestep ts)
+    void SoundGraphSound::Update(Engine::Timestep ts)
     {
         ZONG_PROFILE_FUNC();
 
@@ -689,4 +689,4 @@ namespace Hazel
         //~return (float)currentFrame / (float)totalFrames;
     }
 
-} // namespace Hazel
+} // namespace Engine

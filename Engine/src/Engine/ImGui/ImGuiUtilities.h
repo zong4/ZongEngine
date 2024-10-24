@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace Hazel::UI {
+namespace Engine::UI {
 	//=========================================================================================
 	/// Utilities
 	ImTextureID GetTextureID(Ref<Texture2D> texture);
@@ -1009,4 +1009,4 @@ namespace Hazel::UI {
 		return false;
 	}
 
-} // namespace Hazel::UI
+} // namespace Engine::UI

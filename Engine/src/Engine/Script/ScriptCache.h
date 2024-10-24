@@ -19,7 +19,7 @@
 //																	 }
 #define ZONG_SCRIPT_CLASS_ID(name) Hash::GenerateFNVHash(name)
 
-namespace Hazel {
+namespace Engine {
 
 	class ScriptCache
 	{

@@ -9,7 +9,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanRenderer : public RendererAPI
 	{

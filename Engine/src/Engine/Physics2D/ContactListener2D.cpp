@@ -2,7 +2,7 @@
 #include "ContactListener2D.h"
 #include "Engine/Scene/Scene.h"
 
-namespace Hazel {
+namespace Engine {
 
 	void ContactListener2D::BeginContact(b2Contact* contact)
 	{

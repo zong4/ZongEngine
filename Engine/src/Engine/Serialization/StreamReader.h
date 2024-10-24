@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Buffer.h"
 
-namespace Hazel
+namespace Engine
 {
 	class StreamReader
 	{
@@ -122,4 +122,4 @@ namespace Hazel
 		}
 	};
 
-} // namespace Hazel
+} // namespace Engine

@@ -9,7 +9,7 @@
 #define LOG_EVENTS(...)
 #endif
 
-namespace Hazel::Audio {
+namespace Engine::Audio {
 
 	AudioEventsManager::AudioEventsManager(MiniAudioEngine& audioEngine)
 		: m_AudioEngine(audioEngine)
@@ -387,4 +387,4 @@ namespace Hazel::Audio {
 		return true;
 	}
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SoundObject.h"
 
-namespace Hazel
+namespace Engine
 {
     std::string SoundObject::StringFromState(ESoundPlayState state)
     {
@@ -49,4 +49,4 @@ namespace Hazel
         return m_Sound.get();
     }
 
-} // namespace Hazel
+} // namespace Engine

@@ -16,7 +16,7 @@
 struct IDxcCompiler3;
 struct IDxcUtils;
 
-namespace Hazel {
+namespace Engine {
 
 	struct DxcInstances
 	{

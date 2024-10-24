@@ -5,7 +5,7 @@
 
 #include "VulkanContext.h"
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 

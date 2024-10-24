@@ -3,7 +3,7 @@
 #include "Engine/Editor/NodeGraphEditor/NodeGraphEditor.h"
 #include "Engine/Editor/NodeGraphEditor/SoundGraph/SoundGraphEditorTypes.h"
 
-namespace Hazel {
+namespace Engine {
 	class SoundGraphNodeGraphEditor final : public IONodeGraphEditor
 	{
 	public:
@@ -19,4 +19,4 @@ namespace Hazel {
 		void DrawPinIcon(const Pin* pin, bool connected, int alpha) override;
 	};
 
-} // namespace Hazel
+} // namespace Engine

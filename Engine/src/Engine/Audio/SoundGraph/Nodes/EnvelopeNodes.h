@@ -4,7 +4,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 	//==========================================================================
 	struct ADEnvelope : public NodeProcessor
 	{
@@ -160,6 +160,6 @@ namespace Hazel::SoundGraph {
 		}
 	};
 
-} //Hazel::SoundGraph
+} //Engine::SoundGraph
 
 #undef DECLARE_ID

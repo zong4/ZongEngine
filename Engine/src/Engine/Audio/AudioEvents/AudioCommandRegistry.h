@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 	class AudioCommandRegistry : public RefCounted
 	{
 	public:
@@ -81,5 +81,5 @@ namespace Hazel {
 		inline static WeakRef<AudioCommandRegistry> s_ActiveRegistry;
 	};
 
-} // namespace Hazel
+} // namespace Engine
 

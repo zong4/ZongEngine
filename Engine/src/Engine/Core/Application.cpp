@@ -34,7 +34,7 @@
 
 extern bool g_ApplicationRunning;
 extern ImGuiContext* GImGui;
-namespace Hazel {
+namespace Engine {
 
 #define BIND_EVENT_FN(fn) std::bind(&Application::##fn, this, std::placeholders::_1)
 

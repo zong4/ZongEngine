@@ -6,7 +6,7 @@
 
 #include "ShaderPreprocessor.h"
 
-namespace Hazel {
+namespace Engine {
 	struct IncludeData;
 
 	class GlslIncluder : public shaderc::CompileOptions::IncluderInterface

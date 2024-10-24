@@ -16,7 +16,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	//==============================================================================
 	/// Raw Sound Graph containing Inputs, Outputs and Nodes
@@ -513,7 +513,7 @@ namespace Hazel::SoundGraph
 
 	};
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph
 
 #undef DECLARE_ID
 #undef LOG_DBG_MESSAGES

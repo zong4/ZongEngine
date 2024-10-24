@@ -6,9 +6,9 @@
 #include "Engine/Asset/AssetManager.h"
 #include "Engine/Utilities/ContainerUtils.h"
 
-namespace AG = Hazel::AnimationGraph;
+namespace AG = Engine::AnimationGraph;
 
-namespace Hazel {
+namespace Engine {
 
 	AssetHandle AnimationGraphAsset::GetSkeletonHandle() const
 	{

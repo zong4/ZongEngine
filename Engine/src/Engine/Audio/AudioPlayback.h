@@ -7,7 +7,7 @@
 
 #include <optional>
 
-namespace Hazel
+namespace Engine
 {
 	/*  ========================================
 		Audio Playback interface

@@ -21,7 +21,7 @@
 
 #include "Engine/Scene/Scene.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ShaderLibrary;
 

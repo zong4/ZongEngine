@@ -10,14 +10,14 @@
 #include <imgui-node-editor/imgui_node_editor_internal.h>
 
 namespace ed = ax::NodeEditor;
-namespace AG = Hazel::AnimationGraph;
+namespace AG = Engine::AnimationGraph;
 
 static ax::NodeEditor::Detail::EditorContext* GetEditorContext()
 {
 	return (ax::NodeEditor::Detail::EditorContext*)(ed::GetCurrentEditor());
 }
 
-namespace Hazel {
+namespace Engine {
 
 	AnimationGraphEditor::AnimationGraphEditor() : IONodeGraphEditor("Animation Graph Editor")
 	{

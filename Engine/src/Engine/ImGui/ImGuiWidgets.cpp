@@ -4,7 +4,7 @@
 #include "Engine/Asset/AssetManager.h"
 #include "Engine/Scene/Components.h"
 
-namespace Hazel::UI
+namespace Engine::UI
 {
 	bool Widgets::AssetSearchPopup(const char* ID, AssetType assetType, AssetHandle& selected, bool* cleared, const char* hint /*= "Search Assets"*/, ImVec2 size)
 	{
@@ -494,4 +494,4 @@ namespace Hazel::UI
 		return modified;
 	}
 
-} // namespace Hazel::UI
+} // namespace Engine::UI

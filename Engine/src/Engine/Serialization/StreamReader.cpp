@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "StreamReader.h"
 
-namespace Hazel
+namespace Engine
 {
 	void StreamReader::ReadBuffer(Buffer& buffer, uint32_t size)
 	{
@@ -22,4 +22,4 @@ namespace Hazel
 		ReadData((char*)string.data(), sizeof(char) * size);
 	}
 
-} // namespace Hazel
+} // namespace Engine

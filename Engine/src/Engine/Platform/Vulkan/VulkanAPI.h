@@ -2,7 +2,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace Hazel::Vulkan {
+namespace Engine::Vulkan {
 
 	VkDescriptorSetAllocateInfo DescriptorSetAllocInfo(const VkDescriptorSetLayout* layouts, uint32_t count = 1, VkDescriptorPool pool = nullptr);
 

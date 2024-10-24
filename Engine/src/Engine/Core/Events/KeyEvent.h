@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 
 	class KeyEvent : public Event
 	{

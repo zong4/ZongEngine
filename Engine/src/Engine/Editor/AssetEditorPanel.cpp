@@ -10,7 +10,7 @@
 #include "MeshViewerPanel.h"
 #include "MeshColliderEditor.h"
 
-namespace Hazel {
+namespace Engine {
 
 	AssetEditor::AssetEditor(const char* id)
 		: m_Id(id), m_MinSize(200, 400), m_MaxSize(2000, 2000)

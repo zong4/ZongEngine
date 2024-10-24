@@ -2,7 +2,7 @@
 
 #include "StorageBuffer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class StorageBufferSet : public RefCounted
 	{

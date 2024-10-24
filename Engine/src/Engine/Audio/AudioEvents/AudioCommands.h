@@ -3,7 +3,7 @@
 #include "Engine/Audio/Sound.h"
 #include "Engine/Audio/Editor/OrderedVector.h"
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	enum EActionType : int
 	{
@@ -50,7 +50,7 @@ namespace Hazel::Audio
 	struct TriggerCommand : public CommandBase
 	{
 		virtual ECommandType GetType() const override { return ECommandType::Trigger; }
-		Hazel::OrderedVector<TriggerAction> Actions;
+		Engine::OrderedVector<TriggerAction> Actions;
 
 		/* This is used when need to skip executing the Event to the next Update, e.g. waiting for "stop-fade"
 		   It might be useful to have in a base class, or in some other, more generic form. */
@@ -85,9 +85,9 @@ namespace Hazel::Audio
 
 
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio
 
-namespace Hazel::Utils {
+namespace Engine::Utils {
 
 	inline Audio::EActionType AudioActionTypeFromString(const std::string& actionType)
 	{
@@ -149,4 +149,4 @@ namespace Hazel::Utils {
 		return "None";
 	}
 
-} // namespace Hazel::Utils
+} // namespace Engine::Utils

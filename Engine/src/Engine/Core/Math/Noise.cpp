@@ -3,7 +3,7 @@
 
 #include "FastNoise.h"
 
-namespace Hazel {
+namespace Engine {
 
 	static FastNoise s_FastNoise;
 	static std::uniform_real_distribution<float> s_Jitters(0.f, 1.f);

@@ -4,7 +4,7 @@
 #include "Engine/Serialization/FileStream.h"
 #include "Engine/Renderer/Mesh.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MeshSourceSerializer : public AssetSerializer
 	{

@@ -5,7 +5,7 @@
 
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltCharacterController : public CharacterController
 	{

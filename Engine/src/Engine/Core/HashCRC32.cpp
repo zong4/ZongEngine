@@ -33,7 +33,7 @@ static_assert(
     );
 
 
-namespace Hazel
+namespace Engine
 {
 
     uint32_t Hash::CRC32(const char* str)

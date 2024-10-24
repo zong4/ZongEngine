@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Scene.h"
 
-namespace Hazel {
+namespace Engine {
 	UUID Entity::GetSceneUUID() const
 	{
 		return m_Scene->m_SceneID;

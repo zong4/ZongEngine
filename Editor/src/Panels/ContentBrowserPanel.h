@@ -15,7 +15,7 @@
 
 #define MAX_INPUT_BUFFER_LENGTH 128
 
-namespace Hazel {
+namespace Engine {
 
 	class SelectionStack
 	{

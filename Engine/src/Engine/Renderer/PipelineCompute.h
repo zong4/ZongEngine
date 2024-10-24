@@ -5,7 +5,7 @@
 #include "Engine/Renderer/RenderCommandBuffer.h"
 #include "Engine/Renderer/StorageBuffer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class PipelineCompute : public RefCounted
 	{

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <mutex>
 
-namespace Hazel {
+namespace Engine {
 	//==============================================================================
 	/**
 		CompilerCache base layer that implements cache error handling.
@@ -202,4 +202,4 @@ namespace Hazel {
 		std::filesystem::path m_Folder;
 	};
 
-} // namespace Hazel
+} // namespace Engine

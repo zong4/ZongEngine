@@ -10,13 +10,13 @@
 // Using the same string transformation here as in the editor nodes factory
 // to translate NodeProcessor type to friendly name ensures that they are going to match.
 // This allows us to minimizes name coupling.
-#define NODE(name) { Identifier(Hazel::Utils::CreateUserFriendlyTypeName(#name)), [](UUID nodeID) { return new name(#name, nodeID); } }
+#define NODE(name) { Identifier(Engine::Utils::CreateUserFriendlyTypeName(#name)), [](UUID nodeID) { return new name(#name, nodeID); } }
 #define NODE_ALIAS(aliasName, processor) { Identifier(aliasName), [](UUID nodeID) { return new processor(aliasName, nodeID); } }
 
  //? slight connascence of type with aliases, we add the same pair to the editor registry in SoundGraphNodes.cpp
-namespace Alias = Hazel::SoundGraph::NameAliases;
+namespace Alias = Engine::SoundGraph::NameAliases;
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	//==============================================================================
 	using Registry = std::unordered_map<Identifier, std::function<NodeProcessor*(UUID nodeID)>>;
@@ -111,4 +111,4 @@ namespace Hazel::SoundGraph
 		return NodeProcessors.count(nodeTypeID);
 	}
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

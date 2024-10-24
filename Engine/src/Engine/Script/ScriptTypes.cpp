@@ -8,7 +8,7 @@
 #include <mono/metadata/tokentype.h>
 #include <mono/metadata/reflection.h>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace TypeUtils {
 		bool ContainsAttribute(void* attributeList, const std::string& attributeName)

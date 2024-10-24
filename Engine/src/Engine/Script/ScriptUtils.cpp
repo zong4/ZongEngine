@@ -14,7 +14,7 @@
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/tokentype.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct MethodThunkCache
 	{

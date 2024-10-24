@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	class CharacterController : public RefCounted
 	{

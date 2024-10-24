@@ -5,7 +5,7 @@
 
 #include "Engine/Asset/TextureImporter.h"
 
-namespace Hazel {
+namespace Engine {
 
 	uint64_t TextureRuntimeSerializer::SerializeToFile(Ref<TextureCube> textureCube, FileStreamWriter& stream)
 	{

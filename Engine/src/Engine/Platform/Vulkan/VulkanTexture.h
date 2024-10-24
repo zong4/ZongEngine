@@ -6,7 +6,7 @@
 
 #include "VulkanImage.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanTexture2D : public Texture2D
 	{

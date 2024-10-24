@@ -4,7 +4,7 @@
 
 #include "AssetTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	inline static std::unordered_map<std::string, AssetType> s_AssetExtensionMap =
 	{

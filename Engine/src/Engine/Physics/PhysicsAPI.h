@@ -5,7 +5,7 @@
 #include "PhysicsBody.h"
 #include "PhysicsCaptureManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class PhysicsAPIType
 	{

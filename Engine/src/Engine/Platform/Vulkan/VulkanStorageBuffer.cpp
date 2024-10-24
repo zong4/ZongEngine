@@ -3,7 +3,7 @@
 
 #include "VulkanContext.h"
 
-namespace Hazel {
+namespace Engine {
 
 #define NO_STAGING 1
 

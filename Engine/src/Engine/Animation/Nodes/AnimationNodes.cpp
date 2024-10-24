@@ -6,7 +6,7 @@
 #include "Engine/Asset/AssetManager.h"
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	AnimationPlayer::AnimationPlayer(const char* dbgName, UUID id) : NodeProcessor(dbgName, id)
 	{

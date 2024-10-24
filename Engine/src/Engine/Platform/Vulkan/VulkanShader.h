@@ -8,7 +8,7 @@
 
 #include "VulkanMemoryAllocator/vk_mem_alloc.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanShader : public Shader
 	{

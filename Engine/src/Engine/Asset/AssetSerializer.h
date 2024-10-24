@@ -6,7 +6,7 @@
 #include "Engine/Serialization/FileStream.h"
 #include "Engine/Serialization/AssetPackFile.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MaterialAsset;
 	class MeshColliderAsset;

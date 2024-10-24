@@ -5,13 +5,13 @@
 
 #include "Engine/Serialization/SerializationImpl.h"
 
-namespace Hazel
+namespace Engine
 {
 	class StreamWriter;
 	class StreamReader;
 }
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	//==============================================================================
 	/// SoundGraph Prototype, used to construct instances of SoundGraph for playback
@@ -31,8 +31,8 @@ namespace Hazel::SoundGraph
 			Endpoint()
 				: EndpointID(0), DefaultValue() {}
 
-			static void Serialize(Hazel::StreamWriter* writer, const Endpoint& endpoint);
-			static void Deserialize(Hazel::StreamReader* reader, Endpoint& endpoint);
+			static void Serialize(Engine::StreamWriter* writer, const Endpoint& endpoint);
+			static void Deserialize(Engine::StreamReader* reader, Endpoint& endpoint);
 		};
 
 		//==============================================================================
@@ -55,8 +55,8 @@ namespace Hazel::SoundGraph
 			Node(Identifier typeID, UUID uniqueID) : NodeTypeID(typeID), ID(uniqueID) {}
 			Node() : NodeTypeID(0), ID(0) {}
 
-			static void Serialize(Hazel::StreamWriter* writer, const Node& endpoint);
-			static void Deserialize(Hazel::StreamReader* reader, Node& endpoint);
+			static void Serialize(Engine::StreamWriter* writer, const Node& endpoint);
+			static void Deserialize(Engine::StreamReader* reader, Node& endpoint);
 		};
 
 		std::vector<Node> Nodes;
@@ -92,20 +92,20 @@ namespace Hazel::SoundGraph
 			Connection()
 				: Source{ 0, 0 }, Destination{ 0, 0 }, Type(NodeValue_NodeValue) {}
 
-			static void Serialize(Hazel::StreamWriter* writer, const Connection& endpoint);
-			static void Deserialize(Hazel::StreamReader* reader, Connection& endpoint);
+			static void Serialize(Engine::StreamWriter* writer, const Connection& endpoint);
+			static void Deserialize(Engine::StreamReader* reader, Connection& endpoint);
 		};
 
 		// Used to create a copy of the graph
 		std::vector<Connection> Connections;
 
-		static void Serialize(Hazel::StreamWriter* writer, const Prototype& prototype);
-		static void Deserialize(Hazel::StreamReader* reader, Prototype& prototype);
+		static void Serialize(Engine::StreamWriter* writer, const Prototype& prototype);
+		static void Deserialize(Engine::StreamReader* reader, Prototype& prototype);
 	};
 
-} // namspace Hazel::SoundGraph
+} // namspace Engine::SoundGraph
 
-using Prototype = Hazel::SoundGraph::Prototype;
+using Prototype = Engine::SoundGraph::Prototype;
 
 SERIALIZABLE(Prototype,
 	&Prototype::DebugName,
@@ -122,7 +122,7 @@ SERIALIZABLE(Prototype::Node,
 	&Prototype::Node::ID,
 	&Prototype::Node::DefaultValuePlugs);
 
-namespace Hazel::Serialization
+namespace Engine::Serialization
 {
 	using PEndpoint = Prototype::Endpoint;
 
@@ -140,7 +140,7 @@ namespace Hazel::Serialization
 		//=============================================================================
 		// Serialization
 		template<>
-		static inline bool SerializeImpl(Hazel::StreamWriter* writer, const choc::value::Value& v)
+		static inline bool SerializeImpl(Engine::StreamWriter* writer, const choc::value::Value& v)
 		{
 			struct ValueSerializer wrapper;
 			v.serialise(wrapper);
@@ -151,7 +151,7 @@ namespace Hazel::Serialization
 
 
 		template<>
-		static inline bool SerializeImpl(Hazel::StreamWriter* writer, const Prototype::Connection& v)
+		static inline bool SerializeImpl(Engine::StreamWriter* writer, const Prototype::Connection& v)
 		{
 			writer->WriteRaw(v);
 			return true;
@@ -161,7 +161,7 @@ namespace Hazel::Serialization
 		// Deserialization
 
 		template<>
-		static inline bool DeserializeImpl(Hazel::StreamReader* reader, choc::value::Value& v)
+		static inline bool DeserializeImpl(Engine::StreamReader* reader, choc::value::Value& v)
 		{
 			std::vector<uint8_t> data;
 			reader->ReadArray(data);
@@ -171,12 +171,12 @@ namespace Hazel::Serialization
 		}
 
 		template<>
-		static inline bool DeserializeImpl(Hazel::StreamReader* reader, Prototype::Connection& v)
+		static inline bool DeserializeImpl(Engine::StreamReader* reader, Prototype::Connection& v)
 		{
 			reader->ReadRaw(v);
 			return true;
 		}
 	} // namespace Impl
 #endif
-} // namespace Hazel::Type
+} // namespace Engine::Type
 

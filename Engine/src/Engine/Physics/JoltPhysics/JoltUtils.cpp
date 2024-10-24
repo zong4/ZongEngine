@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "JoltUtils.h"
 
-namespace Hazel::JoltUtils {
+namespace Engine::JoltUtils {
 
 	JPH::Vec3 ToJoltVector(const glm::vec3& vector) { return JPH::Vec3(vector.x, vector.y, vector.z); }
 	JPH::Quat ToJoltQuat(const glm::quat& quat) { return JPH::Quat(quat.x, quat.y, quat.z, quat.w); }

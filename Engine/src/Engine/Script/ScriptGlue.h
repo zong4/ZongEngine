@@ -14,13 +14,13 @@ extern "C" {
 	typedef struct _MonoReflectionType MonoReflectionType;
 }
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	class CommandID;
 	struct Transform;
 }
 
-namespace Hazel {
+namespace Engine {
 
 	// Forward declarations
 	class Noise;

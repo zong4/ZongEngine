@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 
 	class LayerStack
 	{

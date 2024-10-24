@@ -9,7 +9,7 @@
 #include "Engine/Editor/NodeGraphEditor/NodeGraphUtils.h"
 #include "Engine/Editor/NodeGraphEditor/PropertySet.h"
 
-namespace Hazel {
+namespace Engine {
 
 	//==================================================================================
 	/// SoundGraph Graph Editor Model
@@ -67,4 +67,4 @@ namespace Hazel {
 		Scope<SoundGraphCache> m_Cache = nullptr;
 	};
 
-} // namespace Hazel
+} // namespace Engine

@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-namespace Hazel
+namespace Engine
 {
 
 	class Camera

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ImGuiFonts.h"
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 	static std::unordered_map<std::string, ImFont*> s_Fonts;
 

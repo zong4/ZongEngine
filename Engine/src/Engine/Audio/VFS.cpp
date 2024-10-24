@@ -3,7 +3,7 @@
 
 #include "Engine/Serialization/StreamReader.h"
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	struct VFSFile
 	{
@@ -174,4 +174,4 @@ namespace Hazel::Audio
 		return MA_SUCCESS;
 	}
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

@@ -5,7 +5,7 @@
 
 #include "Engine/ImGui/ImGui.h"
 
-namespace Hazel {
+namespace Engine {
 
 	ApplicationSettingsPanel::ApplicationSettingsPanel()
 	{

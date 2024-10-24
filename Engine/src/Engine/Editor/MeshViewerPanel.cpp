@@ -18,7 +18,7 @@
 #include <assimp/scene.h>
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 		glm::mat4 Mat4FromAIMatrix4x4(const aiMatrix4x4& matrix);

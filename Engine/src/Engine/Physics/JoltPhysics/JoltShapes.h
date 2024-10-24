@@ -12,7 +12,7 @@
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltImmutableCompoundShape : public ImmutableCompoundShape
 	{

@@ -9,7 +9,7 @@
 #include "Texture.h"
 #include "PipelineCompute.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct ComputePassSpecification
 	{

@@ -4,7 +4,7 @@
 
 #include "Engine/Renderer/Texture.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class TextureRuntimeSerializer
 	{

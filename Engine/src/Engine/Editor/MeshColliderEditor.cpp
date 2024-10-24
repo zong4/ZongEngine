@@ -9,7 +9,7 @@
 
 #include <stack>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 
@@ -599,12 +599,12 @@ namespace Hazel {
 			{
 				switch (cookingResult)
 				{
-					case Hazel::ECookingResult::ZeroAreaTestFailed: return "Failed to find 4 initial vertices without a small triangle.";
-					case Hazel::ECookingResult::PolygonLimitReached:
+					case Engine::ECookingResult::ZeroAreaTestFailed: return "Failed to find 4 initial vertices without a small triangle.";
+					case Engine::ECookingResult::PolygonLimitReached:
 						return "Successfully cooked mesh collider, but mesh polygon count exceeds 255. Either reduce the number of polygons(or use a simplified mesh for the collider), or enable the \"Quantize Input\" option.";
-					case Hazel::ECookingResult::LargeTriangle: return "Failed to cook triangle mesh because one or more triangles are too large. Tessellate the mesh to reduce triangle size.";
-					case Hazel::ECookingResult::InvalidMesh: return "Failed to cook mesh because an invalid mesh was provided. Please make sure you provide a valid mesh.";
-					case Hazel::ECookingResult::Failure: return "An unknown error occurred. Please check the output logs.";
+					case Engine::ECookingResult::LargeTriangle: return "Failed to cook triangle mesh because one or more triangles are too large. Tessellate the mesh to reduce triangle size.";
+					case Engine::ECookingResult::InvalidMesh: return "Failed to cook mesh because an invalid mesh was provided. Please make sure you provide a valid mesh.";
+					case Engine::ECookingResult::Failure: return "An unknown error occurred. Please check the output logs.";
 				}
 
 				return "";

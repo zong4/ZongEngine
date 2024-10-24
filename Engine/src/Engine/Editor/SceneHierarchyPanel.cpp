@@ -31,7 +31,7 @@
 
 using namespace magic_enum::bitwise_operators; // out-of-the-box bitwise operators for enums.
 
-namespace Hazel {
+namespace Engine {
 
 	static ImRect s_WindowBounds;
 	static bool s_ActivateSearchWidget = false;

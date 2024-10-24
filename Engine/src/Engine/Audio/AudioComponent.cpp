@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "AudioComponent.h"
 
-namespace Hazel
+namespace Engine
 {
 
 
-} // namespace Hazel
+} // namespace Engine

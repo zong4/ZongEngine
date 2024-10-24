@@ -8,7 +8,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanComputePipeline : public PipelineCompute
 	{

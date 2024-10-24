@@ -5,7 +5,7 @@
 
 #include "Utils/SoundGraphCache.h"
 
-namespace Hazel::SoundGraph
+namespace Engine::SoundGraph
 {
 	struct GraphGeneratorOptions
 	{
@@ -23,4 +23,4 @@ namespace Hazel::SoundGraph
 	/** Create instance of SoundGraph from Prototype for playback */
 	Ref<SoundGraph> CreateInstance(const Ref<Prototype>& prototype);
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

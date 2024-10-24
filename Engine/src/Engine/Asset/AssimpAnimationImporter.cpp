@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace Utils {
 		glm::mat4 Mat4FromAIMatrix4x4(const aiMatrix4x4& matrix);
@@ -419,7 +419,7 @@ namespace Hazel {
 		}
 
 
-		Scope<Hazel::Skeleton> BoneHierarchy::CreateSkeleton()
+		Scope<Engine::Skeleton> BoneHierarchy::CreateSkeleton()
 		{
 			if (!m_Scene)
 			{

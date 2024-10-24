@@ -7,7 +7,7 @@
 
 #include "Engine/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Ref<RenderPass> RenderPass::Create(const RenderPassSpecification& spec)
 	{

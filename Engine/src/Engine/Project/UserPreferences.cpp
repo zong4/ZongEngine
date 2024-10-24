@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace Hazel {
+namespace Engine {
 
 	UserPreferencesSerializer::UserPreferencesSerializer(const Ref<UserPreferences>& preferences)
 		: m_Preferences(preferences)

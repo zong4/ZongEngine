@@ -5,7 +5,7 @@
 #include "NodeGraphEditor.h"
 #include "imgui-node-editor/imgui_node_editor.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct NodeGraphEditorBase::ContextState
 	{

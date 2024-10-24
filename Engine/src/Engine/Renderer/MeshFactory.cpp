@@ -6,7 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace Hazel {
+namespace Engine {
 
 	AssetHandle MeshFactory::CreateBox(const glm::vec3& size)
 	{

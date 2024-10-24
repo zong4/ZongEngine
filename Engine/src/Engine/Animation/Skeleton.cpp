@@ -5,7 +5,7 @@
 #include "Engine/Math/Math.h"
 #include "Engine/Renderer/Mesh.h"
 
-namespace Hazel {
+namespace Engine {
 
 	Skeleton::Skeleton(uint32_t size)
 	{
@@ -66,12 +66,12 @@ namespace Hazel {
 	{
 	}
 
-	Hazel::Ref<Hazel::MeshSource> SkeletonAsset::GetMeshSource() const
+	Engine::Ref<Engine::MeshSource> SkeletonAsset::GetMeshSource() const
 	{
 		return m_MeshSource;
 	}
 
-	const Hazel::Skeleton& SkeletonAsset::GetSkeleton() const
+	const Engine::Skeleton& SkeletonAsset::GetSkeleton() const
 	{
 		ZONG_CORE_ASSERT(m_MeshSource && m_MeshSource->HasSkeleton());
 		return m_MeshSource->GetSkeleton();

@@ -5,7 +5,7 @@
 
 #include <queue>
 
-namespace Hazel
+namespace Engine
 {
     class MiniAudioEngine;
     class SoundGraphCache;
@@ -88,4 +88,4 @@ namespace Hazel
         };
     };
 
-} // namespace Hazel
+} // namespace Engine

@@ -4,7 +4,7 @@
 
 #include "Pipeline.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class RenderCommandBuffer : public RefCounted
 	{

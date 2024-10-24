@@ -9,9 +9,9 @@
 
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel {
+namespace Engine {
 
-	static Hazel::AllocationStats s_GlobalStats;
+	static Engine::AllocationStats s_GlobalStats;
 
 	static bool s_InInit = false;
 
@@ -155,67 +155,67 @@ namespace Hazel {
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new(size_t size)
 {
-	return Hazel::Allocator::Allocate(size);
+	return Engine::Allocator::Allocate(size);
 }
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new[](size_t size)
 {
-	return Hazel::Allocator::Allocate(size);
+	return Engine::Allocator::Allocate(size);
 }
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new(size_t size, const char* desc)
 {
-	return Hazel::Allocator::Allocate(size, desc);
+	return Engine::Allocator::Allocate(size, desc);
 }
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new[](size_t size, const char* desc)
 {
-	return Hazel::Allocator::Allocate(size, desc);
+	return Engine::Allocator::Allocate(size, desc);
 }
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new(size_t size, const char* file, int line)
 {
-	return Hazel::Allocator::Allocate(size, file, line);
+	return Engine::Allocator::Allocate(size, file, line);
 }
 
 _NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
 void* __CRTDECL operator new[](size_t size, const char* file, int line)
 {
-	return Hazel::Allocator::Allocate(size, file, line);
+	return Engine::Allocator::Allocate(size, file, line);
 }
 
 void __CRTDECL operator delete(void* memory)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 void __CRTDECL operator delete(void* memory, const char* desc)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 void __CRTDECL operator delete(void* memory, const char* file, int line)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 void __CRTDECL operator delete[](void* memory)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 void __CRTDECL operator delete[](void* memory, const char* desc)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 void __CRTDECL operator delete[](void* memory, const char* file, int line)
 {
-	return Hazel::Allocator::Free(memory);
+	return Engine::Allocator::Free(memory);
 }
 
 #endif

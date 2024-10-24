@@ -7,7 +7,7 @@
 #include "Engine/Core/Ref.h"
 #include "Engine/Core/UUID.h"
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	struct AnimationGraph;
 	struct Prototype;
@@ -22,4 +22,4 @@ namespace Hazel::AnimationGraph {
 
 	Ref<AnimationGraph> CreateInstance(const Prototype& prototype);
 
-} // namespace Hazel::AnimationGraph
+} // namespace Engine::AnimationGraph

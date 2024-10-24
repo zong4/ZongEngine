@@ -16,7 +16,7 @@
 #include <magic_enum.hpp>
 using namespace magic_enum::bitwise_operators;
 
-namespace Hazel {
+namespace Engine {
 
 	JoltBody::JoltBody(JPH::BodyInterface& bodyInterface, Entity entity)
 		: PhysicsBody(entity)

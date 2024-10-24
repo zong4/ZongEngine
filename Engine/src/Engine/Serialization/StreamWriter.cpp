@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "StreamWriter.h"
 
-namespace Hazel
+namespace Engine
 {
 	void StreamWriter::WriteBuffer(Buffer buffer, bool writeSize)
 	{
@@ -25,4 +25,4 @@ namespace Hazel
 		WriteData((char*)string.data(), sizeof(char) * string.size());
 	}
 
-} // namespace Hazel
+} // namespace Engine

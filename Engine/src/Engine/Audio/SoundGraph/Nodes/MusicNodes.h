@@ -5,7 +5,7 @@
 
 #define DECLARE_ID(name) static constexpr Identifier name{ #name }
 
-namespace Hazel::SoundGraph {
+namespace Engine::SoundGraph {
 	//==========================================================================
 	struct BPMToSeconds : public NodeProcessor
 	{
@@ -87,4 +87,4 @@ namespace Hazel::SoundGraph {
 		}
 	};
 
-} // namespace Hazel::SoundGraph
+} // namespace Engine::SoundGraph

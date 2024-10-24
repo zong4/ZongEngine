@@ -6,7 +6,7 @@
 
 #include "Engine/Editor/EditorPanel.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class ProjectSettingsWindow : public EditorPanel
 	{

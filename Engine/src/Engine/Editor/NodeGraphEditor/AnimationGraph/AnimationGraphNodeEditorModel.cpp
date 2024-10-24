@@ -12,9 +12,9 @@
 
 #include "imgui-node-editor/imgui_node_editor.h"
 
-namespace AG = Hazel::AnimationGraph;
+namespace AG = Engine::AnimationGraph;
 
-namespace Hazel {
+namespace Engine {
 
 	namespace AnimationGraph {
 

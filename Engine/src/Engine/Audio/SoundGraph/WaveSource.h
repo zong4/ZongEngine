@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
     //==============================================================================
     /** Request from readers for new data when close to empty.
@@ -37,4 +37,4 @@ namespace Hazel::Audio
         }
     };
 
-} // namespace Hazel::Audio
+} // namespace Engine::Audio

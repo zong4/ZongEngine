@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	class Mat4
 	{

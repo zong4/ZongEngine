@@ -16,10 +16,10 @@
 #include <choc/text/choc_JSON.h>
 #include <yaml-cpp/yaml.h>
 
-namespace AG = Hazel::AnimationGraph;
+namespace AG = Engine::AnimationGraph;
 
 
-namespace Hazel {
+namespace Engine {
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// SkeletonAssetSerializer

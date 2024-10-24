@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace Hazel {
+namespace Engine {
 
 	namespace ShaderResource {
 

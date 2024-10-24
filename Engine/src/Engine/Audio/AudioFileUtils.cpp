@@ -9,7 +9,7 @@
 #include "dr_wav.h"
 #include "stb_vorbis.c"
 
-namespace Hazel::AudioFileUtils
+namespace Engine::AudioFileUtils
 {
 	static std::optional<AudioFileInfo> GetFileInfoWav(const char* filepath)
 	{

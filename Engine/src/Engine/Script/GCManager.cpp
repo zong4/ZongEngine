@@ -8,7 +8,7 @@
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/profiler.h>
 
-namespace Hazel {
+namespace Engine {
 
 	using ReferenceMap = std::unordered_map<GCHandle, MonoObject*>;
 

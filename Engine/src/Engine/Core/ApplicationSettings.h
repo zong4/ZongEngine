@@ -4,7 +4,7 @@
 #include <string>
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	class ApplicationSettings
 	{

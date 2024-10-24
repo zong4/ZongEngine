@@ -11,7 +11,7 @@
 
 #include "imgui_internal.h"
 
-namespace Hazel {
+namespace Engine {
 
 	MaterialEditor::MaterialEditor()
 		: AssetEditor("Material Editor")

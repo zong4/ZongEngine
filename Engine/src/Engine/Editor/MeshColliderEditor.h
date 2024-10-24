@@ -5,7 +5,7 @@
 #include "Engine/Renderer/SceneRenderer.h"
 #include "Engine/Physics/PhysicsTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MeshColliderEditor : public AssetEditor
 	{

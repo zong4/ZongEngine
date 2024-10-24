@@ -5,7 +5,7 @@
 #include "spdlog/sinks/base_sink.h"
 #include <mutex>
 
-namespace Hazel {
+namespace Engine {
 
 	class EditorConsoleSink : public spdlog::sinks::base_sink<std::mutex>
 	{

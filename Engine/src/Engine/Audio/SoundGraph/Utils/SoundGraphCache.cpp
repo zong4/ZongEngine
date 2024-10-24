@@ -2,7 +2,7 @@
 #include "SoundGraphCache.h"
 #include "Engine/Utilities/FileSystem.h"
 
-namespace Hazel
+namespace Engine
 {
 	SoundGraphCache::SoundGraphCache(std::filesystem::path cacheFolder, uint32_t maxNumFilesToCache)
 		:m_Folder(std::move(cacheFolder)), m_MaxNumFiles(maxNumFilesToCache)
@@ -63,4 +63,4 @@ namespace Hazel
 	}
 
 
-} // namespace Hazel
+} // namespace Engine

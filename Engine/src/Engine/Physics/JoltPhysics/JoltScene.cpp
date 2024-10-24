@@ -29,7 +29,7 @@
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/Core/Profiler.h>
 
-namespace Hazel {
+namespace Engine {
 
 	static JoltScene* s_CurrentInstance = nullptr;
 

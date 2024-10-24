@@ -7,7 +7,7 @@
 #include "Engine/Platform/Vulkan/VulkanShader.h"
 
 
-namespace Hazel {
+namespace Engine {
 
 	GlslIncluder::GlslIncluder(const shaderc_util::FileFinder* file_finder)
 		: m_FileFinder(*file_finder)

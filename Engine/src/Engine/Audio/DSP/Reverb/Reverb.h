@@ -7,7 +7,7 @@
 
 class revmodel;
 
-namespace Hazel::Audio::DSP
+namespace Engine::Audio::DSP
 {
     class DelayLine;
 
@@ -61,4 +61,4 @@ namespace Hazel::Audio::DSP
         void Resume();
     };
 
-} // namespace Hazel::Audio::DSP
+} // namespace Engine::Audio::DSP

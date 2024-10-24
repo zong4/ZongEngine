@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-namespace Hazel::UI {
+namespace Engine::UI {
 
 	struct FontConfiguration
 	{

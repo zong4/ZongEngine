@@ -6,7 +6,7 @@
 #include <glm/gtx/log_base.hpp>
 #undef GLM_ENABLE_EXPERIMENTAL
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	template<typename T>
 	struct Add : public NodeProcessor
@@ -223,4 +223,4 @@ namespace Hazel::AnimationGraph {
 		}
 	};
 
-} //Hazel::AnimationGraph
+} //Engine::AnimationGraph

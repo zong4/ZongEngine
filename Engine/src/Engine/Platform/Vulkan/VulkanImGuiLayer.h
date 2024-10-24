@@ -3,7 +3,7 @@
 #include "Engine/ImGui/ImGuiLayer.h"
 #include "Engine/Renderer/RenderCommandBuffer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class VulkanImGuiLayer : public ImGuiLayer
 	{

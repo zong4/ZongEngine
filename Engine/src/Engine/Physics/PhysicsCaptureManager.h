@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Ref.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class PhysicsCaptureManager : public RefCounted
 	{

@@ -5,7 +5,7 @@
 
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltLayerInterface : public JPH::BroadPhaseLayerInterface
 	{

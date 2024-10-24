@@ -15,7 +15,7 @@
 #include <map>
 #include <optional>
 
-namespace Hazel {
+namespace Engine {
 
 	//! Add your custom pin / value types
 	enum EPinType : int
@@ -525,4 +525,4 @@ namespace Hazel {
 
 	} // namespace Nodes
 
-} // namespace Hazel
+} // namespace Engine

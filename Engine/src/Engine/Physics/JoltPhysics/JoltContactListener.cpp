@@ -6,7 +6,7 @@
 
 #include <thread>
 
-namespace Hazel {
+namespace Engine {
 
 	void JoltContactListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{

@@ -12,7 +12,7 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 
-namespace Hazel {
+namespace Engine {
 
 	struct JoltData
 	{

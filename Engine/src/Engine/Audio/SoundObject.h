@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-namespace Hazel
+namespace Engine
 {
     enum class AttenuationModel
     {
@@ -195,4 +195,4 @@ namespace Hazel
         uint64_t m_SceneID = 0;
     };
 
-} // namespace Hazel
+} // namespace Engine

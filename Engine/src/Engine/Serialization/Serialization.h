@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 
 	template<typename T>
 	class SBuffer

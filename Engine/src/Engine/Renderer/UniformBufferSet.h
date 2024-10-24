@@ -2,7 +2,7 @@
 
 #include "UniformBuffer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class UniformBufferSet : public RefCounted
 	{

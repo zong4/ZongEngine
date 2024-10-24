@@ -5,7 +5,7 @@
 
 #include <box2d/box2d.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class ContactListener2D : public b2ContactListener
 	{

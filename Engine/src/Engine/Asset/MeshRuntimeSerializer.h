@@ -7,7 +7,7 @@
 #include "Engine/Serialization/AssetPackFile.h"
 #include "Engine/Serialization/FileStream.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class MeshRuntimeSerializer
 	{

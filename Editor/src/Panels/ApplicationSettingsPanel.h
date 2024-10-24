@@ -5,7 +5,7 @@
 
 #include <functional>
 
-namespace Hazel {
+namespace Engine {
 
 	struct SettingsPage
 	{

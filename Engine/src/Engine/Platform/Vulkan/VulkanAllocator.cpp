@@ -13,7 +13,7 @@
 
 #define ZONG_GPU_TRACK_MEMORY_ALLOCATION 1
 
-namespace Hazel {
+namespace Engine {
 
 	struct VulkanAllocatorData
 	{

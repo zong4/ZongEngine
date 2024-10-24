@@ -6,7 +6,7 @@
 #include "Engine/Asset/AssetManager.h"
 #include "Engine/Editor/SelectionManager.h"
 
-namespace Hazel {
+namespace Engine {
 
 	MaterialsPanel::MaterialsPanel()
 	{

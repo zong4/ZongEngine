@@ -6,7 +6,7 @@
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/Debug/Profiler.h"
 
-namespace Hazel {
+namespace Engine {
 
 	VulkanVertexBuffer::VulkanVertexBuffer(uint64_t size, VertexBufferUsage usage)
 		: m_Size(size)

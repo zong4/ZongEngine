@@ -7,7 +7,7 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Body/BodyLockInterface.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltContactListener : public JPH::ContactListener
 	{

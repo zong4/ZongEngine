@@ -3,7 +3,7 @@
 #include "Engine/Editor/EditorPanel.h"
 #include "Engine/Renderer/SceneRenderer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class SceneRendererPanel : public EditorPanel
 	{

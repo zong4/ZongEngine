@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ECookingResult
 	{

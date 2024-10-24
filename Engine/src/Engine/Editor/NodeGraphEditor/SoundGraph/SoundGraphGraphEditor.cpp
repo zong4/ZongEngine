@@ -12,7 +12,7 @@
 
 namespace ed = ax::NodeEditor;
 
-namespace Hazel {
+namespace Engine {
 
 	//=============================================================================================
 	/// SoundGraph Node Graph Editor
@@ -140,4 +140,4 @@ namespace Hazel {
 			static_cast<SoundGraphNodeEditorModel*>(GetModel())->OnUpdate(ts);
 	}
 
-} // namespace Hazel
+} // namespace Engine

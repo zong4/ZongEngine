@@ -12,7 +12,7 @@
 #include <choc/text/choc_StringUtilities.h>
 #include <optional>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	// Sometimes we need to reuse NodeProcessor types for different nodes,
 	// so that they have different names and other editor UI properties
@@ -42,9 +42,9 @@ namespace Hazel::AnimationGraph {
 
 			constexpr std::string_view RemovePrefixAndSuffix(std::string_view name)
 			{
-				if (Hazel::Utils::StartsWith(name, "in_"))
+				if (Engine::Utils::StartsWith(name, "in_"))
 					name.remove_prefix(sizeof("in_") - 1);
-				else if (Hazel::Utils::StartsWith(name, "out_"))
+				else if (Engine::Utils::StartsWith(name, "out_"))
 					name.remove_prefix(sizeof("out_") - 1);
 
 				return name;
@@ -219,383 +219,383 @@ namespace Hazel::AnimationGraph {
 
 #ifndef DESCRIBE_NODE
 #define DESCRIBE_NODE(NodeType, InputList, OutputList)                                         \
-	DESCRIBED_TAGGED(NodeType, Hazel::AnimationGraph::TagInputs, InputList)                    \
-	DESCRIBED_TAGGED(NodeType, Hazel::AnimationGraph::TagOutputs, OutputList)                  \
+	DESCRIBED_TAGGED(NodeType, Engine::AnimationGraph::TagInputs, InputList)                    \
+	DESCRIBED_TAGGED(NodeType, Engine::AnimationGraph::TagOutputs, OutputList)                  \
 	                                                                                           \
-	template<> struct Hazel::AnimationGraph::NodeDescription<NodeType>                         \
+	template<> struct Engine::AnimationGraph::NodeDescription<NodeType>                         \
 	{                                                                                          \
-		using Inputs = Hazel::Type::Description<NodeType, Hazel::AnimationGraph::TagInputs>;   \
-		using Outputs = Hazel::Type::Description<NodeType, Hazel::AnimationGraph::TagOutputs>; \
+		using Inputs = Engine::Type::Description<NodeType, Engine::AnimationGraph::TagInputs>;   \
+		using Outputs = Engine::Type::Description<NodeType, Engine::AnimationGraph::TagOutputs>; \
 	};
 #endif // !DESCRIBE_NODE
 
-DESCRIBE_NODE(Hazel::AnimationGraph::AnimationPlayer,
+DESCRIBE_NODE(Engine::AnimationGraph::AnimationPlayer,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::AnimationPlayer::in_Animation,
-		&Hazel::AnimationGraph::AnimationPlayer::in_PlaybackSpeed,
-		&Hazel::AnimationGraph::AnimationPlayer::in_Offset,
-		&Hazel::AnimationGraph::AnimationPlayer::in_Loop),
+		&Engine::AnimationGraph::AnimationPlayer::in_Animation,
+		&Engine::AnimationGraph::AnimationPlayer::in_PlaybackSpeed,
+		&Engine::AnimationGraph::AnimationPlayer::in_Offset,
+		&Engine::AnimationGraph::AnimationPlayer::in_Loop),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::AnimationPlayer::out_Pose,
-		&Hazel::AnimationGraph::AnimationPlayer::out_OnFinish,
-		&Hazel::AnimationGraph::AnimationPlayer::out_OnLoop)
+		&Engine::AnimationGraph::AnimationPlayer::out_Pose,
+		&Engine::AnimationGraph::AnimationPlayer::out_OnFinish,
+		&Engine::AnimationGraph::AnimationPlayer::out_OnLoop)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::RangedBlend,
+DESCRIBE_NODE(Engine::AnimationGraph::RangedBlend,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::RangedBlend::in_AnimationA,
-		&Hazel::AnimationGraph::RangedBlend::in_AnimationB,
-		&Hazel::AnimationGraph::RangedBlend::in_PlaybackSpeedA,
-		&Hazel::AnimationGraph::RangedBlend::in_PlaybackSpeedB,
-		&Hazel::AnimationGraph::RangedBlend::in_Synchronize,
-		&Hazel::AnimationGraph::RangedBlend::in_OffsetA,
-		&Hazel::AnimationGraph::RangedBlend::in_OffsetB,
-		&Hazel::AnimationGraph::RangedBlend::in_Loop,
-		&Hazel::AnimationGraph::RangedBlend::in_RangeA,
-		&Hazel::AnimationGraph::RangedBlend::in_RangeB,
-		&Hazel::AnimationGraph::RangedBlend::in_Value),
+		&Engine::AnimationGraph::RangedBlend::in_AnimationA,
+		&Engine::AnimationGraph::RangedBlend::in_AnimationB,
+		&Engine::AnimationGraph::RangedBlend::in_PlaybackSpeedA,
+		&Engine::AnimationGraph::RangedBlend::in_PlaybackSpeedB,
+		&Engine::AnimationGraph::RangedBlend::in_Synchronize,
+		&Engine::AnimationGraph::RangedBlend::in_OffsetA,
+		&Engine::AnimationGraph::RangedBlend::in_OffsetB,
+		&Engine::AnimationGraph::RangedBlend::in_Loop,
+		&Engine::AnimationGraph::RangedBlend::in_RangeA,
+		&Engine::AnimationGraph::RangedBlend::in_RangeB,
+		&Engine::AnimationGraph::RangedBlend::in_Value),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::RangedBlend::out_Pose,
-		&Hazel::AnimationGraph::RangedBlend::out_OnFinishA,
-		&Hazel::AnimationGraph::RangedBlend::out_OnLoopA,
-		&Hazel::AnimationGraph::RangedBlend::out_OnFinishB,
-		&Hazel::AnimationGraph::RangedBlend::out_OnLoopB)
+		&Engine::AnimationGraph::RangedBlend::out_Pose,
+		&Engine::AnimationGraph::RangedBlend::out_OnFinishA,
+		&Engine::AnimationGraph::RangedBlend::out_OnLoopA,
+		&Engine::AnimationGraph::RangedBlend::out_OnFinishB,
+		&Engine::AnimationGraph::RangedBlend::out_OnLoopB)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Get<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Get<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Get<float>::in_Array,
-		&Hazel::AnimationGraph::Get<float>::in_Index),
+		&Engine::AnimationGraph::Get<float>::in_Array,
+		&Engine::AnimationGraph::Get<float>::in_Index),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Get<float>::out_Element)
+		&Engine::AnimationGraph::Get<float>::out_Element)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Get<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Get<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Get<int>::in_Array,
-		&Hazel::AnimationGraph::Get<int>::in_Index),
+		&Engine::AnimationGraph::Get<int>::in_Array,
+		&Engine::AnimationGraph::Get<int>::in_Index),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Get<int>::out_Element)
+		&Engine::AnimationGraph::Get<int>::out_Element)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Get<int64_t>,
+DESCRIBE_NODE(Engine::AnimationGraph::Get<int64_t>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Get<int64_t>::in_Array,
-		&Hazel::AnimationGraph::Get<int64_t>::in_Index),
+		&Engine::AnimationGraph::Get<int64_t>::in_Array,
+		&Engine::AnimationGraph::Get<int64_t>::in_Index),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Get<int64_t>::out_Element)
+		&Engine::AnimationGraph::Get<int64_t>::out_Element)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Add<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Add<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Add<float>::in_Value1,
-		&Hazel::AnimationGraph::Add<float>::in_Value2),
+		&Engine::AnimationGraph::Add<float>::in_Value1,
+		&Engine::AnimationGraph::Add<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Add<float>::out_Out)
+		&Engine::AnimationGraph::Add<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Add<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Add<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Add<int>::in_Value1,
-		&Hazel::AnimationGraph::Add<int>::in_Value2),
+		&Engine::AnimationGraph::Add<int>::in_Value1,
+		&Engine::AnimationGraph::Add<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Add<int>::out_Out)
+		&Engine::AnimationGraph::Add<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Subtract<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Subtract<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Subtract<float>::in_Value1,
-		&Hazel::AnimationGraph::Subtract<float>::in_Value2),
+		&Engine::AnimationGraph::Subtract<float>::in_Value1,
+		&Engine::AnimationGraph::Subtract<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Subtract<float>::out_Out)
+		&Engine::AnimationGraph::Subtract<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Subtract<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Subtract<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Subtract<int>::in_Value1,
-		&Hazel::AnimationGraph::Subtract<int>::in_Value2),
+		&Engine::AnimationGraph::Subtract<int>::in_Value1,
+		&Engine::AnimationGraph::Subtract<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Subtract<int>::out_Out)
+		&Engine::AnimationGraph::Subtract<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Multiply<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Multiply<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Multiply<float>::in_Value,
-		&Hazel::AnimationGraph::Multiply<float>::in_Multiplier),
+		&Engine::AnimationGraph::Multiply<float>::in_Value,
+		&Engine::AnimationGraph::Multiply<float>::in_Multiplier),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Multiply<float>::out_Out)
+		&Engine::AnimationGraph::Multiply<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Multiply<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Multiply<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Multiply<int>::in_Value,
-		&Hazel::AnimationGraph::Multiply<int>::in_Multiplier),
+		&Engine::AnimationGraph::Multiply<int>::in_Value,
+		&Engine::AnimationGraph::Multiply<int>::in_Multiplier),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Multiply<int>::out_Out)
+		&Engine::AnimationGraph::Multiply<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Divide<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Divide<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Divide<float>::in_Value,
-		&Hazel::AnimationGraph::Divide<float>::in_Divisor),
+		&Engine::AnimationGraph::Divide<float>::in_Value,
+		&Engine::AnimationGraph::Divide<float>::in_Divisor),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Divide<float>::out_Out)
+		&Engine::AnimationGraph::Divide<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Divide<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Divide<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Divide<int>::in_Value,
-		&Hazel::AnimationGraph::Divide<int>::in_Divisor),
+		&Engine::AnimationGraph::Divide<int>::in_Value,
+		&Engine::AnimationGraph::Divide<int>::in_Divisor),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Divide<int>::out_Out)
+		&Engine::AnimationGraph::Divide<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Power,
+DESCRIBE_NODE(Engine::AnimationGraph::Power,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Power::in_Base,
-		&Hazel::AnimationGraph::Power::in_Exponent),
+		&Engine::AnimationGraph::Power::in_Base,
+		&Engine::AnimationGraph::Power::in_Exponent),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Power::out_Out)
+		&Engine::AnimationGraph::Power::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Log,
+DESCRIBE_NODE(Engine::AnimationGraph::Log,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Log::in_Base,
-		&Hazel::AnimationGraph::Log::in_Value),
+		&Engine::AnimationGraph::Log::in_Base,
+		&Engine::AnimationGraph::Log::in_Value),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Log::out_Out)
+		&Engine::AnimationGraph::Log::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Modulo,
+DESCRIBE_NODE(Engine::AnimationGraph::Modulo,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Modulo::in_Value,
-		&Hazel::AnimationGraph::Modulo::in_Divisor),
+		&Engine::AnimationGraph::Modulo::in_Value,
+		&Engine::AnimationGraph::Modulo::in_Divisor),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Modulo::out_Out)
+		&Engine::AnimationGraph::Modulo::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Min<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Min<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Min<float>::in_Value1,
-		&Hazel::AnimationGraph::Min<float>::in_Value2),
+		&Engine::AnimationGraph::Min<float>::in_Value1,
+		&Engine::AnimationGraph::Min<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Min<float>::out_Value)
+		&Engine::AnimationGraph::Min<float>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Min<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Min<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Min<int>::in_Value1,
-		&Hazel::AnimationGraph::Min<int>::in_Value2),
+		&Engine::AnimationGraph::Min<int>::in_Value1,
+		&Engine::AnimationGraph::Min<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Min<int>::out_Value)
+		&Engine::AnimationGraph::Min<int>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Max<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Max<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Max<float>::in_Value1,
-		&Hazel::AnimationGraph::Max<float>::in_Value2),
+		&Engine::AnimationGraph::Max<float>::in_Value1,
+		&Engine::AnimationGraph::Max<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Max<float>::out_Value)
+		&Engine::AnimationGraph::Max<float>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Max<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Max<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Max<int>::in_Value1,
-		&Hazel::AnimationGraph::Max<int>::in_Value2),
+		&Engine::AnimationGraph::Max<int>::in_Value1,
+		&Engine::AnimationGraph::Max<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Max<int>::out_Value)
+		&Engine::AnimationGraph::Max<int>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Clamp<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::Clamp<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Clamp<float>::in_Value,
-		&Hazel::AnimationGraph::Clamp<float>::in_Min,
-		&Hazel::AnimationGraph::Clamp<float>::in_Max),
+		&Engine::AnimationGraph::Clamp<float>::in_Value,
+		&Engine::AnimationGraph::Clamp<float>::in_Min,
+		&Engine::AnimationGraph::Clamp<float>::in_Max),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Clamp<float>::out_Value)
+		&Engine::AnimationGraph::Clamp<float>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Clamp<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::Clamp<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Clamp<int>::in_Value,
-		&Hazel::AnimationGraph::Clamp<int>::in_Min,
-		&Hazel::AnimationGraph::Clamp<int>::in_Max),
+		&Engine::AnimationGraph::Clamp<int>::in_Value,
+		&Engine::AnimationGraph::Clamp<int>::in_Min,
+		&Engine::AnimationGraph::Clamp<int>::in_Max),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Clamp<int>::out_Value)
+		&Engine::AnimationGraph::Clamp<int>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::MapRange<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::MapRange<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::MapRange<float>::in_Value,
-		&Hazel::AnimationGraph::MapRange<float>::in_InRangeMin,
-		&Hazel::AnimationGraph::MapRange<float>::in_InRangeMax,
-		&Hazel::AnimationGraph::MapRange<float>::in_OutRangeMin,
-		&Hazel::AnimationGraph::MapRange<float>::in_OutRangeMax,
-		&Hazel::AnimationGraph::MapRange<float>::in_Clamped),
+		&Engine::AnimationGraph::MapRange<float>::in_Value,
+		&Engine::AnimationGraph::MapRange<float>::in_InRangeMin,
+		&Engine::AnimationGraph::MapRange<float>::in_InRangeMax,
+		&Engine::AnimationGraph::MapRange<float>::in_OutRangeMin,
+		&Engine::AnimationGraph::MapRange<float>::in_OutRangeMax,
+		&Engine::AnimationGraph::MapRange<float>::in_Clamped),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::MapRange<float>::out_Value)
+		&Engine::AnimationGraph::MapRange<float>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::MapRange<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::MapRange<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::MapRange<int>::in_Value,
-		&Hazel::AnimationGraph::MapRange<int>::in_InRangeMin,
-		&Hazel::AnimationGraph::MapRange<int>::in_InRangeMax,
-		&Hazel::AnimationGraph::MapRange<int>::in_OutRangeMin,
-		&Hazel::AnimationGraph::MapRange<int>::in_OutRangeMax,
-		&Hazel::AnimationGraph::MapRange<int>::in_Clamped),
+		&Engine::AnimationGraph::MapRange<int>::in_Value,
+		&Engine::AnimationGraph::MapRange<int>::in_InRangeMin,
+		&Engine::AnimationGraph::MapRange<int>::in_InRangeMax,
+		&Engine::AnimationGraph::MapRange<int>::in_OutRangeMin,
+		&Engine::AnimationGraph::MapRange<int>::in_OutRangeMax,
+		&Engine::AnimationGraph::MapRange<int>::in_Clamped),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::MapRange<int>::out_Value)
+		&Engine::AnimationGraph::MapRange<int>::out_Value)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckEqual<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckEqual<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckEqual<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckEqual<int>::in_Value2),
+		&Engine::AnimationGraph::CheckEqual<int>::in_Value1,
+		&Engine::AnimationGraph::CheckEqual<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckEqual<int>::out_Out)
+		&Engine::AnimationGraph::CheckEqual<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckNotEqual<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckNotEqual<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckNotEqual<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckNotEqual<int>::in_Value2),
+		&Engine::AnimationGraph::CheckNotEqual<int>::in_Value1,
+		&Engine::AnimationGraph::CheckNotEqual<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckNotEqual<int>::out_Out)
+		&Engine::AnimationGraph::CheckNotEqual<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckLess<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckLess<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckLess<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckLess<int>::in_Value2),
+		&Engine::AnimationGraph::CheckLess<int>::in_Value1,
+		&Engine::AnimationGraph::CheckLess<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckLess<int>::out_Out)
+		&Engine::AnimationGraph::CheckLess<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckLessEqual<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckLessEqual<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckLessEqual<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckLessEqual<int>::in_Value2),
+		&Engine::AnimationGraph::CheckLessEqual<int>::in_Value1,
+		&Engine::AnimationGraph::CheckLessEqual<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckLessEqual<int>::out_Out)
+		&Engine::AnimationGraph::CheckLessEqual<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckGreater<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckGreater<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckGreater<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckGreater<int>::in_Value2),
+		&Engine::AnimationGraph::CheckGreater<int>::in_Value1,
+		&Engine::AnimationGraph::CheckGreater<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckGreater<int>::out_Out)
+		&Engine::AnimationGraph::CheckGreater<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckGreaterEqual<int>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckGreaterEqual<int>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckGreaterEqual<int>::in_Value1,
-		&Hazel::AnimationGraph::CheckGreaterEqual<int>::in_Value2),
+		&Engine::AnimationGraph::CheckGreaterEqual<int>::in_Value1,
+		&Engine::AnimationGraph::CheckGreaterEqual<int>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckGreaterEqual<int>::out_Out)
+		&Engine::AnimationGraph::CheckGreaterEqual<int>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckEqual<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckEqual<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckEqual<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckEqual<float>::in_Value2),
+		&Engine::AnimationGraph::CheckEqual<float>::in_Value1,
+		&Engine::AnimationGraph::CheckEqual<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckEqual<float>::out_Out)
+		&Engine::AnimationGraph::CheckEqual<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckNotEqual<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckNotEqual<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckNotEqual<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckNotEqual<float>::in_Value2),
+		&Engine::AnimationGraph::CheckNotEqual<float>::in_Value1,
+		&Engine::AnimationGraph::CheckNotEqual<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckNotEqual<float>::out_Out)
+		&Engine::AnimationGraph::CheckNotEqual<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckLess<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckLess<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckLess<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckLess<float>::in_Value2),
+		&Engine::AnimationGraph::CheckLess<float>::in_Value1,
+		&Engine::AnimationGraph::CheckLess<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckLess<float>::out_Out)
+		&Engine::AnimationGraph::CheckLess<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckLessEqual<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckLessEqual<float>,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckLessEqual<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckLessEqual<float>::in_Value2),
+		&Engine::AnimationGraph::CheckLessEqual<float>::in_Value1,
+		&Engine::AnimationGraph::CheckLessEqual<float>::in_Value2),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckLessEqual<float>::out_Out)
+		&Engine::AnimationGraph::CheckLessEqual<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckGreater<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckGreater<float>,
 		NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckGreater<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckGreater<float>::in_Value2),
+		&Engine::AnimationGraph::CheckGreater<float>::in_Value1,
+		&Engine::AnimationGraph::CheckGreater<float>::in_Value2),
 		NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckGreater<float>::out_Out)
+		&Engine::AnimationGraph::CheckGreater<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::CheckGreaterEqual<float>,
+DESCRIBE_NODE(Engine::AnimationGraph::CheckGreaterEqual<float>,
 		NODE_INPUTS(
-		&Hazel::AnimationGraph::CheckGreaterEqual<float>::in_Value1,
-		&Hazel::AnimationGraph::CheckGreaterEqual<float>::in_Value2),
+		&Engine::AnimationGraph::CheckGreaterEqual<float>::in_Value1,
+		&Engine::AnimationGraph::CheckGreaterEqual<float>::in_Value2),
 		NODE_OUTPUTS(
-		&Hazel::AnimationGraph::CheckGreaterEqual<float>::out_Out)
+		&Engine::AnimationGraph::CheckGreaterEqual<float>::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::And,
+DESCRIBE_NODE(Engine::AnimationGraph::And,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::And::in_Value1,
-		&Hazel::AnimationGraph::And::in_Value2),
+		&Engine::AnimationGraph::And::in_Value1,
+		&Engine::AnimationGraph::And::in_Value2),
 		NODE_OUTPUTS(
-		&Hazel::AnimationGraph::And::out_Out)
+		&Engine::AnimationGraph::And::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Or,
+DESCRIBE_NODE(Engine::AnimationGraph::Or,
 		NODE_INPUTS(
-		&Hazel::AnimationGraph::Or::in_Value1,
-		&Hazel::AnimationGraph::Or::in_Value2),
+		&Engine::AnimationGraph::Or::in_Value1,
+		&Engine::AnimationGraph::Or::in_Value2),
 			NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Or::out_Out)
+		&Engine::AnimationGraph::Or::out_Out)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::Not,
+DESCRIBE_NODE(Engine::AnimationGraph::Not,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::Not::in_Value),
+		&Engine::AnimationGraph::Not::in_Value),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::Not::out_Out)
+		&Engine::AnimationGraph::Not::out_Out)
 );
 
 
-DESCRIBE_NODE(Hazel::AnimationGraph::StateMachine,
+DESCRIBE_NODE(Engine::AnimationGraph::StateMachine,
 	NODE_INPUTS(),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::StateMachine::out_Pose)
+		&Engine::AnimationGraph::StateMachine::out_Pose)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::State,
+DESCRIBE_NODE(Engine::AnimationGraph::State,
 	NODE_INPUTS(),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::State::out_Pose)
+		&Engine::AnimationGraph::State::out_Pose)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::QuickState,
+DESCRIBE_NODE(Engine::AnimationGraph::QuickState,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::QuickState::in_Animation),
+		&Engine::AnimationGraph::QuickState::in_Animation),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::QuickState::out_Pose)
+		&Engine::AnimationGraph::QuickState::out_Pose)
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::TransitionNode,
+DESCRIBE_NODE(Engine::AnimationGraph::TransitionNode,
 	NODE_INPUTS(),
 	NODE_OUTPUTS()
 );
 
-DESCRIBE_NODE(Hazel::AnimationGraph::BoolTrigger,
+DESCRIBE_NODE(Engine::AnimationGraph::BoolTrigger,
 	NODE_INPUTS(
-		&Hazel::AnimationGraph::BoolTrigger::in_Value),
+		&Engine::AnimationGraph::BoolTrigger::in_Value),
 	NODE_OUTPUTS(
-		&Hazel::AnimationGraph::BoolTrigger::out_OnTrue,
-		&Hazel::AnimationGraph::BoolTrigger::out_OnFalse)
+		&Engine::AnimationGraph::BoolTrigger::out_OnTrue,
+		&Engine::AnimationGraph::BoolTrigger::out_OnFalse)
 );

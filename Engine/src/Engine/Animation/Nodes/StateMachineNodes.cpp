@@ -8,7 +8,7 @@
 #include <glm/common.hpp>
 #include <glm/ext/quaternion_common.hpp>
 
-namespace Hazel::AnimationGraph {
+namespace Engine::AnimationGraph {
 
 	TransitionNode::TransitionNode(std::string_view dbgName, UUID id) : AnimationNodeProcessor(dbgName, id)
 	{

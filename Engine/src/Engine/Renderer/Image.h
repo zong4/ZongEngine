@@ -7,7 +7,7 @@
 
 #include <glm/gtc/integer.hpp>
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ImageFormat
 	{

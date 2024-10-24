@@ -7,7 +7,7 @@
 #include "GCManager.h"
 #include "ScriptTypes.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class FieldFlag
 	{

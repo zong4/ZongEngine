@@ -4,7 +4,7 @@
 
 #include <Jolt/Physics/Collision/PhysicsMaterial.h>
 
-namespace Hazel {
+namespace Engine {
 
 	class JoltMaterial : public JPH::PhysicsMaterial
 	{

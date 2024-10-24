@@ -7,7 +7,7 @@
 #include "Engine/Renderer/Renderer.h"
 #include "Engine/Asset/AssimpMeshImporter.h"
 
-namespace Hazel {
+namespace Engine {
 
 	struct MeshMaterial
 	{

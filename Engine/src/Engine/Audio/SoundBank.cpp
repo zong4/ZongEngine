@@ -6,7 +6,7 @@
 #include "Engine/Core/Hash.h"
 #include "Engine/Serialization/FileStream.h"
 
-namespace Hazel
+namespace Engine
 {
 	//==============================================================================
 	class RangedFileReader : public FileStreamReader
@@ -221,4 +221,4 @@ namespace Hazel
 		soundBank->m_Loaded = true;
 		return soundBank;
 	}
-} // namespace Hazel
+} // namespace Engine

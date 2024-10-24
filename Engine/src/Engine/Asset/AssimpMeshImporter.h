@@ -4,7 +4,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 #ifdef ZONG_DIST
 	class AssimpMeshImporter

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "LayerStack.h"
 
-namespace Hazel {
+namespace Engine {
 
 	LayerStack::LayerStack()
 	{

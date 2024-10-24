@@ -2,7 +2,7 @@
 #include "PhysicsLayer.h"
 #include "Engine/Utilities/ContainerUtils.h"
 
-namespace Hazel {
+namespace Engine {
 
 	uint32_t PhysicsLayerManager::AddLayer(const std::string& name, bool setCollisions)
 	{

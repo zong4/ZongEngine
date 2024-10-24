@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace Hazel {
+namespace Engine {
 	namespace Reflection {
 
 		struct Member
@@ -123,4 +123,4 @@ namespace Hazel {
 		}
 	} // namespace Reflection
 
-} // namespace Hazel
+} // namespace Engine

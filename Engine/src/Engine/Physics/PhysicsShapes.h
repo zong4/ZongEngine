@@ -2,7 +2,7 @@
 
 #include "Engine/Scene/Entity.h"
 
-namespace Hazel {
+namespace Engine {
 
 	enum class ShapeType { Box, Sphere, Capsule, ConvexMesh, TriangleMesh, CompoundShape, MutableCompoundShape, LAST };
 

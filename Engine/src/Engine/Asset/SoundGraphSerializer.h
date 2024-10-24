@@ -2,7 +2,7 @@
 
 #include "Engine/Asset/AssetSerializer.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class SoundGraphAsset;
 	class SoundGraphCache;
@@ -25,4 +25,4 @@ namespace Hazel {
 		Scope<SoundGraphCache> m_Cache;
 	};
 
-} // namespace Hazel
+} // namespace Engine

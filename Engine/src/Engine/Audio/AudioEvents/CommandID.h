@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Hash.h"
 
-namespace Hazel::Audio
+namespace Engine::Audio
 {
 	class CommandID
 	{
@@ -35,14 +35,14 @@ namespace Hazel::Audio
 			return CommandID("");
 		}
 	};
-} // namespace Hazel::Audio
+} // namespace Engine::Audio
 
 namespace std
 {
 	template<>
-	struct hash<Hazel::Audio::CommandID>
+	struct hash<Engine::Audio::CommandID>
 	{
-		size_t operator()(const Hazel::Audio::CommandID& comm) const noexcept
+		size_t operator()(const Engine::Audio::CommandID& comm) const noexcept
 		{
 			static_assert(noexcept(hash<uint32_t>()(comm.GetID())), "hash fuction should not throw");
 			return hash<uint32_t>()(comm.GetID());
