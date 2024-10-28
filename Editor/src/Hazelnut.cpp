@@ -7,10 +7,10 @@
 #include <Shlobj.h>
 #endif
 
-class HazelnutApplication : public Engine::Application
+class EditorApplication : public Engine::Application
 {
 public:
-	HazelnutApplication(const Engine::ApplicationSpecification& specification, std::string_view projectPath)
+	EditorApplication(const Engine::ApplicationSpecification& specification, std::string_view projectPath)
 		: Application(specification), m_ProjectPath(projectPath), m_UserPreferences(Engine::Ref<Engine::UserPreferences>::Create())
 	{
 		if (projectPath.empty())
@@ -41,14 +41,14 @@ public:
 				m_ProjectPath = m_UserPreferences->StartupProject;
 		}
 
-		// Update the HAZEL_DIR environment variable every time we launch
+		// Update the ENGINE_DIR environment variable every time we launch
 		{
 			std::filesystem::path workingDirectory = std::filesystem::current_path();
 
 			if (workingDirectory.stem().string() == "Editor")
 				workingDirectory = workingDirectory.parent_path();
 
-			Engine::FileSystem::SetEnvironmentVariable("HAZEL_DIR", workingDirectory.string());
+			Engine::FileSystem::SetEnvironmentVariable("ENGINE_DIR", workingDirectory.string());
 		}
 
 		PushLayer(new Engine::EditorLayer(m_UserPreferences));
@@ -86,5 +86,5 @@ Engine::Application* Engine::CreateApplication(int argc, char** argv)
 
 	specification.CoreThreadingPolicy = ThreadingPolicy::SingleThreaded;
 
-	return new HazelnutApplication(specification, projectPath);
+	return new EditorApplication(specification, projectPath);
 }

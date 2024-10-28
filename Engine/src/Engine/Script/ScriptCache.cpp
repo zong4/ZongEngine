@@ -82,34 +82,34 @@ namespace Engine {
 		CACHE_CORELIB_CLASS("String");
 		CacheClass("System.Diagnostics.StackTrace", mono_class_from_name(mono_get_corlib(), "System.Diagnostics", "StackTrace"));
 
-#define CACHE_HAZEL_CORE_CLASS(name) CacheClass("Hazel." name, mono_class_from_name(ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage, "Hazel", name))
+#define CACHE_ENGINE_CORE_CLASS(name) CacheClass("Hazel." name, mono_class_from_name(ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage, "Hazel", name))
 
-		CACHE_HAZEL_CORE_CLASS("ShowInEditorAttribute");
-		CACHE_HAZEL_CORE_CLASS("HideFromEditorAttribute");
-		CACHE_HAZEL_CORE_CLASS("ClampValueAttribute");
+		CACHE_ENGINE_CORE_CLASS("ShowInEditorAttribute");
+		CACHE_ENGINE_CORE_CLASS("HideFromEditorAttribute");
+		CACHE_ENGINE_CORE_CLASS("ClampValueAttribute");
 
-		CACHE_HAZEL_CORE_CLASS("AssetHandle");
-		CACHE_HAZEL_CORE_CLASS("Vector2");
-		CACHE_HAZEL_CORE_CLASS("Vector3");
-		CACHE_HAZEL_CORE_CLASS("Vector4");
-		CACHE_HAZEL_CORE_CLASS("Entity");
-		CACHE_HAZEL_CORE_CLASS("IEditorRunnable");
-		CACHE_HAZEL_CORE_CLASS("Prefab");
-		CACHE_HAZEL_CORE_CLASS("Mesh");
-		CACHE_HAZEL_CORE_CLASS("StaticMesh");
-		CACHE_HAZEL_CORE_CLASS("Material");
-		CACHE_HAZEL_CORE_CLASS("Shape");
-		CACHE_HAZEL_CORE_CLASS("BoxShape");
-		CACHE_HAZEL_CORE_CLASS("SphereShape");
-		CACHE_HAZEL_CORE_CLASS("CapsuleShape");
-		CACHE_HAZEL_CORE_CLASS("ConvexMeshShape");
-		CACHE_HAZEL_CORE_CLASS("TriangleMeshShape");
-		CACHE_HAZEL_CORE_CLASS("Collider");
-		CACHE_HAZEL_CORE_CLASS("SceneQueryHit");
-		CACHE_HAZEL_CORE_CLASS("PhysicsMaterial");
-		CACHE_HAZEL_CORE_CLASS("RaycastHit2D");
-		CACHE_HAZEL_CORE_CLASS("Texture2D");
-		CACHE_HAZEL_CORE_CLASS("Scene");
+		CACHE_ENGINE_CORE_CLASS("AssetHandle");
+		CACHE_ENGINE_CORE_CLASS("Vector2");
+		CACHE_ENGINE_CORE_CLASS("Vector3");
+		CACHE_ENGINE_CORE_CLASS("Vector4");
+		CACHE_ENGINE_CORE_CLASS("Entity");
+		CACHE_ENGINE_CORE_CLASS("IEditorRunnable");
+		CACHE_ENGINE_CORE_CLASS("Prefab");
+		CACHE_ENGINE_CORE_CLASS("Mesh");
+		CACHE_ENGINE_CORE_CLASS("StaticMesh");
+		CACHE_ENGINE_CORE_CLASS("Material");
+		CACHE_ENGINE_CORE_CLASS("Shape");
+		CACHE_ENGINE_CORE_CLASS("BoxShape");
+		CACHE_ENGINE_CORE_CLASS("SphereShape");
+		CACHE_ENGINE_CORE_CLASS("CapsuleShape");
+		CACHE_ENGINE_CORE_CLASS("ConvexMeshShape");
+		CACHE_ENGINE_CORE_CLASS("TriangleMeshShape");
+		CACHE_ENGINE_CORE_CLASS("Collider");
+		CACHE_ENGINE_CORE_CLASS("SceneQueryHit");
+		CACHE_ENGINE_CORE_CLASS("PhysicsMaterial");
+		CACHE_ENGINE_CORE_CLASS("RaycastHit2D");
+		CACHE_ENGINE_CORE_CLASS("Texture2D");
+		CACHE_ENGINE_CORE_CLASS("Scene");
 	}
 
 	void ScriptCache::Shutdown()

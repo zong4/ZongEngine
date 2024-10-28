@@ -15,9 +15,9 @@
 #include <type_traits>
 #include <utility>
 
-#define HAZEL_CORE_ASSEMBLY_INDEX 0
-#define HAZEL_APP_ASSEMBLY_INDEX HAZEL_CORE_ASSEMBLY_INDEX + 1
-#define HAZEL_MAX_ASSEMBLIES (size_t)2
+#define ENGINE_CORE_ASSEMBLY_INDEX 0
+#define ENGINE_APP_ASSEMBLY_INDEX ENGINE_CORE_ASSEMBLY_INDEX + 1
+#define ENGINE_MAX_ASSEMBLIES (size_t)2
 
 extern "C" {
 	typedef struct _MonoDomain MonoDomain;
@@ -27,7 +27,7 @@ namespace Engine {
 
 	using ScriptEntityMap = std::unordered_map<UUID, std::vector<UUID>>;
 	using ScriptInstanceMap = std::unordered_map<UUID, GCHandle>;
-	using AssembliesArray = std::array<Ref<AssemblyInfo>, HAZEL_MAX_ASSEMBLIES>;
+	using AssembliesArray = std::array<Ref<AssemblyInfo>, ENGINE_MAX_ASSEMBLIES>;
 
 	struct ScriptEngineConfig
 	{

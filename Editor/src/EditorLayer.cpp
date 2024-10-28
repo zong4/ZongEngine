@@ -1948,13 +1948,13 @@ namespace Engine {
 			std::filesystem::create_directories(projectPath);
 
 		std::filesystem::copy("Resources/NewProjectTemplate", projectPath, std::filesystem::copy_options::recursive);
-		std::filesystem::path hazelRootDirectory = std::filesystem::absolute("./Resources").parent_path().string();
-		std::string hazelRootDirectoryString = hazelRootDirectory.string();
+		std::filesystem::path rootDirectory = std::filesystem::absolute("./Resources").parent_path().string();
+		std::string rootDirectoryString = rootDirectory.string();
 
-		if (hazelRootDirectory.stem().string() == "Editor")
-			hazelRootDirectoryString = hazelRootDirectory.parent_path().string();
+		if (rootDirectory.stem().string() == "Editor")
+			rootDirectoryString = rootDirectory.parent_path().string();
 
-		std::replace(hazelRootDirectoryString.begin(), hazelRootDirectoryString.end(), '\\', '/');
+		std::replace(rootDirectoryString.begin(), rootDirectoryString.end(), '\\', '/');
 
 		{
 			// premake5.lua
@@ -2002,7 +2002,7 @@ namespace Engine {
 		//NOTE (Tim) : Copying meshes from resources, change this in the future to just a vertex buffer thats built into 
 		//			   the engine since we wouldn't really want to modify these meshes and hence there's no point to have gltf files...
 		{
-			std::filesystem::path originalFilePath = hazelRootDirectoryString + "/Editor/Resources/Meshes/Default";
+			std::filesystem::path originalFilePath = rootDirectoryString + "/Editor/Resources/Meshes/Default";
 			std::filesystem::path targetPath = projectPath / "Assets" / "Meshes" / "Default" / "Source";
 			ZONG_CORE_VERIFY(std::filesystem::exists(originalFilePath));
 
@@ -2073,7 +2073,7 @@ namespace Engine {
 
 	void EditorLayer::OpenProject()
 	{
-		std::filesystem::path filepath = FileSystem::OpenFileDialog({ { "Hazel Project", "hproj" } });
+		std::filesystem::path filepath = FileSystem::OpenFileDialog({ { "Engine Project", "hproj" } });
 
 		if (filepath.empty())
 			return;
@@ -2235,7 +2235,7 @@ namespace Engine {
 
 	bool EditorLayer::OpenScene()
 	{
-		std::filesystem::path filepath = FileSystem::OpenFileDialog({ { "Hazel Scene", "hscene" } });
+		std::filesystem::path filepath = FileSystem::OpenFileDialog({ { "Engine Scene", "hscene" } });
 		if (!filepath.empty())
 			return OpenScene(filepath, true);
 
@@ -2345,7 +2345,7 @@ namespace Engine {
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::filesystem::path filepath = FileSystem::SaveFileDialog({ { "Hazel Scene (*.hscene)", "*.hscene" } });
+		std::filesystem::path filepath = FileSystem::SaveFileDialog({ { "Engine Scene (*.hscene)", "*.hscene" } });
 
 		if (filepath.empty())
 			return;
@@ -2366,10 +2366,10 @@ namespace Engine {
 	{
 		UI::ShowMessageBox("Welcome", [this]()
 		{
-			ImGui::Text("Welcome to Hazel!");
+			ImGui::Text("Welcome to Engine!");
 			ImGui::Separator();
-			ImGui::TextWrapped("Hazel is an early-stage interactive application and rendering engine for Windows.");
-			ImGui::TextWrapped("Please report bugs by opening an issue on the Hazel-dev GitLab.");
+			ImGui::TextWrapped("Engine is an early-stage interactive application and rendering engine for Windows.");
+			ImGui::TextWrapped("Please report bugs by opening an issue on the Engine-dev GitLab.");
 
 			if (ImGui::Button("OK"))
 				ImGui::CloseCurrentPopup();
@@ -2388,18 +2388,18 @@ namespace Engine {
 
 	void EditorLayer::UI_ShowAboutPopup()
 	{
-		UI::ShowMessageBox("About Hazel", []()
+		UI::ShowMessageBox("About Engine", []()
 		{
 			UI::Fonts::PushFont("Large");
-			ImGui::Text("Hazel Engine");
+			ImGui::Text("Engine Engine");
 			UI::Fonts::PopFont();
 
 			ImGui::Separator();
-			ImGui::TextWrapped("Hazel is an early-stage interactive application and rendering engine for Windows.");
+			ImGui::TextWrapped("Engine is an early-stage interactive application and rendering engine for Windows.");
 			ImGui::Separator();
 
 			UI::Fonts::PushFont("Bold");
-			ImGui::Text("Hazel Core Team");
+			ImGui::Text("Engine Core Team");
 			UI::Fonts::PopFont();
 			ImGui::Text("Yan Chernikov");
 			ImGui::Text("Peter Nilsson");

@@ -66,7 +66,7 @@ static uint32_t s_CurrentFrameIndex = 0;
 static Walnut::Application* s_Instance = nullptr;
 
 namespace Engine {
-#include "Engine/Embed/HazelIcon.embed"
+#include "Engine/Embed/EngineIcon.embed"
 }
 
 void check_vk_result(VkResult err)
@@ -479,7 +479,7 @@ namespace Walnut {
 			else
 			{
 				// Use embedded Engine icon
-				icon.pixels = stbi_load_from_memory(Hazel::g_HazelIconPNG, sizeof(Hazel::g_HazelIconPNG), &icon.width, &icon.height, &channels, 4);
+				icon.pixels = stbi_load_from_memory(Engine::g_EngineIconPNG, sizeof(Engine::g_EngineIconPNG), &icon.width, &icon.height, &channels, 4);
 				glfwSetWindowIcon(m_WindowHandle, 1, &icon);
 				stbi_image_free(icon.pixels);
 			}
