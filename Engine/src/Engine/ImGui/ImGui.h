@@ -2242,11 +2242,11 @@ namespace Engine::UI {
 		float max = 0.0f;
 		float delta = 0.1f;
 
-		/*if (field->HasAttribute("Hazel.ClampValueAttribute"))
+		/*if (field->HasAttribute("Engine.ClampValueAttribute"))
 		{
-			MonoObject* attr = field->GetAttribute("Hazel.ClampValueAttribute");
-			ZONG_TRY_GET_FIELD_VALUE(min, "Hazel.ClampValueAttribute", "Min", attr);
-			ZONG_TRY_GET_FIELD_VALUE(max, "Hazel.ClampValueAttribute", "Max", attr);
+			MonoObject* attr = field->GetAttribute("Engine.ClampValueAttribute");
+			ZONG_TRY_GET_FIELD_VALUE(min, "Engine.ClampValueAttribute", "Min", attr);
+			ZONG_TRY_GET_FIELD_VALUE(max, "Engine.ClampValueAttribute", "Max", attr);
 		}*/
 
 		std::string id = fmt::format("{0}-{1}", fieldName, field->ID);

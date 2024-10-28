@@ -655,12 +655,12 @@ namespace Engine {
 
 		// Logo
 		{
-			const int logoWidth = EditorResources::HazelLogoTexture->GetWidth();
-			const int logoHeight = EditorResources::HazelLogoTexture->GetHeight();
+			const int logoWidth = EditorResources::EngineLogoTexture->GetWidth();
+			const int logoHeight = EditorResources::EngineLogoTexture->GetHeight();
 			const ImVec2 logoOffset(14.0f + windowPadding.x, 6.0f + windowPadding.y);
 			const ImVec2 logoRectStart = { ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y };
 			const ImVec2 logoRectMax = { logoRectStart.x + logoWidth, logoRectStart.y + logoHeight };
-			drawList->AddImage(UI::GetTextureID(EditorResources::HazelLogoTexture), logoRectStart, logoRectMax);
+			drawList->AddImage(UI::GetTextureID(EditorResources::EngineLogoTexture), logoRectStart, logoRectMax);
 		}
 
 		ImGui::BeginHorizontal("Titlebar", { ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing() });

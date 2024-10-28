@@ -101,7 +101,7 @@ namespace Engine {
 		inline static Ref<Texture2D> PinAudioDisconnectIcon = nullptr;
 
 		// Textures
-		inline static Ref<Texture2D> HazelLogoTexture = nullptr;
+		inline static Ref<Texture2D> EngineLogoTexture = nullptr;
 		inline static Ref<Texture2D> CheckerboardTexture = nullptr;
 		inline static Ref<Texture2D> ShadowTexture = nullptr;
 		inline static Ref<Texture2D> TranslucentTexture = nullptr;
@@ -205,7 +205,7 @@ namespace Engine {
 			PinAudioDisconnectIcon = LoadTexture("NodeGraph/Pins/AudioDisconnect.png", "AudioDisconnect", spec);
 
 			// Textures (dont forget to .Reset() these in EditorResources::Shutdown())
-			HazelLogoTexture = LoadTexture("Logo_Light.png");
+			EngineLogoTexture = LoadTexture("Logo_Light.png");
 			CheckerboardTexture = LoadTexture("Checkerboard.tga");
 			ShadowTexture = LoadTexture("Panels/Shadow.png", "ShadowTexture", spec);
 			TranslucentTexture = LoadTexture("Panels/Translucent.png", "TranslucentTexture", spec);
@@ -307,7 +307,7 @@ namespace Engine {
 			PinAudioDisconnectIcon.Reset();
 
 			// Textures
-			HazelLogoTexture.Reset();
+			EngineLogoTexture.Reset();
 			CheckerboardTexture.Reset();
 			ShadowTexture.Reset();
 			TranslucentTexture.Reset();

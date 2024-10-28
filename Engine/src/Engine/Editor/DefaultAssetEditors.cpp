@@ -36,7 +36,7 @@ namespace Engine {
 		Ref<Shader> shader = material->GetShader();
 		bool needsSerialize = false;
 
-		Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent");
+		Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("PBR_Transparent");
 		bool transparent = shader == transparentShader;
 		UI::BeginPropertyGrid();
 		UI::PushID();
@@ -45,7 +45,7 @@ namespace Engine {
 			if (transparent)
 				m_MaterialAsset->SetMaterial(Material::Create(transparentShader));
 			else
-				m_MaterialAsset->SetMaterial(Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static")));
+				m_MaterialAsset->SetMaterial(Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static")));
 
 			m_MaterialAsset->m_Transparent = transparent;
 			m_MaterialAsset->SetDefaults();

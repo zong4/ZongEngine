@@ -91,7 +91,7 @@ namespace Engine {
 		auto material = materialAsset->GetMaterial();
 		auto shader = material->GetShader();
 
-		Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent");
+		Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("PBR_Transparent");
 		bool transparent = shader == transparentShader;
 
 		std::string name = material->GetName();

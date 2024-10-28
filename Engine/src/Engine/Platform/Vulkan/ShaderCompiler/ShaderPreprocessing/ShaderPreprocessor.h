@@ -193,7 +193,7 @@ namespace Engine {
 				else if (tokens[index] == "ifdef")
 				{
 					++index;
-					if (tokens[index].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
+					if (tokens[index].rfind("__ZONG_", 0) == 0) // Engine special macros start with "__ZONG_"
 					{
 						specialMacros.emplace(tokens[index]);
 					}
@@ -203,7 +203,7 @@ namespace Engine {
 					++index;
 					for (size_t i = index; i < tokens.size(); ++i)
 					{
-						if (tokens[i].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
+						if (tokens[i].rfind("__ZONG_", 0) == 0) // Engine special macros start with "__ZONG_"
 						{
 							specialMacros.emplace(tokens[i]);
 						}
@@ -283,7 +283,7 @@ namespace Engine {
 			else if (tokens[index] == "ifdef")
 			{
 				++index;
-				if (tokens[index].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
+				if (tokens[index].rfind("__ZONG_", 0) == 0) // Engine special macros start with "__ZONG_"
 				{
 					specialMacros.emplace(tokens[index]);
 				}
@@ -293,7 +293,7 @@ namespace Engine {
 				++index;
 				for (size_t i = index; i < tokens.size(); ++i)
 				{
-					if (tokens[i].rfind("__ZONG_", 0) == 0) // Hazel special macros start with "__ZONG_"
+					if (tokens[i].rfind("__ZONG_", 0) == 0) // Engine special macros start with "__ZONG_"
 					{
 						specialMacros.emplace(tokens[i]);
 					}

@@ -23,9 +23,9 @@ namespace Engine {
 		Handle = {};
 		
 		if (transparent)
-			m_Material = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent"));
+			m_Material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Transparent"));
 		else
-			m_Material = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"));
+			m_Material = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"));
 
 		SetDefaults();
 	}

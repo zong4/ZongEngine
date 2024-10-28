@@ -2532,7 +2532,7 @@ namespace Engine {
 					FieldInfo* field = ScriptCache::GetFieldByID(fieldID);
 					Ref<FieldStorageBase> storage = ScriptEngine::GetFieldStorage(firstEntity, field->ID);
 
-					/*const bool isHidden = field->HasAttribute("Hazel.HideFromEditorAttribute") || !field->IsWritable() || !storage->IsLive();
+					/*const bool isHidden = field->HasAttribute("Engine.HideFromEditorAttribute") || !field->IsWritable() || !storage->IsLive();
 
 					if (isHidden && !ApplicationSettings::Get().ShowHiddenFields)
 						continue;

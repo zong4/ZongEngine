@@ -962,7 +962,7 @@ namespace Engine {
 		{
 			ZONG_PROFILE_FUNC("VulkanRenderer::SetSceneEnvironment");
 
-			const auto shader = Renderer::GetShaderLibrary()->Get("HazelPBR_Static");
+			const auto shader = Renderer::GetShaderLibrary()->Get("PBR_Static");
 			Ref<VulkanShader> pbrShader = shader.As<VulkanShader>();
 			const uint32_t bufferIndex = Renderer::RT_GetCurrentFrameIndex();
 

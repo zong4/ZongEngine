@@ -165,8 +165,8 @@ namespace Engine {
 
 		// NOTE: some shaders (compute) need to have optimization disabled because of a shaderc internal error
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HZB.glsl");
-		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HazelPBR_Static.glsl");
-		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HazelPBR_Transparent.glsl");
+		Renderer::GetShaderLibrary()->Load("Resources/Shaders/PBR_Static.glsl");
+		Renderer::GetShaderLibrary()->Load("Resources/Shaders/PBR_Transparent.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HazelPBR_Anim.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/Grid.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/Wireframe.glsl");

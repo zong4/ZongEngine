@@ -281,7 +281,7 @@ namespace Engine {
 			{
 				auto aiMaterial = scene->mMaterials[i];
 				auto aiMaterialName = aiMaterial->GetName();
-				Engine::Ref<Material> mi = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"), aiMaterialName.data);
+				Engine::Ref<Material> mi = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"), aiMaterialName.data);
 				meshSource->m_Materials[i] = mi;
 
 				ZONG_MESH_LOG("  {0} (Index = {1})", aiMaterialName.data, i);
@@ -328,7 +328,7 @@ namespace Engine {
 					}
 					else
 					{
-						// TODO: Temp - this should be handled by Hazel's filesystem
+						// TODO: Temp - this should be handled by Engine's filesystem
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
@@ -374,7 +374,7 @@ namespace Engine {
 					else
 					{
 
-						// TODO: Temp - this should be handled by Hazel's filesystem
+						// TODO: Temp - this should be handled by Engine's filesystem
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
@@ -419,7 +419,7 @@ namespace Engine {
 					}
 					else
 					{
-						// TODO: Temp - this should be handled by Hazel's filesystem
+						// TODO: Temp - this should be handled by Engine's filesystem
 						auto parentPath = m_Path.parent_path();
 						parentPath /= std::string(aiTexPath.data);
 						std::string texturePath = parentPath.string();
@@ -451,7 +451,7 @@ namespace Engine {
 				// Metalness map (or is it??)
 				if (aiMaterial->Get("$raw.ReflectionFactor|file", aiPTI_String, 0, aiTexPath) == AI_SUCCESS)
 				{
-					// TODO: Temp - this should be handled by Hazel's filesystem
+					// TODO: Temp - this should be handled by Engine's filesystem
 					std::filesystem::path path = filename;
 					auto parentPath = path.parent_path();
 					parentPath /= std::string(aiTexPath.data);
@@ -553,7 +553,7 @@ namespace Engine {
 							}
 							else
 							{
-								// TODO: Temp - this should be handled by Hazel's filesystem
+								// TODO: Temp - this should be handled by Engine's filesystem
 								auto parentPath = m_Path.parent_path();
 								parentPath /= str;
 								std::string texturePath = parentPath.string();
@@ -590,7 +590,7 @@ namespace Engine {
 		}
 		else
 		{
-			auto mi = Material::Create(Renderer::GetShaderLibrary()->Get("HazelPBR_Static"), "Hazel-Default");
+			auto mi = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"), "Hazel-Default");
 			mi->Set("u_MaterialUniforms.AlbedoColor", glm::vec3(0.8f));
 			mi->Set("u_MaterialUniforms.Emission", 0.0f);
 			mi->Set("u_MaterialUniforms.Metalness", 0.0f);

@@ -175,7 +175,7 @@ namespace Engine {
 
 			// TODO(Yan): this should have shader UUID when that's a thing
 			//            right now only supports PBR or Transparent shaders
-			Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent");
+			Ref<Shader> transparentShader = Renderer::GetShaderLibrary()->Get("PBR_Transparent");
 			bool transparent = materialAsset->GetMaterial()->GetShader() == transparentShader;
 			ZONG_SERIALIZE_PROPERTY(Transparent, transparent, out);
 

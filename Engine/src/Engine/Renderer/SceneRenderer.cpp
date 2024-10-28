@@ -500,7 +500,7 @@ namespace Engine {
 
 				PipelineSpecification pipelineSpecification;
 				pipelineSpecification.DebugName = "PBR-Static";
-				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("HazelPBR_Static");
+				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("PBR_Static");
 				pipelineSpecification.TargetFramebuffer = clearFramebuffer;
 				pipelineSpecification.DepthOperator = DepthCompareOperator::Equal;
 				pipelineSpecification.DepthWrite = false;
@@ -516,7 +516,7 @@ namespace Engine {
 				// Transparent Geometry
 				//
 				pipelineSpecification.DebugName = "PBR-Transparent";
-				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("HazelPBR_Transparent");
+				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("PBR_Transparent");
 				pipelineSpecification.DepthOperator = DepthCompareOperator::GreaterOrEqual;
 				m_TransparentGeometryPipeline = Pipeline::Create(pipelineSpecification);
 
