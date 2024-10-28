@@ -28,7 +28,7 @@ namespace Engine {
 
 		void DrawRendererPage();
 		void DrawScriptingPage();
-		void DrawHazelnutPage();
+		void DrawEditorPage();
 	private:
 		uint32_t m_CurrentPage = 0;
 		std::vector<SettingsPage> m_Pages;

@@ -2500,7 +2500,7 @@ namespace Engine {
 
 		UI::ShowMessageBox("Create New Mesh", [this, meshAssetPathLabel, skeletonAssetPathLabel, animationAssetPathLabel, graphAssetPathLabel]()
 		{
-			ImGui::TextWrapped("This file must be converted into Hazel assets before it can be added to the scene.");
+			ImGui::TextWrapped("This file must be converted into Engine assets before it can be added to the scene.");
 			ImGui::AlignTextToFramePadding();
 
 			// Import settings
@@ -3622,7 +3622,7 @@ namespace Engine {
 									ImGui::TextWrapped("https://docs.hazelengine.com/");
 									UI::Fonts::PopFont();
 									UI::Fonts::PushFont("Medium");
-									ImGui::TextWrapped("and navigate to \"Working withing Hazel\" -> \"Fixing Broken Prefabs\"");
+									ImGui::TextWrapped("and navigate to \"Working withing Engine\" -> \"Fixing Broken Prefabs\"");
 									UI::Fonts::PopFont();
 
 									if (ImGui::Button("Copy Link To Clipboard", ImVec2(160.0f, 28.0f)))

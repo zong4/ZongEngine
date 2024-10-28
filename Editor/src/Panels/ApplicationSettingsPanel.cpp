@@ -9,7 +9,7 @@ namespace Engine {
 
 	ApplicationSettingsPanel::ApplicationSettingsPanel()
 	{
-		m_Pages.push_back({ "Editor", [this](){ DrawHazelnutPage(); }});
+		m_Pages.push_back({ "Editor", [this](){ DrawEditorPage(); }});
 		m_Pages.push_back({ "Scripting", [this](){ DrawScriptingPage(); }});
 		m_Pages.push_back({ "Renderer", [this]() { DrawRendererPage(); } });
 	}
@@ -175,7 +175,7 @@ namespace Engine {
 		{
 			saveSettings |= UI::Property("Show Hidden Fields", editorSettings.ShowHiddenFields, "Determines if Script Components will display \"hidden\" fields, e.g fields that have been deleted, or are non-public.");
 
-			saveSettings |= UI::Property("Debugger Listening Port", editorSettings.ScriptDebuggerListenPort, 1024, 49151, "The port that the Mono Debugger will listen on. Requires restart if changed. Only used with the Hazel Tools extension for Visual Studio. (Default: 2550)"); // Anything between 1024 and 49151 should be User ports and should be safe (could still clash)
+			saveSettings |= UI::Property("Debugger Listening Port", editorSettings.ScriptDebuggerListenPort, 1024, 49151, "The port that the Mono Debugger will listen on. Requires restart if changed. Only used with the Engine Tools extension for Visual Studio. (Default: 2550)"); // Anything between 1024 and 49151 should be User ports and should be safe (could still clash)
 		}
 		UI::EndPropertyGrid();
 
@@ -184,7 +184,7 @@ namespace Engine {
 	}
 
 
-	void ApplicationSettingsPanel::DrawHazelnutPage()
+	void ApplicationSettingsPanel::DrawEditorPage()
 	{
 		auto& editorSettings = EditorApplicationSettings::Get();
 		bool saveSettings = false;
