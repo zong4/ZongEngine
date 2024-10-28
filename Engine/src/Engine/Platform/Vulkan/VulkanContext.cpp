@@ -138,7 +138,7 @@ namespace Engine {
 		if (!CheckDriverAPIVersionSupport(VK_API_VERSION_1_2))
 		{
 #ifdef ZONG_PLATFORM_WINDOWS
-			MessageBox(nullptr, L"Incompatible Vulkan driver version.\nUpdate your GPU drivers!", L"Hazel Error", MB_OK | MB_ICONERROR);
+			MessageBox(nullptr, L"Incompatible Vulkan driver version.\nUpdate your GPU drivers!", L"Engine Error", MB_OK | MB_ICONERROR);
 #else
 			ZONG_CORE_ERROR("Incompatible Vulkan driver version.\nUpdate your GPU drivers!");
 #endif
@@ -150,8 +150,8 @@ namespace Engine {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hazel";
-		appInfo.pEngineName = "Hazel";
+		appInfo.pApplicationName = "Engine";
+		appInfo.pEngineName = "Engine";
 		appInfo.apiVersion = VK_API_VERSION_1_2;
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

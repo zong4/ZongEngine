@@ -25,7 +25,7 @@ namespace Engine::Audio
                 HRESULT r;
                 r = SetThreadDescription(
                     GetCurrentThread(),
-                    L"Hazel Audio Thread"
+                    L"Engine Audio Thread"
                 );
 #endif
                 

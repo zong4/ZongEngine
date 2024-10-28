@@ -167,7 +167,7 @@ namespace Engine {
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HZB.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/PBR_Static.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/PBR_Transparent.glsl");
-		Renderer::GetShaderLibrary()->Load("Resources/Shaders/HazelPBR_Anim.glsl");
+		Renderer::GetShaderLibrary()->Load("Resources/Shaders/PBR_Anim.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/Grid.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/Wireframe.glsl");
 		Renderer::GetShaderLibrary()->Load("Resources/Shaders/Wireframe_Anim.glsl");

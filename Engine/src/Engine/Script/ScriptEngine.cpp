@@ -77,7 +77,7 @@ namespace Engine {
 		if (!LoadCoreAssembly())
 		{
 			// NOTE(Peter): In theory this should work for all Visual Studio 2022 instances as long as it's installed in the default location!
-			ZONG_CORE_INFO_TAG("ScriptEngine", "Failed to load Hazels C# core, attempting to build automatically using MSBuild");
+			ZONG_CORE_INFO_TAG("ScriptEngine", "Failed to load Engines C# core, attempting to build automatically using MSBuild");
 
 			auto scriptCoreAssemblyFile = std::filesystem::current_path().parent_path() / "Engine-ScriptCore" / "Engine-ScriptCore.csproj";
 			ScriptBuilder::BuildCSProject(scriptCoreAssemblyFile);
@@ -955,7 +955,7 @@ namespace Engine {
 
 		// Need to pass domainName.data() to mono_domain_create_appdomain because Mono is stupid and
 		// taking char* instead of const char* (it never modifies this string)
-		std::string domainName = "HazelScriptRuntime";
+		std::string domainName = "EngineScriptRuntime";
 
 		if (s_State->ScriptsDomain)
 		{

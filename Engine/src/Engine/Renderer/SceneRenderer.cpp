@@ -524,7 +524,7 @@ namespace Engine {
 				// Animated Geometry
 				//
 				pipelineSpecification.DebugName = "PBR-Anim";
-				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("HazelPBR_Anim");
+				pipelineSpecification.Shader = Renderer::GetShaderLibrary()->Get("PBR_Anim");
 				pipelineSpecification.DepthOperator = DepthCompareOperator::Equal;
 				pipelineSpecification.BoneInfluenceLayout = boneInfluenceLayout;
 				m_GeometryPipelineAnim = Pipeline::Create(pipelineSpecification);
