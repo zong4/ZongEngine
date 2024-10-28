@@ -8,7 +8,7 @@ namespace Engine {
 
 	inline static std::unordered_map<std::string, AssetType> s_AssetExtensionMap =
 	{
-		// Hazel types
+		// Engine types
 		{ ".hscene", AssetType::Scene },
 		{ ".hmesh", AssetType::Mesh },
 		{ ".hsmesh", AssetType::StaticMesh },

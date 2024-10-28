@@ -213,7 +213,7 @@ namespace Engine {
 
 	bool StaticMeshSerializer::TryLoadData(const AssetMetadata& metadata, Ref<Asset>& asset) const
 	{
-		// TODO: this needs to open up a Hazel Mesh file and make sure
+		// TODO: this needs to open up a Engine Mesh file and make sure
 		//       the MeshAsset file is also loaded
 		auto filepath = Project::GetAssetDirectory() / metadata.FilePath;
 		std::ifstream stream(filepath);

@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "Hazel/Core/Thread.h"
+#include "Engine/Core/Thread.h"
 
 #include <pthread.h>
 
-namespace Hazel {
+namespace Engine {
 
 	Thread::Thread(const std::string& name)
 		: m_Name(name)

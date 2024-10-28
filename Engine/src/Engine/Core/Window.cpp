@@ -16,7 +16,7 @@
 
 namespace Engine {
 
-#include "Engine/Embed/HazelIcon.embed"
+#include "Engine/Embed/EngineIcon.embed"
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
@@ -103,8 +103,8 @@ namespace Engine {
 			}
 			else
 			{
-				// Use embedded Hazel icon
-				icon.pixels = stbi_load_from_memory(g_HazelIconPNG, sizeof(g_HazelIconPNG), &icon.width, &icon.height, &channels, 4);
+				// Use embedded Engine icon
+				icon.pixels = stbi_load_from_memory(g_EngineIconPNG, sizeof(g_EngineIconPNG), &icon.width, &icon.height, &channels, 4);
 				glfwSetWindowIcon(m_Window, 1, &icon);
 				stbi_image_free(icon.pixels);
 			}

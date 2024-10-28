@@ -913,7 +913,7 @@ namespace Engine {
 				auto& transform = deserializedEntity.GetComponent<TransformComponent>();
 				transform.Translation = transformComponent["Position"].as<glm::vec3>(glm::vec3(0.0f));
 				auto rotationNode = transformComponent["Rotation"];
-				// Some versions of Hazel serialized rotations as quaternions
+				// Some versions of Engine serialized rotations as quaternions
 				// They should be serialized as Euler angles (this is the only way to support rotations > 360 degrees)
 				// If you encounter this VERIFY, then you can uncomment this code, load your scene in and then save it
 				// That will convert rotations back to Euler angles, and you can then re-comment out this code.

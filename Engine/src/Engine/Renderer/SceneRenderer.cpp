@@ -363,7 +363,7 @@ namespace Engine {
 			// required resources. This should be easy to check and ensure everything is ready.
 			// 
 			// Passes should be somewhat pre-baked to contain ready-to-go descriptors that aren't draw-call
-			// specific. Hazel defines Set 0 as per-draw - so usually materials. Sets 1-3 are scene/renderer owned.
+			// specific. Engine defines Set 0 as per-draw - so usually materials. Sets 1-3 are scene/renderer owned.
 			//
 			// This means that when you define a render pass, you need to set-up required inputs from Sets 1-3
 			// and based on what is used here, these need to get baked into ready-to-go allocated descriptor sets,

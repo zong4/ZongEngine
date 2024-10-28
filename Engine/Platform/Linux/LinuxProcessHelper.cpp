@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "Hazel/Utilities/ProcessHelper.h"
-#include "Hazel/Utilities/StringUtils.h"
-#include "Hazel/Utilities/FileSystem.h"
+#include "Engine/Utilities/ProcessHelper.h"
+#include "Engine/Utilities/StringUtils.h"
+#include "Engine/Utilities/FileSystem.h"
 
 #include <spawn.h>
 #include <unistd.h>
 #include <signal.h>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::unordered_map<UUID, pid_t> s_LinuxProcessStorage;
 

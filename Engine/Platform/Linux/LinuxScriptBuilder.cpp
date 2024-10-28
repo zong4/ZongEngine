@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "Hazel/Script/ScriptBuilder.h"
+#include "Engine/Script/ScriptBuilder.h"
 
 #include <spdlog/fmt/fmt.h>
 
-namespace Hazel {
+namespace Engine {
 
 	void ScriptBuilder::BuildCSProject(const std::filesystem::path& filepath)
 	{

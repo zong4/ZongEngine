@@ -112,7 +112,7 @@ namespace Engine {
 		}
 		else
 		{
-			// Hazel Material
+			// Engine Material
 			const JoltMaterial* customMaterial = static_cast<const JoltMaterial*>(material);
 			outFriction = customMaterial->GetFriction();
 			outRestitution = customMaterial->GetRestitution();

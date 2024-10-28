@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "Hazel/Core/RenderThread.h"
+#include "Engine/Core/RenderThread.h"
 
-#include "Hazel/Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer.h"
 
 #include <condition_variable>
 #include <mutex>
 
-namespace Hazel {
+namespace Engine {
 
 	struct RenderThreadData
 	{

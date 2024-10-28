@@ -150,7 +150,7 @@ namespace Engine::AnimationGraph {
 		//            (e.g. somewhere down the track you decide to add a new input to the node processor)
 		//            then it could be the case that the NodeProcessor has an input for which there
 		//            is no DefaultValuePlug.
-		//            This will then cause graph validation to fail, or worse, crash Hazel with a null ptr deference.
+		//            This will then cause graph validation to fail, or worse, crash Engine with a null ptr deference.
 		//            This can be avoided if NodeProcessor inputs are always set to some non-null value.
 		std::vector<std::shared_ptr<StreamWriter>> DefaultValuePlugs;
 

@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "Hazel/Utilities/FileSystem.h"
-#include "Hazel/Asset/AssetManager.h"
+#include "Engine/Utilities/FileSystem.h"
+#include "Engine/Asset/AssetManager.h"
 
-#include "Hazel/Core/Application.h"
+#include "Engine/Core/Application.h"
 
 #include <GLFW/glfw3.h>
 
@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <thread>
 
-namespace Hazel {
+namespace Engine {
 
 	static std::filesystem::path s_PersistentStoragePath;
 
@@ -57,7 +57,7 @@ namespace Hazel {
 		if (!s_PersistentStoragePath.empty())
 			return s_PersistentStoragePath;
 
-		s_PersistentStoragePath = HasEnvironmentVariable("HAZEL_DIR") ? GetEnvironmentVariable("HAZEL_DIR") : "..";
+		s_PersistentStoragePath = HasEnvironmentVariable("ENGINE_DIR") ? GetEnvironmentVariable("ENGINE_DIR") : "..";
 		s_PersistentStoragePath /= "Editor";
 
 		if (!std::filesystem::exists(s_PersistentStoragePath))

@@ -28,7 +28,7 @@ namespace Engine {
 	};
 
 	// .hmc file format
-	struct HazelPhysicsMesh
+	struct EnginePhysicsMesh
 	{
 		const char Header[8] = "HazelMC";
 		MeshColliderType Type;

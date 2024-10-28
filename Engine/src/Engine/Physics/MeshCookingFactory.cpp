@@ -14,7 +14,7 @@ namespace Engine {
 
 	bool MeshCookingFactory::SerializeMeshCollider(const std::filesystem::path& filepath, MeshColliderData& meshData)
 	{
-		HazelPhysicsMesh hmc;
+		EnginePhysicsMesh hmc;
 		hmc.Type = meshData.Type;
 		hmc.SubmeshCount = (uint32_t)meshData.Submeshes.size();
 
@@ -29,7 +29,7 @@ namespace Engine {
 			return false;
 		}
 
-		stream.write((char*)&hmc, sizeof(HazelPhysicsMesh));
+		stream.write((char*)&hmc, sizeof(EnginePhysicsMesh));
 		for (auto& submesh : meshData.Submeshes)
 		{
 			stream.write((char*)glm::value_ptr(submesh.Transform), sizeof(submesh.Transform));
@@ -44,14 +44,14 @@ namespace Engine {
 	{
 		// Deserialize
 		Buffer colliderBuffer = FileSystem::ReadBytes(filepath);
-		HazelPhysicsMesh& hmc = *(HazelPhysicsMesh*)colliderBuffer.Data;
-		ZONG_CORE_VERIFY(strcmp(hmc.Header, HazelPhysicsMesh().Header) == 0);
+		EnginePhysicsMesh& hmc = *(EnginePhysicsMesh*)colliderBuffer.Data;
+		ZONG_CORE_VERIFY(strcmp(hmc.Header, EnginePhysicsMesh().Header) == 0);
 
 		MeshColliderData meshData;
 		meshData.Type = hmc.Type;
 		meshData.Submeshes.resize(hmc.SubmeshCount);
 
-		uint8_t* buffer = colliderBuffer.As<uint8_t>() + sizeof(HazelPhysicsMesh);
+		uint8_t* buffer = colliderBuffer.As<uint8_t>() + sizeof(EnginePhysicsMesh);
 		for (uint32_t i = 0; i < hmc.SubmeshCount; i++)
 		{
 			SubmeshColliderData& submeshData = meshData.Submeshes[i];
