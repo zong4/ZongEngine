@@ -590,7 +590,7 @@ namespace Engine {
 		}
 		else
 		{
-			auto mi = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"), "Hazel-Default");
+			auto mi = Material::Create(Renderer::GetShaderLibrary()->Get("PBR_Static"), "Engine-Default");
 			mi->Set("u_MaterialUniforms.AlbedoColor", glm::vec3(0.8f));
 			mi->Set("u_MaterialUniforms.Emission", 0.0f);
 			mi->Set("u_MaterialUniforms.Metalness", 0.0f);

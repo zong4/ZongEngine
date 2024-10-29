@@ -22,8 +22,8 @@ using namespace Walnut;
 
 namespace Engine {
 
-#include "Embed/HazelDefaultLauncherHeaderImage.embed"
-#include "Embed/HazelGradientLogo.embed"
+#include "Embed/EngineDefaultLauncherHeaderImage.embed"
+#include "Embed/EngineGradientLogo.embed"
 #include "Embed/WindowImages.embed"
 
 	namespace Theme {
@@ -194,13 +194,13 @@ namespace Engine {
 
 		{
 			uint32_t w, h;
-			void* data = Image::Decode(g_HazelDefaultLauncherHeaderImage, sizeof(g_HazelDefaultLauncherHeaderImage), w, h);
+			void* data = Image::Decode(g_EngineDefaultLauncherHeaderImage, sizeof(g_EngineDefaultLauncherHeaderImage), w, h);
 			m_CoverImage = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
 			free(data);
 		}
 		{
 			uint32_t w, h;
-			void* data = Image::Decode(g_HazelGradientLogo, sizeof(g_HazelGradientLogo), w, h);
+			void* data = Image::Decode(g_EngineGradientLogo, sizeof(g_EngineGradientLogo), w, h);
 			m_LogoTex = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
 			free(data);
 		}

@@ -395,10 +395,10 @@ namespace Engine {
 			case UnmanagedType::Float: return BoxValue(ZONG_CACHED_CLASS("System.Single"), 0);
 			case UnmanagedType::Double: return BoxValue(ZONG_CACHED_CLASS("System.Double"), 0);
 			case UnmanagedType::String: return (MonoObject*)UTF8StringToMono("");
-			case UnmanagedType::AssetHandle: return BoxValue(ZONG_CACHED_CLASS("Hazel.AssetHandle"), 0);
-			case UnmanagedType::Vector2: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector2"), glm::vec2(0.0f));
-			case UnmanagedType::Vector3: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector3"), glm::vec3(0.0f));
-			case UnmanagedType::Vector4: return BoxValue(ZONG_CACHED_CLASS("Hazel.Vector4"), glm::vec4(0.0f));
+			case UnmanagedType::AssetHandle: return BoxValue(ZONG_CACHED_CLASS("Engine.AssetHandle"), 0);
+			case UnmanagedType::Vector2: return BoxValue(ZONG_CACHED_CLASS("Engine.Vector2"), glm::vec2(0.0f));
+			case UnmanagedType::Vector3: return BoxValue(ZONG_CACHED_CLASS("Engine.Vector3"), glm::vec3(0.0f));
+			case UnmanagedType::Vector4: return BoxValue(ZONG_CACHED_CLASS("Engine.Vector4"), glm::vec4(0.0f));
 			case UnmanagedType::Prefab: return nullptr;
 			case UnmanagedType::Entity: return nullptr;
 			case UnmanagedType::Mesh: return nullptr;
