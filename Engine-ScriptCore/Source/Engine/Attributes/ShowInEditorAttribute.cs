@@ -1,6 +1,6 @@
 using System;
 
-namespace Hazel
+namespace Engine
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ShowInEditorAttribute : Attribute

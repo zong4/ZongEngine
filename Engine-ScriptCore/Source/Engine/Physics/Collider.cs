@@ -1,4 +1,4 @@
-﻿namespace Hazel
+﻿namespace Engine
 {
 	public class Collider
 	{
@@ -25,7 +25,7 @@
 
 		public override string ToString()
 		{
-			return "Hazel.Collider";
+			return "Engine.Collider";
 		}
 	}
 }

@@ -3,7 +3,7 @@
 #include "ScriptTypes.h"
 #include "FieldStorage.h"
 
-#define ZONG_CORE_CLASS(clazz) ScriptCache::GetManagedClassByName("Hazel."#clazz)
+#define ZONG_CORE_CLASS(clazz) ScriptCache::GetManagedClassByName("Engine."#clazz)
 #define ZONG_CACHED_CLASS(clazz) ScriptCache::GetManagedClassByName(clazz)
 #define ZONG_CACHED_CLASS_RAW(clazz) ScriptCache::GetManagedClassByName(clazz)->Class
 #define ZONG_CACHED_METHOD(clazz, method, paramCount) ScriptCache::GetSpecificManagedMethod(ScriptCache::GetManagedClassByName(clazz), method, paramCount)

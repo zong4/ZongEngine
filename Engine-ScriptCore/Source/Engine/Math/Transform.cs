@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace Hazel
+namespace Engine
 {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Transform

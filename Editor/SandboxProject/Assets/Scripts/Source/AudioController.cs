@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hazel;
+using Engine;
 
 
 namespace AudioTest
@@ -529,9 +529,9 @@ namespace AudioTest
 
 				for (int i = 0; i < NumberOfObjects; i++)
 				{
-					float x = SpawnOffset.X + Hazel.Random.Float() * SpawnRange.X;
-					float y = SpawnOffset.Y + Hazel.Random.Float() * SpawnRange.Y;
-					float rotation = Hazel.Random.Float() * 10.0f;
+					float x = SpawnOffset.X + Engine.Random.Float() * SpawnRange.X;
+					float y = SpawnOffset.Y + Engine.Random.Float() * SpawnRange.Y;
+					float rotation = Engine.Random.Float() * 10.0f;
 					m_Objects[i] = CreateObject(new Vector2(x, y), rotation);
 					m_Rotations[i] = rotation;
 				}

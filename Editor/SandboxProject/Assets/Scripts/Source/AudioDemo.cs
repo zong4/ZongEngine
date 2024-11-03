@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hazel;
+using Engine;
 
 
 namespace AudioDemo
@@ -102,8 +102,8 @@ namespace AudioDemo
 
 				if(sine == 1.0f)
 				{
-					float rv = Hazel.Random.Float() * 0.2f;
-					float rp = Hazel.Random.Float() * 0.4f;
+					float rv = Engine.Random.Float() * 0.2f;
+					float rp = Engine.Random.Float() * 0.4f;
 					var spawnLocation = Transform.Translation;
 					//Audio.PlaySoundAtLocation(soundAssets[rand.Next(soundAssets.Length)], spawnLocation, 0.5f - rv, 1.0f + rp);
 					Audio.PostEventAtLocation(new AudioCommandID("play_sound_cone_top"), spawnLocation, Transform.Rotation);
@@ -146,11 +146,11 @@ namespace AudioDemo
 
 		void PlaySound()
 		{
-			float x = Hazel.Random.Float() * xBounds - 0.5f * xBounds + Transform.Translation.X;
-			float z = Hazel.Random.Float() * zBounds - 0.5f * zBounds + Transform.Translation.Z;
+			float x = Engine.Random.Float() * xBounds - 0.5f * xBounds + Transform.Translation.X;
+			float z = Engine.Random.Float() * zBounds - 0.5f * zBounds + Transform.Translation.Z;
 
-			float rv = Hazel.Random.Float() * 0.2f;
-			float rp = Hazel.Random.Float() * 0.4f;
+			float rv = Engine.Random.Float() * 0.2f;
+			float rp = Engine.Random.Float() * 0.4f;
 			var spawnLocation = new Vector3(x, 0.5f, z);
 
 			//Audio.PlaySoundAtLocation(sounds[rand.Next(sounds.Length)], spawnLocation, 1.2f - rv, 1.0f + rp);
@@ -201,8 +201,8 @@ namespace AudioDemo
 
 		void PlaySound()
 		{
-			float rv = Hazel.Random.Float() * 0.2f;
-			float rp = Hazel.Random.Float() * 0.06f;
+			float rv = Engine.Random.Float() * 0.2f;
+			float rp = Engine.Random.Float() * 0.06f;
 
 			m_AudioComponent.VolumeMultiplier = startingVolume + rv;
 			m_AudioComponent.PitchMultiplier = startingPitch + rp;

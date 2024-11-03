@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Hazel
+namespace Engine
 {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct AssetHandle

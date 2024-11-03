@@ -30,7 +30,7 @@ namespace Engine {
 	// .hmc file format
 	struct EnginePhysicsMesh
 	{
-		const char Header[8] = "HazelMC";
+		const char Header[9] = "EngineMC";
 		MeshColliderType Type;
 		uint32_t SubmeshCount;
 	};

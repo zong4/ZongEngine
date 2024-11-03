@@ -50,7 +50,7 @@ namespace Engine {
 		managedClass.Size = mono_type_size(classType, &alignment);
 		managedClass.Class = monoClass;
 		s_Cache->Classes[managedClass.ID] = managedClass;
-		if (managedClass.FullName.find("Hazel.") != std::string::npos)
+		if (managedClass.FullName.find("Engine.") != std::string::npos)
 		{
 			Ref<AssemblyInfo> coreAssembly = ScriptEngine::GetCoreAssemblyInfo();
 			ScriptCache::CacheClassMethods(coreAssembly, managedClass);
@@ -82,7 +82,7 @@ namespace Engine {
 		CACHE_CORELIB_CLASS("String");
 		CacheClass("System.Diagnostics.StackTrace", mono_class_from_name(mono_get_corlib(), "System.Diagnostics", "StackTrace"));
 
-#define CACHE_ENGINE_CORE_CLASS(name) CacheClass("Hazel." name, mono_class_from_name(ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage, "Hazel", name))
+#define CACHE_ENGINE_CORE_CLASS(name) CacheClass("Engine." name, mono_class_from_name(ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage, "Engine", name))
 
 		CACHE_ENGINE_CORE_CLASS("ShowInEditorAttribute");
 		CACHE_ENGINE_CORE_CLASS("HideFromEditorAttribute");
@@ -193,7 +193,7 @@ namespace Engine {
 			CacheClassFields(assemblyInfo, managedClass);
 			CacheClassProperties(assemblyInfo, managedClass);
 
-			if (mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Hazel.Entity"), false))
+			if (mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Engine.Entity"), false))
 			{
 				AssetHandle handle = AssetManager::CreateMemoryOnlyAssetWithHandle<ScriptAsset>(Hash::GenerateFNVHash(managedClass.FullName), classID);
 #ifndef ZONG_DIST
@@ -208,7 +208,7 @@ namespace Engine {
 		{
 			ManagedClass& managedClass = s_Cache->Classes.at(classID);
 
-			if (!mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Hazel.Entity"), false))
+			if (!mono_class_is_subclass_of(managedClass.Class, ZONG_CACHED_CLASS_RAW("Engine.Entity"), false))
 				continue;
 
 			MonoObject* tempInstance = ScriptEngine::CreateManagedObject_Internal(&managedClass);
@@ -317,18 +317,18 @@ namespace Engine {
 			case FieldType::Float: return ZONG_CACHED_CLASS("System.Single")->Class;
 			case FieldType::Double: return ZONG_CACHED_CLASS("System.Double")->Class;
 			case FieldType::String: return ZONG_CACHED_CLASS("System.String")->Class;
-			case FieldType::Vector2: return ZONG_CACHED_CLASS("Hazel.Vector2")->Class;
-			case FieldType::Vector3: return ZONG_CACHED_CLASS("Hazel.Vector3")->Class;
-			case FieldType::Vector4: return ZONG_CACHED_CLASS("Hazel.Vector4")->Class;
-			case FieldType::AssetHandle: return ZONG_CACHED_CLASS("Hazel.AssetHandle")->Class;
-			case FieldType::Prefab: return ZONG_CACHED_CLASS("Hazel.Prefab")->Class;
-			case FieldType::Entity: return ZONG_CACHED_CLASS("Hazel.Entity")->Class;
-			case FieldType::Mesh: return ZONG_CACHED_CLASS("Hazel.Mesh")->Class;
-			case FieldType::StaticMesh: return ZONG_CACHED_CLASS("Hazel.StaticMesh")->Class;
-			case FieldType::Material: return ZONG_CACHED_CLASS("Hazel.Material")->Class;
-			case FieldType::PhysicsMaterial: return ZONG_CACHED_CLASS("Hazel.PhysicsMaterial")->Class;
-			case FieldType::Texture2D: return ZONG_CACHED_CLASS("Hazel.Texture2D")->Class;
-			case FieldType::Scene: return ZONG_CACHED_CLASS("Hazel.Scene")->Class;
+			case FieldType::Vector2: return ZONG_CACHED_CLASS("Engine.Vector2")->Class;
+			case FieldType::Vector3: return ZONG_CACHED_CLASS("Engine.Vector3")->Class;
+			case FieldType::Vector4: return ZONG_CACHED_CLASS("Engine.Vector4")->Class;
+			case FieldType::AssetHandle: return ZONG_CACHED_CLASS("Engine.AssetHandle")->Class;
+			case FieldType::Prefab: return ZONG_CACHED_CLASS("Engine.Prefab")->Class;
+			case FieldType::Entity: return ZONG_CACHED_CLASS("Engine.Entity")->Class;
+			case FieldType::Mesh: return ZONG_CACHED_CLASS("Engine.Mesh")->Class;
+			case FieldType::StaticMesh: return ZONG_CACHED_CLASS("Engine.StaticMesh")->Class;
+			case FieldType::Material: return ZONG_CACHED_CLASS("Engine.Material")->Class;
+			case FieldType::PhysicsMaterial: return ZONG_CACHED_CLASS("Engine.PhysicsMaterial")->Class;
+			case FieldType::Texture2D: return ZONG_CACHED_CLASS("Engine.Texture2D")->Class;
+			case FieldType::Scene: return ZONG_CACHED_CLASS("Engine.Scene")->Class;
 		}
 
 		return nullptr;
@@ -459,7 +459,7 @@ namespace Engine {
 			std::string className = mono_class_get_name(currentClass);
 			std::string classNameSpace = mono_class_get_namespace(currentClass);
 
-			if (classNameSpace.find("Hazel") != std::string::npos && className.find("Entity") != std::string::npos)
+			if (classNameSpace.find("Engine") != std::string::npos && className.find("Entity") != std::string::npos)
 			{
 				currentClass = nullptr;
 				continue;
@@ -533,14 +533,14 @@ namespace Engine {
 					}
 				}
 
-				if (attributes && mono_custom_attrs_has_attr(attributes, GetManagedClassByName("Hazel.ShowInEditorAttribute")->Class))
+				if (attributes && mono_custom_attrs_has_attr(attributes, GetManagedClassByName("Engine.ShowInEditorAttribute")->Class))
 				{
 					managedField.Flags &= ~(uint64_t)FieldFlag::Protected;
 					managedField.Flags &= ~(uint64_t)FieldFlag::Internal;
 					managedField.Flags &= ~(uint64_t)FieldFlag::Private;
 					managedField.Flags |= (uint64_t)FieldFlag::Public;
 
-					MonoObject* attrib = mono_custom_attrs_get_attr(attributes, GetManagedClassByName("Hazel.ShowInEditorAttribute")->Class);
+					MonoObject* attrib = mono_custom_attrs_get_attr(attributes, GetManagedClassByName("Engine.ShowInEditorAttribute")->Class);
 
 					CSharpInstanceInspector inspector(attrib);
 					managedField.DisplayName = inspector.GetFieldValue<std::string>("DisplayName");
@@ -664,7 +664,7 @@ namespace Engine {
 
 			MonoCustomAttrInfo* attributes = mono_custom_attrs_from_property(managedClass.Class, prop);
 
-			if (!TypeUtils::ContainsAttribute(attributes, "Hazel.ShowInEditorAttribute"))
+			if (!TypeUtils::ContainsAttribute(attributes, "Engine.ShowInEditorAttribute"))
 				continue;
 
 			FieldInfo& managedProperty = s_Cache->Fields[propertyID];

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Hazel
+namespace Engine
 {
 	public static class Mathf
 	{

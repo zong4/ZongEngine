@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hazel
+namespace Engine
 {
 	public class AnimationSequenceTransform : AnimationSequenceGeneric<Transform>
 	{
 		private static Dictionary<KeyframeType, Func<Vector3, Vector3, float, Vector3>> m_InterpolateFuncs = new Dictionary<KeyframeType, Func<Vector3, Vector3, float, Vector3>>()
 		{
-			{ KeyframeType.Linear, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.Linear(a, b, t) },
-			{ KeyframeType.EaseIn, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.EaseIn(a, b, t) },
-			{ KeyframeType.EaseOut, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.EaseOut(a, b, t) },
-			{ KeyframeType.EaseInOut, (Vector3 a, Vector3 b,float t) => Hazel.Interpolate.EaseInOut(a, b, t) },
+			{ KeyframeType.Linear, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.Linear(a, b, t) },
+			{ KeyframeType.EaseIn, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.EaseIn(a, b, t) },
+			{ KeyframeType.EaseOut, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.EaseOut(a, b, t) },
+			{ KeyframeType.EaseInOut, (Vector3 a, Vector3 b,float t) => Engine.Interpolate.EaseInOut(a, b, t) },
 			{ KeyframeType.Hold, (Vector3 a, Vector3 b, float t) => a }
 		};
 
@@ -32,10 +32,10 @@ namespace Hazel
 	{
 		private static Dictionary<KeyframeType, Func<float, float, float, float>> m_InterpolateFuncs = new Dictionary<KeyframeType, Func<float, float, float, float>>()
 		{
-			{ KeyframeType.Linear, (float a, float b, float t) => Hazel.Interpolate.Linear(a, b, t) },
-			{ KeyframeType.EaseIn, (float a, float b, float t) => Hazel.Interpolate.EaseIn(a, b, t) },
-			{ KeyframeType.EaseOut, (float a, float b, float t) => Hazel.Interpolate.EaseOut(a, b, t) },
-			{ KeyframeType.EaseInOut, (float a, float b,float t) => Hazel.Interpolate.EaseInOut(a, b, t) },
+			{ KeyframeType.Linear, (float a, float b, float t) => Engine.Interpolate.Linear(a, b, t) },
+			{ KeyframeType.EaseIn, (float a, float b, float t) => Engine.Interpolate.EaseIn(a, b, t) },
+			{ KeyframeType.EaseOut, (float a, float b, float t) => Engine.Interpolate.EaseOut(a, b, t) },
+			{ KeyframeType.EaseInOut, (float a, float b,float t) => Engine.Interpolate.EaseInOut(a, b, t) },
 			{ KeyframeType.Hold, (float a, float b, float t) => a }
 		};
 
@@ -47,10 +47,10 @@ namespace Hazel
 	{
 		private static Dictionary<KeyframeType, Func<Vector2, Vector2, float, Vector2>> m_InterpolateFuncs = new Dictionary<KeyframeType, Func<Vector2, Vector2, float, Vector2>>()
 		{
-			{ KeyframeType.Linear, (Vector2 a, Vector2 b, float t) => Hazel.Interpolate.Linear(a, b, t) },
-			{ KeyframeType.EaseIn, (Vector2 a, Vector2 b, float t) => Hazel.Interpolate.EaseIn(a, b, t) },
-			{ KeyframeType.EaseOut, (Vector2 a, Vector2 b, float t) => Hazel.Interpolate.EaseOut(a, b, t) },
-			{ KeyframeType.EaseInOut, (Vector2 a, Vector2 b,float t) => Hazel.Interpolate.EaseInOut(a, b, t) },
+			{ KeyframeType.Linear, (Vector2 a, Vector2 b, float t) => Engine.Interpolate.Linear(a, b, t) },
+			{ KeyframeType.EaseIn, (Vector2 a, Vector2 b, float t) => Engine.Interpolate.EaseIn(a, b, t) },
+			{ KeyframeType.EaseOut, (Vector2 a, Vector2 b, float t) => Engine.Interpolate.EaseOut(a, b, t) },
+			{ KeyframeType.EaseInOut, (Vector2 a, Vector2 b,float t) => Engine.Interpolate.EaseInOut(a, b, t) },
 			{ KeyframeType.Hold, (Vector2 a, Vector2 b, float t) => a }
 		};
 
@@ -61,10 +61,10 @@ namespace Hazel
 	{
 		private static Dictionary<KeyframeType, Func<Vector3, Vector3, float, Vector3>> m_InterpolateFuncs = new Dictionary<KeyframeType, Func<Vector3, Vector3, float, Vector3>>()
 		{
-			{ KeyframeType.Linear, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.Linear(a, b, t) },
-			{ KeyframeType.EaseIn, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.EaseIn(a, b, t) },
-			{ KeyframeType.EaseOut, (Vector3 a, Vector3 b, float t) => Hazel.Interpolate.EaseOut(a, b, t) },
-			{ KeyframeType.EaseInOut, (Vector3 a, Vector3 b,float t) => Hazel.Interpolate.EaseInOut(a, b, t) },
+			{ KeyframeType.Linear, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.Linear(a, b, t) },
+			{ KeyframeType.EaseIn, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.EaseIn(a, b, t) },
+			{ KeyframeType.EaseOut, (Vector3 a, Vector3 b, float t) => Engine.Interpolate.EaseOut(a, b, t) },
+			{ KeyframeType.EaseInOut, (Vector3 a, Vector3 b,float t) => Engine.Interpolate.EaseInOut(a, b, t) },
 			{ KeyframeType.Hold, (Vector3 a, Vector3 b, float t) => a }
 		};
 

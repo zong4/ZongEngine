@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Hazel
+namespace Engine
 {
 	public class Scene : IEquatable<Scene>
 	{

@@ -1,5 +1,5 @@
 ﻿using System;
-using Hazel;
+using Engine;
 
 namespace PrefabSandbox
 {
@@ -28,8 +28,8 @@ namespace PrefabSandbox
                 for (int i = 0; i < 10; i++)
                 {
                     Entity particle = Scene.InstantiatePrefab(ExplosiveParticle, Transform.Translation);
-                    Vector3 dir = new Vector3(Hazel.Random.Float() * 2.0f - 1.0f, Hazel.Random.Float() * 2.0f - 1.0f + 1.0f, Hazel.Random.Float() * 2.0f - 1.0f);
-                    Vector3 force = dir * Hazel.Random.Float() * 50.0f;
+                    Vector3 dir = new Vector3(Engine.Random.Float() * 2.0f - 1.0f, Engine.Random.Float() * 2.0f - 1.0f + 1.0f, Engine.Random.Float() * 2.0f - 1.0f);
+                    Vector3 force = dir * Engine.Random.Float() * 50.0f;
                     particle.GetComponent<RigidBodyComponent>().AddForce(force, EForceMode.Impulse);
                 }
                 Destroy();

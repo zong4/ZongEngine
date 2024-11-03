@@ -1,4 +1,4 @@
-﻿using Hazel;
+﻿using Engine;
 using System;
 
 // These scripts are intended to be used on a "third person" character, set up as follows:
@@ -69,7 +69,7 @@ namespace ThirdPersonExample
 				m_Transform.Position.Z = DistanceFromPlayer * -Mathf.Cos(m_Transform.Rotation.Y);
 			}
 
-			//Hazel.Transform transform = Player.Transform.WorldTransform * m_Transform;
+			//Engine.Transform transform = Player.Transform.WorldTransform * m_Transform;
 			Transform.Translation = m_Transform.Position + Player.Transform.WorldTransform.Position;
 			Transform.Rotation = m_Transform.Rotation;
 			Transform.Scale = m_Transform.Scale;

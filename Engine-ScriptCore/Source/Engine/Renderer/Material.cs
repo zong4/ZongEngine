@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Hazel
+namespace Engine
 {
 	public sealed class Material : IEquatable<Material>
 	{

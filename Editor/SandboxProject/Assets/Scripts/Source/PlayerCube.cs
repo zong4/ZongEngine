@@ -1,5 +1,5 @@
 ﻿using System;
-using Hazel;
+using Engine;
 
 namespace Example
 {
@@ -38,9 +38,9 @@ namespace Example
 
             for (int i = 0; i < NumberOfCubes; i++)
             {
-                float x = CubeSpawnOffset.X + Hazel.Random.Float() * CubeSpawnRange.X;
-                float y = CubeSpawnOffset.Y + Hazel.Random.Float() * CubeSpawnRange.Y;
-                CreateCube(new Vector2(x, y), Hazel.Random.Float() * 10.0f, i);
+                float x = CubeSpawnOffset.X + Engine.Random.Float() * CubeSpawnRange.X;
+                float y = CubeSpawnOffset.Y + Engine.Random.Float() * CubeSpawnRange.Y;
+                CreateCube(new Vector2(x, y), Engine.Random.Float() * 10.0f, i);
             }
         }
 

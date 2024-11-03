@@ -1,5 +1,5 @@
 ﻿using System;
-using Hazel;
+using Engine;
 
 namespace Example
 {
@@ -40,8 +40,8 @@ namespace Example
 			Vector2[] octaveOffsets = new Vector2[octaves];
 			for (int i = 0; i < octaves; i++)
 			{
-				float offsetX = Hazel.Random.Range(-100000, 100000) + offset.X;
-				float offsetY = Hazel.Random.Range(-100000, 100000) + offset.Y;
+				float offsetX = Engine.Random.Range(-100000, 100000) + offset.X;
+				float offsetY = Engine.Random.Range(-100000, 100000) + offset.Y;
 				octaveOffsets[i] = new Vector2(offsetX, offsetY);
 			}
 

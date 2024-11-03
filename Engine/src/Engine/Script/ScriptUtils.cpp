@@ -35,13 +35,13 @@ namespace Engine {
 
 #define REGISTER_METHOD_THUNK(var, method) s_MethodThunks->var.SetThunkFromMethod(method);
 
-		REGISTER_METHOD_THUNK(Entity_OnCreate, ZONG_CACHED_METHOD("Hazel.Entity", "OnCreate", 0));
-		REGISTER_METHOD_THUNK(Entity_OnUpdate, ZONG_CACHED_METHOD("Hazel.Entity", "OnUpdate", 1));
-		REGISTER_METHOD_THUNK(Entity_OnPhysicsUpdate, ZONG_CACHED_METHOD("Hazel.Entity", "OnPhysicsUpdate", 1));
-		REGISTER_METHOD_THUNK(Entity_OnDestroyInternal, ZONG_CACHED_METHOD("Hazel.Entity", "OnDestroyInternal", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnInstantiate, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnInstantiate", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnUIRender, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnUIRender", 0));
-		REGISTER_METHOD_THUNK(IEditorRunnable_OnShutdown, ZONG_CACHED_METHOD("Hazel.IEditorRunnable", "OnShutdown", 0));
+		REGISTER_METHOD_THUNK(Entity_OnCreate, ZONG_CACHED_METHOD("Engine.Entity", "OnCreate", 0));
+		REGISTER_METHOD_THUNK(Entity_OnUpdate, ZONG_CACHED_METHOD("Engine.Entity", "OnUpdate", 1));
+		REGISTER_METHOD_THUNK(Entity_OnPhysicsUpdate, ZONG_CACHED_METHOD("Engine.Entity", "OnPhysicsUpdate", 1));
+		REGISTER_METHOD_THUNK(Entity_OnDestroyInternal, ZONG_CACHED_METHOD("Engine.Entity", "OnDestroyInternal", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnInstantiate, ZONG_CACHED_METHOD("Engine.IEditorRunnable", "OnInstantiate", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnUIRender, ZONG_CACHED_METHOD("Engine.IEditorRunnable", "OnUIRender", 0));
+		REGISTER_METHOD_THUNK(IEditorRunnable_OnShutdown, ZONG_CACHED_METHOD("Engine.IEditorRunnable", "OnShutdown", 0));
 
 #undef REGISTER_METHOD_THUNK
 	}
@@ -328,14 +328,14 @@ namespace Engine {
 			switch (dataType)
 			{
 				case FieldType::String: return (MonoObject*)UTF8StringToMono(std::string((const char*)data));
-				case FieldType::Prefab: return ScriptEngine::CreateManagedObject("Hazel.Prefab", *(AssetHandle*)data);
-				case FieldType::Entity: return ScriptEngine::CreateManagedObject("Hazel.Entity", *(UUID*)data);
-				case FieldType::Mesh: return ScriptEngine::CreateManagedObject("Hazel.Mesh", *(AssetHandle*)data);
-				case FieldType::StaticMesh: return ScriptEngine::CreateManagedObject("Hazel.StaticMesh", *(AssetHandle*)data);
-				case FieldType::Material: return ScriptEngine::CreateManagedObject("Hazel.Material", *(AssetHandle*)data);
-				case FieldType::PhysicsMaterial: return ScriptEngine::CreateManagedObject("Hazel.PhysicsMaterial", *(AssetHandle*)data);
-				case FieldType::Texture2D: return ScriptEngine::CreateManagedObject("Hazel.Texture2D", *(AssetHandle*)data);
-				case FieldType::Scene: return ScriptEngine::CreateManagedObject("Hazel.Scene", *(AssetHandle*)data);
+				case FieldType::Prefab: return ScriptEngine::CreateManagedObject("Engine.Prefab", *(AssetHandle*)data);
+				case FieldType::Entity: return ScriptEngine::CreateManagedObject("Engine.Entity", *(UUID*)data);
+				case FieldType::Mesh: return ScriptEngine::CreateManagedObject("Engine.Mesh", *(AssetHandle*)data);
+				case FieldType::StaticMesh: return ScriptEngine::CreateManagedObject("Engine.StaticMesh", *(AssetHandle*)data);
+				case FieldType::Material: return ScriptEngine::CreateManagedObject("Engine.Material", *(AssetHandle*)data);
+				case FieldType::PhysicsMaterial: return ScriptEngine::CreateManagedObject("Engine.PhysicsMaterial", *(AssetHandle*)data);
+				case FieldType::Texture2D: return ScriptEngine::CreateManagedObject("Engine.Texture2D", *(AssetHandle*)data);
+				case FieldType::Scene: return ScriptEngine::CreateManagedObject("Engine.Scene", *(AssetHandle*)data);
 			}
 		}
 

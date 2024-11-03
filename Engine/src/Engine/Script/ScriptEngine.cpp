@@ -820,7 +820,7 @@ namespace Engine {
 			mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 		}
 
-		s_State->RootDomain = mono_jit_init("HazelJITRuntime");
+		s_State->RootDomain = mono_jit_init("EngineJITRuntime");
 		ZONG_CORE_ASSERT(s_State->RootDomain, "Unable to initialize Mono JIT");
 
 		if (s_State->Config.EnableDebugging)

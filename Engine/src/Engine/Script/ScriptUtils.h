@@ -218,11 +218,11 @@ namespace Engine {
 		template<> static MonoArray* Create<double>(uintptr_t length) { return Create("System.Double", length); }
 		template<> static MonoArray* Create<char>(uintptr_t length) { return Create("System.Char", length); }
 		template<> static MonoArray* Create<std::string>(uintptr_t length) { return Create("System.String", length); }
-		template<> static MonoArray* Create<Entity>(uintptr_t length) { return Create("Hazel.Entity", length); }
-		template<> static MonoArray* Create<Prefab>(uintptr_t length) { return Create("Hazel.Prefab", length); }
-		template<> static MonoArray* Create<glm::vec2>(uintptr_t length) { return Create("Hazel.Vector2", length); }
-		template<> static MonoArray* Create<glm::vec3>(uintptr_t length) { return Create("Hazel.Vector3", length); }
-		template<> static MonoArray* Create<glm::vec4>(uintptr_t length) { return Create("Hazel.Vector4", length); }
+		template<> static MonoArray* Create<Entity>(uintptr_t length) { return Create("Engine.Entity", length); }
+		template<> static MonoArray* Create<Prefab>(uintptr_t length) { return Create("Engine.Prefab", length); }
+		template<> static MonoArray* Create<glm::vec2>(uintptr_t length) { return Create("Engine.Vector2", length); }
+		template<> static MonoArray* Create<glm::vec3>(uintptr_t length) { return Create("Engine.Vector3", length); }
+		template<> static MonoArray* Create<glm::vec4>(uintptr_t length) { return Create("Engine.Vector4", length); }
 
 	private:
 		static void SetValueInternal(MonoArray* arr, uintptr_t index, void* data);

@@ -1,4 +1,4 @@
-﻿namespace Hazel
+﻿namespace Engine
 {
 	public class Mesh : MeshBase
 	{

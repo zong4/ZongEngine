@@ -1,4 +1,4 @@
-﻿namespace Hazel
+﻿namespace Engine
 {
 	public class StaticMesh : MeshBase
 	{

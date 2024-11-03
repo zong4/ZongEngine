@@ -1,6 +1,6 @@
 using System;
 
-namespace Hazel
+namespace Engine
 {
 	[AttributeUsage(AttributeTargets.Field)]
 	public class ClampValueAttribute : Attribute

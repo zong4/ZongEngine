@@ -55,7 +55,7 @@ namespace Engine {
 #define ZONG_FUNCTION_NAME __FUNCTION__
 #endif
 
-#define ZONG_ADD_INTERNAL_CALL(icall) mono_add_internal_call("Hazel.InternalCalls::"#icall, (void*)InternalCalls::icall)
+#define ZONG_ADD_INTERNAL_CALL(icall) mono_add_internal_call("Engine.InternalCalls::"#icall, (void*)InternalCalls::icall)
 
 #ifdef ZONG_DIST
 #define ZONG_ICALL_VALIDATE_PARAM(param) ZONG_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'", ZONG_FUNCTION_NAME, param, #param)
@@ -74,7 +74,7 @@ namespace Engine {
 	{
 		// NOTE(Peter): Get the demangled type name of TComponent
 		const TypeNameString& componentTypeName = TypeInfo<TComponent, true>().Name();
-		std::string componentName = fmt::format("Hazel.{}", componentTypeName);
+		std::string componentName = fmt::format("Engine.{}", componentTypeName);
 
 		MonoType* managedType = mono_reflection_type_from_name(componentName.data(), ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage);
 
@@ -95,7 +95,7 @@ namespace Engine {
 	{
 		// NOTE(Peter): Get the demangled type name of TComponent
 		const TypeNameString& componentTypeName = TypeInfo<TComponent, true>().Name();
-		std::string componentName = fmt::format("Hazel.{}", componentTypeName);
+		std::string componentName = fmt::format("Engine.{}", componentTypeName);
 
 		MonoType* managedType = mono_reflection_type_from_name(componentName.data(), ScriptEngine::GetCoreAssemblyInfo()->AssemblyImage);
 
@@ -4394,7 +4394,7 @@ namespace Engine {
 			instance->Unlock();
 		}
 
-		// TODO(Peter): Uncomment when Hazel can actually read texture data from the CPU or when image data is persistently stored in RAM
+		// TODO(Peter): Uncomment when Engine can actually read texture data from the CPU or when image data is persistently stored in RAM
 		/*MonoArray* Texture2D_GetData(AssetHandle* inHandle)
 		{
 			Ref<Texture2D> instance = AssetManager::GetAsset<Texture2D>(*inHandle);
@@ -4896,12 +4896,12 @@ namespace Engine {
 					{
 						const char* parentClassName = mono_class_get_name(parentClass);
 						const char* parentNameSpace = mono_class_get_namespace(parentClass);
-						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
+						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Engine") != nullptr;
 					}
 
 					if (!validComponentFilter)
 					{
-						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
+						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Engine.Component!", mono_class_get_name(typeClass));
 						success = false;
 						break;
 					}
@@ -4936,7 +4936,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							glm::vec3 halfSize = tempHit.HitCollider.As<BoxShape>()->GetHalfSize();
-							CSharpInstance boxInstance("Hazel.BoxShape");
+							CSharpInstance boxInstance("Engine.BoxShape");
 							shapeInstance = boxInstance.Instantiate(halfSize);
 							break;
 						}
@@ -4947,7 +4947,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							float radius = tempHit.HitCollider.As<SphereShape>()->GetRadius();
-							CSharpInstance sphereInstance("Hazel.SphereShape");
+							CSharpInstance sphereInstance("Engine.SphereShape");
 							shapeInstance = sphereInstance.Instantiate(radius);
 							break;
 						}
@@ -4960,7 +4960,7 @@ namespace Engine {
 							Ref<CapsuleShape> capsuleShape = tempHit.HitCollider.As<CapsuleShape>();
 							float height = capsuleShape->GetHeight();
 							float radius = capsuleShape->GetRadius();
-							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							CSharpInstance capsuleInstance("Engine.CapsuleShape");
 							shapeInstance = capsuleInstance.Instantiate(height, radius);
 							break;
 						}
@@ -4969,12 +4969,12 @@ namespace Engine {
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
 							Ref<ConvexMeshShape> convexMeshShape = tempHit.HitCollider.As<ConvexMeshShape>();
 							CSharpInstance meshInstance;
-							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							CSharpInstance convexMeshInstance("Engine.ConvexMeshShape");
 							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -4983,10 +4983,10 @@ namespace Engine {
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
-							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							CSharpInstance triangleMeshInstance("Engine.TriangleMeshShape");
 							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -4994,7 +4994,7 @@ namespace Engine {
 
 					if (shapeInstance != nullptr)
 					{
-						CSharpInstance colliderInstance("Hazel.Collider");
+						CSharpInstance colliderInstance("Engine.Collider");
 						outHit->HitCollider = colliderInstance.Instantiate(tempHit.HitEntity, shapeInstance, offset);
 					}
 				}
@@ -5019,7 +5019,7 @@ namespace Engine {
 			}
 
 			CSharpInstanceInspector inspector(inShapeCastData->ShapeDataInstance);
-			if (!inspector.InheritsFrom("Hazel.Shape"))
+			if (!inspector.InheritsFrom("Engine.Shape"))
 			{
 				ZONG_CORE_VERIFY(false);
 				return false;
@@ -5113,12 +5113,12 @@ namespace Engine {
 					{
 						const char* parentClassName = mono_class_get_name(parentClass);
 						const char* parentNameSpace = mono_class_get_namespace(parentClass);
-						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
+						validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Engine") != nullptr;
 					}
 
 					if (!validComponentFilter)
 					{
-						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
+						ErrorWithTrace("Physics.Raycast - {0} does not inherit from Engine.Component!", mono_class_get_name(typeClass));
 						success = false;
 						break;
 					}
@@ -5153,7 +5153,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							glm::vec3 halfSize = tempHit.HitCollider.As<BoxShape>()->GetHalfSize();
-							CSharpInstance boxInstance("Hazel.BoxShape");
+							CSharpInstance boxInstance("Engine.BoxShape");
 							shapeInstance = boxInstance.Instantiate(halfSize);
 							break;
 						}
@@ -5164,7 +5164,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							float radius = tempHit.HitCollider.As<SphereShape>()->GetRadius();
-							CSharpInstance sphereInstance("Hazel.SphereShape");
+							CSharpInstance sphereInstance("Engine.SphereShape");
 							shapeInstance = sphereInstance.Instantiate(radius);
 							break;
 						}
@@ -5177,7 +5177,7 @@ namespace Engine {
 							Ref<CapsuleShape> capsuleShape = tempHit.HitCollider.As<CapsuleShape>();
 							float height = capsuleShape->GetHeight();
 							float radius = capsuleShape->GetRadius();
-							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							CSharpInstance capsuleInstance("Engine.CapsuleShape");
 							shapeInstance = capsuleInstance.Instantiate(height, radius);
 							break;
 						}
@@ -5186,12 +5186,12 @@ namespace Engine {
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
 							Ref<ConvexMeshShape> convexMeshShape = tempHit.HitCollider.As<ConvexMeshShape>();
 							CSharpInstance meshInstance;
-							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							CSharpInstance convexMeshInstance("Engine.ConvexMeshShape");
 							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -5200,10 +5200,10 @@ namespace Engine {
 							Entity hitEntity = GetEntity(tempHit.HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
-							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							CSharpInstance triangleMeshInstance("Engine.TriangleMeshShape");
 							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -5211,7 +5211,7 @@ namespace Engine {
 
 					if (shapeInstance != nullptr)
 					{
-						CSharpInstance colliderInstance("Hazel.Collider");
+						CSharpInstance colliderInstance("Engine.Collider");
 						outHit->HitCollider = colliderInstance.Instantiate(tempHit.HitEntity, shapeInstance, offset);
 					}
 				}
@@ -5238,7 +5238,7 @@ namespace Engine {
 
 			std::vector<Raycast2DResult> raycastResults = Physics2D::Raycast(scene, inRaycastData->Origin, inRaycastData->Origin + inRaycastData->Direction * inRaycastData->MaxDistance);
 
-			MonoArray* result = ManagedArrayUtils::Create("Hazel.RaycastHit2D", raycastResults.size());
+			MonoArray* result = ManagedArrayUtils::Create("Engine.RaycastHit2D", raycastResults.size());
 			for (size_t i = 0; i < raycastResults.size(); i++)
 			{
 				UUID entityID = raycastResults[i].HitEntity.GetUUID();
@@ -5248,9 +5248,9 @@ namespace Engine {
 				if (entityInstance != nullptr)
 					entityObject = GCManager::GetReferencedObject(entityInstance);
 				else
-					entityObject = ScriptEngine::CreateManagedObject("Hazel.Entity", entityID);
+					entityObject = ScriptEngine::CreateManagedObject("Engine.Entity", entityID);
 
-				MonoObject* raycastHit2D = ScriptEngine::CreateManagedObject("Hazel.RaycastHit2D", entityObject, raycastResults[i].Point, raycastResults[i].Normal, raycastResults[i].Distance);
+				MonoObject* raycastHit2D = ScriptEngine::CreateManagedObject("Engine.RaycastHit2D", entityObject, raycastResults[i].Point, raycastResults[i].Normal, raycastResults[i].Distance);
 				ManagedArrayUtils::SetValue(result, i, raycastHit2D);
 			}
 
@@ -5266,7 +5266,7 @@ namespace Engine {
 				return 0;
 
 			CSharpInstanceInspector inspector(inOverlapData->ShapeDataInstance);
-			ZONG_CORE_VERIFY(inspector.InheritsFrom("Hazel.Shape"));
+			ZONG_CORE_VERIFY(inspector.InheritsFrom("Engine.Shape"));
 
 			ShapeOverlapInfo* shapeOverlapInfo = nullptr;
 
@@ -5332,7 +5332,7 @@ namespace Engine {
 				return 0;
 
 			if (*outHits == nullptr)
-				*outHits = ManagedArrayUtils::Create("Hazel.SceneQueryHit", uintptr_t(overlapCount));
+				*outHits = ManagedArrayUtils::Create("Engine.SceneQueryHit", uintptr_t(overlapCount));
 
 			if (mono_array_length(*outHits) < overlapCount)
 				ManagedArrayUtils::Resize(outHits, uintptr_t(overlapCount));
@@ -5365,12 +5365,12 @@ namespace Engine {
 						{
 							const char* parentClassName = mono_class_get_name(parentClass);
 							const char* parentNameSpace = mono_class_get_namespace(parentClass);
-							validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Hazel") != nullptr;
+							validComponentFilter = strstr(parentClassName, "Component") != nullptr && strstr(parentNameSpace, "Engine") != nullptr;
 						}
 
 						if (!validComponentFilter)
 						{
-							ErrorWithTrace("Physics.Raycast - {0} does not inherit from Hazel.Component!", mono_class_get_name(typeClass));
+							ErrorWithTrace("Physics.Raycast - {0} does not inherit from Engine.Component!", mono_class_get_name(typeClass));
 							overlapCount = 0;
 							break;
 						}
@@ -5407,7 +5407,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							glm::vec3 halfSize = hitArray[i].HitCollider.As<BoxShape>()->GetHalfSize();
-							CSharpInstance boxInstance("Hazel.BoxShape");
+							CSharpInstance boxInstance("Engine.BoxShape");
 							shapeInstance = boxInstance.Instantiate(halfSize);
 							break;
 						}
@@ -5418,7 +5418,7 @@ namespace Engine {
 							offset = colliderComp.Offset;
 
 							float radius = hitArray[i].HitCollider.As<SphereShape>()->GetRadius();
-							CSharpInstance sphereInstance("Hazel.SphereShape");
+							CSharpInstance sphereInstance("Engine.SphereShape");
 							shapeInstance = sphereInstance.Instantiate(radius);
 							break;
 						}
@@ -5431,7 +5431,7 @@ namespace Engine {
 							Ref<CapsuleShape> capsuleShape = hitArray[i].HitCollider.As<CapsuleShape>();
 							float height = capsuleShape->GetHeight();
 							float radius = capsuleShape->GetRadius();
-							CSharpInstance capsuleInstance("Hazel.CapsuleShape");
+							CSharpInstance capsuleInstance("Engine.CapsuleShape");
 							shapeInstance = capsuleInstance.Instantiate(height, radius);
 							break;
 						}
@@ -5440,12 +5440,12 @@ namespace Engine {
 							Entity hitEntity = GetEntity(hitArray[i].HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
 							Ref<ConvexMeshShape> convexMeshShape = hitArray[i].HitCollider.As<ConvexMeshShape>();
 							CSharpInstance meshInstance;
-							CSharpInstance convexMeshInstance("Hazel.ConvexMeshShape");
+							CSharpInstance convexMeshInstance("Engine.ConvexMeshShape");
 							shapeInstance = convexMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -5454,10 +5454,10 @@ namespace Engine {
 							Entity hitEntity = GetEntity(hitArray[i].HitEntity);
 							auto& colliderComp = hitEntity.GetComponent<MeshColliderComponent>();
 
-							CSharpInstance meshBaseInstantiator("Hazel.MeshBase");
+							CSharpInstance meshBaseInstantiator("Engine.MeshBase");
 							MonoObject* meshBaseInstance = meshBaseInstantiator.Instantiate(colliderComp.ColliderAsset);
 
-							CSharpInstance triangleMeshInstance("Hazel.TriangleMeshShape");
+							CSharpInstance triangleMeshInstance("Engine.TriangleMeshShape");
 							shapeInstance = triangleMeshInstance.Instantiate(meshBaseInstance);
 							break;
 						}
@@ -5465,7 +5465,7 @@ namespace Engine {
 
 					if (shapeInstance != nullptr)
 					{
-						CSharpInstance colliderInstance("Hazel.Collider");
+						CSharpInstance colliderInstance("Engine.Collider");
 						hitData.HitCollider = colliderInstance.Instantiate(hitArray[i].HitEntity, shapeInstance, offset);
 					}
 

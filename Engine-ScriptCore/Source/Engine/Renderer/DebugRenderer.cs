@@ -1,5 +1,5 @@
 ﻿
-namespace Hazel
+namespace Engine
 {
 	public static class DebugRenderer
 	{

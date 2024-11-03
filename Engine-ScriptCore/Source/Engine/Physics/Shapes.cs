@@ -1,7 +1,7 @@
 ﻿using System;
-using Hazel;
+using Engine;
 
-namespace Hazel {
+namespace Engine {
 
 	public enum EShapeType { Box, Sphere, Capsule, ConvexMesh, TriangleMesh, CompoundShape, MutableCompoundShape }
 

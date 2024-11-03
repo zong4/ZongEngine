@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Hazel
+namespace Engine
 {
 	internal static class InternalCalls
 	{

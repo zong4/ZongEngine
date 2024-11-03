@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Hazel
+namespace Engine
 {
     using ParameterID = AudioCommandID;
 

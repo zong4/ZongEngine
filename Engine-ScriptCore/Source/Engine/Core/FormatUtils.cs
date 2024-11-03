@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Hazel
+namespace Engine
 {
 	internal static class FormatUtils
 	{

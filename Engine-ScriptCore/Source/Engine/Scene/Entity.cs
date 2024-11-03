@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Hazel
+namespace Engine
 {
 	public class Entity : IEquatable<Entity>
 	{
