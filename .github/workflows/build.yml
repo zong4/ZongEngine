@@ -8,7 +8,7 @@ on:
 
 env:
   # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: "Hazel.sln"
+  SOLUTION_FILE_PATH: "Engine.sln"
   
 permissions:
   contents: read
@@ -62,7 +62,7 @@ jobs:
       # NOTE(Yan): Global environment vars aren't set automatically for some reason
       #            These build commands should be replaced by build script in future.
       run: |
-        source /etc/hazel-env
+        source /etc/engine-env
         premake5 --cc=clang gmake2
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}

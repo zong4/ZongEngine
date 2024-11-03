@@ -1,5 +1,5 @@
-HazelRootDirectory = os.getenv("HAZEL_DIR")
-include (path.join(HazelRootDirectory, "Editor", "Resources", "LUA", "Engine.lua"))
+EngineRootDirectory = os.getenv("ENGINE_DIR")
+include (path.join(EngineRootDirectory, "Editor", "Resources", "LUA", "Engine.lua"))
 
 workspace "$PROJECT_NAME$"
 	targetdir "build"
@@ -12,20 +12,20 @@ workspace "$PROJECT_NAME$"
 		"Dist"
 	}
 
-group "Hazel"
+group "Engine"
 project "Engine-ScriptCore"
-	location "%{HazelRootDirectory}/Engine-ScriptCore"
+	location "%{EngineRootDirectory}/Engine-ScriptCore"
 	kind "SharedLib"
 	language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("%{HazelRootDirectory}/Editor/Resources/Scripts")
-	objdir ("%{HazelRootDirectory}/Editor/Resources/Scripts/Intermediates")
+	targetdir ("%{EngineRootDirectory}/Editor/Resources/Scripts")
+	objdir ("%{EngineRootDirectory}/Editor/Resources/Scripts/Intermediates")
 
 	files
 	{
-		"%{HazelRootDirectory}/Engine-ScriptCore/Source/**.cs",
-		"%{HazelRootDirectory}/Engine-ScriptCore/Properties/**.cs"
+		"%{EngineRootDirectory}/Engine-ScriptCore/Source/**.cs",
+		"%{EngineRootDirectory}/Engine-ScriptCore/Properties/**.cs"
 	}
 
 	filter "configurations:Debug"

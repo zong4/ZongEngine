@@ -161,7 +161,7 @@ Entities:
           Type: 1
           Data: 3
     MeshComponent:
-      AssetPath: C:\Dev\Hazel\dev\Editor\assets\meshes\Cube1m.fbx
+      AssetPath: C:\Dev\Engine\dev\Editor\assets\meshes\Cube1m.fbx
     RigidBody2DComponent:
       BodyType: 1
       FixedRotation: true

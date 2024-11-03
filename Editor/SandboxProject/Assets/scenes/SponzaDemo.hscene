@@ -55,7 +55,7 @@ Entities:
       Primary: true
   - Entity: 11081956374634559166
     TagComponent:
-      Tag: HazelText
+      Tag: EngineText
     Parent: 0
     Children:
       []

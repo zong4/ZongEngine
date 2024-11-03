@@ -1,47 +1,47 @@
-#include <Hazel/EntryPoint.h>
-#include <Hazel/Utilities/ProcessHelper.h>
+#include <Engine/EntryPoint.h>
+#include <Engine/Utilities/ProcessHelper.h>
 #include "LauncherLayer.h"
 
-class HazelnutLauncherApplication : public Hazel::Application
+class EditorLauncherApplication : public Engine::Application
 {
 public:
-	HazelnutLauncherApplication(const Hazel::ApplicationSpecification& specification)
-		: Application(specification), m_UserPreferences(Hazel::Ref<Hazel::UserPreferences>::Create())
+	EditorLauncherApplication(const Engine::ApplicationSpecification& specification)
+		: Application(specification), m_UserPreferences(Engine::Ref<Engine::UserPreferences>::Create())
 	{
 	}
 
 	virtual void OnInit() override
 	{
-		std::filesystem::path persistentStoragePath = Hazel::FileSystem::GetPersistentStoragePath();
+		std::filesystem::path persistentStoragePath = Engine::FileSystem::GetPersistentStoragePath();
 
 		// User Preferences
 		{
-			Hazel::UserPreferencesSerializer serializer(m_UserPreferences);
+			Engine::UserPreferencesSerializer serializer(m_UserPreferences);
 			if (!std::filesystem::exists(persistentStoragePath / "UserPreferences.yaml"))
 				serializer.Serialize(persistentStoragePath / "UserPreferences.yaml");
 			else
 				serializer.Deserialize(persistentStoragePath / "UserPreferences.yaml");
 		}
 
-		Hazel::LauncherProperties launcherProperties;
+		Engine::LauncherProperties launcherProperties;
 		launcherProperties.UserPreferences = m_UserPreferences;
-		launcherProperties.ProjectOpenedCallback = std::bind(&HazelnutLauncherApplication::OnProjectOpened, this, std::placeholders::_1);
+		launcherProperties.ProjectOpenedCallback = std::bind(&EditorLauncherApplication::OnProjectOpened, this, std::placeholders::_1);
 
 		// Installation Path
 		{
-			if (Hazel::FileSystem::HasEnvironmentVariable("HAZEL_DIR"))
-				launcherProperties.InstallPath = Hazel::FileSystem::GetEnvironmentVariable("HAZEL_DIR");
+			if (Engine::FileSystem::HasEnvironmentVariable("ENGINE_DIR"))
+				launcherProperties.InstallPath = Engine::FileSystem::GetEnvironmentVariable("ENGINE_DIR");
 		}
 
 		SetShowStats(false);
-		PushLayer(new Hazel::LauncherLayer(launcherProperties));
+		PushLayer(new Engine::LauncherLayer(launcherProperties));
 	}
 
 private:
 	void OnProjectOpened(std::string projectPath)
 	{
-		std::filesystem::path hazelDir = Hazel::FileSystem::GetEnvironmentVariable("HAZEL_DIR");
-		Hazel::ProcessInfo hazelnutProcessInfo;
+		std::filesystem::path engineDir = Engine::FileSystem::GetEnvironmentVariable("ENGINE_DIR");
+		Engine::ProcessInfo editorProcessInfo;
 
 #ifdef ZONG_DEBUG
 	#define ZONG_BINDIR_PREFIX "Debug"
@@ -57,28 +57,28 @@ private:
 	#define ZONG_BIN_SUFFIX ""
 #endif
 
-		hazelnutProcessInfo.FilePath = hazelDir / "bin" / ZONG_BINDIR_PREFIX "-" ZONG_BINDIR_PLATFORM "-x86_64" / "Editor" / "Editor" ZONG_BIN_SUFFIX;
+		editorProcessInfo.FilePath = engineDir / "bin" / ZONG_BINDIR_PREFIX "-" ZONG_BINDIR_PLATFORM "-x86_64" / "Editor" / "Editor" ZONG_BIN_SUFFIX;
 
-		hazelnutProcessInfo.CommandLine = projectPath;
-		hazelnutProcessInfo.WorkingDirectory = hazelDir / "Editor";
-		hazelnutProcessInfo.Detached = true;
-		Hazel::ProcessHelper::CreateProcess(hazelnutProcessInfo);
+		editorProcessInfo.CommandLine = projectPath;
+		editorProcessInfo.WorkingDirectory = engineDir / "Editor";
+		editorProcessInfo.Detached = true;
+		Engine::ProcessHelper::CreateProcess(editorProcessInfo);
 	}
 
 private:
-	Hazel::Ref<Hazel::UserPreferences> m_UserPreferences;
+	Engine::Ref<Engine::UserPreferences> m_UserPreferences;
 };
 
-Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
+Engine::Application* Engine::CreateApplication(int argc, char** argv)
 {
-	Hazel::ApplicationSpecification specification;
+	Engine::ApplicationSpecification specification;
 	specification.Name = "Editor Launcher";
 	specification.WindowWidth = 1280;
 	specification.WindowHeight = 720;
 	specification.VSync = true;
 	specification.StartMaximized = false;
 	specification.Resizable = false;
-	specification.WorkingDirectory = FileSystem::HasEnvironmentVariable("HAZEL_DIR") ? FileSystem::GetEnvironmentVariable("HAZEL_DIR") + "/Editor" : "../Editor";
+	specification.WorkingDirectory = FileSystem::HasEnvironmentVariable("ENGINE_DIR") ? FileSystem::GetEnvironmentVariable("ENGINE_DIR") + "/Editor" : "../Editor";
 
-	return new HazelnutLauncherApplication(specification);
+	return new EditorLauncherApplication(specification);
 }

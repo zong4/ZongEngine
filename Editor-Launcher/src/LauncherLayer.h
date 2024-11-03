@@ -1,16 +1,16 @@
 #pragma once
 
-#include <Hazel/Core/Layer.h>
-#include <Hazel/Core/Ref.h>
-#include <Hazel/Project/UserPreferences.h>
-#include <Hazel/Renderer/Texture.h>
+#include <Engine/Core/Layer.h>
+#include <Engine/Core/Ref.h>
+#include <Engine/Project/UserPreferences.h>
+#include <Engine/Renderer/Texture.h>
 
 #include <imgui/imgui.h>
 
 #include <filesystem>
 #include <functional>
 
-namespace Hazel {
+namespace Engine {
 
 	struct LauncherProperties
 	{
@@ -37,7 +37,7 @@ namespace Hazel {
 	private:
 		LauncherProperties m_Properties;
 		ImGuiID m_HoveredProjectID;
-		Ref<Texture2D> m_HazelLogoTexture;
+		Ref<Texture2D> m_EngineLogoTexture;
 	};
 
 }

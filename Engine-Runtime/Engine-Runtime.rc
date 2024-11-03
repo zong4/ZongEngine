@@ -77,11 +77,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "Studio Cherno"
-            VALUE "FileDescription", "Saving Captain Coffee - a game by Studio Cherno"
+            VALUE "CompanyName", "Zong"
+            VALUE "FileDescription", "Saving Captain Coffee - a game by Zong"
             VALUE "FileVersion", "1.3.0.0"
-            VALUE "LegalCopyright", "� Studio Cherno"
-            VALUE "ProductName", "Saving Captain Coffee - a game by Studio Cherno"
+            VALUE "LegalCopyright", "� Zong"
+            VALUE "ProductName", "Saving Captain Coffee - a game by Zong"
             VALUE "ProductVersion", "1.3.0.0"
         END
     END

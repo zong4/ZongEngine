@@ -77,10 +77,10 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "Studio Cherno"
+            VALUE "CompanyName", "Zong"
             VALUE "FileDescription", "Saving Captain Cino Launcher"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "LegalCopyright", "� Studio Cherno"
+            VALUE "LegalCopyright", "� Zong"
             VALUE "ProductName", "Saving Captain Cino Launcher"
             VALUE "ProductVersion", "1.0.0.0"
         END

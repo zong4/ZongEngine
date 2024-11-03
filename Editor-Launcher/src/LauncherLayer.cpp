@@ -1,11 +1,11 @@
 #include "LauncherLayer.h"
 
-#include <Hazel/ImGui/UICore.h>
-#include <Hazel/Utilities/StringUtils.h>
+#include <Engine/ImGui/UICore.h>
+#include <Engine/Utilities/StringUtils.h>
 
 #include "imgui_internal.h"
 
-namespace Hazel {
+namespace Engine {
 
 #define MAX_PROJECT_NAME_LENGTH 255
 #define MAX_PROJECT_FILEPATH_LENGTH 512
@@ -41,8 +41,8 @@ namespace Hazel {
 
 	void LauncherLayer::OnAttach()
 	{
-		std::string path = "Resources/Editor/Hazel.png";
-		m_HazelLogoTexture = Texture2D::Create(TextureSpecification(), path);
+		std::string path = "Resources/Editor/Engine.png";
+		m_EngineLogoTexture = Texture2D::Create(TextureSpecification(), path);
 	}
 
 	void LauncherLayer::OnDetach()
@@ -71,24 +71,24 @@ namespace Hazel {
 
 		ImGui::PopStyleVar(2);
 
-		// Hazel Install Folder Prompt
+		// Engine Install Folder Prompt
 		{
-			if ((m_Properties.InstallPath.empty() || !FileSystem::Exists(m_Properties.InstallPath)) && !ImGui::IsPopupOpen("Select Hazel Install"))
+			if ((m_Properties.InstallPath.empty() || !FileSystem::Exists(m_Properties.InstallPath)) && !ImGui::IsPopupOpen("Select Engine Install"))
 			{
-				ImGui::OpenPopup("Select Hazel Install");
+				ImGui::OpenPopup("Select Engine Install");
 				m_Properties.InstallPath.reserve(MAX_PROJECT_FILEPATH_LENGTH);
 			}
 
 			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 			ImGui::SetNextWindowSize(ImVec2(700, 0));
-			if (ImGui::BeginPopupModal("Select Hazel Install", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+			if (ImGui::BeginPopupModal("Select Engine Install", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 			{
 				ImGui::PushFont(boldFont);
-				ImGui::TextUnformatted("Failed to find an appropiate Hazel installation!");
+				ImGui::TextUnformatted("Failed to find an appropiate Engine installation!");
 				ImGui::PopFont();
 
-				ImGui::TextWrapped("Please select the root folder for the Hazel version you want to use (E.g C:/Dev/Hazel-dev).You should be able to find a file called premake5.lua in the root folder. The install you select will be used when creating new projects.");
+				ImGui::TextWrapped("Please select the root folder for the Engine version you want to use (E.g C:/Dev/Engine-dev).You should be able to find a file called premake5.lua in the root folder. The install you select will be used when creating new projects.");
 
 				ImGui::Dummy(ImVec2(0, 8));
 
@@ -99,7 +99,7 @@ namespace Hazel {
 				ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 10));
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 6));
 				ImGui::SetNextItemWidth(700 - button_size.x - style.FramePadding.x * 2.0f - style.ItemInnerSpacing.x - 1);
-				ImGui::InputTextWithHint("##hazel_install_location", "C:/Dev/Hazel-dev/", m_Properties.InstallPath.data(), MAX_PROJECT_FILEPATH_LENGTH, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputTextWithHint("##engine_install_location", "C:/Dev/Engine-dev/", m_Properties.InstallPath.data(), MAX_PROJECT_FILEPATH_LENGTH, ImGuiInputTextFlags_ReadOnly);
 				ImGui::SameLine();
 				if (ImGui::Button("..."))
 				{
@@ -109,7 +109,7 @@ namespace Hazel {
 
 				if (ImGui::Button("Confirm"))
 				{
-					bool success = FileSystem::SetEnvironmentVariable("HAZEL_DIR", m_Properties.InstallPath);
+					bool success = FileSystem::SetEnvironmentVariable("ENGINE_DIR", m_Properties.InstallPath);
 					ZONG_CORE_ASSERT(success, "Failed to set Environment Variable!");
 					ImGui::CloseCurrentPopup();
 				}
@@ -136,7 +136,7 @@ namespace Hazel {
 			float imageSize = 160.0f;
 
 			ImGui::SetCursorPosY(-40.0f);
-			UI::Image(m_HazelLogoTexture, ImVec2(imageSize, imageSize));
+			UI::Image(m_EngineLogoTexture, ImVec2(imageSize, imageSize));
 
 			ImGui::Separator();
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + imageSize / 3.0f);
@@ -249,7 +249,7 @@ namespace Hazel {
 
 			if (ImGui::Button("Open Project...", ImVec2(buttonWidth, 50)))
 			{
-				std::string result = FileSystem::OpenFileDialog({ { "Hazel Project", "hproj" } }).string();
+				std::string result = FileSystem::OpenFileDialog({ { "Engine Project", "hproj" } }).string();
 				AddProjectToRecents(result);
 				s_ProjectToOpen = result;
 			}

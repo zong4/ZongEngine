@@ -45,7 +45,7 @@ Assets:
     FilePath: Scripts/Source/.history/ThirdPerson_20241103151125.cs
     Type: ScriptFile
   - Handle: 689039470629100212
-    FilePath: Meshes/Source/HazelText.gltf
+    FilePath: Meshes/Source/EngineText.gltf
     Type: MeshSource
   - Handle: 764190760845490054
     FilePath: Meshes/Source/Default/Cube.gltf
@@ -396,7 +396,7 @@ Assets:
     FilePath: Meshes/Source/Default/Sphere.gltf
     Type: MeshSource
   - Handle: 6090468609339042727
-    FilePath: Materials/HazelText.hmaterial
+    FilePath: Materials/EngineText.hmaterial
     Type: Material
   - Handle: 6092368092518963256
     FilePath: Meshes/Source/Sponza/16299174074766089871.jpg
@@ -1062,7 +1062,7 @@ Assets:
     FilePath: Scripts/Source/.history/Projectile_20241103151121.cs
     Type: ScriptFile
   - Handle: 16902489934535872374
-    FilePath: Meshes/HazelText.hsmesh
+    FilePath: Meshes/EngineText.hsmesh
     Type: StaticMesh
   - Handle: 16947718648921030200
     FilePath: Scripts/Source/Flocking/BoidSettings.cs

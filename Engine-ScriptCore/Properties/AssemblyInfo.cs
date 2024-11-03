@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Engine Script Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Studio Cherno")]
+[assembly: AssemblyCompany("Zong")]
 [assembly: AssemblyProduct("Engine")]
-[assembly: AssemblyCopyright("Studio Cherno")]
+[assembly: AssemblyCopyright("Zong")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
