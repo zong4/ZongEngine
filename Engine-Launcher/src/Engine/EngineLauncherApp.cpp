@@ -12,13 +12,13 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.NoTitlebar = true;
 
 	// Fill in these variables with app-specific data
-	Hazel::LauncherSpecification launcherSpec;
-	launcherSpec.AppExecutableTitle = "Engine App";
-	launcherSpec.AppExecutablePath = "HazelApp.exe";
+	Engine::LauncherSpecification launcherSpec;
+	launcherSpec.AppExecutableTitle = "Engine";
+	launcherSpec.AppExecutablePath = "App.exe";
 	launcherSpec.TieringSettingsPath = "TieringSettings.yaml";
 	launcherSpec.AppSettingsPath = "AppSettings.yaml";
 
 	Walnut::Application* app = new Walnut::Application(spec);
-	app->PushLayer(std::make_shared<Hazel::LauncherLayer>(launcherSpec));
+	app->PushLayer(std::make_shared<Engine::LauncherLayer>(launcherSpec));
 	return app;
 }

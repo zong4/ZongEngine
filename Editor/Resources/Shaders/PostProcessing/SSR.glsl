@@ -1,5 +1,5 @@
 // ---------------------------------------
-// -- Hazel Engine SSR shader --
+// -- Engine SSR shader --
 // ---------------------------------------
 // - References:
 //      AMD's Stochastic screen-space reflections https://gpuopen.com/fidelityfx-sssr/

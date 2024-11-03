@@ -1,4 +1,4 @@
-#include <Hazel.h>
+#include <Engine.h>
 #include <Engine/EntryPoint.h>
 
 #include "RuntimeLayer.h"
@@ -7,10 +7,10 @@
 
 #include "Engine/Tiering/TieringSerializer.h"
 
-class RuntimeApplication : public Hazel::Application
+class RuntimeApplication : public Engine::Application
 {
 public:
-	RuntimeApplication(const Hazel::ApplicationSpecification& specification, std::string_view projectPath)
+	RuntimeApplication(const Engine::ApplicationSpecification& specification, std::string_view projectPath)
 		: Application(specification)
 		, m_ProjectPath(projectPath)
 	{
@@ -19,14 +19,14 @@ public:
 
 	virtual void OnInit() override
 	{
-		PushLayer(new Hazel::RuntimeLayer(m_ProjectPath));
+		PushLayer(new Engine::RuntimeLayer(m_ProjectPath));
 	}
 
 private:
 	std::string m_ProjectPath;
 };
 
-Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
+Engine::Application* Engine::CreateApplication(int argc, char** argv)
 {
 	std::string_view projectPath = "SandboxProject/Sandbox.hproj";
 	if (argc > 1)
@@ -37,7 +37,7 @@ Hazel::Application* Hazel::CreateApplication(int argc, char** argv)
 	//projectPath = "LD51/LD51.hproj";
 	//projectPath = "LD53/LD53.hproj";
 
-	Hazel::ApplicationSpecification specification;
+	Engine::ApplicationSpecification specification;
 	specification.Fullscreen = true;
 
 	Tiering::TieringSettings ts;

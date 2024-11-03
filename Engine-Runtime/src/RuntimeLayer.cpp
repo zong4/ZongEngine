@@ -23,7 +23,7 @@
 
 #include <filesystem>
 
-namespace Hazel {
+namespace Engine {
 
 	static bool s_AudioDisabled = true;
 
@@ -406,7 +406,7 @@ namespace Hazel {
 
 		// Load asset pack
 		m_AssetPack = AssetPack::Load(std::filesystem::path(project->GetConfig().ProjectDirectory) / project->GetConfig().AssetDirectory / "AssetPack.hap");
-		//Ref<AssetPack> assetPack = AssetPack::Load("C:/Dev/Hazel/Projects/LD51/Assets/AssetPack.hap");
+		//Ref<AssetPack> assetPack = AssetPack::Load("C:/Dev/Engine/Projects/LD51/Assets/AssetPack.hap");
 		//Ref<AssetPack> assetPack = AssetPack::Load("SandboxProject/Assets/AssetPack.hap");
 		Project::SetActiveRuntime(project, m_AssetPack);
 

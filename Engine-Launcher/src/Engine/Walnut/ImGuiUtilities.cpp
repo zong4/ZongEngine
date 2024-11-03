@@ -1,6 +1,6 @@
 #include "ImGuiUtilities.h"
 
-namespace Hazel::UI 
+namespace Engine::UI 
 {
 
     bool BeginPopup(const char* str_id, ImGuiWindowFlags flags)

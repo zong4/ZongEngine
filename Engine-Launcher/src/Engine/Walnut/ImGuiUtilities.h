@@ -13,7 +13,7 @@
 
 #include "Image.h"
 
-namespace Hazel::UI
+namespace Engine::UI
 {
 	//=========================================================================================
 	/// Utilities
@@ -795,4 +795,4 @@ namespace Hazel::UI
 		return ImGui::InputScalar(label, ImGuiDataType_U64, v, &step, &step_fast, "%d", flags);
 	}
 
-} // namespace Hazel::UI
+} // namespace Engine::UI

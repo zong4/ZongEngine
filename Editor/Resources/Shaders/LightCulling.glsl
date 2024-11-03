@@ -1,5 +1,5 @@
 // ---------------------------------------
-// -- Hazel Engine light culling shader --
+// -- Engine light culling shader --
 // ---------------------------------------
 // 
 // References:

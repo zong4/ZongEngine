@@ -353,7 +353,7 @@ namespace Engine {
 			// Note(Emily): This is *atrocious* but dxc's integration refuses to process builtin HLSL without ICE'ing
 			//				from the integration.
 
-			char tempfileName[] = "hazel-hlsl-XXXXXX.spv";
+			char tempfileName[] = "engine-hlsl-XXXXXX.spv";
 			int outfile = mkstemps(tempfileName, 4);
 
 			std::string dxc = fmt::format("{}/bin/dxc", FileSystem::GetEnvironmentVariable("VULKAN_SDK"));

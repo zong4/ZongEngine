@@ -12,7 +12,7 @@
 
 #include "Engine/Editor/SceneHierarchyPanel.h"
 
-namespace Hazel {
+namespace Engine {
 
 	class RuntimeLayer : public Layer
 	{

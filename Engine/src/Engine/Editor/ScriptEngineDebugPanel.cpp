@@ -25,12 +25,12 @@ namespace Engine {
 	{
 		s_LoadedAssembliesMetadata.clear();
 
-		const auto& hazelCoreAssembly = ScriptEngine::GetCoreAssemblyInfo();
+		const auto& coreAssembly = ScriptEngine::GetCoreAssemblyInfo();
 		const auto& appAssembly = ScriptEngine::GetAppAssemblyInfo();
-		s_LoadedAssembliesMetadata.push_back(hazelCoreAssembly->Metadata);
+		s_LoadedAssembliesMetadata.push_back(coreAssembly->Metadata);
 		s_LoadedAssembliesMetadata.push_back(appAssembly->Metadata);
 
-		for (const auto& referencedAssemblyMetadata : hazelCoreAssembly->ReferencedAssemblies)
+		for (const auto& referencedAssemblyMetadata : coreAssembly->ReferencedAssemblies)
 			s_LoadedAssembliesMetadata.push_back(referencedAssemblyMetadata);
 
 		for (const auto& referencedAssemblyMetadata : appAssembly->ReferencedAssemblies)

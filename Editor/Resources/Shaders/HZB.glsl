@@ -1,5 +1,5 @@
 // ---------------------------------------
-// -- Hazel Engine HZB shader --
+// -- Engine HZB shader --
 // ---------------------------------------
 // - Adopted from Unreal's Engine 4 HZB shader 
 
