@@ -22,9 +22,7 @@
 	path = Engine/vendor/imgui
 	url = https://github.com/zong4/imgui
 	ignore = dirty
-[submodule "Engine/vendor/FastNoise"]
-	path = Engine/vendor/FastNoise
-	url = https://github.com/zong4/FastNoiseLite
 [submodule "Engine/vendor/JoltPhysics/JoltPhysics"]
 	path = Engine/vendor/JoltPhysics/JoltPhysics
 	url = https://github.com/zong4/JoltPhysics
+
