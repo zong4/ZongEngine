@@ -1,6 +1,6 @@
 # Zong Engine [![License](https://img.shields.io/github/license/zong4/ZongEngine.svg)](https://github.com/zong4/ZongEngine/blob/master/LICENSE)
 
-![Zong Engine](/Resources/Branding/icon_full.jpg?raw=true "Zong Engine")
+![Zong Engine](/Resources/Branding/icon_full.png?raw=true "Zong Engine")
 
 Zong Engine will be built as a better 3D game engine from [Hazel Engine](https://github.com/TheCherno/Hazel).
 

@@ -132,30 +132,6 @@ Entities:
       Falloff: 1
       Intensity: 1.79999995
       Range: 9.89999962
-  - Entity: 2966624095258384198
-    TagComponent:
-      Tag: EngineText
-    Parent: 0
-    Children:
-      []
-    TransformComponent:
-      Position: [10.3293371, 3.18304324, 2.22463202]
-      Rotation: [-3.14157295, -1.50098526, 3.14157343]
-      Scale: [1.00000012, 1, 1.00000012]
-    StaticMeshComponent:
-      AssetID: 16902489934535872374
-      MaterialTable:
-        0: 6090468609339042727
-      Visible: true
-    PointLightComponent:
-      Radiance: [0.945098042, 0.56078434, 0.0392156877]
-      Intensity: 1.35000002
-      CastShadows: true
-      SoftShadows: true
-      MinRadius: 1
-      Radius: 4
-      LightSize: 0.5
-      Falloff: 1
   - Entity: 3589717337647424710
     TagComponent:
       Tag: Scene Description Text
